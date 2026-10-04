@@ -1,7 +1,7 @@
 {
-  "file": "Attack-on-Tank-5.1.0-luna17-r2.apk",
+  "file": "Attack-on-Tank-5.1.0-luna17-r3.apk",
   "size_bytes": 174727080,
-  "sha256": "f629118903b5e11ece6a42bc2cd23f469f1af1b99696e89a69f8cfb509ae373f",
+  "sha256": "b22686d9cd8c405d423ae96cafa2de403a5858ff9f5034e1d944477734cbb399",
   "preserved_original_entries": 613,
   "native_methods": [
     "init",
@@ -15,15 +15,16 @@
   "original_game_payload_unchanged": true,
   "native_execution_tests": {
     "runner": "Unicorn ARM64",
-    "tests_run": 6,
+    "tests_run": 7,
     "failures": 0,
     "errors": 0,
     "passed": true,
-    "module_sha256": "0c21a00ee18e9378844ba1cbb57e29ebd771bacdfdd97cfee67df66a4c1a6876",
+    "module_sha256": "6ea89754a7da1c1de53f2e3d595f0ac52a152464bfdd3eb55f5cfe1f0069fe4e",
     "game_library_sha256": "f68552eaee3018948258966a6e262b0b567b8a1ecc199e60e59f175d388ef4a7"
   },
   "android_device_test": "not performed",
-  "revision": "r2",
+  "revision": "r3",
   "signing_certificate_sha256": "9b09d75b77a30e67aa14196823b41cc04c70cb3ec6ac1eab41c41f0980568571",
-  "same_signature_as_previous_test_apk": true
+  "same_signature_as_previous_test_apk": true,
+  "r2_prefab_hierarchy_error_reproduced": -4
 }

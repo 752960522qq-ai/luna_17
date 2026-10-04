@@ -171,15 +171,22 @@ static void switch_tank(void *game,void *parameters,int command) {
     if(!gen || nation>5 || index>=catalog_count[nation] || !unity_exists(old_go) || !unity_exists(old_pc) || P(old_pc,0x70)!=old_status) {switch_result=-1;return;}
     Vec3 pos=FN(0x343dbc4,Vec3 (*)(void *,const void *))(P(old_pc,0x20),0);
     Quat rot=FN(0x343de40,Quat (*)(void *,const void *))(P(old_pc,0x20),0);
-    void *pc_type=get_type(old_pc),*status_type=get_type(old_status);
+    void *pc_type=get_type(old_pc);
     void *tag=player_tag();
-    if(!pc_type || !status_type || !tag) {switch_result=-2;return;}
+    if(!pc_type || !tag) {switch_result=-2;return;}
     void *new_go=FN(0x1994a88,void *(*)(void *,void *,int,int,Vec3,Quat,bool,const void *))(gen,tag,nation,index,pos,rot,false,0);
     if(!unity_exists(new_go)) {switch_result=-3;return;}
-    void *new_pc=get_component(new_go,pc_type),*new_status=get_component(new_go,status_type);
-    if(!new_pc || !new_status) {
+    void *new_pc=get_component(new_go,pc_type);
+    if(!unity_exists(new_pc)) {
         FN(0x3431140,void (*)(void *,bool,const void *))(new_go,false,0);
         switch_result=-4;return;
+    }
+    // PlayerControl is on the prefab root; UnitStatus is on "Unit Info".
+    // Use the controller's serialized reference instead of a root-only lookup.
+    void *new_status=P(new_pc,0x70);
+    if(!unity_exists(new_status)) {
+        FN(0x3431140,void (*)(void *,bool,const void *))(new_go,false,0);
+        switch_result=-5;return;
     }
     // Preserve friend/enemy identity when replacing a tank in Duel or Exercise.
     memcpy((uint8_t *)new_status+0x20,(uint8_t *)old_status+0x20,2);

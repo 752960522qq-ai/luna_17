@@ -12,7 +12,14 @@
     "tag_parameter_type": "System.String",
     "player_tag": "Player",
     "player_tag_slot_rva": "0x394f100",
-    "runtime_metadata_initialize_rva": "0x17caa40"
+    "runtime_metadata_initialize_rva": "0x17caa40",
+    "player_control_location": "prefab root",
+    "unit_status_reference": "PlayerControl.uStatus",
+    "unit_status_reference_offset": "0x70",
+    "verified_prefab_hierarchy": [
+      {"prefab": "T34_85_Player", "unit_status_location": "Unit Info"},
+      {"prefab": "ZiS_3_Player", "unit_status_location": "Unit Info"}
+    ]
   },
   "nations": [
     "Soviet",

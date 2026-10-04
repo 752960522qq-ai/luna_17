@@ -12,6 +12,7 @@ import struct
 import sys
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 from elftools.elf.elffile import ELFFile
 from unicorn import Uc, UC_ARCH_ARM64, UC_MODE_ARM, UC_HOOK_CODE
 from unicorn import arm64_const as R
@@ -209,7 +210,7 @@ class NativeTests(unittest.TestCase):
         m.u.emu_start(trampoline,trampoline+28,count=7)
         self.assertEqual(m.x(20),GAME+0x3bcc000)
 
-    def test_queued_swap_preserves_pose_and_updates_camera(self):
+    def swap_scene(self):
         m=self.m;game=m.object();params=m.object();gen=m.object();old_go=m.object();old_s=m.object();old_pc=m.object();new_go=m.object();new_s=m.object();new_pc=m.object()
         camera=m.object();old_tr=m.object();new_tr=m.object();old_tur=m.object();new_tur=m.object()
         m.qwrite(old_pc+0x20,old_tr);m.qwrite(new_pc+0x20,new_tr);m.qwrite(old_pc+0x28,old_tur);m.qwrite(new_pc+0x28,new_tur)
@@ -229,7 +230,13 @@ class NativeTests(unittest.TestCase):
         m.at(GAME+0x191f324,lambda:m.calls.append(('camera',m.x(0),m.x(1))))
         pc_type=m.alloc();status_type=m.alloc()
         get_type=m.alloc(32);m.qwrite(get_type,m.stub(lambda:pc_type if m.x(0)==old_pc else status_type))
-        get_component=m.alloc(32);m.qwrite(get_component,m.stub(lambda:new_pc if m.x(1)==pc_type else new_s))
+        # The shipped T34_85_Player and ZiS_3_Player prefabs have PlayerControl
+        # on the root, but UnitStatus on the child "Unit Info". Root-only
+        # GetComponent(UnitStatus) must fail; PlayerControl.uStatus points at it.
+        def component():
+            m.calls.append(('component',m.x(0),m.x(1)))
+            return new_pc if m.x(0)==new_go and m.x(1)==pc_type else 0
+        get_component=m.alloc(32);m.qwrite(get_component,m.stub(component))
         def lookup():
             name=m.read(m.x(1),32).split(b'\0')[0]
             return get_type if name==b'GetType' else get_component if name==b'GetComponent' else 0
@@ -242,14 +249,43 @@ class NativeTests(unittest.TestCase):
             if index>=len(fields):return 0
             m.qwrite(iterator,index+1);return fields[index]
         m.global_q('class_fields',m.stub(next_field))
-        m.call('game_update',game,0)
-        self.assertEqual(m.qread(game+0x110),new_go);self.assertEqual(m.qread(game+0x118),new_s)
-        self.assertEqual(m.qread(camera+0x60),new_tur);self.assertEqual(m.qread(camera+0x68),new_tr)
-        self.assertEqual(m.read(new_s+0x20,2),b'\x01\x01')
-        self.assertIn(('instantiate',m.qread(array+0x28),[11.,22.,33.,0.,0.,0.,1.]),m.calls)
-        self.assertIn(('active',old_go,0),m.calls)
-        self.assertIn(('camera',camera,new_tur),m.calls)
+        return SimpleNamespace(game=game,params=params,old_go=old_go,old_s=old_s,
+            old_pc=old_pc,new_go=new_go,new_s=new_s,new_pc=new_pc,camera=camera,
+            old_tr=old_tr,new_tr=new_tr,old_tur=old_tur,new_tur=new_tur,array=array,
+            pc_type=pc_type,get_component=get_component)
+
+    def test_queued_swap_preserves_pose_and_updates_camera(self):
+        m=self.m;s=self.swap_scene();m.call('game_update',s.game,0)
+        self.assertEqual(m.qread(s.game+0x110),s.new_go);self.assertEqual(m.qread(s.game+0x118),s.new_s)
+        self.assertEqual(m.qread(s.camera+0x60),s.new_tur);self.assertEqual(m.qread(s.camera+0x68),s.new_tr)
+        self.assertEqual(m.read(s.new_s+0x20,2),b'\x01\x01')
+        self.assertEqual(m.qread(m.symbols['player_control']),s.new_pc)
+        self.assertEqual(m.qread(m.symbols['player_status']),s.new_s)
+        self.assertEqual(struct.unpack('<I',m.read(s.params+0x64,4))[0],1)
+        self.assertEqual([c for c in m.calls if c[0]=='component'],[('component',s.new_go,s.pc_type)])
+        self.assertIn(('instantiate',m.qread(s.array+0x28),[11.,22.,33.,0.,0.,0.,1.]),m.calls)
+        self.assertIn(('active',s.old_go,0),m.calls)
+        self.assertIn(('camera',s.camera,s.new_tur),m.calls)
         self.assertEqual(m.call('Java_com_luna17_aot_NativeBridge_switchResult',0,0),1)
+
+    def test_unusable_new_components_keep_current_tank_and_camera(self):
+        for component,state,expected in [('controller','null',-4),('controller','destroyed',-4),
+                                         ('status','null',-5),('status','destroyed',-5)]:
+            with self.subTest(component=component,state=state):
+                self.m=Machine(ARGS.module,ARGS.game_library);m=self.m;s=self.swap_scene()
+                if state=='null':
+                    if component=='controller':m.qwrite(s.get_component,m.stub(lambda:0))
+                    else:m.qwrite(s.new_pc+0x70,0)
+                else:m.qwrite((s.new_pc if component=='controller' else s.new_s)+0x10,0)
+                m.call('game_update',s.game,0)
+                self.assertEqual(m.qread(s.game+0x110),s.old_go);self.assertEqual(m.qread(s.game+0x118),s.old_s)
+                self.assertEqual(m.qread(s.camera+0x60),s.old_tur);self.assertEqual(m.qread(s.camera+0x68),s.old_tr)
+                self.assertEqual(m.qread(m.symbols['player_control']),s.old_pc)
+                self.assertEqual(m.qread(m.symbols['player_status']),s.old_s)
+                self.assertEqual(m.read(s.params+0x5c,4),b'\0'*4);self.assertEqual(m.read(s.params+0x64,4),b'\0'*4)
+                self.assertEqual([c for c in m.calls if c[0]=='active'],[('active',s.new_go,0)])
+                self.assertEqual([c for c in m.calls if c[0]=='camera'],[])
+                self.assertEqual(m.call('Java_com_luna17_aot_NativeBridge_switchResult',0,0)&0xffffffff,expected&0xffffffff)
 
     def test_original_factory_rejects_type_object_and_selects_all_player_nations(self):
         m=self.m;params=m.object();gen=m.object();new_go=m.object()

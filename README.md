@@ -8,11 +8,13 @@
 
 适用于 Android 9 及以上的 ARM64 设备，不需要 root 或系统悬浮窗权限。APK 使用独立的开发签名，无法覆盖安装原版。先备份需要保留的存档，再卸载原版并安装测试 APK。安装后进入单人对局，菜单应显示“已接入当前坦克”。
 
-当前交付为 **r2 修复版**，与此前测试 APK 签名一致，可直接覆盖更新，无须卸载此前测试版。
+当前交付为 **r3 修复版**，与此前测试 APK 签名一致，可直接覆盖更新，无须卸载此前测试版。
 
-r2 修复了对局换坦克显示“替换未完成（-3）”的问题：游戏的 `_GenerateUnit` 第一个业务参数要求 `System.String` 标签 `"Player"`，此前传入了 `System.Type` 对象，导致游戏拒绝生成新载具。现在复用游戏生成玩家载具时使用的同一个标签，并区分失败提示。
+r3 修复了对局换坦克显示“新载具缺少控制组件（-4）”的问题：原游戏的 `T34_85_Player` 和 `ZiS_3_Player` 预制体根对象包含 `PlayerControl`，但 `UnitStatus` 在子对象 `Unit Info` 上。此前只在根对象查找 `UnitStatus`，因此误判组件缺失。现在从新控制器的 `uStatus`（偏移 `0x70`）读取游戏已序列化的状态引用，确认控制器和状态仍有效后再更新玩家和镜头。失败时保留原坦克，并区分控制器缺失（-4）和状态引用未就绪（-5）。
 
-此前测试 APK 已由用户在安卓单人对局中确认能够启动并接入当前坦克。r2 已完成 APK 签名和结构检查，以及六项 ARM64 执行验证；**r2 的换车、移动、瞄准和开火仍需安卓真机验证**。
+r3 保留 r2 的生成参数修复：游戏的 `_GenerateUnit` 第一个业务参数要求 `System.String` 标签 `"Player"`，因此复用游戏生成玩家载具时使用的同一个标签。
+
+此前测试 APK 和 r2 已由用户在安卓单人对局中确认能够启动并接入当前坦克。r3 已完成 APK 签名和结构检查，以及七项 ARM64 执行验证；**r3 的换车、移动、瞄准和开火仍需安卓真机验证**。
 
 ## 实现
 
@@ -37,7 +39,7 @@ python scripts/build.py \
   --apksigner /path/to/apksigner.jar \
   --keystore /path/to/development.jks \
   --password-file /path/to/password.txt \
-  --output dist/Attack-on-Tank-5.1.0-luna17-r2.apk
+  --output dist/Attack-on-Tank-5.1.0-luna17-r3.apk
 ```
 
 `app/stubs` 只用于编译；打包时不会加入假的 Unity Activity。APK 的原始游戏库和元数据必须匹配 profile 中的指纹，否则构建中止。
@@ -47,8 +49,8 @@ python scripts/build.py \
 ```bash
 python -m pip install -r requirements-dev.txt
 python tests/test_native.py --module build/libaotmod.so --game-library /path/to/original/libil2cpp.so --report build/native-tests.json
-python scripts/verify.py --apk dist/Attack-on-Tank-5.1.0-luna17-r2.apk --apks /path/to/original.apks --native-test-report build/native-tests.json
-java -jar /path/to/apksigner.jar verify --verbose dist/Attack-on-Tank-5.1.0-luna17-r2.apk
+python scripts/verify.py --apk dist/Attack-on-Tank-5.1.0-luna17-r3.apk --apks /path/to/original.apks --native-test-report build/native-tests.json
+java -jar /path/to/apksigner.jar verify --verbose dist/Attack-on-Tank-5.1.0-luna17-r3.apk
 ```
 
-原生测试执行实际编译后的 ARM64 指令，覆盖玩家/敌方伤害区分、参数保留、原游戏 ObscuredInt 转换函数与数组边界、ADRP 重定位，以及换坦克的位置、朝向、玩家和镜头引用更新。换车验证直接执行原游戏 `_GenerateUnit` 和字符串比较指令，复现错误类型参数被拒绝，并检查六国玩家车型选择。Unity 实例化及场景行为仍需设备实测。当前交付包的校验记录见 `verification.json`。
+原生测试执行实际编译后的 ARM64 指令，覆盖玩家/敌方伤害区分、参数保留、原游戏 ObscuredInt 转换函数与数组边界、ADRP 重定位，以及换坦克的位置、朝向、玩家和镜头引用更新。换车验证直接执行原游戏 `_GenerateUnit` 和字符串比较指令，复现错误类型参数被拒绝，并检查六国玩家车型选择。组件查询按原始预制体层级设置边界：根对象可取得 `PlayerControl`，无法取得子对象的 `UnitStatus`。同一回归用例在 r2 编译模块上失败、在 r3 上通过；另验证空引用或已销毁的控制器/状态不会覆盖原玩家、镜头和车型配置。Unity 实例化及场景行为仍需设备实测。当前交付包的校验记录见 `verification.json`。
