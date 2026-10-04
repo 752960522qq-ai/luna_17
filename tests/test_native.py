@@ -1,6 +1,7 @@
 """Execute the built ARM64 module with Unicorn; no Android device is required.
 
-These checks validate native control flow and the original encrypted-int codec.
+These checks validate native control flow, the original encrypted-int codec,
+and the original tank factory with its real managed string comparison.
 Unity scene initialization and Android launch still require a device test.
 Run: python tests/test_native.py --module FILE --game-library FILE
 """
@@ -89,6 +90,44 @@ class Machine:
         result=self.next_alloc;self.next_alloc+=(size+15)&~15;return result
     def object(self,size=0x400,klass=0x123):
         p=self.alloc(size);self.qwrite(p,klass);self.qwrite(p+0x10,0x123456);return p
+    def string(self,text):
+        encoded=text.encode('utf-16-le');p=self.alloc(0x16+len(encoded))
+        self.qwrite(p,0x456);self.iwrite(p+0x10,len(encoded)//2)
+        self.u.mem_write(p+0x14,encoded+b'\0\0');return p
+    def original_factory(self,params,new_go):
+        # Execute the game's _GenerateUnit and System.String operators, rather
+        # than replacing the factory with an unconditional success callback.
+        for address,size in [(0x1994a88,0x428),(0x2c3ed60,0x4c),
+                             (0x2c3f054,0x1c),(0x17caa40,0x14)]:
+            self.u.mem_write(GAME+address,self.game_read(address,size))
+        player=self.string('Player');ai=self.string('AI')
+        player_cell=GAME+0x3a94b20
+        self.qwrite(GAME+0x394f100,player_cell)
+        self.qwrite(player_cell,player) # Already initialized by the match's spawn.
+        for address,value in [(0x394f0f8,ai),(0x394f048,self.alloc()),
+                              (0x3951550,self.string('invalid tag')),
+                              (0x3951548,self.string('missing player prefab')),
+                              (0x3951558,self.string('missing AI prefab'))]:
+            cell=self.alloc(8);self.qwrite(GAME+address,cell);self.qwrite(cell,value)
+        for address in [0x394ca80,0x394ccc0]:
+            klass=self.alloc();self.iwrite(klass+0xe4,1)
+            cell=self.alloc(8);self.qwrite(cell,klass);self.qwrite(GAME+address,cell)
+        self.u.mem_write(GAME+0x3bcc260,b'\1')
+        def resolve_literal():
+            if self.x(0)!=player_cell:raise AssertionError('Unexpected metadata slot')
+            self.qwrite(player_cell,player)
+        self.at(GAME+0x1830098,resolve_literal)
+        self.at(GAME+0x1931cfc,lambda:params)
+        self.at(GAME+0x343294c,lambda:int(self.x(0)==self.x(1)))
+        self.at(GAME+0x2dc0ef4,lambda:int(self.read(self.x(0),self.x(2))==self.read(self.x(1),self.x(2))))
+        self.at(GAME+0x33f9b98,lambda:self.calls.append(('factory_error',self.x(0))))
+        def instantiate():
+            self.calls.append(('instantiate',self.x(0),[self.f(i) for i in range(7)]))
+            return new_go
+        self.at(GAME+0x1d7f94c,instantiate)
+        def unexpected():raise AssertionError('Factory raised an exception')
+        self.at(GAME+0x17cacbc,unexpected);self.at(GAME+0x17cacc4,unexpected)
+        return player
     def at(self,address,fn):
         self.u.mem_write(address,b'\xc0\x03\x5f\xd6');self.callbacks[address]=fn;return address
     def stub(self,fn):
@@ -185,10 +224,7 @@ class NativeTests(unittest.TestCase):
         def rotation():
             for i,v in enumerate([0.,0.,0.,1.]):m.sf(i,v)
         m.at(GAME+0x343dbc4,position);m.at(GAME+0x343de40,rotation)
-        def generate():
-            m.calls.append(('generate',m.x(1),m.x(2),m.x(3),[m.f(i) for i in range(7)],m.x(4)))
-            return new_go
-        m.at(GAME+0x1994a88,generate)
+        m.original_factory(params,new_go)
         m.at(GAME+0x3431140,lambda:m.calls.append(('active',m.x(0),m.x(1))))
         m.at(GAME+0x191f324,lambda:m.calls.append(('camera',m.x(0),m.x(1))))
         pc_type=m.alloc();status_type=m.alloc()
@@ -210,10 +246,34 @@ class NativeTests(unittest.TestCase):
         self.assertEqual(m.qread(game+0x110),new_go);self.assertEqual(m.qread(game+0x118),new_s)
         self.assertEqual(m.qread(camera+0x60),new_tur);self.assertEqual(m.qread(camera+0x68),new_tr)
         self.assertEqual(m.read(new_s+0x20,2),b'\x01\x01')
-        self.assertIn(('generate',pc_type,0,1,[11.,22.,33.,0.,0.,0.,1.],0),m.calls)
+        self.assertIn(('instantiate',m.qread(array+0x28),[11.,22.,33.,0.,0.,0.,1.]),m.calls)
         self.assertIn(('active',old_go,0),m.calls)
         self.assertIn(('camera',camera,new_tur),m.calls)
         self.assertEqual(m.call('Java_com_luna17_aot_NativeBridge_switchResult',0,0),1)
+
+    def test_original_factory_rejects_type_object_and_selects_all_player_nations(self):
+        m=self.m;params=m.object();gen=m.object();new_go=m.object()
+        tag=m.original_factory(params,new_go)
+        m.qwrite(GAME+0x3a94b20,tag)
+        prefabs=[]
+        for offset in [0x28,0x30,0x40,0x48,0x50,0x58]:
+            a=m.alloc(0x30);m.iwrite(a+0x18,1);prefab=m.object()
+            m.qwrite(a+0x20,prefab);m.qwrite(gen+offset,a);prefabs.append(prefab)
+        for i,v in enumerate([11.,22.,33.,0.,0.,0.,1.]):m.sf(i,v)
+        # Reproduce the released version's System.Type argument: the original
+        # factory must reject it and never reach Unity's Instantiate boundary.
+        self.assertEqual(m.call(GAME+0x1994a88,gen,m.alloc(),0,0,0,0),0)
+        self.assertEqual([c for c in m.calls if c[0]=='instantiate'],[])
+        # Equal strings at different addresses also exercise the real length
+        # and UTF-16 comparison path, not only the pointer-equality fast path.
+        cloned_tag=m.string('Player')
+        for nation,prefab in enumerate(prefabs):
+            for i,v in enumerate([11.,22.,33.,0.,0.,0.,1.]):m.sf(i,v)
+            self.assertEqual(m.call(GAME+0x1994a88,gen,cloned_tag,nation,0,0,0),new_go)
+            self.assertEqual(m.calls[-1],('instantiate',prefab,[11.,22.,33.,0.,0.,0.,1.]))
+        before=len([c for c in m.calls if c[0]=='instantiate'])
+        self.assertEqual(m.call(GAME+0x1994a88,gen,tag,0,1,0,0),0)
+        self.assertEqual(len([c for c in m.calls if c[0]=='instantiate']),before)
 
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--module',required=True);p.add_argument('--game-library',required=True);p.add_argument('--report',type=Path)

@@ -117,7 +117,7 @@ final class ModMenu {
         body.setClickable(true);
         TextView title = label("Attack on Tank · luna_17", 17, white);
         title.setTypeface(Typeface.DEFAULT, Typeface.BOLD); body.addView(title);
-        body.addView(label("5.1.0  /  ARM64 测试版", 11, muted));
+        body.addView(label("5.1.0  /  ARM64 修复版 r2", 11, muted));
         status = label("等待游戏模块…", 12, accent); body.addView(status);
         god = feature("无敌", 0); body.addView(god);
         ammo = feature("无限弹药", 1); body.addView(ammo);
@@ -212,7 +212,14 @@ final class ModMenu {
                 int r=NativeBridge.switchResult();
                 if (r!=0) {
                     waiting=false;
-                    result.setText(r==1 ? "坦克已替换。" : "替换未完成（"+r+"），请重试。");
+                    switch(r) {
+                        case 1: result.setText("坦克已替换。"); break;
+                        case -1: result.setText("当前坦克尚未就绪（-1），稍等后重试。"); break;
+                        case -2: result.setText("载具类型或标签读取失败（-2）。"); break;
+                        case -3: result.setText("新载具未生成（-3），请尝试其他车型。"); break;
+                        case -4: result.setText("新载具缺少控制组件（-4）。"); break;
+                        default: result.setText("替换失败（"+r+"）。");
+                    }
                 } else if(currentState!=3) {waiting=false;result.setText("已离开当前对局，替换取消。");}
             }
             swap.setEnabled(currentState==3 && currentTanks.length>0 && !waiting);

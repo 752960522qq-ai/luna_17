@@ -7,6 +7,13 @@
   "libil2cpp_sha256": "f68552eaee3018948258966a6e262b0b567b8a1ecc199e60e59f175d388ef4a7",
   "metadata_sha256": "b2d11750d4013fdbd4ecdaaf1a42389d7ff3dff8e1d8ec42a98a9635c7204890",
   "mode_online": 2,
+  "tank_factory": {
+    "generate_unit_rva": "0x1994a88",
+    "tag_parameter_type": "System.String",
+    "player_tag": "Player",
+    "player_tag_slot_rva": "0x394f100",
+    "runtime_metadata_initialize_rva": "0x17caa40"
+  },
   "nations": [
     "Soviet",
     "German",

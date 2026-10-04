@@ -79,6 +79,15 @@ static void managed_store(void *object,int offset,void *value) {
     FN(0x17ca9e4,void (*)(void **,void *))((void **)((uint8_t *)object+offset),value);
 }
 
+static void *player_tag(void) {
+    // _GenerateUnit takes the managed string "Player", not a System.Type.
+    // Reuse the exact metadata literal used by GeneratePlayerTank.
+    void **literal=(void **)P((void *)base,0x394f100);
+    if(!literal) return 0;
+    FN(0x17caa40,void (*)(void **))(literal);
+    return *literal;
+}
+
 void refill_array(void *array) {
     if (!array) return;
     int n=I(array,0x18);
@@ -159,12 +168,13 @@ static void replace_references(void *object,void **old,void **fresh,int count) {
 static void switch_tank(void *game,void *parameters,int command) {
     int nation=(command>>16)&255,index=command&0xffff;
     void *gen=P(game,0x48),*old_go=P(game,0x110),*old_status=P(game,0x118),*old_pc=player_control;
-    if(!gen || nation>5 || index>=catalog_count[nation] || !unity_exists(old_go) || !unity_exists(old_pc)) {switch_result=-1;return;}
+    if(!gen || nation>5 || index>=catalog_count[nation] || !unity_exists(old_go) || !unity_exists(old_pc) || P(old_pc,0x70)!=old_status) {switch_result=-1;return;}
     Vec3 pos=FN(0x343dbc4,Vec3 (*)(void *,const void *))(P(old_pc,0x20),0);
     Quat rot=FN(0x343de40,Quat (*)(void *,const void *))(P(old_pc,0x20),0);
     void *pc_type=get_type(old_pc),*status_type=get_type(old_status);
-    if(!pc_type || !status_type) {switch_result=-2;return;}
-    void *new_go=FN(0x1994a88,void *(*)(void *,void *,int,int,Vec3,Quat,bool,const void *))(gen,pc_type,nation,index,pos,rot,false,0);
+    void *tag=player_tag();
+    if(!pc_type || !status_type || !tag) {switch_result=-2;return;}
+    void *new_go=FN(0x1994a88,void *(*)(void *,void *,int,int,Vec3,Quat,bool,const void *))(gen,tag,nation,index,pos,rot,false,0);
     if(!unity_exists(new_go)) {switch_result=-3;return;}
     void *new_pc=get_component(new_go,pc_type),*new_status=get_component(new_go,status_type);
     if(!new_pc || !new_status) {
