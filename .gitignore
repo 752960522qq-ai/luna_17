@@ -1,0 +1,13 @@
+build/
+dist/
+input/
+tools/
+analysis/
+__pycache__/
+*.apk
+*.apks
+*.so
+*.jks
+*.keystore
+*.idsig
+password.txt

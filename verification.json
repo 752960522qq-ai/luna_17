@@ -1,0 +1,26 @@
+{
+  "file": "Attack-on-Tank-5.1.0-luna17-test.apk",
+  "size_bytes": 174727080,
+  "sha256": "1abfb2b8ea30a25ce465bd9cc172f66eec9f84bdb7a2edd219975cd857ceb9e4",
+  "preserved_original_entries": 613,
+  "native_methods": [
+    "init",
+    "state",
+    "switchResult",
+    "switchTank",
+    "tanks",
+    "toggle"
+  ],
+  "module_16k_elf_alignment": true,
+  "original_game_payload_unchanged": true,
+  "native_execution_tests": {
+    "runner": "Unicorn ARM64",
+    "tests_run": 5,
+    "failures": 0,
+    "errors": 0,
+    "passed": true,
+    "module_sha256": "673aae3f162d03a41b362cfb967c2594c8dc09bb6cd47a560d4a9aeba27f658e",
+    "game_library_sha256": "f68552eaee3018948258966a6e262b0b567b8a1ecc199e60e59f175d388ef4a7"
+  },
+  "android_device_test": "not performed"
+}
