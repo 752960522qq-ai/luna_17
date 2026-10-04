@@ -219,6 +219,8 @@ final class ModMenu {
                         case -3: result.setText("新载具未生成（-3），请尝试其他车型。"); break;
                         case -4: result.setText("新载具玩家控制器未找到（-4）。"); break;
                         case -5: result.setText("新载具状态引用未就绪（-5）。"); break;
+                        case -6: result.setText("对局状态改变，已取消替换。"); break;
+                        case -7: result.setText("新车武器初始化超时，已保留原坦克。"); break;
                         default: result.setText("替换失败（"+r+"）。");
                     }
                 } else if(currentState!=3) {waiting=false;result.setText("已离开当前对局，替换取消。");}

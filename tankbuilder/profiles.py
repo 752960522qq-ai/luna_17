@@ -45,7 +45,7 @@ def inspect_game(game, directory=None):
         'features':{f:{'compatible':compatible and profile['builder']['features'].get(f,False),
             'dependencies':DEPENDENCIES[f], 'reason':'已验证版本和指纹一致' if compatible else '需要适配或输入包不完整'} for f in FEATURES},
         'can_build':compatible, 'resource_splits':game.resource_splits,
-        'tank_injection':{'supported':False,'reason':'V1 校验 Tank Pack；GLB/Unity 资源注入适配器尚未实现'},
+        'tank_injection':{'supported':compatible,'adapter':'aot-5.1.0-arm64-v1','reviewed_models':['T54_1949'],'player_only':True,'reason':'匹配版本时可准备 T54 玩家资源'},
         'android_device_test':profile.get('builder',{}).get('android_device_test','not performed')}
 
 def draft_profile(report, destination, directory=None):

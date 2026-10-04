@@ -1,6 +1,7 @@
 import argparse
 import json
 import sys
+import tempfile
 from pathlib import Path
 from .package import GamePackage
 from .profiles import inspect_game, draft_profile, FEATURES
@@ -21,9 +22,24 @@ def main():
     build.add_argument('--output',type=Path,required=True)
     build.add_argument('--features',nargs='+',choices=FEATURES)
     build.add_argument('--tankpack',nargs='*',type=Path,default=[])
+    prepare=sub.add_parser('prepare-assets',help='写入已审核的玩家 Tank Pack，只输出 Unity 资源，不打包 APK')
+    prepare.add_argument('input',type=Path);prepare.add_argument('--tankpack',type=Path,required=True);prepare.add_argument('--out',type=Path,required=True)
     sub.add_parser('gui',help='打开本地构建界面')
     args=parser.parse_args()
     try:
+        if args.action=='prepare-assets':
+            from .unity_assets import prepare_assets
+            from .tankpack import extract_reviewed_pack
+            with tempfile.TemporaryDirectory(prefix='tank-assets-') as temp:
+                temp=Path(temp);pack=extract_reviewed_pack(args.tankpack,temp/'pack')
+                if args.input.suffix.lower() in ('.apk','.apks'):
+                    with GamePackage(args.input) as game:
+                        inspection=inspect_game(game,args.profiles)
+                        if not inspection['can_build']:raise ValueError('安装包尚未通过版本/资源检查')
+                        data=temp/'data.unity3d';data.write_bytes(game.bundle)
+                else:data=args.input
+                print(json.dumps(prepare_assets(data,pack,args.out),ensure_ascii=False,indent=2))
+            return 0
         if args.action=='gui':
             from .gui import main as gui
             gui();return 0

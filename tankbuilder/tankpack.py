@@ -3,7 +3,7 @@ import math
 import re
 import struct
 import zipfile
-from pathlib import PurePosixPath
+from pathlib import PurePosixPath, Path
 
 COUNTRIES = {'USSR','Germany','USA','Japan','UK','Italy'}
 REQUIRED = {'manifest.json','tank.json','weapon.json','armor.json','model.glb','thumbnail.png'}
@@ -40,9 +40,13 @@ def validate_documents(documents):
     else:
         for k,v in ammo.items():
             if k not in ('AP','APCR','HE','HEAT') or type(v)!=int or v<0:errors.append('弹药种类或数量无效')
+    reviewed=manifest.get('id')=='T54_1949' and manifest.get('role')=='player' and manifest.get('adapter')=='aot-5.1.0-arm64-v1'
+    if reviewed:
+        root=Path(__file__).resolve().parents[1]/'tanks/T54_1949'
+        reviewed=all(documents.get(k)==json.loads((root/(k+'.json')).read_text()) for k in ('manifest','tank','weapon','armor'))
     return {'valid':not errors,'errors':errors,'id':manifest.get('id'),
-        'display_name':manifest.get('displayName'),'can_inject':False,
-        'reason':'参数格式有效；V1 尚无 Unity 模型/预制体注入适配器' if not errors else '请修正 Tank Pack'}
+        'display_name':manifest.get('displayName'),'can_inject':reviewed and not errors,
+        'reason':('已审核的 T54 玩家参数；需要匹配原始 5.1.0 资源' if reviewed else '参数格式有效；此载具尚无已审核的 Unity 适配器') if not errors else '请修正 Tank Pack'}
 
 def validate_pack(path):
     with zipfile.ZipFile(path) as archive:
@@ -63,5 +67,17 @@ def validate_pack(path):
             report['errors'].append('model.glb 不是有效的 GLB 2.0 容器')
         if not archive.read('thumbnail.png').startswith(b'\x89PNG\r\n\x1a\n'):
             report['errors'].append('thumbnail.png 不是 PNG')
-        report['valid']=not report['errors'];report['file']=str(path)
+        if report['can_inject'] and 'rig.json' not in names:
+            report['errors'].append('已审核的模型包需要 rig.json')
+        report['valid']=not report['errors'];report['can_inject']=report['can_inject'] and report['valid'];report['file']=str(path)
         return report
+
+def extract_reviewed_pack(path,destination):
+    report=validate_pack(path)
+    if not report['valid'] or not report['can_inject']:raise ValueError(report['reason'])
+    destination=Path(destination);destination.mkdir(parents=True,exist_ok=True)
+    with zipfile.ZipFile(path) as z:
+        for info in z.infolist():
+            if info.is_dir():continue
+            target=destination/info.filename;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(z.read(info))
+    return destination

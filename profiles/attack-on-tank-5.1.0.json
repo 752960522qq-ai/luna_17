@@ -433,7 +433,23 @@
     "FIELD_GAMEPARAMMANAGER_GAMEMODE_K__BACKINGFIELD": "0x58",
     "FIELD_UNITSTATUS_SHELLNUMS_K__BACKINGFIELD": "0xf0",
     "FIELD_UNITSTATUS_SUBARMSNUMS_K__BACKINGFIELD": "0xf8",
-    "FIELD_UNITSTATUS_ISDESTROYED_K__BACKINGFIELD": "0x206"
+    "FIELD_UNITSTATUS_ISDESTROYED_K__BACKINGFIELD": "0x206",
+    "RVA_TITLE_START": "0x19495b0",
+    "RVA_IS_PRODUCT": "0x193d17c",
+    "RVA_LOAD_FLAG": "0x1929240",
+    "RVA_IS_HNZ2": "0x19293b0",
+    "RVA_IAP_SANITY": "0x192ef84",
+    "RVA_ACT_CLASS": "0x394f778",
+    "RVA_STATUS_ENABLE": "0x196295c",
+    "RVA_STATUS_START": "0x1981bc0",
+    "RVA_BODY_UPDATE": "0x194fd18",
+    "RVA_ATTACK_INFO": "0x195c6ec",
+    "RVA_OBSCURED_BYTE": "0x18dab20",
+    "RVA_GROUND_RAYCAST": "0x34a547c",
+    "RVA_ADD_FORCE_AT_POSITION": "0x34aa924",
+    "RVA_TURRET_UPDATE": "0x1977f1c",
+    "RVA_OBSCURED_FLOAT": "0x18db128",
+    "RVA_GAME_TIME": "0x343a6dc"
   },
   "unity_version": "6000.3.19f1",
   "unity_data_sha256": "d58ca2b016ce3232fedcfe3f3e067b257e8a9c436c20d75bc019377f3e61dcd3",
@@ -477,20 +493,77 @@
       "rva": "0x18f26b0",
       "size": 128,
       "sha256": "59a7ff12182841438faf4c901502ca560bb94ade237c171107e77eecacad3e5c"
+    },
+    "TITLE_START": {
+      "rva": "0x19495b0",
+      "size": 64,
+      "sha256": "14518d8ed024c863a6b16cc51b4a45f5398400fcbc2194c65bdff1c1914d8bf5"
+    },
+    "IS_PRODUCT": {
+      "rva": "0x193d17c",
+      "size": 64,
+      "sha256": "38997662dbf3d223176d8faacd6247f0439fe33bf22829f654393cddd04ee8d7"
+    },
+    "LOAD_FLAG": {
+      "rva": "0x1929240",
+      "size": 64,
+      "sha256": "1475d265c78c7b2dae7d37ba1b03e954de3a61e8e7bbe897e732e74bdf404ce6"
+    },
+    "IS_HNZ2": {
+      "rva": "0x19293b0",
+      "size": 64,
+      "sha256": "471e8e50104954f7986d838600a758b80a7ce9689e146f9c502335c66115c0e4"
+    },
+    "IAP_SANITY": {
+      "rva": "0x192ef84",
+      "size": 64,
+      "sha256": "d1199f1a0041c2aac01a26653fdc8cd2f4b07f5deb5d25b148bb889042519237"
+    },
+    "STATUS_ENABLE": {
+      "rva": "0x196295c",
+      "size": 64,
+      "sha256": "24e5a190add2a0c841144ebebfd6388358b97cc13260102240644841a5a8ddf6"
+    },
+    "STATUS_START": {
+      "rva": "0x1981bc0",
+      "size": 64,
+      "sha256": "c91aa5555a096bd254c87f6bb29b63cb2b80d705ba309de9a37da7cb0ae6a0ae"
+    },
+    "BODY_UPDATE": {
+      "rva": "0x194fd18",
+      "size": 64,
+      "sha256": "d5e2ca23d6a91273e38e47bedeaa1ec9e34e3220aea3f2a5f68aad21a4146fbe"
+    },
+    "ATTACK_INFO": {
+      "rva": "0x195c6ec",
+      "size": 64,
+      "sha256": "6449e7b14d8066ce542fec495076086b9d8fad52ef28143530054dab907bb215"
+    },
+    "TURRET_UPDATE": {
+      "rva": "0x1977f1c",
+      "size": 64,
+      "sha256": "e1d1a17bf14a3b2cd47d7073b1d95c0da3e2e1c051ba5949d6379a2c7d68791e"
     }
   },
   "builder": {
     "profile_format": 1,
     "verified": true,
-    "revision": "r3",
+    "revision": "r4 T54 player development",
     "features": {
       "godmode": true,
       "infinite_ammo": true,
       "tank_swap": true
     },
     "tank_injection": false,
-    "prebuilt_module_sha256": "6ea89754a7da1c1de53f2e3d595f0ac52a152464bfdd3eb55f5cfe1f0069fe4e",
-    "android_device_test": "r3 not performed; r2 launch and attach confirmed by user",
-    "prebuilt_config_sha256": "6769c08c6983c95a24e754a56f0f0c6559b6a291c043d42bdb102df589870822"
+    "prebuilt_module_sha256": "1c69e98103293a54b2ff0ebaadc0a5a3939de5a6ddf215fae9d55019c8cbeca1",
+    "android_device_test": "not performed; ARM64 and asset round-trip checks required",
+    "prebuilt_config_sha256": "879a70eb531b59cb462260355822bdb1ee20f0b481a5efa111cc57afeb2e4f5b"
+  },
+  "tank_injection": {
+    "adapter": "aot-5.1.0-arm64-v1",
+    "player_only": true,
+    "reviewed_models": [
+      "T54_1949"
+    ]
   }
 }

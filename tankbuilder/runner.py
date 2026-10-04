@@ -10,7 +10,7 @@ from pathlib import Path
 from . import VERSION
 from .package import GamePackage, digest
 from .profiles import ROOT, FEATURES, inspect_game, generate_header, native_config_digest
-from .tankpack import validate_pack
+from .tankpack import validate_pack,extract_reviewed_pack
 
 def write_report(report, directory, stem='build_report'):
     directory=Path(directory);directory.mkdir(parents=True,exist_ok=True)
@@ -45,7 +45,8 @@ def run_build(input_path, output, config_path, selected=None, tankpacks=(), prof
             if not inspection['can_build']:raise ValueError('版本、布局或资源指纹尚未审核通过；已输出检测报告')
             if not all(inspection['features'][f]['compatible'] for f in selected):raise ValueError('所选功能需要重新适配')
             report['tankpacks']=[validate_pack(p) for p in tankpacks]
-            if tankpacks:raise ValueError('Tank Pack 已校验；V1 尚无资源注入适配器，不能将新增载具写入 APK')
+            if len(tankpacks)>1:raise ValueError('当前适配器一次支持一个已审核的 T54 玩家包')
+            if not all(x['valid'] and x['can_inject'] for x in report['tankpacks']):raise ValueError('Tank Pack 格式或适配器尚未审核通过')
             profile_path=Path(profiles_dir or ROOT/'profiles')/inspection['profile']
             profile=json.loads(profile_path.read_text(encoding='utf-8'))
             paths={k:config_file(cfg[k]) for k in ('android_jar','r8','apksigner','zipalign','keystore','password_file')}
@@ -78,6 +79,13 @@ def run_build(input_path, output, config_path, selected=None, tankpacks=(), prof
                 for k,v in paths.items():command.extend(['--'+k.replace('_','-'),str(v)])
                 # CLI names for existing build script differ from config names.
                 command.extend(['--native-prebuilt',str(native)] if native else ['--ndk',str(config_file(cfg['ndk']))])
+                prepared=None
+                if tankpacks:
+                    from .unity_assets import prepare_assets
+                    pack=extract_reviewed_pack(tankpacks[0],work/'pack')
+                    original_data=work/'data-original.unity3d';original_data.write_bytes(game.bundle)
+                    report['asset_preparation']=prepare_assets(original_data,pack,work/'prepared-assets',log)
+                    prepared=work/'prepared-assets/data.unity3d';command.extend(['--unity-data',str(prepared)])
                 log('构建菜单、合并资源、对齐并签名…')
                 process=subprocess.run(command,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,encoding='utf-8',errors='replace')
                 (output.parent/'build_tool_output.txt').write_text(process.stdout,encoding='utf-8')
@@ -89,7 +97,7 @@ def run_build(input_path, output, config_path, selected=None, tankpacks=(), prof
                 if tests.returncode:raise ValueError('原生执行回归失败：'+tests.stderr[-1500:])
                 sys.path.insert(0,str(source/'scripts'))
                 from verify import verify
-                verification=verify(work/'signed.apk',normalized,test_report,chosen)
+                verification=verify(work/'signed.apk',normalized,test_report,chosen,prepared)
                 certs=subprocess.check_output(['java','-jar',str(paths['apksigner']),'verify','--print-certs',str(work/'signed.apk')],text=True)
                 certificate=re.search(r'certificate SHA-256 digest: ([a-f0-9]+)',certs).group(1)
                 expected=cfg.get('expected_certificate_sha256')

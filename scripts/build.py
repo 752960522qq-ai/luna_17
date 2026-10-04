@@ -25,6 +25,7 @@ def main():
     p.add_argument('--r8',type=Path,required=True)
     p.add_argument('--apksigner',type=Path,required=True,help='apksigner.jar')
     p.add_argument('--zipalign',type=Path,required=True,help='Android SDK zipalign executable')
+    p.add_argument('--unity-data',type=Path,help='Derived Unity bundle with matching asset_report.json')
     p.add_argument('--profile',type=Path,default=ROOT/'profiles/attack-on-tank-5.1.0.json')
     p.add_argument('--keystore',type=Path)
     p.add_argument('--password-file',type=Path)
@@ -59,7 +60,7 @@ def main():
     run(java,'-cp',args.r8,'com.android.tools.r8.D8','--lib',args.android_jar,
         '--classpath',classes,'--min-api','28','--output',dex,*added_classes)
     unsigned=work/'unsigned.apk'
-    repack(args.apks,dex/'classes.dex',library,unsigned,args.profile)
+    repack(args.apks,dex/'classes.dex',library,unsigned,args.profile,args.unity_data)
     aligned=work/'aligned.apk'
     run(args.zipalign,'-f','-P','16','4',unsigned,aligned)
     keystore=args.keystore;password=args.password_file

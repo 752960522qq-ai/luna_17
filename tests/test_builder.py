@@ -20,7 +20,7 @@ class BuilderTests(unittest.TestCase):
     def test_original_is_recognized_and_resource_layer_is_checked(self):
         self.assertTrue(self.report['can_build'])
         self.assertEqual(self.report['identity']['unity_version'],'6000.3.19f1')
-        self.assertEqual(len(self.report['module_fingerprints']),8)
+        self.assertGreaterEqual(len(self.report['module_fingerprints']),18)
         self.assertTrue(self.report['identity_and_payload_checks']['unity_data_sha256'])
 
     def test_unrelated_binary_change_blocks_all_features(self):
@@ -55,7 +55,8 @@ class BuilderTests(unittest.TestCase):
 
     def test_changed_layout_cannot_reuse_prebuilt_binding(self):
         profile=json.loads((ROOT/'profiles'/self.report['profile']).read_text())
-        self.assertEqual(native_config_digest(profile),profile['builder']['prebuilt_config_sha256'])
+        original_binding=native_config_digest(profile)
+        self.assertEqual(profile['builder']['prebuilt_config_sha256'],original_binding)
         profile['native_macros']['FIELD_PLAYERCONTROL_USTATUS']='0x78'
         self.assertNotEqual(native_config_digest(profile),profile['builder']['prebuilt_config_sha256'])
 

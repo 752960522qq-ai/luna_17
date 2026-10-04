@@ -1,0 +1,1237 @@
+{
+  "adapter": "aot-5.1.0-arm64-v1",
+  "classes": {
+    "PlayerControl": [
+      {
+        "name": "thisTrf",
+        "type_index": 24021,
+        "offset": 32,
+        "token": 67110183,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "Transform",
+        "type_definition": 6162
+      },
+      {
+        "name": "turretTrf",
+        "type_index": 24021,
+        "offset": 40,
+        "token": 67110184,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "Transform",
+        "type_definition": 6162
+      },
+      {
+        "name": "gunTrf",
+        "type_index": 24021,
+        "offset": 48,
+        "token": 67110185,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "Transform",
+        "type_definition": 6162
+      },
+      {
+        "name": "boxCol",
+        "type_index": 13918,
+        "offset": 56,
+        "token": 67110186,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "BoxCollider",
+        "type_definition": 10398
+      },
+      {
+        "name": "uMove",
+        "type_index": 24392,
+        "offset": 64,
+        "token": 67110187,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "UnitMove",
+        "type_definition": 6698
+      },
+      {
+        "name": "bMove",
+        "type_index": 13864,
+        "offset": 72,
+        "token": 67110188,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "BodyMove",
+        "type_definition": 6658
+      },
+      {
+        "name": "tMove",
+        "type_index": 24089,
+        "offset": 80,
+        "token": 67110189,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "TurretMove",
+        "type_definition": 6691
+      },
+      {
+        "name": "launchers",
+        "type_index": 12140,
+        "offset": 88,
+        "token": 67110190,
+        "kind": 29,
+        "attrs": 6,
+        "type_name": "array",
+        "element": {
+          "kind": 18,
+          "attrs": 0,
+          "type_name": "Launcher",
+          "type_definition": 6674
+        }
+      },
+      {
+        "name": "mGun",
+        "type_index": 19312,
+        "offset": 96,
+        "token": 67110191,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "MachineGun",
+        "type_definition": 6675
+      },
+      {
+        "name": "uExposure",
+        "type_index": 24390,
+        "offset": 104,
+        "token": 67110192,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "UnitExposure",
+        "type_definition": 6697
+      },
+      {
+        "name": "uStatus",
+        "type_index": 24399,
+        "offset": 112,
+        "token": 67110193,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "UnitStatus",
+        "type_definition": 6704
+      },
+      {
+        "name": "uDisplay",
+        "type_index": 24388,
+        "offset": 120,
+        "token": 67110194,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "UnitDisplay",
+        "type_definition": 6696
+      },
+      {
+        "name": "aimAdjstMode",
+        "type_index": 13877,
+        "offset": 128,
+        "token": 67110195,
+        "kind": 2,
+        "attrs": 6,
+        "type_name": "bool"
+      },
+      {
+        "name": "currentState",
+        "type_index": 29056,
+        "offset": 132,
+        "token": 67110196,
+        "kind": 17,
+        "attrs": 6,
+        "type_name": "State",
+        "type_definition": 6678
+      },
+      {
+        "name": "maxStandingTime",
+        "type_index": 22673,
+        "offset": 136,
+        "token": 67110197,
+        "kind": 12,
+        "attrs": 6,
+        "type_name": "f4"
+      }
+    ],
+    "UnitMove": [
+      {
+        "name": "thisTrf",
+        "type_index": 24021,
+        "offset": 32,
+        "token": 67110418,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "Transform",
+        "type_definition": 6162
+      },
+      {
+        "name": "rgdbody",
+        "type_index": 21997,
+        "offset": 40,
+        "token": 67110419,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "Rigidbody",
+        "type_definition": 10423
+      },
+      {
+        "name": "audioSource",
+        "type_index": 13442,
+        "offset": 48,
+        "token": 67110420,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "AudioSource",
+        "type_definition": 10786
+      },
+      {
+        "name": "uDamage",
+        "type_index": 24386,
+        "offset": 56,
+        "token": 67110421,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "UnitDamage",
+        "type_definition": 6695
+      },
+      {
+        "name": "uStatus",
+        "type_index": 24399,
+        "offset": 64,
+        "token": 67110422,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "UnitStatus",
+        "type_definition": 6704
+      },
+      {
+        "name": "accelNoiseAudio",
+        "type_index": 13424,
+        "offset": 72,
+        "token": 67110423,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "AudioClip",
+        "type_definition": 10783
+      },
+      {
+        "name": "accelVol",
+        "type_index": 22673,
+        "offset": 80,
+        "token": 67110424,
+        "kind": 12,
+        "attrs": 6,
+        "type_name": "f4"
+      },
+      {
+        "name": "isWheeled",
+        "type_index": 13877,
+        "offset": 84,
+        "token": 67110425,
+        "kind": 2,
+        "attrs": 6,
+        "type_name": "bool"
+      },
+      {
+        "name": "targetTowCtrl",
+        "type_index": 23990,
+        "offset": 88,
+        "token": 67110426,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "TowControl",
+        "type_definition": 6688
+      },
+      {
+        "name": "isClose2Target",
+        "type_index": 13877,
+        "offset": 96,
+        "token": 67110427,
+        "kind": 2,
+        "attrs": 6,
+        "type_name": "bool"
+      },
+      {
+        "name": "_specifiedSpeed",
+        "type_index": 22673,
+        "offset": 124,
+        "token": 67110432,
+        "kind": 12,
+        "attrs": 6,
+        "type_name": "f4"
+      },
+      {
+        "name": "stopDist",
+        "type_index": 18315,
+        "offset": 136,
+        "token": 67110435,
+        "kind": 8,
+        "attrs": 6,
+        "type_name": "i4"
+      },
+      {
+        "name": "overHeatPosGo",
+        "type_index": 16629,
+        "offset": 208,
+        "token": 67110452,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "GameObject",
+        "type_definition": 6090
+      },
+      {
+        "name": "extSmokePtcls",
+        "type_index": 12222,
+        "offset": 232,
+        "token": 67110455,
+        "kind": 29,
+        "attrs": 6,
+        "type_name": "array",
+        "element": {
+          "kind": 18,
+          "attrs": 0,
+          "type_name": "ParticleSystem",
+          "type_definition": 10942
+        }
+      },
+      {
+        "name": "catSmokePtcls",
+        "type_index": 12222,
+        "offset": 240,
+        "token": 67110456,
+        "kind": 29,
+        "attrs": 6,
+        "type_name": "array",
+        "element": {
+          "kind": 18,
+          "attrs": 0,
+          "type_name": "ParticleSystem",
+          "type_definition": 10942
+        }
+      },
+      {
+        "name": "catTrailPtcls",
+        "type_index": 12222,
+        "offset": 248,
+        "token": 67110457,
+        "kind": 29,
+        "attrs": 6,
+        "type_name": "array",
+        "element": {
+          "kind": 18,
+          "attrs": 0,
+          "type_name": "ParticleSystem",
+          "type_definition": 10942
+        }
+      },
+      {
+        "name": "shadowDecalGos",
+        "type_index": 12033,
+        "offset": 256,
+        "token": 67110458,
+        "kind": 29,
+        "attrs": 6,
+        "type_name": "array",
+        "element": {
+          "kind": 18,
+          "attrs": 0,
+          "type_name": "GameObject",
+          "type_definition": 6090
+        }
+      }
+    ],
+    "BodyMove": [
+      {
+        "name": "audioSource",
+        "type_index": 13442,
+        "offset": 32,
+        "token": 67109902,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "AudioSource",
+        "type_definition": 10786
+      },
+      {
+        "name": "unitMove",
+        "type_index": 24392,
+        "offset": 40,
+        "token": 67109903,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "UnitMove",
+        "type_definition": 6698
+      },
+      {
+        "name": "turretMove",
+        "type_index": 24089,
+        "offset": 48,
+        "token": 67109904,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "TurretMove",
+        "type_definition": 6691
+      },
+      {
+        "name": "status",
+        "type_index": 24399,
+        "offset": 56,
+        "token": 67109905,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "UnitStatus",
+        "type_definition": 6704
+      },
+      {
+        "name": "partsTransforms",
+        "type_index": 12381,
+        "offset": 64,
+        "token": 67109906,
+        "kind": 29,
+        "attrs": 6,
+        "type_name": "array",
+        "element": {
+          "kind": 18,
+          "attrs": 0,
+          "type_name": "Transform",
+          "type_definition": 6162
+        }
+      },
+      {
+        "name": "scrollLodRends",
+        "type_index": 12261,
+        "offset": 72,
+        "token": 67109907,
+        "kind": 29,
+        "attrs": 6,
+        "type_name": "array",
+        "element": {
+          "kind": 18,
+          "attrs": 0,
+          "type_name": "Renderer",
+          "type_definition": 5921
+        }
+      },
+      {
+        "name": "smallWheelLodTrfs",
+        "type_index": 12381,
+        "offset": 80,
+        "token": 67109908,
+        "kind": 29,
+        "attrs": 6,
+        "type_name": "array",
+        "element": {
+          "kind": 18,
+          "attrs": 0,
+          "type_name": "Transform",
+          "type_definition": 6162
+        }
+      },
+      {
+        "name": "largeWheelLodTrfs",
+        "type_index": 12381,
+        "offset": 88,
+        "token": 67109909,
+        "kind": 29,
+        "attrs": 6,
+        "type_name": "array",
+        "element": {
+          "kind": 18,
+          "attrs": 0,
+          "type_name": "Transform",
+          "type_definition": 6162
+        }
+      },
+      {
+        "name": "susWheelTrfs",
+        "type_index": 12381,
+        "offset": 96,
+        "token": 67109910,
+        "kind": 29,
+        "attrs": 6,
+        "type_name": "array",
+        "element": {
+          "kind": 18,
+          "attrs": 0,
+          "type_name": "Transform",
+          "type_definition": 6162
+        }
+      },
+      {
+        "name": "_currentTrack",
+        "type_index": 26638,
+        "offset": 104,
+        "token": 67109911,
+        "kind": 17,
+        "attrs": 6,
+        "type_name": "TrackType",
+        "type_definition": 6657
+      },
+      {
+        "name": "realTrackGo",
+        "type_index": 16629,
+        "offset": 112,
+        "token": 67109912,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "GameObject",
+        "type_definition": 6090
+      },
+      {
+        "name": "scrollTrackGo",
+        "type_index": 16629,
+        "offset": 120,
+        "token": 67109913,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "GameObject",
+        "type_definition": 6090
+      },
+      {
+        "name": "damagedCatIndex",
+        "type_index": 12108,
+        "offset": 128,
+        "token": 67109914,
+        "kind": 29,
+        "attrs": 6,
+        "type_name": "array",
+        "element": {
+          "kind": 8,
+          "attrs": 0,
+          "type_name": "i4"
+        }
+      },
+      {
+        "name": "susMaxAmp",
+        "type_index": 22673,
+        "offset": 136,
+        "token": 67109915,
+        "kind": 12,
+        "attrs": 6,
+        "type_name": "f4"
+      },
+      {
+        "name": "gearRatio",
+        "type_index": 22673,
+        "offset": 168,
+        "token": 67109921,
+        "kind": 12,
+        "attrs": 6,
+        "type_name": "f4"
+      },
+      {
+        "name": "CircumferenceRatio",
+        "type_index": 18315,
+        "offset": 172,
+        "token": 67109922,
+        "kind": 8,
+        "attrs": 6,
+        "type_name": "i4"
+      },
+      {
+        "name": "trackNum",
+        "type_index": 18315,
+        "offset": 176,
+        "token": 67109923,
+        "kind": 8,
+        "attrs": 6,
+        "type_name": "i4"
+      },
+      {
+        "name": "explosionEffectGo",
+        "type_index": 16629,
+        "offset": 184,
+        "token": 67109924,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "GameObject",
+        "type_definition": 6090
+      },
+      {
+        "name": "destroyEffGo",
+        "type_index": 16629,
+        "offset": 192,
+        "token": 67109925,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "GameObject",
+        "type_definition": 6090
+      }
+    ],
+    "TurretMove": [
+      {
+        "name": "thisTrf",
+        "type_index": 24021,
+        "offset": 32,
+        "token": 67110335,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "Transform",
+        "type_definition": 6162
+      },
+      {
+        "name": "audioSource",
+        "type_index": 13442,
+        "offset": 40,
+        "token": 67110336,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "AudioSource",
+        "type_definition": 10786
+      },
+      {
+        "name": "unitMove",
+        "type_index": 24392,
+        "offset": 48,
+        "token": 67110337,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "UnitMove",
+        "type_definition": 6698
+      },
+      {
+        "name": "unitDmg",
+        "type_index": 24386,
+        "offset": 56,
+        "token": 67110338,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "UnitDamage",
+        "type_definition": 6695
+      },
+      {
+        "name": "status",
+        "type_index": 24399,
+        "offset": 64,
+        "token": 67110339,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "UnitStatus",
+        "type_definition": 6704
+      },
+      {
+        "name": "gunTrfs",
+        "type_index": 12381,
+        "offset": 72,
+        "token": 67110340,
+        "kind": 29,
+        "attrs": 6,
+        "type_name": "array",
+        "element": {
+          "kind": 18,
+          "attrs": 0,
+          "type_name": "Transform",
+          "type_definition": 6162
+        }
+      },
+      {
+        "name": "cameraCtrl",
+        "type_index": 14101,
+        "offset": 80,
+        "token": 67110341,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "CameraControl",
+        "type_definition": 6563
+      },
+      {
+        "name": "hatchRotSpd",
+        "type_index": 18315,
+        "offset": 88,
+        "token": 67110342,
+        "kind": 8,
+        "attrs": 6,
+        "type_name": "i4"
+      },
+      {
+        "name": "hatchInitAngle",
+        "type_index": 24790,
+        "offset": 92,
+        "token": 67110343,
+        "kind": 17,
+        "attrs": 6,
+        "type_name": "Vector3",
+        "type_definition": 5998
+      },
+      {
+        "name": "hatchRotAngle",
+        "type_index": 24790,
+        "offset": 104,
+        "token": 67110344,
+        "kind": 17,
+        "attrs": 6,
+        "type_name": "Vector3",
+        "type_definition": 5998
+      },
+      {
+        "name": "hatchTrfs",
+        "type_index": 12381,
+        "offset": 120,
+        "token": 67110345,
+        "kind": 29,
+        "attrs": 6,
+        "type_name": "array",
+        "element": {
+          "kind": 18,
+          "attrs": 0,
+          "type_name": "Transform",
+          "type_definition": 6162
+        }
+      },
+      {
+        "name": "loadingDelay",
+        "type_index": 22673,
+        "offset": 128,
+        "token": 67110346,
+        "kind": 12,
+        "attrs": 6,
+        "type_name": "f4"
+      }
+    ],
+    "UnitStatus": [
+      {
+        "name": "iFFNum",
+        "type_index": 13997,
+        "offset": 32,
+        "token": 67110473,
+        "kind": 5,
+        "attrs": 6,
+        "type_name": "u1"
+      },
+      {
+        "name": "isNonEssential",
+        "type_index": 13877,
+        "offset": 33,
+        "token": 67110474,
+        "kind": 2,
+        "attrs": 6,
+        "type_name": "bool"
+      },
+      {
+        "name": "isReverseHatch",
+        "type_index": 13877,
+        "offset": 34,
+        "token": 67110475,
+        "kind": 2,
+        "attrs": 6,
+        "type_name": "bool"
+      },
+      {
+        "name": "has2ndGun",
+        "type_index": 13877,
+        "offset": 35,
+        "token": 67110476,
+        "kind": 2,
+        "attrs": 6,
+        "type_name": "bool"
+      },
+      {
+        "name": "uNetwork",
+        "type_index": 24394,
+        "offset": 40,
+        "token": 67110477,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "UnitNetwork",
+        "type_definition": 6622
+      },
+      {
+        "name": "sandbagGo",
+        "type_index": 16629,
+        "offset": 56,
+        "token": 67110480,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "GameObject",
+        "type_definition": 6090
+      },
+      {
+        "name": "spareTrackGo",
+        "type_index": 16629,
+        "offset": 64,
+        "token": 67110481,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "GameObject",
+        "type_definition": 6090
+      },
+      {
+        "name": "rTrackMoves",
+        "type_index": 12248,
+        "offset": 72,
+        "token": 67110482,
+        "kind": 29,
+        "attrs": 6,
+        "type_name": "array",
+        "element": {
+          "kind": 18,
+          "attrs": 0,
+          "type_name": "RealTrackMove",
+          "type_definition": 6684
+        }
+      },
+      {
+        "name": "sTrackMeshes",
+        "type_index": 12176,
+        "offset": 80,
+        "token": 67110483,
+        "kind": 29,
+        "attrs": 6,
+        "type_name": "array",
+        "element": {
+          "kind": 18,
+          "attrs": 0,
+          "type_name": "Mesh",
+          "type_definition": 5970
+        }
+      },
+      {
+        "name": "sTrackMeshFilters",
+        "type_index": 12178,
+        "offset": 88,
+        "token": 67110484,
+        "kind": 29,
+        "attrs": 6,
+        "type_name": "array",
+        "element": {
+          "kind": 18,
+          "attrs": 0,
+          "type_name": "MeshFilter",
+          "type_definition": 5934
+        }
+      },
+      {
+        "name": "unitType",
+        "type_index": 30367,
+        "offset": 96,
+        "token": 67110485,
+        "kind": 17,
+        "attrs": 6,
+        "type_name": "Type",
+        "type_definition": 6701
+      },
+      {
+        "name": "unitNation",
+        "type_index": 27540,
+        "offset": 100,
+        "token": 67110486,
+        "kind": 17,
+        "attrs": 6,
+        "type_name": "Nation",
+        "type_definition": 6629
+      },
+      {
+        "name": "unitName",
+        "type_index": 23098,
+        "offset": 104,
+        "token": 67110487,
+        "kind": 14,
+        "attrs": 6,
+        "type_name": "string"
+      },
+      {
+        "name": "mainGunName",
+        "type_index": 23098,
+        "offset": 112,
+        "token": 67110488,
+        "kind": 14,
+        "attrs": 6,
+        "type_name": "string"
+      },
+      {
+        "name": "maxGunErrAngles",
+        "type_index": 12292,
+        "offset": 184,
+        "token": 67110493,
+        "kind": 29,
+        "attrs": 6,
+        "type_name": "array",
+        "element": {
+          "kind": 12,
+          "attrs": 0,
+          "type_name": "f4"
+        }
+      },
+      {
+        "name": "angleOfElevation",
+        "type_index": 18315,
+        "offset": 192,
+        "token": 67110494,
+        "kind": 8,
+        "attrs": 6,
+        "type_name": "i4"
+      },
+      {
+        "name": "angleOfDip",
+        "type_index": 18315,
+        "offset": 196,
+        "token": 67110495,
+        "kind": 8,
+        "attrs": 6,
+        "type_name": "i4"
+      },
+      {
+        "name": "angleOfRightAndLeft",
+        "type_index": 18315,
+        "offset": 200,
+        "token": 67110496,
+        "kind": 8,
+        "attrs": 6,
+        "type_name": "i4"
+      },
+      {
+        "name": "gunAdjAnglesAI",
+        "type_index": 12292,
+        "offset": 208,
+        "token": 67110498,
+        "kind": 29,
+        "attrs": 6,
+        "type_name": "array",
+        "element": {
+          "kind": 12,
+          "attrs": 0,
+          "type_name": "f4"
+        }
+      },
+      {
+        "name": "firingRange",
+        "type_index": 18315,
+        "offset": 216,
+        "token": 67110499,
+        "kind": 8,
+        "attrs": 6,
+        "type_name": "i4"
+      },
+      {
+        "name": "weight",
+        "type_index": 22673,
+        "offset": 256,
+        "token": 67110503,
+        "kind": 12,
+        "attrs": 6,
+        "type_name": "f4"
+      },
+      {
+        "name": "lookUpOffset",
+        "type_index": 22673,
+        "offset": 308,
+        "token": 67110507,
+        "kind": 12,
+        "attrs": 6,
+        "type_name": "f4"
+      },
+      {
+        "name": "lookForwardOffset",
+        "type_index": 22673,
+        "offset": 312,
+        "token": 67110508,
+        "kind": 12,
+        "attrs": 6,
+        "type_name": "f4"
+      },
+      {
+        "name": "aimNrmOffsetsY",
+        "type_index": 12292,
+        "offset": 320,
+        "token": 67110509,
+        "kind": 29,
+        "attrs": 6,
+        "type_name": "array",
+        "element": {
+          "kind": 12,
+          "attrs": 0,
+          "type_name": "f4"
+        }
+      },
+      {
+        "name": "maxZoomScaleNum",
+        "type_index": 18315,
+        "offset": 328,
+        "token": 67110510,
+        "kind": 8,
+        "attrs": 6,
+        "type_name": "i4"
+      },
+      {
+        "name": "bodyLives",
+        "type_index": 12108,
+        "offset": 424,
+        "token": 67110519,
+        "kind": 29,
+        "attrs": 6,
+        "type_name": "array",
+        "element": {
+          "kind": 8,
+          "attrs": 0,
+          "type_name": "i4"
+        }
+      },
+      {
+        "name": "turretLives",
+        "type_index": 12108,
+        "offset": 432,
+        "token": 67110520,
+        "kind": 29,
+        "attrs": 6,
+        "type_name": "array",
+        "element": {
+          "kind": 8,
+          "attrs": 0,
+          "type_name": "i4"
+        }
+      },
+      {
+        "name": "bDefs",
+        "type_index": 12108,
+        "offset": 440,
+        "token": 67110521,
+        "kind": 29,
+        "attrs": 6,
+        "type_name": "array",
+        "element": {
+          "kind": 8,
+          "attrs": 0,
+          "type_name": "i4"
+        }
+      },
+      {
+        "name": "tDefs",
+        "type_index": 12108,
+        "offset": 448,
+        "token": 67110522,
+        "kind": 29,
+        "attrs": 6,
+        "type_name": "array",
+        "element": {
+          "kind": 8,
+          "attrs": 0,
+          "type_name": "i4"
+        }
+      },
+      {
+        "name": "usingShell",
+        "type_index": 30361,
+        "offset": 488,
+        "token": 67110534,
+        "kind": 17,
+        "attrs": 6,
+        "type_name": "Shell",
+        "type_definition": 6702
+      },
+      {
+        "name": "loadedShell",
+        "type_index": 30361,
+        "offset": 492,
+        "token": 67110535,
+        "kind": 17,
+        "attrs": 6,
+        "type_name": "Shell",
+        "type_definition": 6702
+      },
+      {
+        "name": "usingSubArms",
+        "type_index": 30364,
+        "offset": 496,
+        "token": 67110536,
+        "kind": 17,
+        "attrs": 6,
+        "type_name": "SubArms",
+        "type_definition": 6703
+      },
+      {
+        "name": "_currentLodNum",
+        "type_index": 18315,
+        "offset": 572,
+        "token": 67110565,
+        "kind": 8,
+        "attrs": 6,
+        "type_name": "i4"
+      }
+    ],
+    "Launcher": [
+      {
+        "name": "thisTrf",
+        "type_index": 24021,
+        "offset": 32,
+        "token": 67110140,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "Transform",
+        "type_definition": 6162
+      },
+      {
+        "name": "audioSrc",
+        "type_index": 13442,
+        "offset": 40,
+        "token": 67110141,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "AudioSource",
+        "type_definition": 10786
+      },
+      {
+        "name": "bMove",
+        "type_index": 13864,
+        "offset": 48,
+        "token": 67110142,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "BodyMove",
+        "type_definition": 6658
+      },
+      {
+        "name": "uStatus",
+        "type_index": 24399,
+        "offset": 56,
+        "token": 67110143,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "UnitStatus",
+        "type_definition": 6704
+      },
+      {
+        "name": "weaponName",
+        "type_index": 23098,
+        "offset": 72,
+        "token": 67110145,
+        "kind": 14,
+        "attrs": 6,
+        "type_name": "string"
+      },
+      {
+        "name": "attackPower",
+        "type_index": 18315,
+        "offset": 80,
+        "token": 67110146,
+        "kind": 8,
+        "attrs": 6,
+        "type_name": "i4"
+      },
+      {
+        "name": "initSpeed",
+        "type_index": 22673,
+        "offset": 84,
+        "token": 67110147,
+        "kind": 12,
+        "attrs": 6,
+        "type_name": "f4"
+      },
+      {
+        "name": "calibre",
+        "type_index": 18315,
+        "offset": 88,
+        "token": 67110148,
+        "kind": 8,
+        "attrs": 6,
+        "type_name": "i4"
+      },
+      {
+        "name": "fireSize",
+        "type_index": 28150,
+        "offset": 92,
+        "token": 67110149,
+        "kind": 17,
+        "attrs": 6,
+        "type_name": "Size",
+        "type_definition": 6672
+      },
+      {
+        "name": "fireSmokePtcl",
+        "type_index": 20816,
+        "offset": 96,
+        "token": 67110150,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "ParticleSystem",
+        "type_definition": 10942
+      },
+      {
+        "name": "fireFlashPtcl",
+        "type_index": 20816,
+        "offset": 104,
+        "token": 67110151,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "ParticleSystem",
+        "type_definition": 10942
+      },
+      {
+        "name": "fireExhaustPtcl",
+        "type_index": 20816,
+        "offset": 112,
+        "token": 67110152,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "ParticleSystem",
+        "type_definition": 10942
+      },
+      {
+        "name": "shellApGos",
+        "type_index": 12033,
+        "offset": 120,
+        "token": 67110153,
+        "kind": 29,
+        "attrs": 6,
+        "type_name": "array",
+        "element": {
+          "kind": 18,
+          "attrs": 0,
+          "type_name": "GameObject",
+          "type_definition": 6090
+        }
+      },
+      {
+        "name": "shellHeGos",
+        "type_index": 12033,
+        "offset": 128,
+        "token": 67110154,
+        "kind": 29,
+        "attrs": 6,
+        "type_name": "array",
+        "element": {
+          "kind": 18,
+          "attrs": 0,
+          "type_name": "GameObject",
+          "type_definition": 6090
+        }
+      },
+      {
+        "name": "emptyPodGos",
+        "type_index": 12033,
+        "offset": 136,
+        "token": 67110155,
+        "kind": 29,
+        "attrs": 6,
+        "type_name": "array",
+        "element": {
+          "kind": 18,
+          "attrs": 0,
+          "type_name": "GameObject",
+          "type_definition": 6090
+        }
+      },
+      {
+        "name": "mineGo",
+        "type_index": 16629,
+        "offset": 144,
+        "token": 67110156,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "GameObject",
+        "type_definition": 6090
+      },
+      {
+        "name": "barrelTrf",
+        "type_index": 24021,
+        "offset": 152,
+        "token": 67110157,
+        "kind": 18,
+        "attrs": 6,
+        "type_name": "Transform",
+        "type_definition": 6162
+      }
+    ]
+  }
+}

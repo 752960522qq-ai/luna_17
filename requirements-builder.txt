@@ -1,3 +1,7 @@
 -r requirements-dev.txt
 UnityPy==1.23.0
 capstone==5.0.6
+
+pygltflib==1.16.5
+numpy==2.5.3
+Pillow==12.3.0
