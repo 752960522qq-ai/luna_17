@@ -6,6 +6,7 @@ import secrets
 import shutil
 import subprocess
 import sys
+import platform
 from pathlib import Path
 from repack import repack
 
@@ -23,6 +24,8 @@ def main():
     p.add_argument('--android-jar',type=Path,required=True)
     p.add_argument('--r8',type=Path,required=True)
     p.add_argument('--apksigner',type=Path,required=True,help='apksigner.jar')
+    p.add_argument('--zipalign',type=Path,required=True,help='Android SDK zipalign executable')
+    p.add_argument('--profile',type=Path,default=ROOT/'profiles/attack-on-tank-5.1.0.json')
     p.add_argument('--keystore',type=Path)
     p.add_argument('--password-file',type=Path)
     p.add_argument('--alias',default='luna17')
@@ -33,11 +36,12 @@ def main():
     args.output=args.output.resolve();args.output.parent.mkdir(parents=True,exist_ok=True)
     java=shutil.which('java');keytool=shutil.which('keytool')
     if not java or not keytool:raise SystemExit('A JDK (17+) is required')
-    for file in [args.apks,args.android_jar,args.r8,args.apksigner]:
+    for file in [args.apks,args.android_jar,args.r8,args.apksigner,args.zipalign,args.profile]:
         if not file.is_file():raise SystemExit(f'Missing file: {file}')
     library=args.native_prebuilt
     if args.ndk:
-        clang=args.ndk/'toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android28-clang'
+        host={'Linux':'linux-x86_64','Darwin':'darwin-x86_64','Windows':'windows-x86_64'}[platform.system()]
+        clang=args.ndk/'toolchains/llvm/prebuilt'/host/'bin'/('aarch64-linux-android28-clang.cmd' if os.name=='nt' else 'aarch64-linux-android28-clang')
         if not clang.is_file():raise SystemExit(f'Missing compiler: {clang}')
         library=work/'libaotmod.so'
         run(clang,'-shared','-fPIC','-O2','-Wall','-Wextra','-mno-outline-atomics',
@@ -55,7 +59,9 @@ def main():
     run(java,'-cp',args.r8,'com.android.tools.r8.D8','--lib',args.android_jar,
         '--classpath',classes,'--min-api','28','--output',dex,*added_classes)
     unsigned=work/'unsigned.apk'
-    repack(args.apks,dex/'classes.dex',library,unsigned)
+    repack(args.apks,dex/'classes.dex',library,unsigned,args.profile)
+    aligned=work/'aligned.apk'
+    run(args.zipalign,'-f','-P','16','4',unsigned,aligned)
     keystore=args.keystore;password=args.password_file
     if not keystore:
         if password:raise SystemExit('--password-file requires --keystore')
@@ -71,8 +77,9 @@ def main():
     run(java,'-jar',args.apksigner,'sign','--ks',keystore,'--ks-key-alias',args.alias,
         '--ks-pass',f'file:{password}','--v1-signing-enabled','false',
         '--v2-signing-enabled','true','--v3-signing-enabled','true','--min-sdk-version','28',
-        '--out',args.output,unsigned)
+        '--out',args.output,aligned)
     run(java,'-jar',args.apksigner,'verify','--verbose',args.output)
+    run(args.zipalign,'-c','-P','16','4',args.output)
     print(args.output)
 
 if __name__=='__main__':main()

@@ -1,0 +1,6 @@
+{
+  "name": "2A46 125mm",
+  "caliber": 125,
+  "reload": 8.0,
+  "ammo": {"AP": 0, "APCR": 22, "HE": 17, "HEAT": 5}
+}

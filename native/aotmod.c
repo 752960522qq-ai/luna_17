@@ -1,3 +1,4 @@
+#include "profile_config.h"
 #include <jni.h>
 #include <stdint.h>
 #include <stddef.h>
@@ -76,15 +77,15 @@ static int unity_exists(void *object) {
 }
 static void managed_store(void *object,int offset,void *value) {
     P(object,offset)=value;
-    FN(0x17ca9e4,void (*)(void **,void *))((void **)((uint8_t *)object+offset),value);
+    FN(RVA_17CA9E4,void (*)(void **,void *))((void **)((uint8_t *)object+offset),value);
 }
 
 static void *player_tag(void) {
     // _GenerateUnit takes the managed string "Player", not a System.Type.
     // Reuse the exact metadata literal used by GeneratePlayerTank.
-    void **literal=(void **)P((void *)base,0x394f100);
+    void **literal=(void **)P((void *)base,RVA_394F100);
     if(!literal) return 0;
-    FN(0x17caa40,void (*)(void **))(literal);
+    FN(RVA_17CAA40,void (*)(void **))(literal);
     return *literal;
 }
 
@@ -92,12 +93,12 @@ void refill_array(void *array) {
     if (!array) return;
     int n=I(array,0x18);
     if (n<1 || n>32) return;
-    ObscuredInt v=FN(0x18f26b0,ObscuredInt (*)(int,const void *))(999,0);
+    ObscuredInt v=FN(RVA_18F26B0,ObscuredInt (*)(int,const void *))(999,0);
     for (int i=0;i<n;i++) memcpy((uint8_t *)array+0x20+i*sizeof(v),&v,sizeof(v));
 }
 static void refill(void *status) {
-    refill_array(P(status,0xf0));
-    refill_array(P(status,0xf8));
+    refill_array(P(status,FIELD_UNITSTATUS_SHELLNUMS_K__BACKINGFIELD));
+    refill_array(P(status,FIELD_UNITSTATUS_SUBARMSNUMS_K__BACKINGFIELD));
 }
 
 // Return early only for the local player's current UnitStatus in an offline match.
@@ -167,25 +168,25 @@ static void replace_references(void *object,void **old,void **fresh,int count) {
 
 static void switch_tank(void *game,void *parameters,int command) {
     int nation=(command>>16)&255,index=command&0xffff;
-    void *gen=P(game,0x48),*old_go=P(game,0x110),*old_status=P(game,0x118),*old_pc=player_control;
-    if(!gen || nation>5 || index>=catalog_count[nation] || !unity_exists(old_go) || !unity_exists(old_pc) || P(old_pc,0x70)!=old_status) {switch_result=-1;return;}
-    Vec3 pos=FN(0x343dbc4,Vec3 (*)(void *,const void *))(P(old_pc,0x20),0);
-    Quat rot=FN(0x343de40,Quat (*)(void *,const void *))(P(old_pc,0x20),0);
+    void *gen=P(game,FIELD_GAMECONTROL_TANKGENMANAGER),*old_go=P(game,FIELD_GAMECONTROL_PLAYERGO_K__BACKINGFIELD),*old_status=P(game,FIELD_GAMECONTROL_PLAYERSTATUS_K__BACKINGFIELD),*old_pc=player_control;
+    if(!gen || nation>5 || index>=catalog_count[nation] || !unity_exists(old_go) || !unity_exists(old_pc) || P(old_pc,FIELD_PLAYERCONTROL_USTATUS)!=old_status) {switch_result=-1;return;}
+    Vec3 pos=FN(RVA_343DBC4,Vec3 (*)(void *,const void *))(P(old_pc,FIELD_PLAYERCONTROL_THISTRF),0);
+    Quat rot=FN(RVA_343DE40,Quat (*)(void *,const void *))(P(old_pc,FIELD_PLAYERCONTROL_THISTRF),0);
     void *pc_type=get_type(old_pc);
     void *tag=player_tag();
     if(!pc_type || !tag) {switch_result=-2;return;}
-    void *new_go=FN(0x1994a88,void *(*)(void *,void *,int,int,Vec3,Quat,bool,const void *))(gen,tag,nation,index,pos,rot,false,0);
+    void *new_go=FN(RVA_1994A88,void *(*)(void *,void *,int,int,Vec3,Quat,bool,const void *))(gen,tag,nation,index,pos,rot,false,0);
     if(!unity_exists(new_go)) {switch_result=-3;return;}
     void *new_pc=get_component(new_go,pc_type);
     if(!unity_exists(new_pc)) {
-        FN(0x3431140,void (*)(void *,bool,const void *))(new_go,false,0);
+        FN(RVA_3431140,void (*)(void *,bool,const void *))(new_go,false,0);
         switch_result=-4;return;
     }
     // PlayerControl is on the prefab root; UnitStatus is on "Unit Info".
     // Use the controller's serialized reference instead of a root-only lookup.
-    void *new_status=P(new_pc,0x70);
+    void *new_status=P(new_pc,FIELD_PLAYERCONTROL_USTATUS);
     if(!unity_exists(new_status)) {
-        FN(0x3431140,void (*)(void *,bool,const void *))(new_go,false,0);
+        FN(RVA_3431140,void (*)(void *,bool,const void *))(new_go,false,0);
         switch_result=-5;return;
     }
     // Preserve friend/enemy identity when replacing a tank in Duel or Exercise.
@@ -193,17 +194,17 @@ static void switch_tank(void *game,void *parameters,int command) {
     void *old[14]={old_go,old_status,old_pc},*fresh[14]={new_go,new_status,new_pc};
     static const int pc_offsets[]={0x20,0x28,0x30,0x38,0x40,0x48,0x50,0x58,0x60,0x68,0x78};
     for(int i=0;i<11;i++){old[i+3]=P(old_pc,pc_offsets[i]);fresh[i+3]=P(new_pc,pc_offsets[i]);}
-    FN(0x1982c3c,void (*)(void *,void *,const void *))(game,new_go,0);
-    FN(0x1982c54,void (*)(void *,void *,const void *))(game,new_status,0);
-    replace_references(P(game,0x20),old,fresh,14);
-    replace_references(P(game,0x38),old,fresh,14);
-    replace_references(P(game,0x30),old,fresh,14);
+    FN(RVA_1982C3C,void (*)(void *,void *,const void *))(game,new_go,0);
+    FN(RVA_1982C54,void (*)(void *,void *,const void *))(game,new_status,0);
+    replace_references(P(game,FIELD_GAMECONTROL_MCAMCTRL),old,fresh,14);
+    replace_references(P(game,FIELD_GAMECONTROL_UIMANAGER),old,fresh,14);
+    replace_references(P(game,FIELD_GAMECONTROL_POSTPROCESSCTRL),old,fresh,14);
     // The camera setter also recalculates offsets for the new turret geometry.
-    if(unity_exists(P(game,0x20)) && unity_exists(P(new_pc,0x28)))
-        FN(0x191f324,void (*)(void *,void *,const void *))(P(game,0x20),P(new_pc,0x28),0);
-    I(parameters,0x5c)=nation;I(parameters,0x64)=index;
+    if(unity_exists(P(game,FIELD_GAMECONTROL_MCAMCTRL)) && unity_exists(P(new_pc,FIELD_PLAYERCONTROL_TURRETTRF)))
+        FN(RVA_191F324,void (*)(void *,void *,const void *))(P(game,FIELD_GAMECONTROL_MCAMCTRL),P(new_pc,FIELD_PLAYERCONTROL_TURRETTRF),0);
+    I(parameters,FIELD_GAMEPARAMMANAGER_PLAYERNATION_K__BACKINGFIELD)=nation;I(parameters,FIELD_GAMEPARAMMANAGER_PLAYERUNITINDEX_K__BACKINGFIELD)=index;
     player_control=new_pc;player_status=new_status;
-    FN(0x3431140,void (*)(void *,bool,const void *))(old_go,false,0);
+    FN(RVA_3431140,void (*)(void *,bool,const void *))(old_go,false,0);
     // Delayed destruction allows Unity to finish the current update safely.
     void *destroy=method(old_go,"Destroy",2);
     if(destroy) ((void (*)(void *,float,const void *))P(destroy,0))(old_go,0.05f,destroy);
@@ -214,12 +215,12 @@ static void game_update(void *self,const void *mi) {
     original_game_update(self,mi);
     if(ready!=1)return;
     __atomic_store_n(&last_update_ms,now_ms(),__ATOMIC_RELEASE);
-    void *parameters=FN(0x1931cfc,void *(*)(const void *))(0);
+    void *parameters=FN(RVA_1931CFC,void *(*)(const void *))(0);
     if(!parameters) {state=2;return;}
-    int mode=I(parameters,0x58);
+    int mode=I(parameters,FIELD_GAMEPARAMMANAGER_GAMEMODE_K__BACKINGFIELD);
     if(mode==2) {state=4;pending=-1;player_status=0;return;}
     void *status=P(self,0x118);
-    if(!unity_exists(status) || B(self,0x10c) || B(self,0x10d) || B(status,0x206)) {state=2;pending=-1;return;}
+    if(!unity_exists(status) || B(self,0x10c) || B(self,0x10d) || B(status,FIELD_UNITSTATUS_ISDESTROYED_K__BACKINGFIELD)) {state=2;pending=-1;return;}
     player_status=status;state=3;
     void *gen=P(self,0x48);
     if(gen) build_catalog(gen);
@@ -229,7 +230,7 @@ static void game_update(void *self,const void *mi) {
 }
 static void player_update(void *self,const void *mi) {
     if(ready!=1) {original_player_update(self,mi);return;}
-    void *s=P(self,0x70);
+    void *s=P(self,FIELD_PLAYERCONTROL_USTATUS);
     if(state==3 && s && s==player_status) {
         player_control=self;
         if(ammo) refill(s);
@@ -283,7 +284,7 @@ static bool environment_check(void *self,const void *mi) {
     (void)self;(void)mi;
     // The repackaged APK has a development certificate. Keep the game's
     // post-process initialization flag while allowing this local build to run.
-    FN(0x1990580,void (*)(bool,const void *))(true,0);
+    FN(RVA_1990580,void (*)(bool,const void *))(true,0);
     return true;
 }
 static void *worker(void *unused) {
@@ -291,27 +292,27 @@ static void *worker(void *unused) {
     void *lib=0,*symbol=0;
     for(int i=0;i<600;i++) {
         lib=dlopen("libil2cpp.so",2|4);
-        if(lib && (symbol=dlsym(lib,"weGteMXvWSg"))) break;
+        if(lib && (symbol=dlsym(lib,SYMBOL_BASE_ANCHOR))) break;
         usleep(100000);
     }
     DlInfo info;
     if(!symbol || !dladdr(symbol,&info)) {ready=-1;state=-1;return 0;}
     base=(uintptr_t)info.base;
-    class_method=(MethodFn)dlsym(lib,"adwzwxuEFwK");
-    class_fields=(FieldsFn)dlsym(lib,"jFGyAQsjDcL");
-    if(!class_method || !class_fields || *(uint32_t *)(base+0x195d1d4)!=0xd10143ff ||
-       *(uint32_t *)(base+0x1978cf0)!=0xd10243ff || *(uint32_t *)(base+0x197aa98)!=0xd10303ff ||
-       *(uint32_t *)(base+0x197b638)!=0xfc1e0fe8 || *(uint32_t *)(base+0x1984348)!=0xa9be57fe ||
-       *(uint32_t *)(base+0x1990828)!=0xd10183ff) {
+    class_method=(MethodFn)dlsym(lib,SYMBOL_CLASS_METHOD);
+    class_fields=(FieldsFn)dlsym(lib,SYMBOL_CLASS_FIELDS);
+    if(!class_method || !class_fields || *(uint32_t *)(base+RVA_195D1D4)!=0xd10143ff ||
+       *(uint32_t *)(base+RVA_1978CF0)!=0xd10243ff || *(uint32_t *)(base+RVA_197AA98)!=0xd10303ff ||
+       *(uint32_t *)(base+RVA_197B638)!=0xfc1e0fe8 || *(uint32_t *)(base+RVA_1984348)!=0xa9be57fe ||
+       *(uint32_t *)(base+RVA_1990828)!=0xd10183ff) {
         ready=-1;state=-1;return 0;
     }
     long n=getpagesize();if(n==4096 || n==16384)page_size=n;
-    int ok=install(0x1978cf0,damage_hook,&original_damage);
-    ok&=install(0x197aa98,set_damage_hook,&original_set_damage);
-    ok&=install(0x197b638,engine_hook,&original_engine_hit);
-    ok&=install(0x195d1d4,player_update,(void **)&original_player_update);
-    ok&=install(0x1984348,game_update,(void **)&original_game_update);
-    ok&=install(0x1990828,environment_check,&original_environment_check);
+    int ok=install(RVA_1978CF0,damage_hook,&original_damage);
+    ok&=install(RVA_197AA98,set_damage_hook,&original_set_damage);
+    ok&=install(RVA_197B638,engine_hook,&original_engine_hit);
+    ok&=install(RVA_195D1D4,player_update,(void **)&original_player_update);
+    ok&=install(RVA_1984348,game_update,(void **)&original_game_update);
+    ok&=install(RVA_1990828,environment_check,&original_environment_check);
     ready=ok?1:-1;state=ok?2:-1;
     __android_log_print(ok?4:6,"Luna17","Attack on Tank 5.1.0 module %s",ok?"ready":"failed");
     return 0;

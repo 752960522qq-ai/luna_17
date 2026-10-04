@@ -117,7 +117,7 @@ final class ModMenu {
         body.setClickable(true);
         TextView title = label("Attack on Tank · luna_17", 17, white);
         title.setTypeface(Typeface.DEFAULT, Typeface.BOLD); body.addView(title);
-        body.addView(label("5.1.0  /  ARM64 修复版 r3", 11, muted));
+        body.addView(label(FeatureConfig.BUILD_LABEL, 11, muted));
         status = label("等待游戏模块…", 12, accent); body.addView(status);
         god = feature("无敌", 0); body.addView(god);
         ammo = feature("无限弹药", 1); body.addView(ammo);
@@ -205,8 +205,8 @@ final class ModMenu {
                 case -2: status.setText("模块加载失败："+NativeBridge.error); break;
                 default: status.setText("模块接入失败 · 请使用 5.1.0 ARM64 版本");
             }
-            god.setEnabled(currentState==2 || currentState==3);
-            ammo.setEnabled(currentState==2 || currentState==3);
+            god.setEnabled(FeatureConfig.GODMODE && (currentState==2 || currentState==3));
+            ammo.setEnabled(FeatureConfig.INFINITE_AMMO && (currentState==2 || currentState==3));
             if (panel.getVisibility()==View.VISIBLE) refreshTanks();
             if (waiting) {
                 int r=NativeBridge.switchResult();
@@ -223,7 +223,7 @@ final class ModMenu {
                     }
                 } else if(currentState!=3) {waiting=false;result.setText("已离开当前对局，替换取消。");}
             }
-            swap.setEnabled(currentState==3 && currentTanks.length>0 && !waiting);
+            swap.setEnabled(FeatureConfig.TANK_SWAP && currentState==3 && currentTanks.length>0 && !waiting);
         } catch(Throwable failure) {
             status.setText("模块读取失败："+failure.getClass().getSimpleName());
             god.setEnabled(false); ammo.setEnabled(false); swap.setEnabled(false);

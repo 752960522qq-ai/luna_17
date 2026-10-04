@@ -1,0 +1,35 @@
+{
+  "builder_version": "1.0.0",
+  "builder_checks": {
+    "tests_run": 10,
+    "passed": true
+  },
+  "end_to_end_build": {
+    "status": "succeeded",
+    "selected_features": [
+      "godmode",
+      "infinite_ammo"
+    ],
+    "apk_sha256": "55be685cc65d247890eefd96d9107f8eec9d3e73a443134be5060f3eef0218d0",
+    "signing_certificate_sha256": "9b09d75b77a30e67aa14196823b41cc04c70cb3ec6ac1eab41c41f0980568571",
+    "zipalign_verified": true,
+    "apksigner_verified": true,
+    "original_payload_unchanged": true,
+    "original_entries_preserved": 613,
+    "native_execution_tests": {
+      "runner": "Unicorn ARM64",
+      "tests_run": 7,
+      "failures": 0,
+      "errors": 0,
+      "passed": true,
+      "module_sha256": "6ea89754a7da1c1de53f2e3d595f0ac52a152464bfdd3eb55f5cfe1f0069fe4e",
+      "game_library_sha256": "f68552eaee3018948258966a6e262b0b567b8a1ecc199e60e59f175d388ef4a7"
+    }
+  },
+  "native_macro_expansion_matches_r3": true,
+  "plugin_mcp_checks": "passed; initialization, discovery, authorization, compatibility, plans, packs",
+  "browser_package_analyzer": "actual APK Set matched Python inspection",
+  "gui_visual_test": "unavailable in headless environment",
+  "webmcp_browser_test": "unavailable; Worker ESM has no supported browser preview",
+  "android_device_test": "not performed"
+}

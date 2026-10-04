@@ -4,6 +4,8 @@
 
 菜单包含无敌、无限弹药、对局换坦克。进入游戏后点击左上角 **MOD**，可拖动按钮；换坦克按国家与场景中的实际车型列表选择，保留位置和朝向，并更新玩家、界面与镜头引用。修改功能只在单人模式启用，联机模式自动暂停。
 
+新增 **TankInvincible_3000 1.0.0 构建器**：本地桌面界面、命令行、版本/资源/关键方法指纹检查、签名重建、更新草案与报告，以及同名私人 MCP 插件。使用方法见 [BUILDER_GUIDE.md](BUILDER_GUIDE.md)，历史见 [CHANGELOG.md](CHANGELOG.md)。当前支持已验证的 5.1.0 ARM64；Tank Pack 支持独立格式校验，模型/新坦克注入适配器尚未实现。
+
 ## 安装
 
 适用于 Android 9 及以上的 ARM64 设备，不需要 root 或系统悬浮窗权限。APK 使用独立的开发签名，无法覆盖安装原版。先备份需要保留的存档，再卸载原版并安装测试 APK。安装后进入单人对局，菜单应显示“已接入当前坦克”。
@@ -37,6 +39,7 @@ python scripts/build.py \
   --android-jar /path/to/android.jar \
   --r8 /path/to/r8.jar \
   --apksigner /path/to/apksigner.jar \
+  --zipalign /path/to/zipalign \
   --keystore /path/to/development.jks \
   --password-file /path/to/password.txt \
   --output dist/Attack-on-Tank-5.1.0-luna17-r3.apk
@@ -54,3 +57,5 @@ java -jar /path/to/apksigner.jar verify --verbose dist/Attack-on-Tank-5.1.0-luna
 ```
 
 原生测试执行实际编译后的 ARM64 指令，覆盖玩家/敌方伤害区分、参数保留、原游戏 ObscuredInt 转换函数与数组边界、ADRP 重定位，以及换坦克的位置、朝向、玩家和镜头引用更新。换车验证直接执行原游戏 `_GenerateUnit` 和字符串比较指令，复现错误类型参数被拒绝，并检查六国玩家车型选择。组件查询按原始预制体层级设置边界：根对象可取得 `PlayerControl`，无法取得子对象的 `UnitStatus`。同一回归用例在 r2 编译模块上失败、在 r3 上通过；另验证空引用或已销毁的控制器/状态不会覆盖原玩家、镜头和车型配置。Unity 实例化及场景行为仍需设备实测。当前交付包的校验记录见 `verification.json`。
+
+构建器测试：`PYTHONPATH=. python tests/test_builder.py --apks /path/to/original.apks`。测试涵盖新版/被修改二进制/资源变化拦截、默认关闭的草案、非法 Tank Pack 路径、无效参数和失败时保留已有输出。

@@ -11,3 +11,8 @@ __pycache__/
 *.keystore
 *.idsig
 password.txt
+private/
+builder.config.json
+!prebuilt/
+!prebuilt/5.1.0/
+!prebuilt/5.1.0/libaotmod.so

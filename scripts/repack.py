@@ -132,8 +132,8 @@ def write_entry(out, name, content, compression=zipfile.ZIP_DEFLATED):
             info.extra = struct.pack('<HH',0xd935,padding) + b'\0'*padding
     out.writestr(info,content,compresslevel=6)
 
-def repack(apks, dex, native, output):
-    profile=json.loads((Path(__file__).resolve().parents[1]/'profiles/attack-on-tank-5.1.0.json').read_text())
+def repack(apks, dex, native, output, profile_path=None):
+    profile=json.loads(Path(profile_path or Path(__file__).resolve().parents[1]/'profiles/attack-on-tank-5.1.0.json').read_text())
     with zipfile.ZipFile(apks) as bundle:
         with zipfile.ZipFile(io.BytesIO(bundle.read('base.apk'))) as base:
             metadata=base.read('assets/bin/Data/Managed/Metadata/global-metadata.dat')
@@ -142,6 +142,8 @@ def repack(apks, dex, native, output):
             manifest = patch_manifest(base.read('AndroidManifest.xml'))
             if 'lib/arm64-v8a/libaotmod.so' in base.namelist():
                 raise ValueError('Already modified input')
+            if 'lib/arm64-v8a/libil2cpp.so' in base.namelist() and hashlib.sha256(base.read('lib/arm64-v8a/libil2cpp.so')).hexdigest()!=profile['libil2cpp_sha256']:
+                raise ValueError('Unsupported libil2cpp.so')
             dex_indices = [int(m.group(1) or 1) for name in base.namelist()
                            if (m := re.fullmatch(r'classes(\d*)\.dex',name))]
             with zipfile.ZipFile(output,'w',allowZip64=False) as out:
@@ -152,7 +154,7 @@ def repack(apks, dex, native, output):
                         continue
                     content = manifest if name == 'AndroidManifest.xml' else base.read(name)
                     write_entry(out,name,content,info.compress_type); written.add(name)
-                arm_found = False
+                arm_found = 'lib/arm64-v8a/libil2cpp.so' in written
                 for entry in bundle.namelist():
                     if not entry.endswith('.apk') or entry == 'base.apk': continue
                     with zipfile.ZipFile(io.BytesIO(bundle.read(entry))) as split:

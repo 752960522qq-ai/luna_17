@@ -17,8 +17,8 @@ from elftools.elf.elffile import ELFFile
 ROOT=Path(__file__).resolve().parents[1]
 NS='{http://schemas.android.com/apk/res/android}'
 
-def verify(apk,apks,native_test_report=None):
-    profile=json.loads((ROOT/'profiles/attack-on-tank-5.1.0.json').read_text())
+def verify(apk,apks,native_test_report=None,profile_path=None):
+    profile=json.loads(Path(profile_path or ROOT/'profiles/attack-on-tank-5.1.0.json').read_text())
     with zipfile.ZipFile(apk) as z, zipfile.ZipFile(apks) as bundle:
         assert z.testzip() is None,'Corrupt ZIP entry'
         manifest=AXMLPrinter(z.read('AndroidManifest.xml')).get_xml_obj()

@@ -1,0 +1,9 @@
+{
+  "format": 1,
+  "id": "T72A",
+  "displayName": "T-72A",
+  "country": "USSR",
+  "tier": 5,
+  "basePrefab": "T34_85_Player",
+  "units": {"speed": "km/h", "power": "hp", "time": "s", "angle": "deg"}
+}
