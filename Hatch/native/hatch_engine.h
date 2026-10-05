@@ -41,8 +41,8 @@ static void *hatch_call_class(void *klass,void *object,const char *name,int coun
 static void *hatch_call(void *o,const char *name,int n,void **a){if(!o){hatch_engine_error=1;hatch_fail("Unity object missing");return 0;}return hatch_call_class(P(o,0),o,name,n,a,0);}
 static void hatch_set(void *o,const char *name,void *v){void *a[]={v};hatch_call(o,name,1,a);}
 static void *hatch_component(void *go,void *klass){void *type=hatch_type_object(klass);void *a[]={type};return type?hatch_call_class(P(go,0),go,"AddComponent",1,a,hatch_class("System","Type")):0;}
-static void *hatch_get_child_component(void *go,const char *ns,const char *name){void *type=hatch_type_object(hatch_class(ns,name));bool inactive=true;void *a[]={type,&inactive};return type?hatch_call(go,"GetComponentInChildren",2,a):0;}
-static void *hatch_all(void *go,void *klass){void *type=hatch_type_object(klass);bool inactive=true;void *a[]={type,&inactive};return type?hatch_call(go,"GetComponentsInChildren",2,a):0;}
+static void *hatch_get_child_component(void *go,const char *ns,const char *name){void *type=hatch_type_object(hatch_class(ns,name));bool inactive=true;void *a[]={type,&inactive};return type?hatch_call_class(P(go,0),go,"GetComponentInChildren",2,a,hatch_class("System","Type")):0;}
+static void *hatch_all(void *go,void *klass){void *type=hatch_type_object(klass);bool inactive=true;void *a[]={type,&inactive};return type?hatch_call_class(P(go,0),go,"GetComponentsInChildren",2,a,hatch_class("System","Type")):0;}
 static void hatch_field(void *o,const char *name,void *value){
  if(!o){hatch_engine_error=1;return;}void *iter=0,*f;while((f=class_fields(P(o,0),&iter)))if(!strcmp((const char *)P(f,0),name)){int offset=I(f,0x18);if(offset>=0x10 && offset<0x1800){managed_store(o,offset,value);return;}}
  hatch_engine_error=1;snprintf(hatch_error,sizeof(hatch_error),"Game field unavailable: %s",name);
@@ -62,9 +62,11 @@ static int hatch_apply_tank(HatchTank *t,void *go,void *pc,void *status){
  void *gameobject=hatch_class("UnityEngine","GameObject"),*meshklass=hatch_class("UnityEngine","Mesh"),*textureklass=hatch_class("UnityEngine","Texture2D"),*materialklass=hatch_class("UnityEngine","Material"),*rendererklass=hatch_class("UnityEngine","Renderer"),*meshfilterklass=hatch_class("UnityEngine","MeshFilter"),*meshrendererklass=hatch_class("UnityEngine","MeshRenderer"),*imageklass=hatch_class("UnityEngine","ImageConversion"),*vector3=hatch_class("UnityEngine","Vector3"),*vector2=hatch_class("UnityEngine","Vector2"),*intklass=hatch_class("System","Int32"),*byteklass=hatch_class("System","Byte"),*stringklass=hatch_class("System","String"),*transformklass=hatch_class("UnityEngine","Transform");
  if(!gameobject||!meshklass||!textureklass||!materialklass||!rendererklass||!meshfilterklass||!meshrendererklass||!imageklass||!vector3||!vector2||!intklass||!byteklass||!stringklass||!transformklass)return hatch_fail("Required runtime class was stripped");
  void *root=hatch_call(go,"get_transform",0,0),*old_renderers=hatch_all(go,rendererklass),*source_material=0;
+ if(hatch_engine_error)return 0;
  if(!old_renderers || I(old_renderers,0x18)<=0 || I(old_renderers,0x18)>1024)return hatch_fail("T34 renderer template missing");
  for(int i=0;i<I(old_renderers,0x18);i++){void *renderer=P(old_renderers,0x20+i*8);if(!source_material)source_material=hatch_call(renderer,"get_sharedMaterial",0,0);bool no=false;hatch_set(renderer,"set_enabled",&no);}
- if(!source_material || hatch_engine_error)return 0;
+ if(hatch_engine_error)return 0;
+ if(!source_material)return hatch_fail("T34 material template missing");
  // Strong managed arrays keep all temporary Unity wrappers rooted during allocations.
  void *volatile texture_roots=ha_array(textureklass,t->image_count),*volatile object_roots=ha_array(gameobject,t->node_count);if(!texture_roots||!object_roots)return hatch_fail("Cannot allocate model roots");
  for(uint32_t i=0;i<t->image_count && !hatch_engine_error;i++){
@@ -131,3 +133,4 @@ static int hatch_apply_tank(HatchTank *t,void *go,void *pc,void *status){
  managed_store(status,0x68,ha_string(t->disk.id));managed_store(status,0x70,ha_string(t->disk.gun));hatch_set(go,"set_name",ha_string(t->disk.id));
  (void)gun_index;(void)object_roots;(void)texture_roots;return !hatch_engine_error;
 }
+
