@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "apk": "TankInvincible-5.1.0-T54-r9.apk",
+  "size_bytes": 219254702,
+  "sha256": "7a4d3e09471e784ca75f7c3b459b51d56b91320b5872152fbc6417d2983f0d00",
+  "certificate_sha256": "9b09d75b77a30e67aa14196823b41cc04c70cb3ec6ac1eab41c41f0980568571",
+  "same_certificate_as_r8": true,
+  "signature_verified": true,
+  "apk_16k_alignment_verified": true,
+  "zip_crc_verified": true,
+  "changed_entries": [
+    "assets/bin/Data/data.unity3d",
+    "classes4.dex"
+  ],
+  "preserved_entries": 619,
+  "native_module_sha256": "d01d0a331d8517e6901a04e5b4874b3cac2e40ca7e4427a866eccf424f49dc86",
+  "runtime_identical_to_r8": true,
+  "unity_data_sha256": "f950c94a5445ff84c501875181e674e214ae595f747fe7ff3dd6289bd11b0646",
+  "dex_label_only_modified": true,
+  "startup_notice_preserved": true,
+  "android_device_test": "not performed"
+}

@@ -1,5 +1,9 @@
 # TankInvincible_3000 2.0
 
+## 当前交付 APK：r9
+
+T‑54 模型分块、r9 原生模块与菜单快照、材质修复脚本、打包流程和验证报告见 [CURRENT_R9.md](CURRENT_R9.md)。构建器 2.0 源码已保留；r7 原生修复源码尚未恢复，2.0 源码构建不等于复现已交付 r9 APK。
+
 新增坦克项目、模型/贴图导入、参数生成与批量玩家资源注入。使用方法见 [BUILDER_V2_GUIDE.md](BUILDER_V2_GUIDE.md)。旧版本记录见下文；其 T54 专用限制由 2.0 说明取代。
 
 # 坦无敌3000 / TankInvincible · Attack on Tank 5.1.0
@@ -8,13 +12,13 @@
 
 菜单包含无敌、无限弹药、对局换坦克。进入游戏后点击左上角 **MOD**，可拖动按钮；换坦克按国家与场景中的实际车型列表选择，保留位置和朝向，并更新玩家、界面与镜头引用。修改功能只在单人模式启用，联机模式自动暂停。
 
-当前工程为 **坦无敌3000 / TankInvincible 1.1.2-dev / 修改器 r6**。使用与游戏完全对应的 Unity 6000.3.19f1 类型树修复战斗资源的字段错位与截断，并改名。保留正确的 Tier 调用和原选车场景。构建器支持版本、资源和 20 项方法指纹检查，签名重建及更新草案。使用方法见 [BUILDER_GUIDE.md](BUILDER_GUIDE.md)，历史见 [CHANGELOG.md](CHANGELOG.md)，本次修复与验证见 [TANKINVINCIBLE_R6_REPORT.md](TANKINVINCIBLE_R6_REPORT.md)。
+以下为 **坦无敌3000 / TankInvincible 1.1.2-dev / 修改器 r6** 的历史说明。使用与游戏完全对应的 Unity 6000.3.19f1 类型树修复战斗资源的字段错位与截断，并改名。保留正确的 Tier 调用和原选车场景。构建器支持版本、资源和 20 项方法指纹检查，签名重建及更新草案。使用方法见 [BUILDER_GUIDE.md](BUILDER_GUIDE.md)，历史见 [CHANGELOG.md](CHANGELOG.md)，本次修复与验证见 [r6 留存分支](https://github.com/752960522qq-ai/luna_17/tree/codex/t54-r4-20261005)。
 
 ## 安装
 
 适用于 Android 9 及以上的 ARM64 设备，不需要 root 或系统悬浮窗权限。APK 使用独立的开发签名，无法覆盖安装原版。先备份需要保留的存档，再卸载原版并安装测试 APK。安装后进入单人对局，菜单应显示“已接入当前坦克”。
 
-当前交付为 **r6 / T‑54 测试版**，安卓显示“坦无敌3000 · TankInvincible”，与此前测试 APK 签名一致，可覆盖更新此前修改版。
+历史交付为 **r6 / T‑54 测试版**，安卓显示“坦无敌3000 · TankInvincible”，与此前测试 APK 签名一致，可覆盖更新此前修改版。
 
 r3 修复了对局换坦克显示“新载具缺少控制组件（-4）”的问题：原游戏的 `T34_85_Player` 和 `ZiS_3_Player` 预制体根对象包含 `PlayerControl`，但 `UnitStatus` 在子对象 `Unit Info` 上。此前只在根对象查找 `UnitStatus`，因此误判组件缺失。现在从新控制器的 `uStatus`（偏移 `0x70`）读取游戏已序列化的状态引用，确认控制器和状态仍有效后再更新玩家和镜头。失败时保留原坦克，并区分控制器缺失（-4）和状态引用未就绪（-5）。
 

@@ -16,3 +16,7 @@ builder.config.json
 !prebuilt/
 !prebuilt/5.1.0/
 !prebuilt/5.1.0/libaotmod.so
+
+!prebuilt/5.1.0/r9/
+!prebuilt/5.1.0/r9/libaotmod.so
+tanks/T54_1949/model.glb

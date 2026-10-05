@@ -1,0 +1,15 @@
+{
+  "all_unsigned_zip_entries_equal_to_released_r9": true,
+  "zip_entry_count": 621,
+  "rebuilt_resource_matches_released_r9": true,
+  "unity_data_sha256": "f950c94a5445ff84c501875181e674e214ae595f747fe7ff3dd6289bd11b0646",
+  "native_source_revision": "builder 2.0 based on r6; r7 repair source unavailable",
+  "latest_native_source_recovered": false,
+  "current_runtime_preserved_as_verified_snapshot": true,
+  "android_device_test": "not performed",
+  "model_restored_from_repository_parts_byte_identical": true,
+  "model_parts": 42,
+  "remote_builder_2_0_preserved": true,
+  "material_rebuild_with_builder_2_0_passed": true,
+  "builder_2_0_project_tests_passed": 4
+}
