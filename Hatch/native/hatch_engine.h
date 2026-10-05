@@ -42,7 +42,13 @@ static void *hatch_call(void *o,const char *name,int n,void **a){if(!o){hatch_en
 static void hatch_set(void *o,const char *name,void *v){void *a[]={v};hatch_call(o,name,1,a);}
 static void *hatch_component(void *go,void *klass){void *type=hatch_type_object(klass);void *a[]={type};return type?hatch_call_class(P(go,0),go,"AddComponent",1,a,hatch_class("System","Type")):0;}
 static void *hatch_get_child_component(void *go,const char *ns,const char *name){void *type=hatch_type_object(hatch_class(ns,name));bool inactive=true;void *a[]={type,&inactive};return type?hatch_call_class(P(go,0),go,"GetComponentInChildren",2,a,hatch_class("System","Type")):0;}
-static void *hatch_all(void *go,void *klass){void *type=hatch_type_object(klass);bool inactive=true;void *a[]={type,&inactive};return type?hatch_call_class(P(go,0),go,"GetComponentsInChildren",2,a,hatch_class("System","Type")):0;}
+// 5.1.0 strips the non-generic public child-array overload. Its private
+// six-argument implementation remains in the shipped metadata and native code.
+static void *hatch_all(void *go,void *klass){
+ void *type=hatch_type_object(klass);bool typed_array=false,recursive=true,inactive=true,reverse=false;
+ void *a[]={type,&typed_array,&recursive,&inactive,&reverse,0};
+ return type?hatch_call_class(P(go,0),go,"GetComponentsInternal",6,a,hatch_class("System","Type")):0;
+}
 static void hatch_field(void *o,const char *name,void *value){
  if(!o){hatch_engine_error=1;return;}void *iter=0,*f;while((f=class_fields(P(o,0),&iter)))if(!strcmp((const char *)P(f,0),name)){int offset=I(f,0x18);if(offset>=0x10 && offset<0x1800){managed_store(o,offset,value);return;}}
  hatch_engine_error=1;snprintf(hatch_error,sizeof(hatch_error),"Game field unavailable: %s",name);

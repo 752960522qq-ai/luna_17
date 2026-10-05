@@ -68,7 +68,8 @@ final class ModMenu {
     void attach() {
         overlay = new FrameLayout(activity);
         overlay.setClipChildren(false);
-        bubble = button("舱盖");
+        bubble = button("坦无敌\n3000");
+        bubble.setTextSize(11);
         bubble.setTextColor(Color.WHITE);
         bubble.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
         bubble.setBackground(background(Color.rgb(187, 74, 46), 24));
@@ -107,7 +108,7 @@ final class ModMenu {
         activity.addContentView(overlay, new ViewGroup.LayoutParams(-1,-1));
         overlay.post(new Runnable() { @Override public void run() { positionPanel(); }});
         handler.post(poll);
-        toast("修改菜单已载入，点击左上角舱盖");
+        toast("修改菜单已载入，点击左上角坦无敌3000");
     }
 
     private void buildPanel() {
@@ -115,12 +116,12 @@ final class ModMenu {
         body.setOrientation(LinearLayout.VERTICAL); body.setPadding(dp(14),dp(10),dp(14),dp(12));
         body.setBackground(background(Color.argb(248, 19, 30, 46), 13));
         body.setClickable(true);
-        TextView title = label("Hatch · 舱盖 0.1", 17, white);
+        TextView title = label("坦无敌3000", 17, white);
         title.setTypeface(Typeface.DEFAULT, Typeface.BOLD); body.addView(title);
         body.addView(label("坦克模组加载器", 12, muted));
         body.addView(label(FeatureConfig.BUILD_LABEL, 11, muted));
         status = label("等待游戏模块…", 12, accent); body.addView(status);
-        Button importTank=button("管理 / 导入坦克包");body.addView(importTank);
+        Button importTank=button("舱盖 · 管理 / 导入坦克包");body.addView(importTank);
         importTank.setOnClickListener(v -> HatchLoader.show(activity));
         god = feature("无敌", 0); body.addView(god);
         ammo = feature("无限弹药", 1); body.addView(ammo);
@@ -239,3 +240,4 @@ final class ModMenu {
     private void toast(String text) { Toast.makeText(activity,text,Toast.LENGTH_SHORT).show(); }
     void detach() { stopped=true; handler.removeCallbacks(poll); }
 }
+

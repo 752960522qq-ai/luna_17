@@ -80,7 +80,7 @@ def patch_manifest(data):
         pos += size
     pool = next(c for typ,c in chunks if typ == 1)
     names = strings(pool)
-    added = ['com.luna17.aot.ModActivity', 'Hatch · 舱盖 0.1']
+    added = ['com.luna17.aot.ModActivity', '坦无敌3000']
     activity_index, label_index = len(names), len(names)+1
     names.extend(added)
     out = []; skipping = 0; activity_changed = False; split_removed = 0
@@ -181,3 +181,4 @@ if __name__ == '__main__':
     args=parser.parse_args()
     output=repack(args.apks,args.dex,args.native,args.output)
     print(f'Unsigned APK: {output} ({output.stat().st_size:,} bytes)')
+

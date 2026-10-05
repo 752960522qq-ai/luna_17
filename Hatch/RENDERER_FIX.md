@@ -1,11 +1,11 @@
-# Hatch 0.1 渲染器查找修复
+# Hatch 0.1 子物体组件修复（第二次）
 
-手机反馈：替换 T54 时显示 `T34 renderer template missing`。
+手机反馈：`Unity method unavailable: GetComponentsInChildren`。第一次修复仅解决重载歧义；它的模拟测试没有覆盖实际游戏裁剪后的 API。
 
-`GetComponentInChildren` / `GetComponentsInChildren` 原先仅按名字和参数数量查找，可能选中泛型或列表重载。现在明确匹配第一个参数的 `System.Type` 类；Unity 调用异常不再覆盖为模板缺失。没有材质时给出独立错误。
+对原版 5.1.0 的加密元数据解码后验证：GameObject 保留的 `GetComponentsInChildren` 全部为泛型重载，没有非泛型 `(Type, bool)`。非泛型 `GetComponentsInternal` 六参数实现仍然存在（token 0x60009ee）。
 
-验证：生产助手函数在误导重载排在前面的测试中通过 4 项检查；原查找方式在同一场景失败。新 ARM64 库通过 12 项 Unicorn 检查，安装器通过 9 项检查。APK 原始 613 项载荷保持不变，签名及 16KB 对齐检查通过。
+现在直接调用 `GetComponentsInternal(type, false, true, true, false, null)`，获得匹配类型的子物体组件数组，包含未激活对象。继续按第一个参数 System.Type 匹配，保留实际异常，并保持失败回退。
 
-未连接 Android 真机，不能据此确认 Unity 中模型、贴图及操控全部正常。保持加载失败时回退原坦克。
+命名：修改器界面和 Android 应用名恢复为“坦无敌3000”；Hatch / 舱盖 0.1 仅用于模组加载器及管理界面。模组文件及目录格式不变。
 
-独立 T54 模组格式仍为 Hatch 0.1：包含 GLB、贴图、参数、绑定配置及运行时数据，无须修改。修复的是加载器，需更新游戏 APK 后再加载。
+验证：实际元数据 3 项检查，生产调用助手 4 项检查，ARM64 执行 12 项检查。Android / Unity 真机显示和操控尚未验证。

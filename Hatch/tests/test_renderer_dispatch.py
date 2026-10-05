@@ -32,23 +32,26 @@ static void *mock_identity(void *p){return p;}
 static void *mock_methods(void *k,void **it){uintptr_t n=(uintptr_t)*it;*it=(void *)(n+1);return n==0?wrong:n==1?right:0;}
 static void *mock_untyped(void *k,const char *s,int n){return wrong;}
 static void *mock_invoke(void *m,void *o,void **a,void **ex){
- assert(m==right);assert(a[0]==&renderer_class);assert(*(bool *)a[1]);
+ assert(m==right);assert(a[0]==&renderer_class);
+ if(!strcmp(P(m,0x18),"GetComponentsInternal")){
+  assert(!*(bool *)a[1]);assert(*(bool *)a[2]);assert(*(bool *)a[3]);assert(!*(bool *)a[4]);assert(a[5]==0);
+ }else assert(*(bool *)a[1]);
  if(fail){*ex=&domain;return 0;}return result;
 }
 int main(void){
  hatch_engine_ok=1;ha_domain=mock_domain;ha_assemblies=mock_assemblies;ha_image=mock_image;ha_class=mock_class;
  ha_type=mock_identity;ha_reflect_type=mock_identity;ha_param_class=mock_identity;ha_methods=mock_methods;ha_invoke=mock_invoke;class_method=mock_untyped;
- P(object,0)=&go_class;P(wrong,0x30)=bad_params;P(right,0x30)=good_params;B(wrong,0x52)=B(right,0x52)=2;
- P(wrong,0x18)=P(right,0x18)="GetComponentsInChildren";
+ P(object,0)=&go_class;P(wrong,0x30)=bad_params;P(right,0x30)=good_params;B(wrong,0x52)=B(right,0x52)=6;
+ P(wrong,0x18)=P(right,0x18)="GetComponentsInternal";
  assert(hatch_all(object,&renderer_class)==result);assert(!hatch_engine_error);
- P(wrong,0x18)=P(right,0x18)="GetComponentInChildren";
+ P(wrong,0x18)=P(right,0x18)="GetComponentInChildren";B(wrong,0x52)=B(right,0x52)=2;
  assert(hatch_get_child_component(object,"UnityEngine","Renderer")==result);
- fail=1;P(wrong,0x18)=P(right,0x18)="GetComponentsInChildren";
+ fail=1;P(wrong,0x18)=P(right,0x18)="GetComponentsInternal";B(wrong,0x52)=B(right,0x52)=6;
  assert(hatch_all(object,&renderer_class)==0);assert(hatch_engine_error);
- assert(!strcmp(hatch_error,"Unity exception calling GetComponentsInChildren"));
+ assert(!strcmp(hatch_error,"Unity exception calling GetComponentsInternal"));
  hatch_engine_error=0;B(right,0x52)=1;
  assert(hatch_all(object,&renderer_class)==0);assert(hatch_engine_error);
- assert(!strcmp(hatch_error,"Unity method unavailable: GetComponentsInChildren"));
+ assert(!strcmp(hatch_error,"Unity method unavailable: GetComponentsInternal"));
  puts("4 overload/error checks passed");
 }
 '''
