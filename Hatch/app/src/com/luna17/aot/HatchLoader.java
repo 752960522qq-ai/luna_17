@@ -34,7 +34,7 @@ final class HatchLoader {
         IO.execute(new Runnable(){public void run(){
             StringBuilder log=new StringBuilder();int count=0;
             try {
-                File f=folder(a);log.append(f.getAbsolutePath()).append("\n\n");
+                File f=folder(a);seedBuiltins(context,f,log);log.append(f.getAbsolutePath()).append("\n\n");
                 File[] files=f.listFiles(new FilenameFilter(){public boolean accept(File d,String n){return n.endsWith(".hatch");}});
                 if(files==null)throw new IOException("无法读取模组文件夹");
                 Arrays.sort(files);Set<String> ids=new HashSet<String>();
@@ -53,6 +53,42 @@ final class HatchLoader {
                 report="Hatch · 舱盖 0.1\n已加载 "+count+" 个外置坦克\n\n"+log+"\n导入或更新后，请完全退出并重新打开游戏。";
             } catch(Exception e){report="Hatch 扫描失败: "+e.getMessage();}
         }});
+    }
+    private static boolean existingId(File mods,String id){
+        File[] files=mods.listFiles((d,n)->n.endsWith(".hatch"));if(files==null)return false;
+        for(File f:files)try(ZipFile z=new ZipFile(f)){
+            ZipEntry e=z.getEntry("hatch.json");if(e==null)continue;
+            ByteArrayOutputStream b=new ByteArrayOutputStream();try(InputStream in=z.getInputStream(e)){copy(in,b,16384,null);}
+            if(id.equals(new JSONObject(new String(b.toByteArray(),StandardCharsets.UTF_8)).optString("id")))return true;
+        }catch(Exception ignored){}return false;
+    }
+    private static void seedBuiltins(android.content.Context c,File mods,StringBuilder log){
+        try{
+            ByteArrayOutputStream b=new ByteArrayOutputStream();
+            try(InputStream in=c.getAssets().open("Hatch/catalog.json")){copy(in,b,16384,null);}
+            JSONObject catalog=new JSONObject(new String(b.toByteArray(),StandardCharsets.UTF_8));
+            if(catalog.getInt("format")!=1)throw new IOException("内置模组目录版本不兼容");
+            org.json.JSONArray list=catalog.getJSONArray("mods");if(list.length()>16)throw new IOException("内置模组超过 16 个");
+            android.content.SharedPreferences prefs=c.getSharedPreferences("Hatch-builtin-seeds",0);
+            for(int i=0;i<list.length();i++){
+                JSONObject m=list.getJSONObject(i);String id=m.getString("id"),digest=m.getString("sha256");File temp=null;
+                try{
+                    if(!id.matches("[A-Za-z0-9_-]{1,48}")||!digest.matches("[a-f0-9]{64}"))throw new IOException("内置模组标识非法");
+                    String file=id+".hatch";
+                    if(digest.equals(prefs.getString(file,"")))continue;
+                    if(existingId(mods,id)){prefs.edit().putString(file,digest).commit();log.append("保留已有坦克包: ").append(id).append("\n");continue;}
+                    temp=File.createTempFile("seed-",".tmp",mods);MessageDigest sha=MessageDigest.getInstance("SHA-256");long size;
+                    try(InputStream in=c.getAssets().open("Hatch/mods/"+file);OutputStream out=new FileOutputStream(temp)){size=copy(in,out,MAX,sha);}
+                    StringBuilder actual=new StringBuilder();for(byte v:sha.digest())actual.append(String.format(Locale.ROOT,"%02x",v&255));
+                    if(!digest.equals(actual.toString())||size!=m.getLong("size"))throw new IOException("内置模组文件校验失败");
+                    Package pack=validate(temp,c.getCacheDir());pack.runtime.delete();
+                    if(!id.equals(pack.id))throw new IOException("内置模组 ID 不一致");
+                    if(!temp.renameTo(new File(mods,file)))throw new IOException("无法释放内置模组");
+                    prefs.edit().putString(file,digest).commit();log.append("首次导入内置坦克: ").append(id).append("\n");
+                }catch(Exception e){log.append("内置模组 ").append(id).append(": ").append(e.getMessage()).append("\n");}finally{if(temp!=null)temp.delete();}
+            }
+        }catch(java.io.FileNotFoundException noBuiltins){/* Older 0.1 packages have no asset catalog. */}
+        catch(Exception e){log.append("内置模组初始化失败: ").append(e.getMessage()).append("\n");}
     }
     static void show(final Activity a){
         new AlertDialog.Builder(a).setTitle("Hatch · 舱盖 0.1").setMessage(report)
@@ -118,3 +154,4 @@ final class HatchLoader {
         while((n=in.read(b))!=-1){if((size+=n)>max)throw new IOException("文件超过大小限制");out.write(b,0,n);if(sha!=null)sha.update(b,0,n);}return size;
     }
 }
+
