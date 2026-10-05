@@ -1,0 +1,34 @@
+{
+  "file": "Hatch-0.1-experimental.apk",
+  "size_bytes": 174755759,
+  "sha256": "60fad73156862e6748565b6efc535bf19ce05cc1cb7e22a57b0fac7c6e7e38f4",
+  "preserved_original_entries": 613,
+  "native_methods": [
+    "hatchError",
+    "init",
+    "loadHatch",
+    "state",
+    "switchResult",
+    "switchTank",
+    "tanks",
+    "toggle"
+  ],
+  "module_16k_elf_alignment": true,
+  "display_name": "舱盖",
+  "english_name": "Hatch",
+  "loader_version": "0.1",
+  "manifest_labels_verified": true,
+  "menu_names_verified": true,
+  "original_game_payload_unchanged": true,
+  "prepared_unity_data_sha256": null,
+  "native_execution_tests": {
+    "runner": "Unicorn ARM64",
+    "tests_run": 12,
+    "failures": 0,
+    "errors": 0,
+    "passed": true,
+    "module_sha256": "f0037d3aa15cd3ad3fb78685e07e973777747d16d2ec447eac4af97904165bac",
+    "game_library_sha256": "f68552eaee3018948258966a6e262b0b567b8a1ecc199e60e59f175d388ef4a7"
+  },
+  "android_device_test": "not performed"
+}

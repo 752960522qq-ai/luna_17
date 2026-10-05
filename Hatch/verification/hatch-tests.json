@@ -1,0 +1,7 @@
+{
+  "tests_run": 7,
+  "passed": true,
+  "failures": 0,
+  "errors": 0,
+  "scope": "native package parser, ASan/UBSan; not Unity runtime"
+}

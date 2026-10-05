@@ -1,0 +1,6 @@
+{
+  "unit": "mm",
+  "hull": {"front": 0, "side": 0, "rear": 0},
+  "turret": {"front": 0, "side": 0, "rear": 0},
+  "note": "请填入自己的分区装甲；零值仅用于格式示例。"
+}

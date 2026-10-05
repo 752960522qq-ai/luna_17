@@ -1,0 +1,10 @@
+{
+  "format": 1,
+  "id": "T54_1949",
+  "displayName": "T‑54 (1949)",
+  "country": "USSR",
+  "tier": 4,
+  "basePrefab": "T34_85_Player",
+  "role": "player",
+  "adapter": "aot-5.1.0-arm64-v1"
+}

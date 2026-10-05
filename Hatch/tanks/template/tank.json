@@ -1,0 +1,9 @@
+{
+  "maxForwardSpeed": 60,
+  "maxReverseSpeed": 4,
+  "enginePower": 780,
+  "crew": 3,
+  "gunElevation": 14,
+  "gunDepression": -6,
+  "turretRotation": 18
+}

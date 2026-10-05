@@ -1,0 +1,3 @@
+VERSION='0.1'
+NAME='Hatch'
+CHINESE_NAME='舱盖'
