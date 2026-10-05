@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "packs": [
+    "T54_1949"
+  ],
+  "battle_catalog_count": 12,
+  "selection_scene_unchanged": true,
+  "stock_resources_unchanged": true,
+  "new_objects": 1431,
+  "meshes": 81,
+  "materials": 16,
+  "resolved_pointers": 3102,
+  "android_device_test": "not performed"
+}

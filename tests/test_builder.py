@@ -69,7 +69,9 @@ class BuilderTests(unittest.TestCase):
     def test_changed_layout_cannot_reuse_prebuilt_binding(self):
         profile=json.loads((ROOT/'profiles'/self.report['profile']).read_text())
         original_binding=native_config_digest(profile)
-        self.assertEqual(profile['builder']['prebuilt_config_sha256'],original_binding)
+        # r10 adds camera/UI hooks. The archived r6 module retains its old
+        # binding and must be rejected instead of relabelled as an r10 build.
+        self.assertNotEqual(profile['builder']['prebuilt_config_sha256'],original_binding)
         profile['native_macros']['FIELD_PLAYERCONTROL_USTATUS']='0x78'
         self.assertNotEqual(native_config_digest(profile),profile['builder']['prebuilt_config_sha256'])
 

@@ -202,7 +202,8 @@ class Adapter:
     def model(self,model,parent):
         node_gos={};node_trs={};renders={};materials=self.materials(model);parents=model.parents()
         for i,node in enumerate(model.g.nodes):
-            go_t=copy.deepcopy(self.templates['GameObject'].read_typetree(check_read=False));go_t.update(m_Name=self.prefix+'_'+(node.name or str(i)),m_Component=[],m_IsActive=True,m_Layer=0)
+            name='Gun' if node.name=='Gun' and i in parents and model.g.nodes[parents[i]].name=='Turret' else self.prefix+'_'+(node.name or str(i))
+            go_t=copy.deepcopy(self.templates['GameObject'].read_typetree(check_read=False));go_t.update(m_Name=name,m_Component=[],m_IsActive=True,m_Layer=0)
             go=self.create('GameObject',go_t);tr_t=copy.deepcopy(self.templates['Transform'].read_typetree(check_read=False));q=node.rotation or [0,0,0,1]
             tr_t.update(m_GameObject=pp(go.path_id),m_LocalPosition=xyz(np.array(node.translation or [0,0,0])*[1,1,-1]),m_LocalRotation=dict(zip('xyzw',[-q[0],-q[1],q[2],q[3]])),m_LocalScale=xyz(node.scale or [1,1,1]),m_Father=pp(),m_Children=[])
             tr=self.create('Transform',tr_t);go_t['m_Component']=[{'component':pp(tr.path_id)}];go.save_typetree(go_t);node_gos[i]=go;node_trs[i]=tr
@@ -238,7 +239,11 @@ def inject_one(adapter,directory,log):
     sf=adapter.sf;initial_count=len(adapter.created)
     ids,classes,names=adapter.clone_player();root=sf.objects[ids[3413]];root_tr=adapter.transform(root)
     root_t=root.read_typetree(check_read=False);root_t['m_Name']=ident+'_Player';root.save_typetree(root_t)
-    model=Model(directory/'model.glb');ng,nt,renderers=adapter.model(model,root_tr);byname={n.name:i for i,n in enumerate(model.g.nodes)}
+    model=Model(directory/'model.glb')
+    if ident=='T54_1949':
+        from .t54_controls import repair_model
+        model=repair_model(model)
+    ng,nt,renderers=adapter.model(model,root_tr);byname={n.name:i for i,n in enumerate(model.g.nodes)}
     turret=nt[byname['Turret']];gun=nt[byname['Gun']]
     # Keep the game's functional components and collision regions; move them
     # with the new rig and disable the inherited visual meshes.
@@ -262,6 +267,9 @@ def inject_one(adapter,directory,log):
     write_mb(bm,'BodyMove',v)
     for launcher in classes['Launcher']:
         v=read_mb('Launcher',launcher.get_raw_data());v.update(weaponName=weapon['name'],attackPower=round(weapon['shells']['AP']['penetrationMm']),initSpeed=float(weapon['muzzleVelocity']),calibre=round(weapon['caliber']),fireSize=2,barrelTrf=pp(nt[byname['Barrel_Recoil']].path_id));write_mb(launcher,'Launcher',v)
+        if weapon['ammo'].get('HE',0)>0 and not v['shellHeGos']:
+            from .t54_controls import clone_he_pool
+            clone_he_pool(adapter,launcher,root_tr)
     rigid=sf.objects[ids[116152]];v=rigid.read_typetree(check_read=False);v['m_Mass']=tank['weightTonnes']*1000.;rigid.save_typetree(v)
     hull_box=sf.objects[ids[116985]];v=hull_box.read_typetree(check_read=False);v['m_Size']=xyz(rig['colliders']['hull']['size']);v['m_Center']=xyz(rig['colliders']['hull']['center']);hull_box.save_typetree(v)
     tur_box=sf.objects[ids[117038]];v=tur_box.read_typetree(check_read=False);v['m_Size']=xyz(rig['colliders']['turret']['size']);v['m_Center']=xyz(rig['colliders']['turret']['center']);tur_box.save_typetree(v)
@@ -325,7 +333,7 @@ def prepare_assets(original,pack_directory,destination,log=print,cache_directory
     if cache_directory:
         digest=hashlib.sha256(before.encode())
         for schema in sorted((ROOT/'profiles').rglob('*.json')):digest.update(schema.read_bytes())
-        for name in ['unity_assets.py','serialization.py','project.py','modelrig.py']:
+        for name in ['unity_assets.py','serialization.py','project.py','modelrig.py','t54_controls.py']:
             digest.update((ROOT/'tankbuilder'/name).read_bytes())
         for directory in directories:
             from .project import FILES

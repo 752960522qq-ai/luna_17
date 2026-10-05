@@ -46,6 +46,11 @@ typedef void *(*MethodFn)(void *, const char *, int);
 typedef void *(*FieldsFn)(void *, void **);
 
 static uintptr_t base;
+static int offline_mode(void);
+static __attribute__((noinline)) void rebuild_player_ui(void *,void *,void *);
+static int camera_binding_ready(void *);
+static int player_vehicle_nation=-1;
+static void *vehicle_nation_owner;
 static volatile int ready, state, god, ammo, pending=-1, switch_result;
 static void *player_control, *player_status;
 static char catalog[6][MAX_TANKS][112];
@@ -180,9 +185,29 @@ static void replace_references(void *object,void **old,void **fresh,int count) {
     }
 }
 
-typedef struct { void *game,*old_go,*old_status,*old_pc,*new_go,*new_status,*new_pc; int frames,battle_nation; } SwapTransaction;
+typedef struct { void *game,*old_go,*old_status,*old_pc,*new_go,*new_status,*new_pc; int frames,battle_nation,vehicle_nation,phase,previous_vehicle_nation; } SwapTransaction;
 static SwapTransaction swap;
+static void bind_player(void *go,void *status,void *pc,void *old_go,void *old_status,void *old_pc,int nation) {
+    void *game=swap.game;
+    void *old[14]={old_go,old_status,old_pc},*fresh[14]={go,status,pc};
+    static const int pc_offsets[]={0x20,0x28,0x30,0x38,0x40,0x48,0x50,0x58,0x60,0x68,0x78};
+    for(int i=0;i<11;i++){old[i+3]=P(old_pc,pc_offsets[i]);fresh[i+3]=P(pc,pc_offsets[i]);}
+    FN(RVA_1982C3C,void (*)(void *,void *,const void *))(game,go,0);
+    FN(RVA_1982C54,void (*)(void *,void *,const void *))(game,status,0);
+    void *camera=P(game,FIELD_GAMECONTROL_MCAMCTRL),*ui=P(game,FIELD_GAMECONTROL_UIMANAGER);
+    replace_references(camera,old,fresh,14);replace_references(ui,old,fresh,14);
+    replace_references(P(game,FIELD_GAMECONTROL_POSTPROCESSCTRL),old,fresh,14);
+    player_control=pc;player_status=status;player_vehicle_nation=nation;vehicle_nation_owner=status;
+    B(status,0x202)=1;
+    if(unity_exists(camera))FN(RVA_191F324,void (*)(void *,void *,const void *))(camera,P(pc,0x28),0);
+    rebuild_player_ui(ui,pc,status);
+    memset(&ammo_snapshot,0,sizeof(ammo_snapshot));
+}
 static void discard_new(int error) {
+    if(swap.phase && unity_exists(swap.old_go)){
+        FN(RVA_3431140,void (*)(void *,bool,const void *))(swap.old_go,true,0);
+        bind_player(swap.old_go,swap.old_status,swap.old_pc,swap.new_go,swap.new_status,swap.new_pc,swap.previous_vehicle_nation);
+    }
     if(unity_exists(swap.new_go))FN(RVA_3431140,void (*)(void *,bool,const void *))(swap.new_go,false,0);
     switch_result=error;memset(&swap,0,sizeof(swap));
 }
@@ -205,29 +230,26 @@ static void advance_swap(void *game) {
     if(!swap.new_go)return;
     if(game!=swap.game || state!=3 || !unity_exists(swap.old_go) || B(swap.old_status,0x206)){discard_new(-6);return;}
     if(++swap.frames<2)return; // Unity Start must run before handing over control.
+    if(swap.phase){
+        void *check=method(swap.old_go,"get_activeSelf",0);
+        int active=check?((bool (*)(void *,const void *))P(check,0))(swap.old_go,check):1;
+        if(active){discard_new(-8);return;}
+        switch_result=1;memset(&swap,0,sizeof(swap));return;
+    }
     if(!weapon_ready(swap.new_pc,swap.new_status,game)){
         if(swap.frames>=120)discard_new(-7);
         return;
     }
-    void *old[14]={swap.old_go,swap.old_status,swap.old_pc},*fresh[14]={swap.new_go,swap.new_status,swap.new_pc};
-    static const int pc_offsets[]={0x20,0x28,0x30,0x38,0x40,0x48,0x50,0x58,0x60,0x68,0x78};
-    for(int i=0;i<11;i++){old[i+3]=P(swap.old_pc,pc_offsets[i]);fresh[i+3]=P(swap.new_pc,pc_offsets[i]);}
-    FN(RVA_1982C3C,void (*)(void *,void *,const void *))(game,swap.new_go,0);
-    FN(RVA_1982C54,void (*)(void *,void *,const void *))(game,swap.new_status,0);
-    replace_references(P(game,FIELD_GAMECONTROL_MCAMCTRL),old,fresh,14);
-    void *ui=P(game,FIELD_GAMECONTROL_UIMANAGER);
-    replace_references(ui,old,fresh,14);
-    if(unity_exists(ui)){B(ui,0x278)=0;F(ui,0x2bc)=0;} // LateUpdate derives the new gun's trajectory.
-    replace_references(P(game,FIELD_GAMECONTROL_POSTPROCESSCTRL),old,fresh,14);
-    if(unity_exists(P(game,FIELD_GAMECONTROL_MCAMCTRL)) && unity_exists(P(swap.new_pc,FIELD_PLAYERCONTROL_TURRETTRF)))
-        FN(RVA_191F324,void (*)(void *,void *,const void *))(P(game,FIELD_GAMECONTROL_MCAMCTRL),P(swap.new_pc,FIELD_PLAYERCONTROL_TURRETTRF),0);
-    player_control=swap.new_pc;player_status=swap.new_status;B(player_status,0x202)=1;
-    memset(&ammo_snapshot,0,sizeof(ammo_snapshot));
+    if(!camera_binding_ready(swap.new_pc)){discard_new(-9);return;}
+    // Mark the one-time handover before callbacks. Later frames only verify
+    // retirement; they never rebind a camera that has switched to an aircraft.
+    swap.phase=1;
+    bind_player(swap.new_go,swap.new_status,swap.new_pc,swap.old_go,swap.old_status,swap.old_pc,swap.vehicle_nation);
     FN(RVA_3431140,void (*)(void *,bool,const void *))(swap.old_go,false,0);
     // Retain the attacker Transform while shells already in flight finish.
     // Do not destroy a retired unit whose projectiles may still reference it.
     // Scene unload reclaims inactive retired tanks and their shell pools.
-    switch_result=1;memset(&swap,0,sizeof(swap));
+    switch_result=0;
 }
 static void switch_tank(void *game,void *parameters,int command) {
     int nation=(command>>16)&255,index=command&0xffff;
@@ -262,7 +284,7 @@ static void switch_tank(void *game,void *parameters,int command) {
         void *lm=method(og,"get_layer",0),*sm=method(ng,"set_layer",1);
         if(lm && sm)((void (*)(void *,int,const void *))P(sm,0))(ng,((int (*)(void *,const void *))P(lm,0))(og,lm),sm);
     }
-    swap=(SwapTransaction){game,old_go,old_status,old_pc,new_go,new_status,new_pc,0,I(parameters,0x5c)};
+    swap=(SwapTransaction){game,old_go,old_status,old_pc,new_go,new_status,new_pc,0,I(parameters,0x5c),nation,0,player_vehicle_nation};
     FN(RVA_1982C3C,void (*)(void *,void *,const void *))(game,old_go,0);
     FN(RVA_1982C54,void (*)(void *,void *,const void *))(game,old_status,0);
     switch_result=0;
@@ -279,6 +301,7 @@ static void game_update(void *self,const void *mi) {
     void *status=P(self,0x118);
     if(!unity_exists(status) || B(self,0x10c) || B(self,0x10d) || B(status,FIELD_UNITSTATUS_ISDESTROYED_K__BACKINGFIELD)) {state=2;pending=-1;discard_new(-6);return;}
     player_status=status;state=3;
+    if(vehicle_nation_owner!=status && !swap.new_go){player_vehicle_nation=I(parameters,0x5c);vehicle_nation_owner=status;}
     void *gen=P(self,0x48);
     if(gen) build_catalog(gen);
     int command=__atomic_exchange_n(&pending,-1,__ATOMIC_ACQ_REL);
@@ -356,6 +379,7 @@ static bool environment_check(void *self,const void *mi) {
 }
 #include "offline_launch.h"
 #include "t54_runtime.h"
+#include "view_runtime.h"
 
 static void *worker(void *unused) {
     (void)unused;
@@ -393,6 +417,8 @@ static void *worker(void *unused) {
     ok&=install(RVA_BODY_UPDATE,body_update,(void **)&original_body_update);
     ok&=install(RVA_ATTACK_INFO,attack_info,(void **)&original_attack_info);
     ok&=install(RVA_TURRET_UPDATE,turret_update,(void **)&original_turret_update);
+    ok&=install(RVA_CAMERA_LATE_UPDATE,camera_late_update,(void **)&original_camera_late_update);
+    ok&=install(RVA_UI_SIGHT,sight_type,(void **)&original_sight_type);
     ready=ok?1:-1;state=ok?2:-1;
     __android_log_print(ok?4:6,"Luna17","Attack on Tank 5.1.0 module %s",ok?"ready":"failed");
     return 0;

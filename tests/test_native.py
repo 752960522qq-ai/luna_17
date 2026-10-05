@@ -219,6 +219,9 @@ class NativeTests(unittest.TestCase):
         m=self.m;game=m.object();params=m.object();gen=m.object();old_go=m.object();old_s=m.object();old_pc=m.object();new_go=m.object();new_s=m.object();new_pc=m.object()
         camera=m.object();ui=m.object();m.qwrite(game+0x38,ui);m.u.mem_write(ui+0x278,b"\1");m.u.mem_write(ui+0x2bc,struct.pack("<f",777.));old_tr=m.object();new_tr=m.object();old_tur=m.object();new_tur=m.object()
         m.qwrite(old_pc+0x20,old_tr);m.qwrite(new_pc+0x20,new_tr);m.qwrite(old_pc+0x28,old_tur);m.qwrite(new_pc+0x28,new_tur)
+        old_gun,new_gun=m.object(),m.object();m.qwrite(old_pc+0x30,old_gun);m.qwrite(new_pc+0x30,new_gun)
+        literal=m.alloc(8);m.qwrite(literal,m.string('Gun'));m.qwrite(GAME+0x394f0b8,literal)
+        m.at(GAME+0x343fb40,lambda:new_gun if m.x(0)==new_tur else old_gun)
         m.qwrite(old_pc+0x70,old_s);m.qwrite(new_pc+0x70,new_s)
         m.iwrite(old_s+0x64,0);m.iwrite(new_s+0x64,1)
         launcher=m.object();launcher_tr=m.object();ls=m.alloc(0x40);m.iwrite(ls+0x18,1);m.qwrite(ls+0x20,launcher);m.qwrite(new_pc+0x58,ls);m.qwrite(launcher+0x20,launcher_tr)
@@ -235,7 +238,11 @@ class NativeTests(unittest.TestCase):
             for i,v in enumerate([0.,0.,0.,1.]):m.sf(i,v)
         m.at(GAME+0x343dbc4,position);m.at(GAME+0x343de40,rotation)
         m.original_factory(params,new_go)
-        m.at(GAME+0x3431140,lambda:m.calls.append(('active',m.x(0),m.x(1))))
+        m.at(GAME+0x17caa40,lambda:0) # Both Player and Gun literals are initialized.
+        active={old_go:True,new_go:True}
+        def set_active():
+            active[m.x(0)]=bool(m.x(1));m.calls.append(('active',m.x(0),m.x(1)))
+        m.at(GAME+0x3431140,set_active)
         m.at(GAME+0x191f324,lambda:m.calls.append(('camera',m.x(0),m.x(1))))
         pc_type=m.alloc();status_type=m.alloc()
         get_type=m.alloc(32);m.qwrite(get_type,m.stub(lambda:pc_type if m.x(0)==old_pc else status_type))
@@ -246,9 +253,10 @@ class NativeTests(unittest.TestCase):
             m.calls.append(('component',m.x(0),m.x(1)))
             return new_pc if m.x(0)==new_go and m.x(1)==pc_type else 0
         get_component=m.alloc(32);m.qwrite(get_component,m.stub(component))
+        get_active=m.alloc(32);m.qwrite(get_active,m.stub(lambda:int(active.get(m.x(0),False))))
         def lookup():
             name=m.read(m.x(1),32).split(b'\0')[0]
-            return get_type if name==b'GetType' else get_component if name==b'GetComponent' else 0
+            return get_type if name==b'GetType' else get_component if name==b'GetComponent' else get_active if name==b'get_activeSelf' else 0
         m.global_q('class_method',m.stub(lookup))
         fields=[]
         for offset in [0x60,0x68]:
@@ -261,7 +269,7 @@ class NativeTests(unittest.TestCase):
         return SimpleNamespace(game=game,params=params,old_go=old_go,old_s=old_s,
             old_pc=old_pc,new_go=new_go,new_s=new_s,new_pc=new_pc,camera=camera,
             old_tr=old_tr,new_tr=new_tr,old_tur=old_tur,new_tur=new_tur,array=array,ui=ui,launcher=launcher,
-            pc_type=pc_type,get_component=get_component)
+            pc_type=pc_type,get_component=get_component,old_gun=old_gun,new_gun=new_gun,active=active)
 
     def test_queued_swap_preserves_pose_and_updates_camera(self):
         m=self.m;s=self.swap_scene();m.call('game_update',s.game,0)
@@ -285,6 +293,8 @@ class NativeTests(unittest.TestCase):
         self.assertIn(('instantiate',m.qread(s.array+0x28),[11.,22.,33.,0.,0.,0.,1.]),m.calls)
         self.assertIn(('active',s.old_go,0),m.calls)
         self.assertIn(('camera',s.camera,s.new_tur),m.calls)
+        self.assertEqual(m.call('Java_com_luna17_aot_NativeBridge_switchResult',0,0),0)
+        m.call('game_update',s.game,0)
         self.assertEqual(m.call('Java_com_luna17_aot_NativeBridge_switchResult',0,0),1)
 
     def test_unusable_new_components_keep_current_tank_and_camera(self):
@@ -313,6 +323,112 @@ class NativeTests(unittest.TestCase):
         self.assertNotIn(('active',s.old_go,0),m.calls)
         self.assertEqual(m.call('Java_com_luna17_aot_NativeBridge_switchResult',0,0)&0xffffffff,(-7)&0xffffffff)
 
+    def test_missing_direct_gun_cancels_before_camera_handover(self):
+        m=self.m;s=self.swap_scene();m.at(GAME+0x343fb40,lambda:0)
+        for _ in range(4):m.call('game_update',s.game,0)
+        self.assertEqual(m.qread(s.game+0x110),s.old_go)
+        self.assertEqual(m.qread(s.camera+0x60),s.old_tur)
+        self.assertFalse(any(c[0]=='camera' for c in m.calls))
+        self.assertEqual(m.call('Java_com_luna17_aot_NativeBridge_switchResult',0,0)&0xffffffff,(-9)&0xffffffff)
+
+    def test_completed_swap_does_not_overwrite_aircraft_target(self):
+        m=self.m;s=self.swap_scene()
+        m.call('game_update',s.game,0);m.call('game_update',s.game,0)
+        aircraft=m.object();m.qwrite(s.camera+0x68,aircraft)
+        for _ in range(5):m.call('game_update',s.game,0)
+        self.assertEqual(m.qread(s.camera+0x68),aircraft)
+        self.assertEqual([c for c in m.calls if c[0]=='camera'],[('camera',s.camera,s.new_tur)])
+        self.assertEqual(m.call('Java_com_luna17_aot_NativeBridge_switchResult',0,0),1)
+
+    def test_failed_retirement_restores_original_player(self):
+        m=self.m;s=self.swap_scene()
+        m.call('game_update',s.game,0);m.call('game_update',s.game,0)
+        s.active[s.old_go]=True # Simulate a Unity callback reactivating old GO.
+        m.call('game_update',s.game,0)
+        self.assertEqual(m.qread(s.game+0x110),s.old_go)
+        self.assertEqual(m.qread(s.game+0x118),s.old_s)
+        self.assertFalse(s.active[s.new_go])
+        self.assertEqual(m.call('Java_com_luna17_aot_NativeBridge_switchResult',0,0)&0xffffffff,(-8)&0xffffffff)
+
+    def test_single_gun_clears_old_secondary_sight_and_dual_gun_rebinds(self):
+        m=self.m;ui,pc,status,tm,main,secondary=[m.object() for _ in range(6)]
+        m.qwrite(pc+0x30,main);m.qwrite(pc+0x50,tm)
+        old_second=m.object();old_sight=m.object();m.qwrite(ui+0x328,old_second);m.qwrite(ui+0x218,old_sight)
+        m.at(GAME+0x342de34,lambda:m.x(0));m.at(GAME+0x3431140,lambda:m.calls.append(('sight_active',m.x(0),m.x(1))))
+        m.call('rebuild_player_ui',ui,pc,status)
+        self.assertEqual(m.qread(ui+0x320),main);self.assertEqual(m.qread(ui+0x328),0);self.assertEqual(m.qread(ui+0x218),0)
+        self.assertIn(('sight_active',old_sight,0),m.calls)
+        array=m.alloc(0x40);m.iwrite(array+0x18,2);m.qwrite(array+0x20,main);m.qwrite(array+0x28,secondary);m.qwrite(tm+0x48,array)
+        m.u.mem_write(status+0x23,b'\1');m.call('rebuild_player_ui',ui,pc,status)
+        self.assertEqual(m.qread(ui+0x328),secondary)
+        m.u.mem_write(status+0x23,b'\0');m.call('rebuild_player_ui',ui,pc,status)
+        self.assertEqual(m.qread(ui+0x328),0)
+
+    def test_vehicle_scope_does_not_change_battle_nation(self):
+        m=self.m;ui,game,status,params=[m.object() for _ in range(4)]
+        m.at(GAME+0x1931cfc,lambda:params);m.qwrite(ui+0x300,game);m.qwrite(game+0x118,status)
+        m.global_q('player_status',status);m.global_q('vehicle_nation_owner',status);m.global_i('player_vehicle_nation',2)
+        m.iwrite(params+0x5c,0);m.iwrite(status+0x64,0)
+        sights=m.alloc(0x80);m.iwrite(sights+0x18,10);scopes=[m.object() for _ in range(10)]
+        for i,obj in enumerate(scopes):m.qwrite(sights+0x20+i*8,obj)
+        m.qwrite(ui+0x200,sights)
+        def original():m.qwrite(ui+0x210,scopes[0])
+        m.global_q('original_sight_type',m.stub(original));m.at(GAME+0x342de34,lambda:m.x(0));m.at(GAME+0x3431140,lambda:m.calls.append(('active_scope',m.x(0),m.x(1))))
+        m.call('sight_type',ui,0,0)
+        self.assertEqual(m.qread(ui+0x210),scopes[2])
+        self.assertEqual(m.read(params+0x5c,4),b'\0'*4);self.assertEqual(m.read(status+0x64,4),b'\0'*4)
+        self.assertIn(('active_scope',scopes[0],0),m.calls);self.assertIn(('active_scope',scopes[2],1),m.calls)
+        m.iwrite(params+0x58,2);m.call('sight_type',ui,0,0)
+        self.assertEqual(m.qread(ui+0x210),scopes[0]) # Online mode untouched.
+
+    def test_scope_follows_live_world_gun_pose_and_leaves_air_view_alone(self):
+        m=self.m;camera,pc,status,ui,turret,gun,transform,params=[m.object() for _ in range(8)]
+        m.qwrite(status+0x68,m.string('T54_1949'));m.global_q('player_status',status);m.global_q('player_control',pc);m.global_i('state',3)
+        m.at(GAME+0x1931cfc,lambda:params);m.at(GAME+0x3402abc,lambda:100)
+        m.qwrite(pc+0x28,turret);m.qwrite(pc+0x30,gun);m.qwrite(camera+0x68,turret);m.qwrite(camera+0xe8,ui);m.qwrite(camera+0x20,transform)
+        m.iwrite(ui+0x30,2);m.u.mem_write(camera+0x50,struct.pack('<f',100.));m.u.mem_write(camera+0x4c,struct.pack('<f',1.))
+        pose=[0.1,0.2,0.3,0.92736185];seen=[]
+        def get_rotation():
+            for i,value in enumerate(pose):m.sf(i,value)
+        m.at(GAME+0x343de40,get_rotation)
+        setter=m.alloc(32);m.qwrite(setter,m.stub(lambda:seen.append(tuple(m.f(i) for i in range(4)))))
+        m.global_q('class_method',m.stub(lambda:setter if m.read(m.x(1),32).split(b'\0')[0]==b'set_rotation' else 0))
+        def original_late():
+            value=struct.unpack('<f',m.read(camera+0xa8,4))[0]
+            delta=sum(struct.unpack('<f',m.read(camera+o,4))[0] for o in [0xd4,0xdc])
+            m.u.mem_write(camera+0xa8,struct.pack('<f',value-delta))
+        m.global_q('original_camera_late_update',m.stub(original_late))
+        for delta,expected in [(100.,-17.),(-100.,4.)]:
+            m.u.mem_write(camera+0xd4,struct.pack('<f',delta));m.call('camera_late_update',camera,0)
+            self.assertAlmostEqual(struct.unpack('<f',m.read(camera+0xa8,4))[0],expected)
+        pose[:]=[-0.1,0.0,0.3,0.9486833];m.call('camera_late_update',camera,0)
+        for got,want in zip(seen[-1],pose):self.assertAlmostEqual(got,want,places=6)
+        count=len(seen);aircraft=m.object();m.qwrite(camera+0x68,aircraft);m.call('camera_late_update',camera,0)
+        self.assertEqual(len(seen),count);self.assertEqual(m.qread(camera+0x68),aircraft)
+        m.qwrite(camera+0x68,turret);m.iwrite(ui+0x30,3);m.call('camera_late_update',camera,0)
+        self.assertEqual(len(seen),count)
+
+    def test_tracks_use_visible_materials_even_without_suspension_cache(self):
+        m=self.m;body,status,move,params,left,right,mat_left,mat_right=[m.object() for _ in range(8)]
+        m.qwrite(status+0x68,m.string('T54_1949'));m.qwrite(body+0x38,status);m.qwrite(body+0x28,move)
+        m.at(GAME+0x1931cfc,lambda:params)
+        rends=m.alloc(0x40);m.iwrite(rends+0x18,2);m.qwrite(rends+0x20,left);m.qwrite(rends+0x28,right);m.qwrite(body+0x48,rends)
+        # No suspension wheels/centers, no BodyMove.Start material cache.
+        getter=m.alloc(32);setter=m.alloc(32);seen=[]
+        m.qwrite(getter,m.stub(lambda:mat_left if m.x(0)==left else mat_right))
+        m.qwrite(setter,m.stub(lambda:seen.append((m.x(0),m.f(0),m.f(1)))))
+        def lookup():
+            name=m.read(m.x(1),32).split(b'\0')[0]
+            return getter if name==b'get_material' else setter if name==b'set_mainTextureOffset' else 0
+        m.global_q('class_method',m.stub(lookup));clock=[10.]
+        m.at(GAME+0x343a6dc,lambda:m.sf(0,clock[0]));m.u.mem_write(move+0x78,struct.pack('<f',5.))
+        m.call('body_update',body,0);clock[0]+=.02;m.call('body_update',body,0)
+        self.assertEqual([x[0] for x in seen],[mat_left,mat_right]);self.assertTrue(all(x[2]>0 for x in seen))
+        first=[x[2] for x in seen];seen.clear();m.u.mem_write(move+0x78,struct.pack('<f',-2.));clock[0]+=.02;m.call('body_update',body,0)
+        self.assertTrue(all(x[2]<v for x,v in zip(seen,first)))
+        seen.clear();m.u.mem_write(move+0x78,struct.pack('<f',0.));m.u.mem_write(move+0x84,struct.pack('<f',60.));clock[0]+=.02;m.call('body_update',body,0)
+        self.assertNotEqual(seen[0][2],seen[1][2])
+
     def test_custom_names_armor_ammo_penetration_and_reload(self):
         if getattr(ARGS,'tank_configs',None):docs=json.loads(ARGS.tank_configs.read_text())
         else:
@@ -335,7 +451,7 @@ class NativeTests(unittest.TestCase):
                 self.assertEqual(struct.unpack('<8i',m.read(turret+0x20,32)),tuple([a['turret']['front']]*2+[a['turret']['side']]*4+[a['turret']['rear']]*2))
                 def plain(address):
                     _,hidden,key,_=struct.unpack('<4I',m.read(address,16));return ((hidden-key)&0xffffffff)^key
-                self.assertEqual([plain(shells+0x20+i*16) for i in range(5)],[w['ammo'].get(k,0) for k in ['AP','HEAT','APCR','WP','HE']]);self.assertEqual(plain(mg+0x20),w['machineGun']['ammo'])
+                self.assertEqual([plain(shells+0x20+i*16) for i in range(5)],[w['ammo'].get(k,0) for k in ['AP','HE','APCR','WP','HEAT']]);self.assertEqual(plain(mg+0x20),w['machineGun']['ammo'])
                 self.assertEqual([plain(s+o) for o in [0x78,0xa8,0xdc,0x104,0x114,0x124]],[w['shells']['AP']['penetrationMm'],w['muzzleVelocity'],__import__('math').ceil(w['reload']),t['enginePower'],t['maxForwardSpeed'],t['turretRotation']])
                 tier=struct.unpack('<Q',m.read(s+0x174,8))[0]
                 raw=struct.pack('<Q',tier)
@@ -350,7 +466,7 @@ class NativeTests(unittest.TestCase):
                 self.assertEqual(fake,struct.unpack('<I',struct.pack('<f',acceleration))[0])
                 launcher=m.object();info=m.object();owner=m.object();m.qwrite(s+0x260,owner);m.qwrite(launcher+0x38,s)
                 m.global_q('original_attack_info',m.stub(lambda:info))
-                for shell,penetration in [(0,w['shells']['AP']['penetrationMm']),(1,w['shells']['HEAT']['penetrationMm']),(2,w['shells']['APCR']['penetrationMm'])]:
+                for shell,penetration in [(0,w['shells']['AP']['penetrationMm']),(4,w['shells']['HEAT']['penetrationMm']),(2,w['shells']['APCR']['penetrationMm'])]:
                     self.assertEqual(m.call('attack_info',launcher,shell,1,0),info)
                     self.assertEqual(struct.unpack('<i',m.read(info+0x1c,4))[0],penetration)
                     self.assertEqual(m.read(info+0x18,4),struct.pack('<f',w['muzzleVelocity']));self.assertEqual(m.qread(info+0x20),owner)
@@ -360,6 +476,41 @@ class NativeTests(unittest.TestCase):
                 m.call('turret_update',controller,0)
                 self.assertAlmostEqual(observed[0][0],w['reload']-__import__('math').ceil(w['reload']),places=5);self.assertEqual(observed[0][1],b'\1')
                 self.assertEqual(m.read(controller+0x80,4),struct.pack('<f',1.5));self.assertEqual(m.read(controller+0xde,1),b'\0')
+
+    def test_original_fire_routes_he_to_explosive_pool_and_heat_to_ap_pool(self):
+        # Execute the real game's Fire branch and activation/attack binding.
+        # Unity effects and component lookup are the mocked boundary here.
+        m=self.m;entry=GAME+0x195b660
+        m.u.mem_write(entry,m.game_read(0x195b660,0x840))
+        launcher,status,ap,he,transform,shell,bomb,info=[m.object() for _ in range(8)]
+        m.qwrite(launcher+0x38,status)
+        for offset in [0x28,0x60,0x68]:m.qwrite(launcher+offset,m.object())
+        for offset,go in [(0x78,ap),(0x80,he)]:
+            array=m.alloc(0x30);m.iwrite(array+0x18,1);m.qwrite(array+0x20,go);m.qwrite(launcher+offset,array)
+        cls=m.object();m.iwrite(cls+0xe4,1);cell=m.alloc(8);m.qwrite(cell,cls)
+        m.qwrite(GAME+0x394ccc0,cell)
+        literals={}
+        for address in [0x394f040,0x3950950,0x39509a8]:
+            value=m.alloc();cell=m.alloc(8);m.qwrite(cell,value);m.qwrite(GAME+address,cell);literals[address]=value
+        m.u.mem_write(GAME+0x3bcc19c,b'\1')
+        for address in [0x33ebe10,0x33ec048,0x34954a0,0x3496288,0x3495120]:m.at(GAME+address,lambda:0)
+        m.at(GAME+0x3494ef4,lambda:1);m.at(GAME+0x1980194,lambda:2)
+        m.at(GAME+0x342e704,lambda:0);m.at(GAME+0x3430c74,lambda:int(m.x(0)!=m.x(1)))
+        m.at(GAME+0x343294c,lambda:int(m.x(0)==m.x(1)))
+        m.at(GAME+0x3431204,lambda:0);m.at(GAME+0x3430ef8,lambda:transform)
+        m.at(GAME+0x343f6e0,lambda:0);m.at(GAME+0x197640c,lambda:0)
+        active=[];types=[]
+        m.at(GAME+0x3431140,lambda:active.append(m.x(0)))
+        m.at(GAME+0x1d4afe8,lambda:bomb if m.x(1)==literals[0x394f040] else shell)
+        m.at(GAME+0x195c6ec,lambda:types.append(m.x(1)) or info)
+        def unexpected():raise AssertionError('Original Fire hit an error path')
+        for address in [0x17cacbc,0x17cacc4,0x33f9b98]:m.at(GAME+address,unexpected)
+        for kind,go in [(0,ap),(2,ap),(1,he),(4,ap),(1,he),(4,ap)]:
+            active.clear();types.clear();m.qwrite(shell+0x90,0);m.qwrite(bomb+0x88,0)
+            m.call(entry,launcher,kind,1,0)
+            self.assertEqual(active,[go]);self.assertEqual(m.qread(shell+0x90),info)
+            self.assertEqual(types,[kind,1] if kind==1 else [kind])
+            self.assertEqual(m.qread(bomb+0x88),info if kind==1 else 0)
 
     def test_offline_launch_scope_preserves_other_keys_and_network_checks(self):
         m=self.m;params=m.object();m.at(GAME+0x1931cfc,lambda:params)
@@ -381,7 +532,7 @@ class NativeTests(unittest.TestCase):
     def test_all_new_hook_prologues_can_be_relocated(self):
         m=self.m
         profile=json.loads((Path(__file__).resolve().parents[1]/'profiles/attack-on-tank-5.1.0.json').read_text())
-        for name in ['TITLE_START','IS_PRODUCT','LOAD_FLAG','IS_HNZ2','IAP_SANITY','STATUS_ENABLE','STATUS_START','BODY_UPDATE','ATTACK_INFO','TURRET_UPDATE']:
+        for name in ['TITLE_START','IS_PRODUCT','LOAD_FLAG','IS_HNZ2','IAP_SANITY','STATUS_ENABLE','STATUS_START','BODY_UPDATE','ATTACK_INFO','TURRET_UPDATE','CAMERA_LATE_UPDATE','UI_SIGHT']:
             rva=int(profile['native_macros']['RVA_'+name],16);m.u.mem_write(GAME+rva,m.game_read(rva,16))
             with self.subTest(name=name):self.assertEqual(m.call('install',rva,m.stub(lambda:0),m.alloc(8)),1)
 

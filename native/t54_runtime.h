@@ -23,7 +23,9 @@ void t54_stats(void *s) {
     ObscuredFloat acceleration=FN(RVA_OBSCURED_FLOAT,ObscuredFloat (*)(float,const void *))((c->power/c->weight)*.5f/17.8571434f,0);
     memcpy((uint8_t *)s+0x184,&acceleration,sizeof(acceleration));
     set_stat(s,0x198,(int)((c->power/c->weight)*35.f/17.8571434f));
-    F(s,0x100)=c->weight;I(s,0xc0)=c->elevation;I(s,0xc4)=c->depression;I(s,0x14c)=c->crew;I(s,0x150)=c->crew;
+    F(s,0x100)=c->weight;I(s,0xc0)=c->elevation;I(s,0xc4)=c->depression;
+    I(s,0xcc)=c->elevation; // Camera uses the cached negative pitch limit.
+    I(s,0x14c)=c->crew;I(s,0x150)=c->crew;
     uint64_t tier=FN(RVA_OBSCURED_BYTE,uint64_t (*)(uint8_t,const void *))(c->tier,0);memcpy((uint8_t *)s+0x174,&tier,8);
 }
 static void status_enable(void *s,const void *mi) {
@@ -34,11 +36,12 @@ static void status_enable(void *s,const void *mi) {
 static void status_start(void *s,const void *mi) {
     original_status_start(s,mi);
     const CustomTank *c=tank_config(s);if(!c)return;
-    // enum Shell: AP=0, HEAT=1, APCR=2, WP=3, HE=4.
+    // Verified against UnitStatus.Start: InitHeatNum goes into slot 4.
+    // enum Shell: AP=0, HE=1, APCR=2, WP=3, HEAT=4.
     const int *stocks=c->ammo;void *array=P(s,0xf0);
     if(array && I(array,0x18)>=5)for(int i=0;i<I(array,0x18) && i<32;i++)write_ammo_slot(array,i,i<5?stocks[i]:0);
     write_ammo_slot(P(s,0xf8),0,c->mg_ammo);
-    I(s,0x1cc)=c->ammo[2];I(s,0x1d0)=c->ammo[3];I(s,0x1d4)=c->ammo[1];
+    I(s,0x1cc)=c->ammo[2];I(s,0x1d0)=c->ammo[3];I(s,0x1d4)=c->ammo[4];
     t54_stats(s);
 }
 static void *(*original_attack_info)(void *,int,int,const void *);
@@ -67,6 +70,8 @@ typedef struct { Vec3 point,normal;unsigned face;float distance;float uv[2];int 
 static float previous_compression[24];
 static void *suspension_owner;
 static float suspension_time;
+typedef struct { unsigned updates,track_updates,suspension_skips,material_misses; float left_offset,right_offset; } TrackDiagnostics;
+static TrackDiagnostics track_diagnostics;
 static Vec3 call_vec(void *object,const char *name) {
     void *m=method(object,name,0);return m ? ((Vec3 (*)(void *,const void *))P(m,0))(object,m) : (Vec3){0,0,0};
 }
@@ -78,10 +83,11 @@ static void body_update(void *self,const void *mi) {
     const CustomTank *c=tank_config(status);
     if(!c){original_body_update(self,mi);return;}
     if(!offline_mode())return;
+    track_diagnostics.updates++;
     void *move=P(self,0x28),*body=move?P(move,0x28):0,*wheels=P(self,0x60),*centers=P(self,0x90);
-    if(!unity_exists(body) || !wheels || !centers || I(wheels,0x18)!=c->wheel_count || I(centers,0x18)!=c->wheel_count)return;
+    if(!unity_exists(move))return;
     float now=FN(RVA_GAME_TIME,float (*)(const void *))(0);
-    if(suspension_owner!=self){suspension_owner=self;suspension_time=now;memset(previous_compression,0,sizeof(previous_compression));}
+    if(suspension_owner!=self){suspension_owner=self;suspension_time=now;memset(previous_compression,0,sizeof(previous_compression));memset(&track_diagnostics,0,sizeof(track_diagnostics));}
     float dt=now-suspension_time;suspension_time=now;
     if(dt<=0 || B(status,0x206))return; // Pausing the game must not accumulate impulses.
     if(dt>.1f)dt=.1f;
@@ -97,17 +103,35 @@ static void body_update(void *self,const void *mi) {
             angle.x+=(j<n/2?left:right)*dt/c->radius*57.2957795f;set_vec(wheel,"set_localEulerAngles",angle);
         }
     }
-    void *mats=P(self,0x120);
-    if(mats && I(mats,0x18)==2){
-        F(self,0xe4)+=left*dt/c->track_length;F(self,0xe8)+=right*dt/c->track_length;
+    // Resolve materials on the visible renderers, not the inherited cached
+    // material instances. Track motion does not depend on suspension Start.
+    void *rends=P(self,0x48),*mats=P(self,0x120);
+    if(rends && I(rends,0x18)==2){
         typedef struct {float x,y;} Vec2;
         for(int j=0;j<2;j++){
-            void *mat=P(mats,0x20+j*8),*m=method(mat,"set_mainTextureOffset",1);
-            if(m)((void (*)(void *,Vec2,const void *))P(m,0))(mat,(Vec2){0,F(self,j?0xe8:0xe4)},m);
+            int offset=j?0xe8:0xe4;float value=F(self,offset)+(j?right:left)*dt/c->track_length;
+            while(value>=1.f)value-=1.f;while(value<0.f)value+=1.f;F(self,offset)=value;
+            void *rend=P(rends,0x20+j*8),*get=unity_exists(rend)?method(rend,"get_material",0):0;
+            void *mat=get?((void *(*)(void *,const void *))P(get,0))(rend,get):0;
+            void *set=unity_exists(mat)?method(mat,"set_mainTextureOffset",1):0;
+            if(set){
+                ((void (*)(void *,Vec2,const void *))P(set,0))(mat,(Vec2){0,value},set);
+                if(mats && I(mats,0x18)==2)managed_store(mats,0x20+j*8,mat);
+                track_diagnostics.track_updates++;
+            }else if(++track_diagnostics.material_misses==1){
+                __android_log_print(6,"TankInvincible","T54 track material binding failed on side %d",j);
+            }
         }
+        track_diagnostics.left_offset=F(self,0xe4);track_diagnostics.right_offset=F(self,0xe8);
     }
     void *audio_source=P(self,0x20),*pitch=method(audio_source,"set_pitch",1);
     if(pitch)((void (*)(void *,float,const void *))P(pitch,0))(audio_source,1.f+(speed<0?-speed:speed)/16.f,pitch);
+    if(F(move,0x74)<-c->reverse_speed)F(move,0x74)=-c->reverse_speed;
+    if(F(move,0x78)<-c->reverse_speed)F(move,0x78)=-c->reverse_speed;
+    if(!unity_exists(body) || !wheels || !centers || I(wheels,0x18)!=c->wheel_count || I(centers,0x18)!=c->wheel_count){
+        if(++track_diagnostics.suspension_skips==1)__android_log_print(5,"TankInvincible","T54 suspension cache unavailable; tracks remain active");
+        return;
+    }
     // Ground mask is injected by the reviewed assets adapter, excludes units.
     for(int i=0;i<c->wheel_count;i++){
         void *wheel=P(wheels,0x20+i*8);if(!unity_exists(wheel))continue;
@@ -126,6 +150,4 @@ static void body_update(void *self,const void *mi) {
         if(previous_compression[i]<-c->rest)previous_compression[i]=-c->rest;
         local.y+=previous_compression[i];set_vec(wheel,"set_localPosition",local);
     }
-    if(F(move,0x74)<-c->reverse_speed)F(move,0x74)=-c->reverse_speed;
-    if(F(move,0x78)<-c->reverse_speed)F(move,0x78)=-c->reverse_speed;
 }

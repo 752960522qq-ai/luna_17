@@ -1,0 +1,28 @@
+{
+  "apk_packaged": false,
+  "android_device_test": "not performed",
+  "native": {
+    "runner": "Unicorn ARM64",
+    "tests": 19,
+    "passed": true
+  },
+  "builder": {
+    "tests": 11,
+    "passed": true
+  },
+  "projects": {
+    "tests": 4,
+    "passed": true
+  },
+  "model": {
+    "bind_pose_and_attributes_preserved": true,
+    "idempotent": true,
+    "ambiguous_component_rejected": true
+  },
+  "r9_assets": {
+    "passed": true
+  },
+  "fresh_original_assets": {
+    "passed": true
+  }
+}

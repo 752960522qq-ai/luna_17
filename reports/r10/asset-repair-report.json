@@ -1,0 +1,97 @@
+{
+  "passed": true,
+  "input_sha256": "f950c94a5445ff84c501875181e674e214ae595f747fe7ff3dd6289bd11b0646",
+  "output_sha256": "6df86f2737fbb9ebc677506e3c285478b99c242653cb8490b231abcb4d8d0477",
+  "turret_triangles": 2202,
+  "hull_triangles": 152,
+  "he_pool": [
+    {
+      "m_FileID": 0,
+      "m_PathID": 140803
+    },
+    {
+      "m_FileID": 0,
+      "m_PathID": 140819
+    }
+  ],
+  "all_r9_materials_textures_physics_preserved": true,
+  "vertex_normals_uv_tangents_preserved": true,
+  "changed_existing_objects": [
+    {
+      "file": "resources.assets",
+      "id": 139377
+    },
+    {
+      "file": "resources.assets",
+      "id": 139434
+    },
+    {
+      "file": "resources.assets",
+      "id": 140367
+    },
+    {
+      "file": "resources.assets",
+      "id": 140369
+    },
+    {
+      "file": "resources.assets",
+      "id": 140370
+    },
+    {
+      "file": "resources.assets",
+      "id": 140531
+    },
+    {
+      "file": "resources.assets",
+      "id": 140779
+    }
+  ],
+  "created_objects": [
+    140798,
+    140799,
+    140800,
+    140801,
+    140802,
+    140803,
+    140804,
+    140805,
+    140806,
+    140807,
+    140808,
+    140809,
+    140810,
+    140811,
+    140812,
+    140813,
+    140814,
+    140815,
+    140816,
+    140817,
+    140818,
+    140819,
+    140820,
+    140821,
+    140822,
+    140823,
+    140824,
+    140825,
+    140826,
+    140827,
+    140828,
+    140829,
+    140830,
+    140831,
+    140832,
+    140833,
+    140834
+  ],
+  "model_checks": {
+    "bind_pose_preserved": true,
+    "triangle_winding_coverage_preserved": true,
+    "turret_attachment_parentage_valid": true,
+    "vertex_attributes_materials_preserved": true
+  },
+  "created_native_references_valid": true,
+  "model_sha256": "83d1b22b97de1cb7e075e4c0b8d0eb4d0da20f8ee92924caf7271a96eda43db8",
+  "android_device_test": "not performed"
+}
