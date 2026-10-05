@@ -444,7 +444,7 @@
     "RVA_STATUS_START": "0x1981bc0",
     "RVA_BODY_UPDATE": "0x194fd18",
     "RVA_ATTACK_INFO": "0x195c6ec",
-    "RVA_OBSCURED_BYTE": "0x18dab20",
+    "RVA_OBSCURED_BYTE": "0x18daa20",
     "RVA_GROUND_RAYCAST": "0x34a547c",
     "RVA_ADD_FORCE_AT_POSITION": "0x34aa924",
     "RVA_TURRET_UPDATE": "0x1977f1c",
@@ -543,21 +543,31 @@
       "rva": "0x1977f1c",
       "size": 64,
       "sha256": "e1d1a17bf14a3b2cd47d7073b1d95c0da3e2e1c051ba5949d6379a2c7d68791e"
+    },
+    "ObscuredByte.FromByte": {
+      "rva": "0x18daa20",
+      "size": 128,
+      "sha256": "8c0ed1acec5369ca18b97b600ac894aadd566a0392c83a2b50ea74938dba8bb5"
+    },
+    "ObscuredFloat.FromFloat": {
+      "rva": "0x18db128",
+      "size": 128,
+      "sha256": "1483490dc7b042aca876698b1784fa7d9bb8578b2299a79a5cfc2f848f46aa1c"
     }
   },
   "builder": {
     "profile_format": 1,
     "verified": true,
-    "revision": "r4 T54 player development",
+    "revision": "修复版 r5",
     "features": {
       "godmode": true,
       "infinite_ammo": true,
       "tank_swap": true
     },
     "tank_injection": false,
-    "prebuilt_module_sha256": "1c69e98103293a54b2ff0ebaadc0a5a3939de5a6ddf215fae9d55019c8cbeca1",
+    "prebuilt_module_sha256": "a3e71df20d990d02a225b2f24e81dee6acbe2723ec3f74a8296d3623f5080512",
     "android_device_test": "not performed; ARM64 and asset round-trip checks required",
-    "prebuilt_config_sha256": "879a70eb531b59cb462260355822bdb1ee20f0b481a5efa111cc57afeb2e4f5b"
+    "prebuilt_config_sha256": "75ce671efb296e0b357f1960da93713323851250b9512607b549f57e98bb443f"
   },
   "tank_injection": {
     "adapter": "aot-5.1.0-arm64-v1",
@@ -565,5 +575,21 @@
     "reviewed_models": [
       "T54_1949"
     ]
+  },
+  "method_bindings": {
+    "RVA_OBSCURED_BYTE": {
+      "class": "ObscuredByte",
+      "method": "op_Implicit",
+      "signature": "byte -> ObscuredByte",
+      "method_token": "0x06000296",
+      "pointer_rva": "0x39d17c8"
+    },
+    "RVA_OBSCURED_FLOAT": {
+      "class": "ObscuredFloat",
+      "method": "op_Implicit",
+      "signature": "float -> ObscuredFloat",
+      "method_token": "0x060003bf",
+      "pointer_rva": "0x39d2110"
+    }
   }
 }

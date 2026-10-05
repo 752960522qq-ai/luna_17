@@ -12,7 +12,7 @@
 4. 双击 `Start-Builder.bat`，或运行 `python -m tankbuilder gui`。选择原始 APK/APKS、配置文件和输出路径。
 5. 点击“检测兼容性”，通过后点击“构建 APK”。输出目录有 APK、检测报告、构建报告及工具日志。
 
-当前包附带已通过 11 项 ARM64 回归的 5.1.0 r4 原生模块。仅在模块及原生配置 SHA-256、游戏库、元数据、资源和 18 项方法指纹均匹配时复用。新版需要重新适配并编译模块；不能复用旧模块的哈希绕过适配。
+当前包附带 5.1.0 r5 原生模块。仅在模块及原生配置 SHA-256、游戏库、元数据、资源、20 项方法指纹及两项编码方法指针绑定均匹配时复用。byte/float 编码回归执行真实游戏指令。新版需要重新适配并编译模块；不能复用旧模块的哈希绕过适配。
 
 ```bash
 python -m tankbuilder inspect "original.apks" --out build/inspection
@@ -46,7 +46,7 @@ APK Set 的处理不是任意 split 的简单拼接。当前包型可直接合�
 python -m tankbuilder tankpack T72A.tankpack
 ```
 
-1.1.0-dev 支持已审核的 `T54_1949.tankpack`，额外包含 `rig.json`。其他 Tank Pack 仍只校验格式，没有通用模型注入能力。当前适配器将模型转换为 Unity 网格/材质，克隆玩家预制体，连接炮塔、火炮、发射点和碰撞体，并向 13 个场景的玩家目录追加 T‑54；保持 AI 数组原内容。
+1.1.1-dev 支持已审核的 `T54_1949.tankpack`，额外包含 `rig.json`。其他 Tank Pack 仍只校验格式，没有通用模型注入能力。当前适配器将模型转换为 Unity 网格/材质，克隆玩家预制体，连接炮塔、火炮、发射点和碰撞体，并向 12 个战斗场景的玩家目录追加 T‑54；保持 AI 数组和原选车界面的全部原始对象。T‑54 通过战斗中的 MOD 菜单选择。
 
 只准备资源而不生成 APK：
 
@@ -57,7 +57,7 @@ python -m tankbuilder prepare-assets original.apks --tankpack T54_1949.tankpack 
 生成带 T‑54 的 APK：
 
 ```bash
-python -m tankbuilder build original.apks --config builder.config.json --tankpack T54_1949.tankpack --output dist/Attack-on-Tank-T54-r4.apk
+python -m tankbuilder build original.apks --config builder.config.json --tankpack T54_1949.tankpack --output dist/Attack-on-Tank-T54-r5.apk
 ```
 
 资源适配器还会严格核对原始 data.unity3d 指纹。更新游戏版本后需重新核对序列化字段、模板 ID、玩家目录和原生控制器；不能把上一版派生资源直接放进新版 APK。

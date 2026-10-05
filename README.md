@@ -4,13 +4,13 @@
 
 菜单包含无敌、无限弹药、对局换坦克。进入游戏后点击左上角 **MOD**，可拖动按钮；换坦克按国家与场景中的实际车型列表选择，保留位置和朝向，并更新玩家、界面与镜头引用。修改功能只在单人模式启用，联机模式自动暂停。
 
-当前工程为 **TankInvincible_3000 1.1.0-dev / 修改器 r4**。构建器支持版本、资源和 18 项关键方法指纹检查，签名重建及更新草案；增加已审核的 T‑54 (1949) 玩家 Tank Pack 注入。使用方法见 [BUILDER_GUIDE.md](BUILDER_GUIDE.md)，历史见 [CHANGELOG.md](CHANGELOG.md)，本次修复与验证见 [T54_R4_REPORT.md](T54_R4_REPORT.md)。
+当前工程为 **TankInvincible_3000 1.1.1-dev / 修改器 r5**。修正 T‑54 初始化的错误 Tier 函数地址，保持原选车场景数据，新增真实 byte/float 编码及方法指针绑定检查。构建器支持版本、资源和 20 项方法指纹检查，签名重建及更新草案。使用方法见 [BUILDER_GUIDE.md](BUILDER_GUIDE.md)，历史见 [CHANGELOG.md](CHANGELOG.md)，本次修复与验证见 [T54_R5_REPORT.md](T54_R5_REPORT.md)。
 
 ## 安装
 
 适用于 Android 9 及以上的 ARM64 设备，不需要 root 或系统悬浮窗权限。APK 使用独立的开发签名，无法覆盖安装原版。先备份需要保留的存档，再卸载原版并安装测试 APK。安装后进入单人对局，菜单应显示“已接入当前坦克”。
 
-当前交付为 **r4 / T‑54 测试版**，与此前测试 APK 签名一致，可覆盖更新此前修改版。
+当前交付为 **r5 / T‑54 测试版**，与此前测试 APK 签名一致，可覆盖更新此前修改版。
 
 r3 修复了对局换坦克显示“新载具缺少控制组件（-4）”的问题：原游戏的 `T34_85_Player` 和 `ZiS_3_Player` 预制体根对象包含 `PlayerControl`，但 `UnitStatus` 在子对象 `Unit Info` 上。此前只在根对象查找 `UnitStatus`，因此误判组件缺失。现在从新控制器的 `uStatus`（偏移 `0x70`）读取游戏已序列化的状态引用，确认控制器和状态仍有效后再更新玩家和镜头。失败时保留原坦克，并区分控制器缺失（-4）和状态引用未就绪（-5）。
 
@@ -18,7 +18,7 @@ r3 保留 r2 的生成参数修复：游戏的 `_GenerateUnit` 第一个业务�
 
 本次修复在新车武器初始化完成后接管玩家，保留对局阵营与碰撞层，并重置瞄准弹速缓存。进入单人对局后，在 MOD 菜单选择“苏联 → T54_1949_Player → 替换当前坦克”。T‑54 暂时只供玩家使用。
 
-r4 已通过 11 项 ARM64 回归、10 项构建器回归、资源保存后重读和 APK 签名/结构检查。**游戏内伤害、敌我识别、离线重启、履带、悬挂及音效仍需安卓真机确认**。离线启动处理未声明能覆盖所有篡改告警来源。
+r5 执行真实 Tier/浮点编码的 ARM64 回归，并检查选车场景对象完全保留、12 个战斗目录注册及 APK 签名/结构。旧 r4 在相同编码用例中重现非法读取，r5 通过。**选车、游戏内伤害、敌我识别、离线重启、履带、悬挂及音效仍需安卓真机确认**。离线启动处理未声明能覆盖所有篡改告警来源。
 
 ## 实现
 
@@ -45,14 +45,14 @@ python scripts/build.py \
   --zipalign /path/to/zipalign \
   --keystore /path/to/development.jks \
   --password-file /path/to/password.txt \
-  --output dist/Attack-on-Tank-5.1.0-luna17-r4.apk
+  --output dist/Attack-on-Tank-5.1.0-luna17-r5.apk
 ```
 
 上面的底层命令只构建修改菜单。加入 T‑54 应使用构建器，使资源适配、验证和签名顺序完整执行：
 
 ```bash
 python -m pip install -r requirements-builder.txt
-python -m tankbuilder build original.apks --config builder.config.json --tankpack T54_1949.tankpack --output dist/Attack-on-Tank-T54-r4.apk
+python -m tankbuilder build original.apks --config builder.config.json --tankpack T54_1949.tankpack --output dist/Attack-on-Tank-T54-r5.apk
 ```
 
 `app/stubs` 只用于编译；打包时不会加入假的 Unity Activity。游戏库、元数据和资源必须匹配对应 profile；新版本不会因为名称相同而自动放行。
@@ -62,8 +62,8 @@ python -m tankbuilder build original.apks --config builder.config.json --tankpac
 ```bash
 python -m pip install -r requirements-dev.txt
 python tests/test_native.py --module build/libaotmod.so --game-library /path/to/original/libil2cpp.so --report build/native-tests.json
-python scripts/verify.py --apk dist/Attack-on-Tank-T54-r4.apk --apks /path/to/original.apks --unity-data build/T54-assets/data.unity3d --native-test-report build/native-tests.json
-java -jar /path/to/apksigner.jar verify --verbose dist/Attack-on-Tank-T54-r4.apk
+python scripts/verify.py --apk dist/Attack-on-Tank-T54-r5.apk --apks /path/to/original.apks --unity-data build/T54-assets/data.unity3d --native-test-report build/native-tests.json
+java -jar /path/to/apksigner.jar verify --verbose dist/Attack-on-Tank-T54-r5.apk
 ```
 
 原生测试执行实际编译后的 ARM64 指令，覆盖玩家/敌方伤害区分、参数保留、原游戏 ObscuredInt 转换函数与数组边界、ADRP 重定位，以及换坦克的位置、朝向、玩家和镜头引用更新。换车验证直接执行原游戏 `_GenerateUnit` 和字符串比较指令，复现错误类型参数被拒绝，并检查六国玩家车型选择。组件查询按原始预制体层级设置边界：根对象可取得 `PlayerControl`，无法取得子对象的 `UnitStatus`。同一回归用例在 r2 编译模块上失败、在 r3 上通过；另验证空引用或已销毁的控制器/状态不会覆盖原玩家、镜头和车型配置。Unity 实例化及场景行为仍需设备实测。当前交付包的校验记录见 `verification.json`。

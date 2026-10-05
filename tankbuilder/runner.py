@@ -85,7 +85,14 @@ def run_build(input_path, output, config_path, selected=None, tankpacks=(), prof
                     pack=extract_reviewed_pack(tankpacks[0],work/'pack')
                     original_data=work/'data-original.unity3d';original_data.write_bytes(game.bundle)
                     report['asset_preparation']=prepare_assets(original_data,pack,work/'prepared-assets',log)
-                    prepared=work/'prepared-assets/data.unity3d';command.extend(['--unity-data',str(prepared)])
+                    prepared=work/'prepared-assets/data.unity3d'
+                    assets_test_report=work/'asset-tests.json'
+                    assets_test=subprocess.run([sys.executable,str(source/'tests/test_assets.py'),
+                        '--original',str(original_data),'--modified',str(prepared),
+                        '--report',str(assets_test_report)],capture_output=True,text=True)
+                    if assets_test.returncode:raise ValueError('选车/战斗资源回归失败：'+assets_test.stderr[-1500:])
+                    report['asset_verification']=json.loads(assets_test_report.read_text())
+                    command.extend(['--unity-data',str(prepared)])
                 log('构建菜单、合并资源、对齐并签名…')
                 process=subprocess.run(command,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,encoding='utf-8',errors='replace')
                 (output.parent/'build_tool_output.txt').write_text(process.stdout,encoding='utf-8')

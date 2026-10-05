@@ -6,7 +6,7 @@ import unittest
 import zipfile
 from pathlib import Path
 from tankbuilder.package import GamePackage
-from tankbuilder.profiles import inspect_game, draft_profile, generate_header, native_config_digest, ROOT
+from tankbuilder.profiles import inspect_game, inspect_method_bindings, draft_profile, generate_header, native_config_digest, ROOT
 from tankbuilder.runner import run_build
 from tankbuilder.tankpack import validate_pack, validate_documents
 
@@ -22,6 +22,19 @@ class BuilderTests(unittest.TestCase):
         self.assertEqual(self.report['identity']['unity_version'],'6000.3.19f1')
         self.assertGreaterEqual(len(self.report['module_fingerprints']),18)
         self.assertTrue(self.report['identity_and_payload_checks']['unity_data_sha256'])
+        self.assertEqual(len(self.report['method_bindings']),2)
+        self.assertTrue(all(x['match'] for x in self.report['method_bindings']))
+
+    def test_r4_mid_function_byte_address_is_rejected(self):
+        profile=json.loads((ROOT/'profiles'/self.report['profile']).read_text())
+        profile['native_macros']['RVA_OBSCURED_BYTE']='0x18dab20'
+        checks=inspect_method_bindings(self.game.library,profile)
+        byte=next(x for x in checks if x['macro']=='RVA_OBSCURED_BYTE')
+        self.assertFalse(byte['match'])
+        self.assertEqual(byte['actual_method_rva'],'0x18daa20')
+        with tempfile.TemporaryDirectory() as d:
+            (Path(d)/'bad.json').write_text(json.dumps(profile))
+            self.assertFalse(inspect_game(self.game,d)['can_build'])
 
     def test_unrelated_binary_change_blocks_all_features(self):
         game=copy.copy(self.game);game.hashes=dict(game.hashes,libil2cpp_sha256='0'*64)

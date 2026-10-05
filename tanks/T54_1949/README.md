@@ -13,7 +13,7 @@ SGMT 的 x30 映射为游戏弹药单位。未提供 HE 穿深和精确车体转
 ```bash
 python -m tankbuilder tankpack T54_1949.tankpack
 python -m tankbuilder prepare-assets original.apks --tankpack T54_1949.tankpack --out build/T54-assets
-python -m tankbuilder build original.apks --config builder.config.json --tankpack T54_1949.tankpack --output dist/Attack-on-Tank-T54-r4.apk
+python -m tankbuilder build original.apks --config builder.config.json --tankpack T54_1949.tankpack --output dist/Attack-on-Tank-T54-r5.apk
 ```
 
 新版本必须重新检查原生 ABI、序列化结构、模板及目录，不能直接复用旧资源包中的 data.unity3d。

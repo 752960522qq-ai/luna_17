@@ -13,6 +13,7 @@ from UnityPy.streams import EndianBinaryReader
 from .modelrig import Model
 
 ROOT=Path(__file__).resolve().parents[1]
+BATTLE_PLAYER_SCENES=frozenset('level'+str(i) for i in range(8,20))
 SCHEMA=json.loads((ROOT/'profiles/adapters/t54-5.1.0-serialization.json').read_text())['classes']
 PRIMS={'bool':'?', 'u1':'B','i4':'i','u4':'I','f4':'f'}
 class EditableObject(ObjectReader):
@@ -264,7 +265,10 @@ def prepare_assets(original,pack_directory,destination,log=print):
     audio_report.append({'role':'reload','clip':'loading_noise_02','binding':'original UnitMove.PlayLoadingNoise path','reused_game_sample':True})
     registrations=[]
     for filename,af in adapter.files.items():
-        if not filename.startswith('level'):continue
+        # level7 is the original selection screen: it instantiates every
+        # catalog entry before a tank is selected. Custom vehicles belong to
+        # the battle catalogs used by the mod menu, not its stock UI mapping.
+        if filename not in BATTLE_PLAYER_SCENES:continue
         resources_id=next((i+1 for i,e in enumerate(af.externals) if e.path.rsplit('/',1)[-1]=='resources.assets'),None)
         if not resources_id:continue
         for obj in list(af.objects.values()):
@@ -277,7 +281,7 @@ def prepare_assets(original,pack_directory,destination,log=print):
             if n<1 or n>128:raise ValueError('TankGenManager player array schema differs')
             at=48+12*n;changed=raw[:44]+struct.pack('<i',n+1)+raw[48:at]+struct.pack('<iq',resources_id,root.path_id)+raw[at:]
             obj.set_raw_data(changed);registrations.append({'scene':filename,'generator':obj.path_id,'player_index':n,'new_count':n+1,'ai_arrays_unchanged':True})
-    if len(registrations)!=13:raise ValueError('Expected the 13 reviewed offline player catalogs')
+    if len(registrations)!=12:raise ValueError('Expected the 12 reviewed battle player catalogs')
     log('Writing derived Unity bundle…')
     bundle=next(f for f in adapter.env.files.values() if hasattr(f,'save_fs'));output=destination/'data.unity3d';output.write_bytes(bundle.save(packer='lz4'))
     if hashlib.sha256(original.read_bytes()).hexdigest()!=before:raise AssertionError('Original resources changed')

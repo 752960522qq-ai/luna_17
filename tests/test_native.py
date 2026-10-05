@@ -39,8 +39,13 @@ class Machine:
         with Path(game).open('rb') as file:
             elf=ELFFile(file)
             self.game_segments=[(s['p_vaddr'],s.data()) for s in elf.iter_segments() if s['p_type']=='PT_LOAD']
-        # Run the original ObscuredInt constructor and checksum implementation.
-        for address,size in [(0x18f2600,0x400),(0x18d3100,0x200),(0x1982c34,0x40)]:
+        # Execute the original integer, byte and float constructors. Never
+        # install a successful constructor stub at an address from the profile:
+        # that would hide a wrong method entry (the r4 Tier crash).
+        for address,size in [(0x18f2600,0x400),(0x18d3100,0x200),(0x1982c34,0x40),
+                             (0x18daa20,0x138),(0x18db128,0x10),
+                             (0x18f0a4c,0xb0),(0x1913900,0x14),
+                             (0x1d82f0c,0x100)]:
             self.u.mem_write(GAME+address,self.game_read(address,size))
         with Path(module).open('rb') as file:
             elf=ELFFile(file)
@@ -70,6 +75,7 @@ class Machine:
         self.u.hook_add(UC_HOOK_CODE,self.on_code)
         self.global_q('base',GAME)
         self.at(GAME+0x18d4704,lambda:0x1a2b3c4d)
+        self.at(GAME+0x18d4328,lambda:0x5a)
         self.at(GAME+0x19084e0,lambda:1)
         self.at(GAME+0x17ca9e4,lambda:0)
 
@@ -313,14 +319,6 @@ class NativeTests(unittest.TestCase):
             p=m.object(0x20+n*size);m.iwrite(p+0x18,n);return p
         body=array(16,4);turret=array(8,4);shells=array(5,16);mg=array(1,16)
         for offset,p in [(0x1b8,body),(0x1c0,turret),(0xf0,shells),(0xf8,mg)]:m.qwrite(s+offset,p)
-        # Model the aggregate-return ABI for float/byte constructors. Integer
-        # stats and ammunition execute the original game codec above.
-        from pathlib import Path
-        profile=json.loads((Path(__file__).resolve().parents[1]/'profiles/attack-on-tank-5.1.0.json').read_text())
-        macros=profile['native_macros']
-        def float_codec():m.u.mem_write(m.x(8),struct.pack('<5I',0,0,0,0,0))
-        m.at(GAME+int(macros['RVA_OBSCURED_FLOAT'],16),float_codec)
-        m.at(GAME+int(macros['RVA_OBSCURED_BYTE'],16),lambda:m.x(0))
         def original_enable():
             m.qwrite(m.x(0)+0x68,m.string('T34_85'));m.qwrite(m.x(0)+0x70,m.string('S-53'))
         m.global_q('original_status_enable',m.stub(original_enable));m.global_q('original_status_start',m.stub(lambda:0))
@@ -332,6 +330,17 @@ class NativeTests(unittest.TestCase):
             _,hidden,key,_=struct.unpack('<4I',m.read(address,16));return ((hidden-key)&0xffffffff)^key
         self.assertEqual([plain(shells+0x20+i*16) for i in range(5)],[16,2,6,0,10]);self.assertEqual(plain(mg+0x20),30)
         self.assertEqual([plain(s+o) for o in [0x78,0xa8,0xdc,0x104,0x114,0x124]],[212,895,10,520,56,7])
+        tier=struct.unpack('<Q',m.read(s+0x174,8))[0]
+        raw=struct.pack('<Q',tier)
+        self.assertEqual(((raw[4]-raw[5])&255)^raw[5],4)
+        self.assertEqual(raw[6],4)  # Detector-enabled fake value is consistent.
+        _,hidden,key,fake,_=struct.unpack('<5I',m.read(s+0x184,20))
+        encrypted=bytearray(struct.pack('<I',hidden))
+        encrypted[1],encrypted[2]=encrypted[2],encrypted[1]
+        bits=struct.unpack('<I',encrypted)[0]^key
+        acceleration=struct.unpack('<f',struct.pack('<I',bits))[0]
+        self.assertAlmostEqual(acceleration,(520/35.5)*.5/17.8571434,places=6)
+        self.assertEqual(fake,struct.unpack('<I',struct.pack('<f',acceleration))[0])
         launcher=m.object();info=m.object();owner=m.object();m.qwrite(s+0x260,owner);m.qwrite(launcher+0x38,s)
         m.global_q('original_attack_info',m.stub(lambda:info))
         for shell,penetration in [(0,212),(1,330),(2,216)]:
