@@ -1,0 +1,38 @@
+{
+  "name": "D‑10T",
+  "caliber": 100,
+  "reload": 9.7,
+  "muzzleVelocity": 895,
+  "ammo": {
+    "AP": 16,
+    "APCR": 6,
+    "HE": 10,
+    "HEAT": 2
+  },
+  "shells": {
+    "AP": {
+      "name": "BR‑412",
+      "penetrationMm": 212
+    },
+    "APCR": {
+      "name": "BR‑412P",
+      "penetrationMm": 216
+    },
+    "HE": {
+      "name": "OF‑412"
+    },
+    "HEAT": {
+      "name": "ZBK‑5M",
+      "penetrationMm": 330
+    },
+    "WP": {
+      "count": 0
+    }
+  },
+  "machineGun": {
+    "name": "SGMT 7.62mm",
+    "position": "coaxial",
+    "ammo": 30,
+    "ammoUnit": "game magazines"
+  }
+}

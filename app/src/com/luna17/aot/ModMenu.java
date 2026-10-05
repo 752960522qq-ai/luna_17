@@ -115,8 +115,9 @@ final class ModMenu {
         body.setOrientation(LinearLayout.VERTICAL); body.setPadding(dp(14),dp(10),dp(14),dp(12));
         body.setBackground(background(Color.argb(248, 19, 30, 46), 13));
         body.setClickable(true);
-        TextView title = label("Attack on Tank · luna_17", 17, white);
+        TextView title = label("坦无敌3000", 17, white);
         title.setTypeface(Typeface.DEFAULT, Typeface.BOLD); body.addView(title);
+        body.addView(label("TankInvincible", 12, muted));
         body.addView(label(FeatureConfig.BUILD_LABEL, 11, muted));
         status = label("等待游戏模块…", 12, accent); body.addView(status);
         god = feature("无敌", 0); body.addView(god);
@@ -219,6 +220,8 @@ final class ModMenu {
                         case -3: result.setText("新载具未生成（-3），请尝试其他车型。"); break;
                         case -4: result.setText("新载具玩家控制器未找到（-4）。"); break;
                         case -5: result.setText("新载具状态引用未就绪（-5）。"); break;
+                        case -6: result.setText("对局状态改变，已取消替换。"); break;
+                        case -7: result.setText("新车武器初始化超时，已保留原坦克。"); break;
                         default: result.setText("替换失败（"+r+"）。");
                     }
                 } else if(currentState!=3) {waiting=false;result.setText("已离开当前对局，替换取消。");}

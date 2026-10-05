@@ -10,12 +10,12 @@ from pathlib import Path
 from . import VERSION
 from .package import GamePackage, digest
 from .profiles import ROOT, FEATURES, inspect_game, generate_header, native_config_digest
-from .tankpack import validate_pack
+from .tankpack import validate_pack,extract_reviewed_pack
 
 def write_report(report, directory, stem='build_report'):
     directory=Path(directory);directory.mkdir(parents=True,exist_ok=True)
     (directory/(stem+'.json')).write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-    lines=['TankInvincible_3000 '+VERSION, '状态：'+str(report.get('status','检测完成')),
+    lines=['坦无敌3000 / TankInvincible '+VERSION, '状态：'+str(report.get('status','检测完成')),
         '时间：'+datetime.now(timezone.utc).isoformat()]
     inspection=report.get('inspection',report)
     identity=inspection.get('identity',{})
@@ -45,7 +45,8 @@ def run_build(input_path, output, config_path, selected=None, tankpacks=(), prof
             if not inspection['can_build']:raise ValueError('版本、布局或资源指纹尚未审核通过；已输出检测报告')
             if not all(inspection['features'][f]['compatible'] for f in selected):raise ValueError('所选功能需要重新适配')
             report['tankpacks']=[validate_pack(p) for p in tankpacks]
-            if tankpacks:raise ValueError('Tank Pack 已校验；V1 尚无资源注入适配器，不能将新增载具写入 APK')
+            if len(tankpacks)>16:raise ValueError('一次最多 16 辆新坦克')
+            if not all(x['valid'] and x['can_inject'] for x in report['tankpacks']):raise ValueError('Tank Pack 格式或适配器尚未审核通过')
             profile_path=Path(profiles_dir or ROOT/'profiles')/inspection['profile']
             profile=json.loads(profile_path.read_text(encoding='utf-8'))
             paths={k:config_file(cfg[k]) for k in ('android_jar','r8','apksigner','zipalign','keystore','password_file')}
@@ -54,7 +55,7 @@ def run_build(input_path, output, config_path, selected=None, tankpacks=(), prof
             if not shutil.which('java'):raise ValueError('需要 JDK 17 或更高版本')
             with tempfile.TemporaryDirectory(prefix='tank-build-',dir=output.parent) as temporary:
                 work=Path(temporary);source=work/'source'
-                for directory in ('app','native','scripts','profiles','tests'):
+                for directory in ('app','native','scripts','profiles','tests','tankbuilder'):
                     shutil.copytree(ROOT/directory,source/directory,ignore=shutil.ignore_patterns('__pycache__'))
                 generate_header(profile,source/'native/profile_config.h')
                 chosen=source/'profiles/selected.json';chosen.write_text(json.dumps(profile),encoding='utf-8')
@@ -65,6 +66,9 @@ def run_build(input_path, output, config_path, selected=None, tankpacks=(), prof
                 normalized=game.normalized(work/'input.apks')
                 original_lib=work/'libil2cpp.so';original_lib.write_bytes(game.library)
                 native=cfg.get('native_prebuilt')
+                if tankpacks:
+                    if not cfg.get('ndk'):raise ValueError('新增或修改坦克参数需要 NDK 编译匹配模型包的原生模块')
+                    native=None
                 if native:
                     native=config_file(native)
                     if digest(native.read_bytes())!=profile['builder'].get('prebuilt_module_sha256'):
@@ -78,18 +82,38 @@ def run_build(input_path, output, config_path, selected=None, tankpacks=(), prof
                 for k,v in paths.items():command.extend(['--'+k.replace('_','-'),str(v)])
                 # CLI names for existing build script differ from config names.
                 command.extend(['--native-prebuilt',str(native)] if native else ['--ndk',str(config_file(cfg['ndk']))])
+                from .project import generate_runtime_header
+                prepared=None
+                if tankpacks:
+                    from .unity_assets import prepare_assets
+                    pack=[extract_reviewed_pack(p,work/('pack'+str(i))) for i,p in enumerate(tankpacks)]
+                    report['runtime_config_sha256']=generate_runtime_header(pack,source/'native/custom_tanks.h')
+                    original_data=work/'data-original.unity3d';original_data.write_bytes(game.bundle)
+                    report['asset_preparation']=prepare_assets(original_data,pack,work/'prepared-assets',log,cache_directory=config_file(cfg.get('asset_cache','build/asset-cache')))
+                    prepared=work/'prepared-assets/data.unity3d'
+                    assets_test_report=work/'asset-tests.json'
+                    assets_test=subprocess.run([sys.executable,str(source/'tests/test_custom_assets.py'),
+                        '--original',str(original_data),'--modified',str(prepared),
+                        '--report',str(assets_test_report)],capture_output=True,text=True)
+                    if assets_test.returncode:raise ValueError('选车/战斗资源回归失败：'+assets_test.stderr[-1500:])
+                    report['asset_verification']=json.loads(assets_test_report.read_text())
+                    command.extend(['--unity-data',str(prepared)])
                 log('构建菜单、合并资源、对齐并签名…')
                 process=subprocess.run(command,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,encoding='utf-8',errors='replace')
                 (output.parent/'build_tool_output.txt').write_text(process.stdout,encoding='utf-8')
                 if process.returncode:raise ValueError('构建工具失败；详情见 build_tool_output.txt')
                 module=Path(native) if native else work/'build/libaotmod.so'
                 test_report=work/'native-tests.json'
+                configs_file=work/'runtime-projects.json'
+                from .project import read_documents
+                configs_file.write_text(json.dumps([read_documents(p) for p in pack]) if tankpacks else '[]')
                 tests=subprocess.run([sys.executable,str(source/'tests/test_native.py'),'--module',str(module),
-                    '--game-library',str(original_lib),'--report',str(test_report)],capture_output=True,text=True)
+                    '--game-library',str(original_lib),'--report',str(test_report),*(['--tank-configs',str(configs_file)] if tankpacks else [])],capture_output=True,text=True)
                 if tests.returncode:raise ValueError('原生执行回归失败：'+tests.stderr[-1500:])
                 sys.path.insert(0,str(source/'scripts'))
                 from verify import verify
-                verification=verify(work/'signed.apk',normalized,test_report,chosen)
+                verification=verify(work/'signed.apk',normalized,test_report,chosen,prepared)
+                verification['file']=output.name
                 certs=subprocess.check_output(['java','-jar',str(paths['apksigner']),'verify','--print-certs',str(work/'signed.apk')],text=True)
                 certificate=re.search(r'certificate SHA-256 digest: ([a-f0-9]+)',certs).group(1)
                 expected=cfg.get('expected_certificate_sha256')

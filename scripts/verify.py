@@ -17,7 +17,7 @@ from elftools.elf.elffile import ELFFile
 ROOT=Path(__file__).resolve().parents[1]
 NS='{http://schemas.android.com/apk/res/android}'
 
-def verify(apk,apks,native_test_report=None,profile_path=None):
+def verify(apk,apks,native_test_report=None,profile_path=None,unity_data=None):
     profile=json.loads(Path(profile_path or ROOT/'profiles/attack-on-tank-5.1.0.json').read_text())
     with zipfile.ZipFile(apk) as z, zipfile.ZipFile(apks) as bundle:
         assert z.testzip() is None,'Corrupt ZIP entry'
@@ -28,8 +28,10 @@ def verify(apk,apks,native_test_report=None,profile_path=None):
         assert NS+'requiredSplitTypes' not in manifest.attrib
         app=manifest.find('application')
         assert app.attrib[NS+'extractNativeLibs']=='true'
+        assert app.attrib[NS+'label']=='坦无敌3000 · TankInvincible'
         launcher=[a for a in app.findall('activity') if a.find('intent-filter') is not None]
         assert any(a.attrib[NS+'name']=='com.luna17.aot.ModActivity' for a in launcher)
+        assert next(a for a in launcher if a.attrib[NS+'name']=='com.luna17.aot.ModActivity').attrib[NS+'label']=='坦无敌3000 · TankInvincible'
         assert not any(m.attrib.get(NS+'name') in {'com.android.vending.splits.required','com.android.vending.splits'} for m in app.findall('meta-data'))
         assert not any(p.attrib.get(NS+'name')=='android.permission.SYSTEM_ALERT_WINDOW' for p in manifest.findall('uses-permission'))
         with zipfile.ZipFile(io.BytesIO(bundle.read('base.apk'))) as original:
@@ -37,6 +39,9 @@ def verify(apk,apks,native_test_report=None,profile_path=None):
             for info in original.infolist():
                 name=info.filename
                 if name=='AndroidManifest.xml' or name=='stamp-cert-sha256' or name=='META-INF/MANIFEST.MF' or re.match(r'META-INF/[^/]+\.(?:RSA|DSA|EC|SF)$',name,re.I):continue
+                if unity_data and name=='assets/bin/Data/data.unity3d':
+                    assert z.read(name)==Path(unity_data).read_bytes(),'Prepared Unity bundle differs from APK'
+                    continue
                 assert z.read(name)==original.read(name),f'Original payload changed: {name}'
                 preserved+=1
             original_dex=[name for name in original.namelist() if re.fullmatch(r'classes\d*\.dex',name)]
@@ -52,6 +57,7 @@ def verify(apk,apks,native_test_report=None,profile_path=None):
         added=set(n for n in z.namelist() if re.fullmatch(r'classes\d*\.dex',n))-set(original_dex)
         assert len(added)==1
         dex=DEX(z.read(next(iter(added))))
+        assert {'坦无敌3000','TankInvincible'}.issubset(set(dex.get_strings())), 'Mod menu names missing'
         assert dex.get_class('Lcom/unity3d/player/UnityPlayerActivity;') is None,'Compile stub leaked into APK'
         activity=dex.get_class('Lcom/luna17/aot/ModActivity;')
         assert activity.get_superclassname()=='Lcom/unity3d/player/UnityPlayerActivity;'
@@ -81,12 +87,13 @@ def verify(apk,apks,native_test_report=None,profile_path=None):
     return {'file':Path(apk).name,'size_bytes':Path(apk).stat().st_size,
             'sha256':hashlib.sha256(Path(apk).read_bytes()).hexdigest(),
             'preserved_original_entries':preserved,'native_methods':sorted(native_names),
-            'module_16k_elf_alignment':True,'original_game_payload_unchanged':True,
+            'module_16k_elf_alignment':True,'display_name':'坦无敌3000','english_name':'TankInvincible','manifest_labels_verified':True,'menu_names_verified':True,'original_game_payload_unchanged':unity_data is None,'prepared_unity_data_sha256':hashlib.sha256(Path(unity_data).read_bytes()).hexdigest() if unity_data else None,
             'native_execution_tests':native_results,'android_device_test':'not performed'}
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--apk',required=True);p.add_argument('--apks',required=True);p.add_argument('--report',type=Path);p.add_argument('--native-test-report',type=Path)
-    args=p.parse_args();report=verify(args.apk,args.apks,args.native_test_report)
+    p.add_argument('--unity-data',type=Path);p.add_argument('--profile',type=Path)
+    args=p.parse_args();report=verify(args.apk,args.apks,args.native_test_report,args.profile,args.unity_data)
     text=json.dumps(report,indent=2,ensure_ascii=False)+'\n'
     if args.report:args.report.write_text(text)
     print(text)

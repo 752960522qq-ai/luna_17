@@ -6,7 +6,7 @@ import unittest
 import zipfile
 from pathlib import Path
 from tankbuilder.package import GamePackage
-from tankbuilder.profiles import inspect_game, draft_profile, generate_header, native_config_digest, ROOT
+from tankbuilder.profiles import inspect_game, inspect_method_bindings, draft_profile, generate_header, native_config_digest, ROOT
 from tankbuilder.runner import run_build
 from tankbuilder.tankpack import validate_pack, validate_documents
 
@@ -20,8 +20,21 @@ class BuilderTests(unittest.TestCase):
     def test_original_is_recognized_and_resource_layer_is_checked(self):
         self.assertTrue(self.report['can_build'])
         self.assertEqual(self.report['identity']['unity_version'],'6000.3.19f1')
-        self.assertEqual(len(self.report['module_fingerprints']),8)
+        self.assertGreaterEqual(len(self.report['module_fingerprints']),18)
         self.assertTrue(self.report['identity_and_payload_checks']['unity_data_sha256'])
+        self.assertEqual(len(self.report['method_bindings']),2)
+        self.assertTrue(all(x['match'] for x in self.report['method_bindings']))
+
+    def test_r4_mid_function_byte_address_is_rejected(self):
+        profile=json.loads((ROOT/'profiles'/self.report['profile']).read_text())
+        profile['native_macros']['RVA_OBSCURED_BYTE']='0x18dab20'
+        checks=inspect_method_bindings(self.game.library,profile)
+        byte=next(x for x in checks if x['macro']=='RVA_OBSCURED_BYTE')
+        self.assertFalse(byte['match'])
+        self.assertEqual(byte['actual_method_rva'],'0x18daa20')
+        with tempfile.TemporaryDirectory() as d:
+            (Path(d)/'bad.json').write_text(json.dumps(profile))
+            self.assertFalse(inspect_game(self.game,d)['can_build'])
 
     def test_unrelated_binary_change_blocks_all_features(self):
         game=copy.copy(self.game);game.hashes=dict(game.hashes,libil2cpp_sha256='0'*64)
@@ -55,7 +68,8 @@ class BuilderTests(unittest.TestCase):
 
     def test_changed_layout_cannot_reuse_prebuilt_binding(self):
         profile=json.loads((ROOT/'profiles'/self.report['profile']).read_text())
-        self.assertEqual(native_config_digest(profile),profile['builder']['prebuilt_config_sha256'])
+        original_binding=native_config_digest(profile)
+        self.assertEqual(profile['builder']['prebuilt_config_sha256'],original_binding)
         profile['native_macros']['FIELD_PLAYERCONTROL_USTATUS']='0x78'
         self.assertNotEqual(native_config_digest(profile),profile['builder']['prebuilt_config_sha256'])
 

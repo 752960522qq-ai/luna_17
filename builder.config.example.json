@@ -3,9 +3,10 @@
   "r8": "tools/r8.jar",
   "apksigner": "tools/apksigner.jar",
   "zipalign": "tools/zipalign",
-  "native_prebuilt": "prebuilt/5.1.0/libaotmod.so",
   "keystore": "private/luna17-development.jks",
   "password_file": "private/password.txt",
   "alias": "luna17",
-  "expected_certificate_sha256": "9b09d75b77a30e67aa14196823b41cc04c70cb3ec6ac1eab41c41f0980568571"
+  "expected_certificate_sha256": "9b09d75b77a30e67aa14196823b41cc04c70cb3ec6ac1eab41c41f0980568571",
+  "ndk": "/path/to/android-ndk",
+  "asset_cache": "build/asset-cache"
 }

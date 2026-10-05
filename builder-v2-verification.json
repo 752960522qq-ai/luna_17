@@ -1,0 +1,46 @@
+{
+  "builder_version": "2.0.0",
+  "apk_created": false,
+  "android_device_test": "not performed",
+  "projects": {
+    "passed": true,
+    "tests_run": 4
+  },
+  "builder": {
+    "passed": true,
+    "tests_run": 11
+  },
+  "native": {
+    "runner": "Unicorn ARM64",
+    "tests_run": 11,
+    "failures": 0,
+    "errors": 0,
+    "passed": true,
+    "module_sha256": "7a331312fd62881ae6c987b46ea32888103cab6c4146786b3fa078fc2cd85d17",
+    "game_library_sha256": "f68552eaee3018948258966a6e262b0b567b8a1ecc199e60e59f175d388ef4a7"
+  },
+  "assets": {
+    "passed": true,
+    "packs": [
+      "T54_1949",
+      "DEMO_TANK"
+    ],
+    "battle_catalog_count": 12,
+    "selection_scene_unchanged": true,
+    "stock_resources_unchanged": true,
+    "new_objects": 2788,
+    "meshes": 160,
+    "materials": 32,
+    "resolved_pointers": 6052,
+    "android_device_test": "not performed"
+  },
+  "cache": {
+    "passed": true,
+    "cache_hit": true,
+    "resource_sha256": "1e5bd3a76085e00de00fc9b1286695d0e0d2993e6286f5ccdf14a65dd2cb4c76"
+  },
+  "web": {
+    "passed": true,
+    "scope": "MCP, authentication, project parameters, GLB/ZIP import, texture replacement and APK Set analyzer; Node VM, no visual browser check"
+  }
+}

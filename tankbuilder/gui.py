@@ -9,11 +9,16 @@ from .profiles import ROOT, FEATURES, inspect_game
 from .package import GamePackage
 from .runner import run_build, write_report
 from .tankpack import validate_pack
+from . import VERSION
 
 def main():
-    root=tk.Tk();root.title('TankInvincible_3000 · 1.0.0');root.geometry('860x650')
-    body=ttk.Frame(root,padding=18);body.pack(fill='both',expand=True)
-    ttk.Label(body,text='Attack on Tank 构建器',font=('',20,'bold')).pack(anchor='w')
+    root=tk.Tk();root.title('坦无敌3000 / TankInvincible · '+VERSION);root.geometry('860x650')
+    tabs=ttk.Notebook(root);tabs.pack(fill='both',expand=True)
+    body=ttk.Frame(tabs,padding=18);tabs.add(body,text='APK 构建')
+    editor=ttk.Frame(tabs);tabs.add(editor,text='坦克 / 模型 / 贴图')
+    from .project_gui import mount
+    mount(editor)
+    ttk.Label(body,text='坦无敌3000 · 构建器',font=('',20,'bold')).pack(anchor='w')
     ttk.Label(body,text='导入原始 APK/APKS，检测后构建。未知版本会输出适配报告。').pack(anchor='w',pady=(8,16))
     variables={};events=queue.Queue();buttons=[]
     def row(label,key,save=False):
@@ -26,6 +31,11 @@ def main():
             if path:var.set(path)
         ttk.Button(frame,text='选择',command=choose).pack(side='left',padx=(6,0))
     row('安装包','input');row('工具与签名配置','config');row('输出 APK','output',True)
+    packs=[];pack_label=tk.StringVar(value='未选择新增坦克包')
+    def select_packs():
+        packs[:]=filedialog.askopenfilenames(filetypes=[('Tank Pack','*.tankpack')]);pack_label.set('已选择 '+str(len(packs))+' 辆新坦克')
+    ttk.Button(body,text='选择新增坦克包（可多选）',command=select_packs).pack(anchor='w')
+    ttk.Label(body,textvariable=pack_label).pack(anchor='w')
     variables['config'].set(str(ROOT/'builder.config.json'))
     variables['output'].set(str(ROOT/'dist/Attack-on-Tank-builder.apk'))
     selected={f:tk.BooleanVar(value=True) for f in FEATURES}
@@ -47,7 +57,7 @@ def main():
         with GamePackage(values['input']) as game:report=inspect_game(game)
         write_report(report,Path(values['output']).parent,'inspection')
         show(json.dumps(report,ensure_ascii=False,indent=2))
-    def build(values,features):run_build(values['input'],values['output'],values['config'],features,log=show)
+    def build(values,features):run_build(values['input'],values['output'],values['config'],features,tankpacks=tuple(packs),log=show)
     for label,function in [('检测兼容性',inspect),('构建 APK',build)]:
         button=ttk.Button(actions,text=label,command=lambda f=function:background(f));button.pack(side='left',padx=(0,10));buttons.append(button)
     def pack():

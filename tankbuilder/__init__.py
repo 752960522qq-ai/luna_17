@@ -1,2 +1,2 @@
-"""TankInvincible_3000: reproducible offline APK builds and update reports."""
-VERSION = '1.0.0'
+"""TankInvincible_3000 reusable asset builder."""
+VERSION = "2.0.0"

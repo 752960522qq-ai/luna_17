@@ -1,4 +1,4 @@
-# TankInvincible_3000 使用与版本更新
+# 坦无敌3000 / TankInvincible 使用与版本更新
 
 这是可运行的本地构建器和同名 ChatGPT 插件。插件负责检查与准备构建计划；大包处理、原生编译和私钥签名在本地或 ChatGPT 工作环境执行，插件服务器不保存 APK 或私钥。
 
@@ -12,7 +12,7 @@
 4. 双击 `Start-Builder.bat`，或运行 `python -m tankbuilder gui`。选择原始 APK/APKS、配置文件和输出路径。
 5. 点击“检测兼容性”，通过后点击“构建 APK”。输出目录有 APK、检测报告、构建报告及工具日志。
 
-当前包附带已通过七项 ARM64 回归的 5.1.0 r3 原生模块。仅在配置中的模块 SHA-256、游戏库、元数据、资源和八项方法指纹均匹配时复用。新版本需要新的模块或 NDK；不能复用旧模块的哈希绕过适配。
+2.0 版使用 Android NDK 从当前源码编译模块；新增坦克或改变参数时不能复用旧预编译模块。byte/float 编码回归执行真实游戏指令。新版游戏需要重新适配，不能通过修改哈希跳过检查。
 
 ```bash
 python -m tankbuilder inspect "original.apks" --out build/inspection
@@ -46,7 +46,23 @@ APK Set 的处理不是任意 split 的简单拼接。当前包型可直接合�
 python -m tankbuilder tankpack T72A.tankpack
 ```
 
-V1 会校验路径、必要文件、有限数值、弹药分配、GLB 2.0 容器和 PNG 标识。它不验证模型骨架、贴图与完整 GLTF 语义。批量新增可驾驶坦克仍需 Unity 资源注入适配器：构造 mesh/material、炮塔/火炮/发射点/碰撞体引用，克隆并注册玩家预制体，同时核对混淆参数和游戏数组。GLB 本身不是 Unity 的原生 Mesh 或 AssetBundle；适配器完成前构建器不会假报“已添加坦克”。
+1.1.2-dev 支持已审核的 `T54_1949.tankpack`，额外包含 `rig.json`。其他 Tank Pack 仍只校验格式，没有通用模型注入能力。当前适配器将模型转换为 Unity 网格/材质，克隆玩家预制体，连接炮塔、火炮、发射点和碰撞体，并向 12 个战斗场景的玩家目录追加 T‑54；保持 AI 数组和原选车界面的全部原始对象。T‑54 通过战斗中的 MOD 菜单选择。
+
+r6 使用固定的 `unity-6000.3.19f1.json.gz` 完整 release 类型树，来源和哈希保存在文件内。每次写入要求原对象完整消费、未修改树逐字节往返一致；保存后另核对继承渲染器、完整网格/LOD/骨骼和资源引用。更新 Unity 版本时必须重新核验对应类型树，不能把旧前缀与假定的尾部拼接后直接放行。
+
+只准备资源而不生成 APK：
+
+```bash
+python -m tankbuilder prepare-assets original.apks --tankpack T54_1949.tankpack --out build/T54-assets
+```
+
+生成带 T‑54 的 APK：
+
+```bash
+python -m tankbuilder build original.apks --config builder.config.json --tankpack T54_1949.tankpack --output dist/Attack-on-Tank-T54-r5.apk
+```
+
+资源适配器还会严格核对原始 data.unity3d 指纹。更新游戏版本后需重新核对序列化字段、模板 ID、玩家目录和原生控制器；不能把上一版派生资源直接放进新版 APK。
 
 ## 插件使用
 
