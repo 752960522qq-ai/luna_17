@@ -80,7 +80,7 @@ def patch_manifest(data):
         pos += size
     pool = next(c for typ,c in chunks if typ == 1)
     names = strings(pool)
-    added = ['com.luna17.aot.ModActivity', 'Attack on Tank · MOD']
+    added = ['com.luna17.aot.ModActivity', '坦无敌3000 · TankInvincible']
     activity_index, label_index = len(names), len(names)+1
     names.extend(added)
     out = []; skipping = 0; activity_changed = False; split_removed = 0

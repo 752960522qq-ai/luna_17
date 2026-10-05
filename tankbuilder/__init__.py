@@ -1,2 +1,2 @@
-"""TankInvincible_3000: reproducible offline APK builds and update reports."""
-VERSION = '1.1.1-dev'
+"""坦无敌3000 / TankInvincible: offline APK builds and update reports."""
+VERSION = '1.1.2-dev'

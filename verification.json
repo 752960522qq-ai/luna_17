@@ -1,7 +1,7 @@
 {
-  "file": "Attack-on-Tank-5.1.0-T54-r5.apk",
-  "size_bytes": 198123427,
-  "sha256": "677d5815093a6d98fe867329287ccc13c9d98690aaa6564588bf7f985df49871",
+  "file": "TankInvincible-5.1.0-T54-r6.apk",
+  "size_bytes": 198131625,
+  "sha256": "b3acc95cb676f88f338cb7abc689bbd079e752e54cd1c7ba0c60d10d05ed42a0",
   "preserved_original_entries": 612,
   "native_methods": [
     "init",
@@ -12,8 +12,12 @@
     "toggle"
   ],
   "module_16k_elf_alignment": true,
+  "display_name": "坦无敌3000",
+  "english_name": "TankInvincible",
+  "manifest_labels_verified": true,
+  "menu_names_verified": true,
   "original_game_payload_unchanged": false,
-  "prepared_unity_data_sha256": "faa1be8ccce1f308332236fb441219922c2dd45300c35d8f59db7c6750db97a9",
+  "prepared_unity_data_sha256": "0b60bddfbf2291d1050be7f94a9bc0e730559fdf9682559798cb16f10e6b678b",
   "native_execution_tests": {
     "runner": "Unicorn ARM64",
     "tests_run": 11,
@@ -24,11 +28,8 @@
     "game_library_sha256": "f68552eaee3018948258966a6e262b0b567b8a1ecc199e60e59f175d388ef4a7"
   },
   "android_device_test": "not performed",
-  "revision": "r5 / T54 player",
+  "builder_version": "1.1.2-dev",
   "signing_certificate_sha256": "9b09d75b77a30e67aa14196823b41cc04c70cb3ec6ac1eab41c41f0980568571",
-  "same_signature_as_previous_test_apk": true,
-  "zipalign_verified": true,
-  "apksigner_verified": true,
   "asset_verification": {
     "passed": true,
     "stock_scene_objects_unchanged": [
@@ -62,7 +63,81 @@
     "ai_and_other_national_arrays_unchanged": true,
     "original_resource_objects_unchanged": true,
     "new_objects": 1394,
-    "prepared_unity_data_sha256": "faa1be8ccce1f308332236fb441219922c2dd45300c35d8f59db7c6750db97a9",
+    "serialization": {
+      "passed": true,
+      "schema": {
+        "unity_version": "6000.3.19f1",
+        "class_count": 17,
+        "schema_sha256": "abb1c149faa5cd7d4c08de7207a05d0430165b320dfad672775d4b9e54748dfc",
+        "source_commit": "70942d203f7a9899ac15375b66058dbbfab31efd"
+      },
+      "inherited_native_baselines": {
+        "GameObject": 216,
+        "Transform": 216,
+        "Rigidbody": 3,
+        "BoxCollider": 4,
+        "AudioSource": 7,
+        "LODGroup": 1,
+        "MeshFilter": 158,
+        "MeshRenderer": 159,
+        "ParticleSystem": 14,
+        "ParticleSystemRenderer": 14,
+        "SphereCollider": 3,
+        "TextMesh": 1,
+        "SpriteRenderer": 1
+      },
+      "inherited_native_baseline_count": 797,
+      "inherited_renderers_preserved": 174,
+      "truncated_renderers": 0,
+      "new_native_object_roundtrips": {
+        "GameObject": 314,
+        "Transform": 314,
+        "Rigidbody": 3,
+        "BoxCollider": 4,
+        "AudioSource": 7,
+        "LODGroup": 1,
+        "MeshFilter": 236,
+        "MeshRenderer": 237,
+        "ParticleSystem": 14,
+        "ParticleSystemRenderer": 14,
+        "SphereCollider": 3,
+        "TextMesh": 1,
+        "SpriteRenderer": 1,
+        "Texture2D": 36,
+        "Material": 16,
+        "Mesh": 80,
+        "SkinnedMeshRenderer": 2
+      },
+      "new_native_object_count": 1283,
+      "resolved_native_pointer_count": 3010,
+      "original_unity_builtin_references": 14,
+      "new_meshes": 80,
+      "skinned_tracks": 2
+    },
+    "prepared_unity_data_sha256": "0b60bddfbf2291d1050be7f94a9bc0e730559fdf9682559798cb16f10e6b678b",
     "android_device_test": "not performed"
-  }
+  },
+  "legacy_rejection": [
+    {
+      "id": 139396,
+      "type": "MeshRenderer",
+      "bytes": 148,
+      "rejected": true,
+      "error": "read_int out of bounds"
+    },
+    {
+      "id": 139438,
+      "type": "ParticleSystemRenderer",
+      "bytes": 280,
+      "rejected": true,
+      "error": "read_int out of bounds"
+    },
+    {
+      "id": 139477,
+      "type": "ParticleSystemRenderer",
+      "bytes": 280,
+      "rejected": true,
+      "error": "read_int out of bounds"
+    }
+  ]
 }

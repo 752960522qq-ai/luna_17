@@ -558,7 +558,7 @@
   "builder": {
     "profile_format": 1,
     "verified": true,
-    "revision": "修复版 r5",
+    "revision": "修复版 r6",
     "features": {
       "godmode": true,
       "infinite_ammo": true,

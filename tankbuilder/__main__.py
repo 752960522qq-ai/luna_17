@@ -9,7 +9,7 @@ from .runner import run_build, write_report
 from .tankpack import validate_pack
 
 def main():
-    parser=argparse.ArgumentParser(prog='TankInvincible_3000')
+    parser=argparse.ArgumentParser(prog='TankInvincible')
     parser.add_argument('--profiles',type=Path)
     sub=parser.add_subparsers(dest='action',required=True)
     scan=sub.add_parser('inspect',help='检测安装包并输出版本/兼容性报告')

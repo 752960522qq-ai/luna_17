@@ -115,8 +115,9 @@ final class ModMenu {
         body.setOrientation(LinearLayout.VERTICAL); body.setPadding(dp(14),dp(10),dp(14),dp(12));
         body.setBackground(background(Color.argb(248, 19, 30, 46), 13));
         body.setClickable(true);
-        TextView title = label("Attack on Tank · luna_17", 17, white);
+        TextView title = label("坦无敌3000", 17, white);
         title.setTypeface(Typeface.DEFAULT, Typeface.BOLD); body.addView(title);
+        body.addView(label("TankInvincible", 12, muted));
         body.addView(label(FeatureConfig.BUILD_LABEL, 11, muted));
         status = label("等待游戏模块…", 12, accent); body.addView(status);
         god = feature("无敌", 0); body.addView(god);

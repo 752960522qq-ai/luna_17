@@ -15,7 +15,7 @@ from .tankpack import validate_pack,extract_reviewed_pack
 def write_report(report, directory, stem='build_report'):
     directory=Path(directory);directory.mkdir(parents=True,exist_ok=True)
     (directory/(stem+'.json')).write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-    lines=['TankInvincible_3000 '+VERSION, '状态：'+str(report.get('status','检测完成')),
+    lines=['坦无敌3000 / TankInvincible '+VERSION, '状态：'+str(report.get('status','检测完成')),
         '时间：'+datetime.now(timezone.utc).isoformat()]
     inspection=report.get('inspection',report)
     identity=inspection.get('identity',{})
@@ -55,7 +55,7 @@ def run_build(input_path, output, config_path, selected=None, tankpacks=(), prof
             if not shutil.which('java'):raise ValueError('需要 JDK 17 或更高版本')
             with tempfile.TemporaryDirectory(prefix='tank-build-',dir=output.parent) as temporary:
                 work=Path(temporary);source=work/'source'
-                for directory in ('app','native','scripts','profiles','tests'):
+                for directory in ('app','native','scripts','profiles','tests','tankbuilder'):
                     shutil.copytree(ROOT/directory,source/directory,ignore=shutil.ignore_patterns('__pycache__'))
                 generate_header(profile,source/'native/profile_config.h')
                 chosen=source/'profiles/selected.json';chosen.write_text(json.dumps(profile),encoding='utf-8')
@@ -105,6 +105,7 @@ def run_build(input_path, output, config_path, selected=None, tankpacks=(), prof
                 sys.path.insert(0,str(source/'scripts'))
                 from verify import verify
                 verification=verify(work/'signed.apk',normalized,test_report,chosen,prepared)
+                verification['file']=output.name
                 certs=subprocess.check_output(['java','-jar',str(paths['apksigner']),'verify','--print-certs',str(work/'signed.apk')],text=True)
                 certificate=re.search(r'certificate SHA-256 digest: ([a-f0-9]+)',certs).group(1)
                 expected=cfg.get('expected_certificate_sha256')

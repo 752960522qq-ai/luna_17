@@ -9,11 +9,12 @@ from .profiles import ROOT, FEATURES, inspect_game
 from .package import GamePackage
 from .runner import run_build, write_report
 from .tankpack import validate_pack
+from . import VERSION
 
 def main():
-    root=tk.Tk();root.title('TankInvincible_3000 · 1.0.0');root.geometry('860x650')
+    root=tk.Tk();root.title('坦无敌3000 / TankInvincible · '+VERSION);root.geometry('860x650')
     body=ttk.Frame(root,padding=18);body.pack(fill='both',expand=True)
-    ttk.Label(body,text='Attack on Tank 构建器',font=('',20,'bold')).pack(anchor='w')
+    ttk.Label(body,text='坦无敌3000 · 构建器',font=('',20,'bold')).pack(anchor='w')
     ttk.Label(body,text='导入原始 APK/APKS，检测后构建。未知版本会输出适配报告。').pack(anchor='w',pady=(8,16))
     variables={};events=queue.Queue();buttons=[]
     def row(label,key,save=False):

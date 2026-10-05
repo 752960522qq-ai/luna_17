@@ -11,6 +11,7 @@ from PIL import Image
 from UnityPy.files.ObjectReader import ObjectReader
 from UnityPy.streams import EndianBinaryReader
 from .modelrig import Model
+from .serialization import apply_reviewed_typetrees,assert_roundtrip,parse_complete,encode_complete
 
 ROOT=Path(__file__).resolve().parents[1]
 BATTLE_PLAYER_SCENES=frozenset('level'+str(i) for i in range(8,20))
@@ -21,13 +22,14 @@ class EditableObject(ObjectReader):
         super().set_raw_data(data)
         self.reader=EndianBinaryReader(data,endian='<');self.byte_start=0;self.byte_size=len(data)
     def save_typetree(self,tree,nodes=None,writer=None):
-        # Unity 6000 adds fields beyond some UnityPy fallback type trees.
-        # Preserve that opaque suffix, including its remapped references.
-        old=self.get_raw_data();self.read_typetree(check_read=False)
-        tail=old[self.Position-self.byte_start:]
-        data=super().save_typetree(tree,nodes,writer)
-        if tail:self.set_raw_data(data+tail)
-        return self.data
+        if nodes is not None:raise ValueError('Use the reviewed version schema for editable objects')
+        # Reject incomplete/misaligned layouts before mutating this object.
+        # Neither a suffix assumption nor the outer Boost cursor is reliable.
+        assert_roundtrip(self)
+        data=encode_complete(self,tree,writer=writer)
+        assert_roundtrip(self,data)
+        self.set_raw_data(data)
+        return data
 def pp(pid=0,file=0):return {'m_FileID':file,'m_PathID':pid}
 def xyz(v):return dict(zip('xyz',map(float,v)))
 def aabb(v):return {'m_Center':xyz((v.min(0)+v.max(0))/2),'m_Extent':xyz((v.max(0)-v.min(0))/2)}
@@ -72,11 +74,12 @@ def remap(tree,ids):
         if set(tree)=={'m_FileID','m_PathID'} and tree['m_FileID']==0:return pp(ids.get(tree['m_PathID'],tree['m_PathID']))
         return {k:remap(v,ids) for k,v in tree.items()}
     if isinstance(tree,list):return [remap(v,ids) for v in tree]
+    if isinstance(tree,tuple):return tuple(remap(v,ids) for v in tree)
     return tree
 
 class Adapter:
     def __init__(self,original):
-        self.env=UnityPy.load(str(original));self.files={o.assets_file.name:o.assets_file for o in self.env.objects}
+        self.env=UnityPy.load(str(original));self.serialization=apply_reviewed_typetrees(self.env);self.files={o.assets_file.name:o.assets_file for o in self.env.objects}
         self.sf=self.files['resources.assets'];self.next_id=max(self.sf.objects)+1
         self.templates={}
         for kind in ('Mesh','MeshFilter','MeshRenderer','SkinnedMeshRenderer','Texture2D','Material','GameObject','Transform'):
@@ -84,13 +87,15 @@ class Adapter:
             if not obj:obj=next(o for o in self.env.objects if o.type.name==kind)
             self.templates[kind]=obj
         self.scripts={(name,o.path_id):o.read_typetree(check_read=False)['m_ClassName'] for name,af in self.files.items() for o in af.objects.values() if o.type.name=='MonoScript'}
-        self.created=[]
+        self.created=[];self.clone_ids={};self.baseline_checks=[]
     def new(self,template,tree=None,raw=None):
         obj=object.__new__(EditableObject);obj.__dict__.update(template.__dict__);obj.assets_file=self.sf;obj.path_id=self.next_id;self.next_id+=1
         if template.assets_file is not self.sf:
             t=template.serialized_type
             index=next((i for i,x in enumerate(self.sf.types) if x.class_id==t.class_id),None)
-            if index is None:index=len(self.sf.types);self.sf.types.append(copy.deepcopy(t))
+            # The pinned Boost nodes are immutable parser descriptions and
+            # cannot be pickled by deepcopy. Copy only the serialized header.
+            if index is None:index=len(self.sf.types);self.sf.types.append(copy.copy(t))
             obj.type_id=index;obj.serialized_type=self.sf.types[index]
         obj.set_raw_data(raw if raw is not None else template.get_raw_data())
         self.sf.objects[obj.path_id]=obj;self.created.append(obj.path_id)
@@ -104,7 +109,15 @@ class Adapter:
             tr=next(p for p in parts if p.type.name=='Transform');nodes.append((go,parts))
             for child in tr.read_typetree(check_read=False)['m_Children']:
                 visit(self.sf.objects[child['m_PathID']].read_typetree(check_read=False)['m_GameObject']['m_PathID'])
-        visit(root);ids={o.path_id:self.new(o).path_id for go,parts in nodes for o in [go]+parts}
+        visit(root)
+        # Exercise every inherited native component with its exact schema.
+        # MonoBehaviours use the separately reviewed game-specific raw codec.
+        for go,parts in nodes:
+            for o in [go]+parts:
+                if o.type.name!='MonoBehaviour':
+                    assert_roundtrip(o)
+                    self.baseline_checks.append({'type':o.type.name,'path_id':o.path_id,'size':len(o.get_raw_data())})
+        ids={o.path_id:self.new(o).path_id for go,parts in nodes for o in [go]+parts};self.clone_ids=ids
         by_class={};by_name={}
         for go,parts in nodes:
             for old in [go]+parts:
@@ -117,12 +130,7 @@ class Adapter:
                     obj.set_raw_data(bytes(raw));t=old.read_typetree(check_read=False);sp=t['m_Script'];script_file=self.sf if sp['m_FileID']==0 else self.files[self.sf.externals[sp['m_FileID']-1].path.rsplit('/',1)[-1]];cls=self.scripts.get((script_file.name,sp['m_PathID']))
                     by_class.setdefault(cls,[]).append(obj)
                 else:
-                    raw=bytearray(old.get_raw_data())
-                    for offset in range(0,len(raw)-11,4):
-                        fid,pid=struct.unpack_from('<iq',raw,offset)
-                        if fid==0 and pid in ids:struct.pack_into('<q',raw,offset+4,ids[pid])
-                    obj.set_raw_data(bytes(raw))
-                    t=remap(old.read_typetree(check_read=False),ids)
+                    t=remap(parse_complete(old),ids)
                     if old.type.name=='MeshRenderer':t['m_Enabled']=False
                     if old.type.name=='LODGroup':t['m_Enabled']=False
                     obj.save_typetree(t)
@@ -179,7 +187,13 @@ class Adapter:
             t['m_BoneNameHashes']=[0]*len(mats);t['m_BonesAABB']=[{'m_Min':xyz(vs.min(0)),'m_Max':xyz(vs.max(0))}]*len(mats)
         else:t['m_BindPose']=[];t['m_BoneNameHashes']=[];t['m_BonesAABB']=[]
         t.update(m_Name='T54_1949_'+model.g.meshes[index].name,m_SubMeshes=subs,m_MeshCompression=0,m_IsReadable=True,m_IndexFormat=1,m_IndexBuffer=np.concatenate(indices).astype('<u4').tobytes(),m_VertexData={'m_VertexCount':len(vs),'m_Channels':channels,'m_DataSize':data},m_LocalAABB=aabb(vs),m_BakedConvexCollisionMesh=b'',m_BakedTriangleCollisionMesh=b'')
-        t['m_StreamData']={'offset':0,'size':0,'path':''};return self.create('Mesh',t)
+        t['m_StreamData']={'offset':0,'size':0,'path':''}
+        # Source mesh LOD ranges describe the source vertex/index buffers.
+        # New geometry has one full-detail level and no imported LOD ranges.
+        t['m_MeshLodInfo']={'m_LodSelectionCurve':{'m_LodSlope':0.,'m_LodBias':0.},
+            'm_NumLevels':1,'m_SubMeshes':[{'m_Levels':[{'m_IndexStart':s['firstByte']//4,
+                'm_IndexCount':s['indexCount']}]} for s in subs]}
+        return self.create('Mesh',t)
     def model(self,model,parent):
         node_gos={};node_trs={};renders={};materials=self.materials(model);parents=model.parents()
         for i,node in enumerate(model.g.nodes):
@@ -194,6 +208,9 @@ class Adapter:
             if node.mesh is None:continue
             mesh=self.mesh(model,node.mesh,node);kind='SkinnedMeshRenderer' if node.skin is not None else 'MeshRenderer'
             rt=copy.deepcopy(self.templates[kind].read_typetree(check_read=False));rt.update(m_GameObject=pp(node_gos[i].path_id),m_Enabled=True,m_Materials=[pp(materials[p.material or 0].path_id) for p in model.g.meshes[node.mesh].primitives],m_LightmapIndex=65535,m_LightmapIndexDynamic=65535,m_StaticBatchRoot=pp(),m_LightmapTilingOffset=dict(x=1.,y=1.,z=0.,w=0.))
+            rt.update(m_StaticBatchInfo={'firstSubMesh':0,'subMeshCount':0},
+                m_ProbeAnchor=pp(),m_LightProbeVolumeOverride=pp(),m_ForceMeshLod=-1)
+            if kind=='MeshRenderer':rt.update(m_AdditionalVertexStreams=pp(),m_EnlightenVertexStream=pp())
             if kind=='SkinnedMeshRenderer':
                 skin=model.g.skins[node.skin];rt.update(m_Mesh=pp(mesh.path_id),m_Bones=[pp(node_trs[j].path_id) for j in skin.joints],m_RootBone=pp(node_trs[skin.skeleton].path_id),m_AABB=mesh.read_typetree(check_read=False)['m_LocalAABB'],m_UpdateWhenOffscreen=True)
             renderer=self.create(kind,rt);renders[i]=renderer
@@ -285,5 +302,5 @@ def prepare_assets(original,pack_directory,destination,log=print):
     log('Writing derived Unity bundle…')
     bundle=next(f for f in adapter.env.files.values() if hasattr(f,'save_fs'));output=destination/'data.unity3d';output.write_bytes(bundle.save(packer='lz4'))
     if hashlib.sha256(original.read_bytes()).hexdigest()!=before:raise AssertionError('Original resources changed')
-    report={'adapter':'aot-5.1.0-arm64-v1','status':'assets_prepared','input_sha256':before,'output_sha256':hashlib.sha256(output.read_bytes()).hexdigest(),'output':str(output),'player_prefab_id':root.path_id,'new_objects':len(adapter.created),'model_nodes':len(model.g.nodes),'model_meshes':len(model.g.meshes),'skinned_tracks':2,'suspension_contacts':10,'registrations':registrations,'audio':audio_report,'apk_packaged':False,'android_device_test':'not performed'}
+    report={'adapter':'aot-5.1.0-arm64-v1','status':'assets_prepared','input_sha256':before,'output_sha256':hashlib.sha256(output.read_bytes()).hexdigest(),'output':str(output),'player_prefab_id':root.path_id,'new_objects':len(adapter.created),'model_nodes':len(model.g.nodes),'model_meshes':len(model.g.meshes),'skinned_tracks':2,'suspension_contacts':10,'registrations':registrations,'audio':audio_report,'serialization':adapter.serialization,'clone_ids':adapter.clone_ids,'baseline_roundtrips':adapter.baseline_checks,'apk_packaged':False,'android_device_test':'not performed'}
     (destination/'asset_report.json').write_text(json.dumps(report,indent=2)+'\n');log('Prepared '+str(output));return report
