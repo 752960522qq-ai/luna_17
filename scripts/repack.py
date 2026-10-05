@@ -132,8 +132,12 @@ def write_entry(out, name, content, compression=zipfile.ZIP_DEFLATED):
             info.extra = struct.pack('<HH',0xd935,padding) + b'\0'*padding
     out.writestr(info,content,compresslevel=6)
 
-def repack(apks, dex, native, output, profile_path=None):
+def repack(apks, dex, native, output, profile_path=None,unity_data=None):
     profile=json.loads(Path(profile_path or Path(__file__).resolve().parents[1]/'profiles/attack-on-tank-5.1.0.json').read_text())
+    replacement=None
+    if unity_data:
+        unity_data=Path(unity_data);replacement=unity_data.read_bytes();asset_report=json.loads((unity_data.parent/'asset_report.json').read_text())
+        if asset_report['input_sha256']!=profile['unity_data_sha256'] or asset_report['output_sha256']!=hashlib.sha256(replacement).hexdigest() or asset_report.get('adapter')!='aot-5.1.0-arm64-v1':raise ValueError('Derived Unity bundle or its source fingerprint does not match')
     with zipfile.ZipFile(apks) as bundle:
         with zipfile.ZipFile(io.BytesIO(bundle.read('base.apk'))) as base:
             metadata=base.read('assets/bin/Data/Managed/Metadata/global-metadata.dat')
@@ -152,7 +156,7 @@ def repack(apks, dex, native, output, profile_path=None):
                     name = info.filename
                     if name == 'stamp-cert-sha256' or name == 'META-INF/MANIFEST.MF' or re.match(r'META-INF/[^/]+\.(?:RSA|DSA|EC|SF)$',name,re.I):
                         continue
-                    content = manifest if name == 'AndroidManifest.xml' else base.read(name)
+                    content = manifest if name == 'AndroidManifest.xml' else replacement if replacement is not None and name=='assets/bin/Data/data.unity3d' else base.read(name)
                     write_entry(out,name,content,info.compress_type); written.add(name)
                 arm_found = 'lib/arm64-v8a/libil2cpp.so' in written
                 for entry in bundle.namelist():

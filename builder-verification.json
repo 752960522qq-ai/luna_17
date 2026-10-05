@@ -1,35 +1,109 @@
 {
-  "builder_version": "1.0.0",
+  "builder_version": "1.1.1-dev",
   "builder_checks": {
-    "tests_run": 10,
+    "tests_run": 11,
+    "failures": 0,
+    "errors": 0,
     "passed": true
   },
   "end_to_end_build": {
     "status": "succeeded",
     "selected_features": [
       "godmode",
-      "infinite_ammo"
+      "infinite_ammo",
+      "tank_swap"
     ],
-    "apk_sha256": "55be685cc65d247890eefd96d9107f8eec9d3e73a443134be5060f3eef0218d0",
+    "tankpacks": [
+      {
+        "valid": true,
+        "errors": [],
+        "id": "T54_1949",
+        "display_name": "T‑54 (1949)",
+        "can_inject": true,
+        "reason": "已审核的 T54 玩家参数；需要匹配原始 5.1.0 资源",
+        "file": "T54_1949.tankpack"
+      }
+    ],
+    "apk_sha256": "677d5815093a6d98fe867329287ccc13c9d98690aaa6564588bf7f985df49871",
     "signing_certificate_sha256": "9b09d75b77a30e67aa14196823b41cc04c70cb3ec6ac1eab41c41f0980568571",
     "zipalign_verified": true,
     "apksigner_verified": true,
-    "original_payload_unchanged": true,
-    "original_entries_preserved": 613,
+    "original_entries_preserved": 612,
     "native_execution_tests": {
       "runner": "Unicorn ARM64",
-      "tests_run": 7,
+      "tests_run": 11,
       "failures": 0,
       "errors": 0,
       "passed": true,
-      "module_sha256": "6ea89754a7da1c1de53f2e3d595f0ac52a152464bfdd3eb55f5cfe1f0069fe4e",
+      "module_sha256": "a3e71df20d990d02a225b2f24e81dee6acbe2723ec3f74a8296d3623f5080512",
       "game_library_sha256": "f68552eaee3018948258966a6e262b0b567b8a1ecc199e60e59f175d388ef4a7"
     }
   },
-  "native_macro_expansion_matches_r3": true,
-  "plugin_mcp_checks": "passed; initialization, discovery, authorization, compatibility, plans, packs",
-  "browser_package_analyzer": "actual APK Set matched Python inspection",
-  "gui_visual_test": "unavailable in headless environment",
-  "webmcp_browser_test": "unavailable; Worker ESM has no supported browser preview",
+  "method_binding_checks": [
+    {
+      "class": "ObscuredByte",
+      "method": "op_Implicit",
+      "signature": "byte -> ObscuredByte",
+      "method_token": "0x06000296",
+      "pointer_rva": "0x39d17c8",
+      "macro": "RVA_OBSCURED_BYTE",
+      "configured_rva": "0x18daa20",
+      "actual_method_rva": "0x18daa20",
+      "match": true
+    },
+    {
+      "class": "ObscuredFloat",
+      "method": "op_Implicit",
+      "signature": "float -> ObscuredFloat",
+      "method_token": "0x060003bf",
+      "pointer_rva": "0x39d2110",
+      "macro": "RVA_OBSCURED_FLOAT",
+      "configured_rva": "0x18db128",
+      "actual_method_rva": "0x18db128",
+      "match": true
+    }
+  ],
+  "module_fingerprint_count": 20,
+  "asset_verification": {
+    "passed": true,
+    "stock_scene_objects_unchanged": [
+      "level0",
+      "level1",
+      "level2",
+      "level3",
+      "level4",
+      "level5",
+      "level6",
+      "level7",
+      "level20"
+    ],
+    "selection_scene": "level7",
+    "selection_catalog_unchanged": true,
+    "battle_catalogs": [
+      "level8",
+      "level9",
+      "level10",
+      "level11",
+      "level12",
+      "level13",
+      "level14",
+      "level15",
+      "level16",
+      "level17",
+      "level18",
+      "level19"
+    ],
+    "battle_catalog_count": 12,
+    "ai_and_other_national_arrays_unchanged": true,
+    "original_resource_objects_unchanged": true,
+    "new_objects": 1394,
+    "prepared_unity_data_sha256": "faa1be8ccce1f308332236fb441219922c2dd45300c35d8f59db7c6750db97a9",
+    "android_device_test": "not performed"
+  },
+  "r4_regression": {
+    "same_real_byte_constructor_test": "UC_ERR_READ_UNMAPPED",
+    "r5_result": "passed"
+  },
+  "plugin_deployment": "existing service; this change updates the local builder and repository only",
   "android_device_test": "not performed"
 }

@@ -1,0 +1,123 @@
+// Player-only T-54 profile. Original controllers and codecs remain in charge.
+#include "t54_asset_config.h"
+static int named_t54(void *status) {
+    char name[64];if(!status)return 0;utf8_name(P(status,0x68),name,sizeof(name));
+    const char *wanted="T54_1949";for(int i=0;i<9;i++)if(name[i]!=wanted[i])return 0;return 1;
+}
+void set_stat(void *status,int offset,int number) {
+    ObscuredInt v=FN(RVA_18F26B0,ObscuredInt (*)(int,const void *))(number,0);
+    memcpy((uint8_t *)status+offset,&v,sizeof(v));
+}
+void t54_stats(void *s) {
+    set_stat(s,0x78,212);set_stat(s,0x88,200);set_stat(s,0x98,100);set_stat(s,0xa8,895);
+    set_stat(s,0xdc,10);set_stat(s,0x104,520);set_stat(s,0x114,56);set_stat(s,0x124,7);
+    const int body_armor[]={100,80,80,45},turret_armor[]={200,125,125,50};
+    void *b=P(s,0x1b8),*t=P(s,0x1c0);
+    if(b && I(b,0x18)==16)for(int row=0;row<4;row++)for(int col=0;col<4;col++)I(b,0x20+(row*4+col)*4)=body_armor[row];
+    if(t && I(t,0x18)==8)for(int row=0;row<4;row++)for(int col=0;col<2;col++)I(t,0x20+(row*2+col)*4)=turret_armor[row];
+    typedef struct {unsigned raw[5];} ObscuredFloat;
+    ObscuredFloat acceleration=FN(RVA_OBSCURED_FLOAT,ObscuredFloat (*)(float,const void *))((520.f/35.5f)*.5f/17.8571434f,0);
+    memcpy((uint8_t *)s+0x184,&acceleration,sizeof(acceleration));
+    set_stat(s,0x198,(int)((520.f/35.5f)*35.f/17.8571434f));
+    F(s,0x100)=35.5f;I(s,0xc0)=17;I(s,0xc4)=4;I(s,0x14c)=4;I(s,0x150)=4;
+    uint64_t tier=FN(RVA_OBSCURED_BYTE,uint64_t (*)(uint8_t,const void *))(4,0);memcpy((uint8_t *)s+0x174,&tier,8);
+}
+static void status_enable(void *s,const void *mi) {
+    int custom=named_t54(s);void *name=custom?P(s,0x68):0,*gun_name=custom?P(s,0x70):0;
+    original_status_enable(s,mi);
+    if(custom){managed_store(s,0x68,name);managed_store(s,0x70,gun_name);t54_stats(s);}
+}
+static void status_start(void *s,const void *mi) {
+    original_status_start(s,mi);
+    if(!named_t54(s))return;
+    // enum Shell: AP=0, HEAT=1, APCR=2, WP=3, HE=4.
+    const int stocks[]={16,2,6,0,10};void *array=P(s,0xf0);
+    if(array && I(array,0x18)>=5)for(int i=0;i<I(array,0x18) && i<32;i++)write_ammo_slot(array,i,i<5?stocks[i]:0);
+    write_ammo_slot(P(s,0xf8),0,30);
+    I(s,0x1cc)=6;I(s,0x1d0)=0;I(s,0x1d4)=2;
+    t54_stats(s);
+}
+static void *(*original_attack_info)(void *,int,int,const void *);
+static void *attack_info(void *launcher,int shell,int flag,const void *mi) {
+    void *info=original_attack_info(launcher,shell,flag,mi);
+    if(info && named_t54(P(launcher,0x38)) && !B(launcher,0xa0)){
+        if(shell==0)I(info,0x1c)=212;
+        if(shell==1)I(info,0x1c)=330;
+        if(shell==2)I(info,0x1c)=216;
+        F(info,0x18)=895;I(info,0x50)=100;
+        managed_store(info,0x20,P(P(launcher,0x38),0x260));
+    }
+    return info;
+}
+static UpdateFn original_turret_update;
+static void turret_update(void *self,const void *mi) {
+    if(!named_t54(P(self,0x40))){original_turret_update(self,mi);return;}
+    // The game stores reload as whole seconds. Its existing float delay
+    // supplies the fractional part without replacing its reload state machine.
+    float saved=F(self,0x80);uint8_t enabled=B(self,0xde);
+    F(self,0x80)=-0.3f;B(self,0xde)=1;
+    original_turret_update(self,mi);
+    F(self,0x80)=saved;B(self,0xde)=enabled;
+}
+typedef struct { Vec3 point,normal;unsigned face;float distance;float uv[2];int collider; } GroundHit;
+static float previous_compression[10];
+static void *suspension_owner;
+static float suspension_time;
+static Vec3 call_vec(void *object,const char *name) {
+    void *m=method(object,name,0);return m ? ((Vec3 (*)(void *,const void *))P(m,0))(object,m) : (Vec3){0,0,0};
+}
+static void set_vec(void *object,const char *name,Vec3 v) {
+    void *m=method(object,name,1);if(m)((void (*)(void *,Vec3,const void *))P(m,0))(object,v,m);
+}
+static void body_update(void *self,const void *mi) {
+    void *status=P(self,0x38);
+    if(!named_t54(status)){original_body_update(self,mi);return;}
+    if(!offline_mode())return;
+    void *move=P(self,0x28),*body=move?P(move,0x28):0,*wheels=P(self,0x60),*centers=P(self,0x90);
+    if(!unity_exists(body) || !wheels || !centers || I(wheels,0x18)!=10 || I(centers,0x18)!=10)return;
+    float now=FN(RVA_GAME_TIME,float (*)(const void *))(0);
+    if(suspension_owner!=self){suspension_owner=self;suspension_time=now;memset(previous_compression,0,sizeof(previous_compression));}
+    float dt=now-suspension_time;suspension_time=now;
+    if(dt<=0 || B(status,0x206))return; // Pausing the game must not accumulate impulses.
+    if(dt>.1f)dt=.1f;
+    float speed=F(move,0x78),rotation=F(move,0x84)*.0174532925f;
+    float left=speed-rotation*1.3f,right=speed+rotation*1.3f;
+    const int wheel_arrays[]={0x50,0x58};
+    for(int a=0;a<2;a++){
+        void *array=P(self,wheel_arrays[a]);if(!array)continue;
+        int n=I(array,0x18);if(n<0 || n>14)continue;
+        for(int j=0;j<n;j++){
+            void *wheel=P(array,0x20+j*8);if(!unity_exists(wheel))continue;
+            Vec3 angle=call_vec(wheel,"get_localEulerAngles");
+            angle.x+=(j<n/2?left:right)*dt/.412f*57.2957795f;set_vec(wheel,"set_localEulerAngles",angle);
+        }
+    }
+    void *mats=P(self,0x120);
+    if(mats && I(mats,0x18)==2){
+        F(self,0xe4)+=left*dt/5.6f;F(self,0xe8)+=right*dt/5.6f;
+        typedef struct {float x,y;} Vec2;
+        for(int j=0;j<2;j++){
+            void *mat=P(mats,0x20+j*8),*m=method(mat,"set_mainTextureOffset",1);
+            if(m)((void (*)(void *,Vec2,const void *))P(m,0))(mat,(Vec2){0,F(self,j?0xe8:0xe4)},m);
+        }
+    }
+    void *audio_source=P(self,0x20),*pitch=method(audio_source,"set_pitch",1);
+    if(pitch)((void (*)(void *,float,const void *))P(pitch,0))(audio_source,1.f+(speed<0?-speed:speed)/16.f,pitch);
+    // Ground mask is injected by the reviewed assets adapter, excludes units.
+    for(int i=0;i<10;i++){
+        void *wheel=P(wheels,0x20+i*8);if(!unity_exists(wheel))continue;
+        Vec3 local=*(Vec3 *)((uint8_t *)centers+0x20+i*sizeof(Vec3));
+        set_vec(wheel,"set_localPosition",local);
+        Vec3 position=call_vec(wheel,"get_position");position.y+=.12f;
+        GroundHit hit={0};
+        bool contact=FN(RVA_GROUND_RAYCAST,bool (*)(Vec3,Vec3,GroundHit *,float,int,int,const void *))(position,(Vec3){0,-1,0},&hit,.66f,T54_GROUND_MASK,1,0);
+        float compression=contact ? .66f-hit.distance : 0;
+        if(compression<0)compression=0;if(compression>.24f)compression=.24f;
+        float force=290213.f*compression+18000.f*(compression-previous_compression[i])/dt;
+        previous_compression[i]=compression;if(force<0)force=0;if(force>100000)force=100000;
+        if(contact)FN(RVA_ADD_FORCE_AT_POSITION,void (*)(void *,Vec3,Vec3,int,const void *))(body,(Vec3){0,force*dt,0},position,1,0);
+        local.y+=compression-.12f;set_vec(wheel,"set_localPosition",local);
+    }
+    if(F(move,0x74)<-2.2222222f)F(move,0x74)=-2.2222222f;
+    if(F(move,0x78)<-2.2222222f)F(move,0x78)=-2.2222222f;
+}

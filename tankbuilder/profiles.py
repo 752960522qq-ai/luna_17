@@ -3,6 +3,7 @@ import io
 import json
 from pathlib import Path
 from elftools.elf.elffile import ELFFile
+from . import VERSION
 from .package import digest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -24,6 +25,28 @@ def rva_bytes(library, rva, size):
             return library[start:start+size]
     raise ValueError('RVA 不在文件加载段中：'+hex(rva))
 
+def inspect_method_bindings(library,profile):
+    """Check configured calls against reviewed IL2CPP method-pointer slots.
+
+    Slots and signatures must be reviewed for each version. A fingerprint at a
+    different, valid function must never validate a wrong configured call.
+    """
+    elf=ELFFile(io.BytesIO(library))
+    pointers={r['r_offset']:r['r_addend'] for section in elf.iter_sections()
+        if section['sh_type']=='SHT_RELA' for r in section.iter_relocations()
+        if r['r_info_type']==1027}
+    result=[]
+    for macro,binding in profile.get('method_bindings',{}).items():
+        configured=int(profile['native_macros'][macro],16)
+        slot=int(binding['pointer_rva'],16)
+        actual=pointers.get(slot)
+        if actual is None:
+            try:actual=int.from_bytes(rva_bytes(library,slot,8),'little')
+            except ValueError:actual=None
+        result.append(dict(binding,macro=macro,configured_rva=hex(configured),
+            actual_method_rva=hex(actual) if actual is not None else None,match=configured==actual))
+    return result
+
 def inspect_game(game, directory=None):
     candidates = load_profiles(directory)
     if not candidates: raise ValueError('没有版本配置')
@@ -37,15 +60,16 @@ def inspect_game(game, directory=None):
         except ValueError: actual=None
         fingerprints.append({'name': name, 'rva': target['rva'], 'size': target['size'],
             'expected_sha256':target['sha256'], 'actual_sha256':actual, 'match':actual==target['sha256']})
+    bindings=inspect_method_bindings(game.library,profile)
     reviewed = profile.get('builder', {}).get('verified') is True
-    compatible = reviewed and all(checks.values()) and all(f['match'] for f in fingerprints) and bool(fingerprints) and not game.resource_splits
-    return {'schema':1, 'builder_version':'1.0.0', 'input':str(game.path), 'container':game.kind,
+    compatible = reviewed and all(checks.values()) and all(f['match'] for f in fingerprints) and all(b['match'] for b in bindings) and bool(fingerprints) and not game.resource_splits
+    return {'schema':1, 'builder_version':VERSION, 'input':str(game.path), 'container':game.kind,
         'identity':game.identity, 'hashes':game.hashes, 'profile':path.name,
-        'identity_and_payload_checks':checks, 'module_fingerprints':fingerprints,
+        'identity_and_payload_checks':checks, 'module_fingerprints':fingerprints, 'method_bindings':bindings,
         'features':{f:{'compatible':compatible and profile['builder']['features'].get(f,False),
             'dependencies':DEPENDENCIES[f], 'reason':'已验证版本和指纹一致' if compatible else '需要适配或输入包不完整'} for f in FEATURES},
         'can_build':compatible, 'resource_splits':game.resource_splits,
-        'tank_injection':{'supported':False,'reason':'V1 校验 Tank Pack；GLB/Unity 资源注入适配器尚未实现'},
+        'tank_injection':{'supported':compatible,'adapter':'aot-5.1.0-arm64-v1','reviewed_models':['T54_1949'],'player_only':True,'reason':'匹配版本时可准备 T54 玩家资源'},
         'android_device_test':profile.get('builder',{}).get('android_device_test','not performed')}
 
 def draft_profile(report, destination, directory=None):
@@ -74,4 +98,4 @@ def generate_header(profile, destination):
     Path(destination).write_text(text,encoding='ascii')
 
 def native_config_digest(profile):
-    return digest(json.dumps({k:profile[k] for k in ('native_macros','api_symbols','fields','hooks','tank_factory')},sort_keys=True,separators=(',',':')).encode())
+    return digest(json.dumps({k:profile.get(k,{}) for k in ('native_macros','api_symbols','fields','hooks','tank_factory','method_bindings')},sort_keys=True,separators=(',',':')).encode())

@@ -1,8 +1,8 @@
 {
-  "file": "Attack-on-Tank-5.1.0-luna17-r3.apk",
-  "size_bytes": 174727080,
-  "sha256": "b22686d9cd8c405d423ae96cafa2de403a5858ff9f5034e1d944477734cbb399",
-  "preserved_original_entries": 613,
+  "file": "Attack-on-Tank-5.1.0-T54-r5.apk",
+  "size_bytes": 198123427,
+  "sha256": "677d5815093a6d98fe867329287ccc13c9d98690aaa6564588bf7f985df49871",
+  "preserved_original_entries": 612,
   "native_methods": [
     "init",
     "state",
@@ -12,19 +12,57 @@
     "toggle"
   ],
   "module_16k_elf_alignment": true,
-  "original_game_payload_unchanged": true,
+  "original_game_payload_unchanged": false,
+  "prepared_unity_data_sha256": "faa1be8ccce1f308332236fb441219922c2dd45300c35d8f59db7c6750db97a9",
   "native_execution_tests": {
     "runner": "Unicorn ARM64",
-    "tests_run": 7,
+    "tests_run": 11,
     "failures": 0,
     "errors": 0,
     "passed": true,
-    "module_sha256": "6ea89754a7da1c1de53f2e3d595f0ac52a152464bfdd3eb55f5cfe1f0069fe4e",
+    "module_sha256": "a3e71df20d990d02a225b2f24e81dee6acbe2723ec3f74a8296d3623f5080512",
     "game_library_sha256": "f68552eaee3018948258966a6e262b0b567b8a1ecc199e60e59f175d388ef4a7"
   },
   "android_device_test": "not performed",
-  "revision": "r3",
+  "revision": "r5 / T54 player",
   "signing_certificate_sha256": "9b09d75b77a30e67aa14196823b41cc04c70cb3ec6ac1eab41c41f0980568571",
   "same_signature_as_previous_test_apk": true,
-  "r2_prefab_hierarchy_error_reproduced": -4
+  "zipalign_verified": true,
+  "apksigner_verified": true,
+  "asset_verification": {
+    "passed": true,
+    "stock_scene_objects_unchanged": [
+      "level0",
+      "level1",
+      "level2",
+      "level3",
+      "level4",
+      "level5",
+      "level6",
+      "level7",
+      "level20"
+    ],
+    "selection_scene": "level7",
+    "selection_catalog_unchanged": true,
+    "battle_catalogs": [
+      "level8",
+      "level9",
+      "level10",
+      "level11",
+      "level12",
+      "level13",
+      "level14",
+      "level15",
+      "level16",
+      "level17",
+      "level18",
+      "level19"
+    ],
+    "battle_catalog_count": 12,
+    "ai_and_other_national_arrays_unchanged": true,
+    "original_resource_objects_unchanged": true,
+    "new_objects": 1394,
+    "prepared_unity_data_sha256": "faa1be8ccce1f308332236fb441219922c2dd45300c35d8f59db7c6750db97a9",
+    "android_device_test": "not performed"
+  }
 }
