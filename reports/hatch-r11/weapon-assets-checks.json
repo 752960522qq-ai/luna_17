@@ -1,0 +1,40 @@
+{
+  "weapon_subtrees_preserved": true,
+  "projectile_meshes_and_effects_enabled": [
+    {
+      "pool": "shellApGos",
+      "root": 22126,
+      "renderers_enabled": [
+        82691,
+        124123
+      ]
+    },
+    {
+      "pool": "shellApGos",
+      "root": 22142,
+      "renderers_enabled": [
+        82684,
+        124131
+      ]
+    },
+    {
+      "pool": "shellHeGos",
+      "root": 139376,
+      "renderers_enabled": [
+        139387,
+        139391
+      ]
+    },
+    {
+      "pool": "shellHeGos",
+      "root": 139392,
+      "renderers_enabled": [
+        139403,
+        139407
+      ]
+    }
+  ],
+  "stock_LODs_exclude_projectiles": true,
+  "static_builder_projectiles_preserved": true,
+  "android_device_test": false
+}

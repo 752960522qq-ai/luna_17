@@ -80,7 +80,7 @@ def patch_manifest(data):
         pos += size
     pool = next(c for typ,c in chunks if typ == 1)
     names = strings(pool)
-    added = ['com.luna17.aot.ModActivity', '坦无敌3000 · TankInvincible']
+    added = ['com.luna17.aot.ModActivity', '坦无敌3000']
     activity_index, label_index = len(names), len(names)+1
     names.extend(added)
     out = []; skipping = 0; activity_changed = False; split_removed = 0
@@ -132,7 +132,7 @@ def write_entry(out, name, content, compression=zipfile.ZIP_DEFLATED):
             info.extra = struct.pack('<HH',0xd935,padding) + b'\0'*padding
     out.writestr(info,content,compresslevel=6)
 
-def repack(apks, dex, native, output, profile_path=None,unity_data=None):
+def repack(apks, dex, native, output, profile_path=None,unity_data=None,hatch_packages=None):
     profile=json.loads(Path(profile_path or Path(__file__).resolve().parents[1]/'profiles/attack-on-tank-5.1.0.json').read_text())
     replacement=None
     if unity_data:
@@ -172,6 +172,17 @@ def repack(apks, dex, native, output, profile_path=None,unity_data=None):
                 if not arm_found: raise ValueError('ARM64 split is missing')
                 write_entry(out,f'classes{max(dex_indices)+1}.dex',Path(dex).read_bytes())
                 write_entry(out,'lib/arm64-v8a/libaotmod.so',Path(native).read_bytes())
+                if hatch_packages:
+                    from hatch.standalone.integrate import validate_pack
+                    mods = [validate_pack(Path(path)) for path in hatch_packages]
+                    if len(mods)>16 or len({m['id'] for m in mods})!=len(mods):
+                        raise ValueError('Built-in tank count/identity mismatch')
+                    catalog=[]
+                    for mod in mods:
+                        write_entry(out,'assets/Hatch/mods/'+mod['id']+'.hatch',mod['path'].read_bytes(),zipfile.ZIP_STORED)
+                        catalog.append({key:mod[key] for key in ['id','name','sha256','size','runtime_bytes']})
+                    write_entry(out,'assets/Hatch/catalog.json',json.dumps({'format':1,'mods':catalog},ensure_ascii=False,indent=2).encode())
+
     return Path(output)
 
 if __name__ == '__main__':
@@ -181,3 +192,4 @@ if __name__ == '__main__':
     args=parser.parse_args()
     output=repack(args.apks,args.dex,args.native,args.output)
     print(f'Unsigned APK: {output} ({output.stat().st_size:,} bytes)')
+

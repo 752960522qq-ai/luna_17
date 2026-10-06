@@ -237,7 +237,7 @@ static int weapon_ready(void *pc,void *status,void *game) {
         if(!B(launcher,0xa0)){I(launcher,0x50)=power;F(launcher,0x54)=(float)speed;}
         if(I(launcher,0x50)<=0 || F(launcher,0x54)<=0)return 0;
     }
-    return 1;
+    return hatch_machine_gun_ready(pc);
 }
 static void advance_swap(void *game) {
     if(!swap.new_go)return;
@@ -494,4 +494,5 @@ JNIEXPORT jstring JNICALL Java_com_luna17_aot_NativeBridge_loadHatch(JNIEnv *env
 JNIEXPORT jstring JNICALL Java_com_luna17_aot_NativeBridge_hatchError(JNIEnv *env,jclass cls){
     (void)cls;return (*env)->NewStringUTF(env,hatch_error);
 }
+
 

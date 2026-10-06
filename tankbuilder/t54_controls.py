@@ -110,47 +110,7 @@ def verify_model(original, repaired):
     return dict(bind_pose_preserved=True,triangle_winding_coverage_preserved=True,
                 turret_attachment_parentage_valid=True,vertex_attributes_materials_preserved=True)
 
-def clone_he_pool(adapter, launcher, parent):
-    """Clone complete stock ShellMove/BombMove pools, including effects.
-
-    132149 is the reviewed 85 mm HE launcher with two Shell_90mm_HE
-    objects. Launcher's original Fire supplies attack info and ownership.
-    """
-    sf = adapter.sf
-    source = read_mb('Launcher', sf.objects[132149].get_raw_data())
-    if source['calibre'] != 85 or len(source['shellHeGos']) != 2: raise ValueError('HE donor layout changed')
-    result = []
-    for number, reference in enumerate(source['shellHeGos']):
-        objects = []
-        def visit(goid):
-            go = sf.objects[goid]; tree = assert_roundtrip(go)
-            objects.append(go)
-            parts = [sf.objects[c['component']['m_PathID']] for c in tree['m_Component']]
-            objects.extend(parts)
-            tr = next(o for o in parts if o.type.name == 'Transform')
-            for p in assert_roundtrip(tr)['m_Children']:
-                visit(assert_roundtrip(sf.objects[p['m_PathID']])['m_GameObject']['m_PathID'])
-        visit(reference['m_PathID'])
-        ids = {o.path_id: adapter.new(o).path_id for o in objects}
-        for old in objects:
-            new = sf.objects[ids[old.path_id]]
-            if old.type.name == 'MonoBehaviour':
-                raw = bytearray(old.get_raw_data())
-                # Complete donor components, exact local PPtr substitutions.
-                for offset in range(0, len(raw)-11, 4):
-                    fid, pid = struct.unpack_from('<iq', raw, offset)
-                    if fid == 0 and pid in ids: struct.pack_into('<q', raw, offset+4, ids[pid])
-                new.set_raw_data(bytes(raw))
-            else: store(new, remap(assert_roundtrip(old), ids))
-        root = sf.objects[ids[reference['m_PathID']]]
-        gt = assert_roundtrip(root); gt['m_Name'] = 'T54_HE_Pool_'+str(number); gt['m_IsActive'] = False; store(root, gt)
-        tr = adapter.transform(root); tree = assert_roundtrip(tr)
-        tree['m_Father'] = pp(parent.path_id); tree['m_LocalPosition'] = xyz([0,0,0]); store(tr, tree)
-        pt = assert_roundtrip(parent); pt['m_Children'].append(pp(tr.path_id)); store(parent, pt)
-        result.append(pp(root.path_id))
-    values = read_mb('Launcher', launcher.get_raw_data()); values['shellHeGos'] = result
-    write_mb(launcher, 'Launcher', values)
-    return result
+from .weapon_assets import clone_he_pool
 
 def repair_resources(source, model_path, destination):
     source, destination = Path(source), Path(destination)
@@ -240,3 +200,4 @@ def repair_resources(source, model_path, destination):
         model_sha256=hashlib.sha256((destination/'T54_1949-r10.glb').read_bytes()).hexdigest(),android_device_test='not performed')
     (destination/'asset-repair-report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
     return report
+

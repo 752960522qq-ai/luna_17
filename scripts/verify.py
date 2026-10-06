@@ -28,10 +28,10 @@ def verify(apk,apks,native_test_report=None,profile_path=None,unity_data=None):
         assert NS+'requiredSplitTypes' not in manifest.attrib
         app=manifest.find('application')
         assert app.attrib[NS+'extractNativeLibs']=='true'
-        assert app.attrib[NS+'label']=='坦无敌3000 · TankInvincible'
+        assert app.attrib[NS+'label']=='坦无敌3000'
         launcher=[a for a in app.findall('activity') if a.find('intent-filter') is not None]
         assert any(a.attrib[NS+'name']=='com.luna17.aot.ModActivity' for a in launcher)
-        assert next(a for a in launcher if a.attrib[NS+'name']=='com.luna17.aot.ModActivity').attrib[NS+'label']=='坦无敌3000 · TankInvincible'
+        assert next(a for a in launcher if a.attrib[NS+'name']=='com.luna17.aot.ModActivity').attrib[NS+'label']=='坦无敌3000'
         assert not any(m.attrib.get(NS+'name') in {'com.android.vending.splits.required','com.android.vending.splits'} for m in app.findall('meta-data'))
         assert not any(p.attrib.get(NS+'name')=='android.permission.SYSTEM_ALERT_WINDOW' for p in manifest.findall('uses-permission'))
         with zipfile.ZipFile(io.BytesIO(bundle.read('base.apk'))) as original:
@@ -57,7 +57,7 @@ def verify(apk,apks,native_test_report=None,profile_path=None,unity_data=None):
         added=set(n for n in z.namelist() if re.fullmatch(r'classes\d*\.dex',n))-set(original_dex)
         assert len(added)==1
         dex=DEX(z.read(next(iter(added))))
-        assert {'坦无敌3000','TankInvincible'}.issubset(set(dex.get_strings())), 'Mod menu names missing'
+        assert {'坦无敌3000','坦克模组加载器','Hatch · 舱盖 0.1'}.issubset(set(dex.get_strings())), 'Mod menu names missing'
         assert dex.get_class('Lcom/unity3d/player/UnityPlayerActivity;') is None,'Compile stub leaked into APK'
         activity=dex.get_class('Lcom/luna17/aot/ModActivity;')
         assert activity.get_superclassname()=='Lcom/unity3d/player/UnityPlayerActivity;'
@@ -97,3 +97,4 @@ if __name__=='__main__':
     text=json.dumps(report,indent=2,ensure_ascii=False)+'\n'
     if args.report:args.report.write_text(text)
     print(text)
+

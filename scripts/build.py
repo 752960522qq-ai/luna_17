@@ -21,6 +21,8 @@ def main():
     native=p.add_mutually_exclusive_group(required=True)
     native.add_argument('--ndk',type=Path,help='Android NDK directory (Linux x86-64)')
     native.add_argument('--native-prebuilt',type=Path,help='Already validated libaotmod.so')
+    p.add_argument('--ecj',type=Path,help='Optional Eclipse Java compiler JAR')
+    p.add_argument('--hatch',type=Path,action='append',default=[],help='Built-in .hatch package (repeatable)')
     p.add_argument('--android-jar',type=Path,required=True)
     p.add_argument('--r8',type=Path,required=True)
     p.add_argument('--apksigner',type=Path,required=True,help='apksigner.jar')
@@ -53,14 +55,18 @@ def main():
         if directory.exists():shutil.rmtree(directory)
         directory.mkdir()
     sources=sorted((ROOT/'app/src').rglob('*.java'))+sorted((ROOT/'app/stubs').rglob('*.java'))
-    run(java,'com.sun.tools.javac.Main','--release','8','-encoding','UTF-8',
-        '-cp',args.android_jar,'-d',classes,*sources)
+    if args.ecj:
+        run(java,'-jar',args.ecj,'-8','-encoding','UTF-8',
+            '-cp',args.android_jar,'-d',classes,*sources)
+    else:
+        run(java,'com.sun.tools.javac.Main','--release','8','-encoding','UTF-8',
+            '-cp',args.android_jar,'-d',classes,*sources)
     # The compile-time Unity stub must not be included in the new DEX.
     added_classes=sorted((classes/'com/luna17/aot').rglob('*.class'))
     run(java,'-cp',args.r8,'com.android.tools.r8.D8','--lib',args.android_jar,
         '--classpath',classes,'--min-api','28','--output',dex,*added_classes)
     unsigned=work/'unsigned.apk'
-    repack(args.apks,dex/'classes.dex',library,unsigned,args.profile,args.unity_data)
+    repack(args.apks,dex/'classes.dex',library,unsigned,args.profile,args.unity_data,args.hatch)
     aligned=work/'aligned.apk'
     run(args.zipalign,'-f','-P','16','4',unsigned,aligned)
     keystore=args.keystore;password=args.password_file
@@ -84,3 +90,4 @@ def main():
     print(args.output)
 
 if __name__=='__main__':main()
+

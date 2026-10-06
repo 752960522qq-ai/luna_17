@@ -1,3 +1,5 @@
+当前 Hatch 修订与 APK 构建说明：[r11](CURRENT_HATCH_R11.md)。
+
 # TankInvincible_3000 2.0
 
 ## 当前交付 APK：r9
@@ -79,3 +81,4 @@ java -jar /path/to/apksigner.jar verify --verbose dist/TankInvincible-5.1.0-T54-
 原生测试执行实际编译后的 ARM64 指令，覆盖玩家/敌方伤害区分、参数保留、原游戏 ObscuredInt 转换函数与数组边界、ADRP 重定位，以及换坦克的位置、朝向、玩家和镜头引用更新。换车验证直接执行原游戏 `_GenerateUnit` 和字符串比较指令，复现错误类型参数被拒绝，并检查六国玩家车型选择。组件查询按原始预制体层级设置边界：根对象可取得 `PlayerControl`，无法取得子对象的 `UnitStatus`。同一回归用例在 r2 编译模块上失败、在 r3 上通过；另验证空引用或已销毁的控制器/状态不会覆盖原玩家、镜头和车型配置。Unity 实例化及场景行为仍需设备实测。当前交付包的校验记录见 `verification.json`。
 
 构建器测试：`PYTHONPATH=. python tests/test_builder.py --apks /path/to/original.apks`。测试涵盖新版/被修改二进制/资源变化拦截、默认关闭的草案、非法 Tank Pack 路径、无效参数和失败时保留已有输出。
+

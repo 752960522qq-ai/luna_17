@@ -1,0 +1,38 @@
+{
+  "name": "40 mm QF 2-pounder Mk.IX",
+  "caliber": 40,
+  "reload": 2.8,
+  "muzzleVelocity": 853,
+  "ammo": {
+    "AP": 93,
+    "APCR": 0,
+    "HE": 0,
+    "HEAT": 0
+  },
+  "shells": {
+    "AP": {
+      "name": "Shot Mk.1 APHV/T",
+      "penetrationMm": 89,
+      "parameterOrigin": "User override: 89 mm"
+    },
+    "APCR": {
+      "penetrationMm": 0
+    },
+    "HE": {
+      "penetrationMm": 0
+    },
+    "HEAT": {
+      "penetrationMm": 0
+    },
+    "WP": {
+      "count": 0,
+      "penetrationMm": 0
+    }
+  },
+  "machineGun": {
+    "name": "7.92 mm Besa",
+    "position": "coaxial",
+    "ammo": 30,
+    "ammoUnit": "game ammunition field"
+  }
+}

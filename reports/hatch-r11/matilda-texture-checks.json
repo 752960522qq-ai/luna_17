@@ -1,0 +1,184 @@
+{
+  "images_tested": 22,
+  "original_byte_array_wrapper_executed": true,
+  "pillow_decode_passed": true,
+  "android_gpu_decoder_tested": false,
+  "images": [
+    {
+      "image": 0,
+      "size": [
+        64,
+        256
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 1,
+      "size": [
+        64,
+        256
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 2,
+      "size": [
+        64,
+        256
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 3,
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 4,
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 5,
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 6,
+      "size": [
+        1024,
+        512
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 7,
+      "size": [
+        1024,
+        512
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 8,
+      "size": [
+        1024,
+        512
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 9,
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "image": 10,
+      "size": [
+        128,
+        128
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 11,
+      "size": [
+        128,
+        128
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 12,
+      "size": [
+        2048,
+        2048
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 13,
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 14,
+      "size": [
+        2048,
+        2048
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 15,
+      "size": [
+        1024,
+        256
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "image": 16,
+      "size": [
+        1024,
+        256
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 17,
+      "size": [
+        1024,
+        256
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 18,
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 19,
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 20,
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 21,
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGB"
+    }
+  ]
+}

@@ -1,0 +1,296 @@
+{
+  "images_tested": 36,
+  "original_byte_array_wrapper_executed": true,
+  "pillow_decode_passed": true,
+  "android_gpu_decoder_tested": false,
+  "images": [
+    {
+      "image": 0,
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "image": 1,
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 2,
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 3,
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "image": 4,
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 5,
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 6,
+      "size": [
+        1024,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "image": 7,
+      "size": [
+        1024,
+        512
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 8,
+      "size": [
+        1024,
+        512
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 9,
+      "size": [
+        512,
+        256
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "image": 10,
+      "size": [
+        512,
+        256
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 11,
+      "size": [
+        512,
+        256
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 12,
+      "size": [
+        128,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "image": 13,
+      "size": [
+        128,
+        512
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 14,
+      "size": [
+        128,
+        512
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 15,
+      "size": [
+        512,
+        64
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "image": 16,
+      "size": [
+        512,
+        64
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 17,
+      "size": [
+        512,
+        64
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 18,
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "image": 19,
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 20,
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 21,
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "image": 22,
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 23,
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 24,
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "image": 25,
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 26,
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 27,
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "image": 28,
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 29,
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 30,
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "image": 31,
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "image": 32,
+      "size": [
+        1024,
+        1024
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 33,
+      "size": [
+        512,
+        128
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "image": 34,
+      "size": [
+        512,
+        128
+      ],
+      "mode": "RGB"
+    },
+    {
+      "image": 35,
+      "size": [
+        512,
+        128
+      ],
+      "mode": "RGB"
+    }
+  ]
+}

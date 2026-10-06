@@ -1,0 +1,10 @@
+{
+  "actual_new_ARM64_module_executed": true,
+  "external_Matilda_config_from_real_runtime": true,
+  "status_ap_penetration_mm": 89,
+  "attack_info_ap_penetration_mm": 89,
+  "muzzle_velocity": 853,
+  "reload_seconds": 2.8,
+  "ap_stock": 93,
+  "android_device_test": false
+}

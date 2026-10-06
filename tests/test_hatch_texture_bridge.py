@@ -43,8 +43,9 @@ def test(module,library,mod):
   u.hook_add(UC_HOOK_CODE,hook);u.reg_write(R.UC_ARM64_REG_SP,0x50010000);u.reg_write(R.UC_ARM64_REG_X0,tex);u.reg_write(R.UC_ARM64_REG_X1,arr);u.reg_write(R.UC_ARM64_REG_LR,halt)
   u.emu_start(wrapper,halt,count=200)
   assert u.reg_read(R.UC_ARM64_REG_X0)==1
- source=Path(module).read_text();assert '"LoadImage",2,load,textureklass' in source
+ source=Path(module).read_text();import re;assert re.search(r'"LoadImage"\s*,\s*2\s*,\s*load\s*,\s*textureklass',source)
  return {'images_tested':len(result),'original_byte_array_wrapper_executed':True,'pillow_decode_passed':True,'android_gpu_decoder_tested':False,'images':result}
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--engine',type=Path,required=True);p.add_argument('--game-library',type=Path,required=True);p.add_argument('--mod',type=Path,required=True);p.add_argument('--report',type=Path,required=True);a=p.parse_args()
  r=test(a.engine,a.game_library,a.mod);a.report.write_text(json.dumps(r,indent=2)+'\n');print('36 original ARM64 texture wrapper + PNG decode checks passed')
+

@@ -1,0 +1,6 @@
+{
+  "bind_pose_preserved": true,
+  "triangle_winding_coverage_preserved": true,
+  "turret_attachment_parentage_valid": true,
+  "vertex_attributes_materials_preserved": true
+}

@@ -1,3 +1,4 @@
+#include "track_material.h"
 // Player-only T-54 profile. Original controllers and codecs remain in charge.
 #include "t54_asset_config.h"
 #include "custom_tanks.h"
@@ -108,15 +109,12 @@ static void body_update(void *self,const void *mi) {
     // material instances. Track motion does not depend on suspension Start.
     void *rends=P(self,0x48),*mats=P(self,0x120);
     if(rends && I(rends,0x18)==2){
-        typedef struct {float x,y;} Vec2;
         for(int j=0;j<2;j++){
             int offset=j?0xe8:0xe4;float value=F(self,offset)+(j?right:left)*dt/c->track_length;
             while(value>=1.f)value-=1.f;while(value<0.f)value+=1.f;F(self,offset)=value;
             void *rend=P(rends,0x20+j*8),*get=unity_exists(rend)?method(rend,"get_material",0):0;
             void *mat=get?((void *(*)(void *,const void *))P(get,0))(rend,get):0;
-            void *set=unity_exists(mat)?method(mat,"set_mainTextureOffset",1):0;
-            if(set){
-                ((void (*)(void *,Vec2,const void *))P(set,0))(mat,(Vec2){0,value},set);
+            if(unity_exists(mat) && track_set_offset(mat,value)){
                 if(mats && I(mats,0x18)==2)managed_store(mats,0x20+j*8,mat);
                 track_diagnostics.track_updates++;
             }else if(++track_diagnostics.material_misses==1){
@@ -152,4 +150,5 @@ static void body_update(void *self,const void *mi) {
         local.y+=previous_compression[i];set_vec(wheel,"set_localPosition",local);
     }
 }
+
 

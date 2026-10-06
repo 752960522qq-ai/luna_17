@@ -1,0 +1,65 @@
+{
+  "new_module_executed": true,
+  "original_SetTextureOffsetImpl_executed": true,
+  "Unity_material_internal_call_simulated": true,
+  "lookup_constrained_by_original_metadata": true,
+  "forward_reverse_turn_passed": true,
+  "Shader_PropertyToID_calls": 1,
+  "track_updates": 6,
+  "material_misses": 0,
+  "lookups": [
+    [
+      "get_material",
+      0
+    ],
+    [
+      "PropertyToID",
+      1
+    ],
+    [
+      "SetTextureOffsetImpl",
+      2
+    ],
+    [
+      "get_material",
+      0
+    ],
+    [
+      "SetTextureOffsetImpl",
+      2
+    ],
+    [
+      "get_material",
+      0
+    ],
+    [
+      "SetTextureOffsetImpl",
+      2
+    ],
+    [
+      "get_material",
+      0
+    ],
+    [
+      "SetTextureOffsetImpl",
+      2
+    ],
+    [
+      "get_material",
+      0
+    ],
+    [
+      "SetTextureOffsetImpl",
+      2
+    ],
+    [
+      "get_material",
+      0
+    ],
+    [
+      "SetTextureOffsetImpl",
+      2
+    ]
+  ],
+  "androidDeviceTest": false
+}

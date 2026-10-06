@@ -1,0 +1,15 @@
+{
+  "build": "0.1-r11-motion-weapons",
+  "base_commit": "8a169deb0c1718ba039e24d08ff31478e3432d3e",
+  "modifier_name": "坦无敌3000",
+  "loader": "Hatch",
+  "loader_version": "0.1",
+  "game": "5.1.0",
+  "abi": "arm64-v8a",
+  "requires_prepared_weapon_template": true,
+  "sha256": {
+    "libaotmod.so": "64d02ec860bc5b6574aa1ad7f93014d4243f054b8ea8fea328bf0a6cd46b62c6",
+    "mod.dex": "1739b84959ba0efba526c29c706e2d5ae29cc1bccacd309b1c55c71ed66106a2"
+  },
+  "android_device_test": "not performed"
+}

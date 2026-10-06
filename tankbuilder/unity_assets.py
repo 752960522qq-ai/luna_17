@@ -110,6 +110,8 @@ class Adapter:
             for child in tr.read_typetree(check_read=False)['m_Children']:
                 visit(self.sf.objects[child['m_PathID']].read_typetree(check_read=False)['m_GameObject']['m_PathID'])
         visit(root)
+        from .weapon_assets import weapon_nodes
+        protected = weapon_nodes(self, nodes)
         # Exercise every inherited native component with its exact schema.
         # MonoBehaviours use the separately reviewed game-specific raw codec.
         for go,parts in nodes:
@@ -131,8 +133,8 @@ class Adapter:
                     by_class.setdefault(cls,[]).append(obj)
                 else:
                     t=remap(parse_complete(old),ids)
-                    if old.type.name=='MeshRenderer':t['m_Enabled']=False
-                    if old.type.name=='LODGroup':t['m_Enabled']=False
+                    if old.type.name=='MeshRenderer' and go.path_id not in protected:t['m_Enabled']=False
+                    if old.type.name=='LODGroup' and go.path_id not in protected:t['m_Enabled']=False
                     obj.save_typetree(t)
             by_name[go.read_typetree(check_read=False)['m_Name']]=self.sf.objects[ids[go.path_id]]
         return ids,by_class,by_name
@@ -268,7 +270,7 @@ def inject_one(adapter,directory,log):
     for launcher in classes['Launcher']:
         v=read_mb('Launcher',launcher.get_raw_data());v.update(weaponName=weapon['name'],attackPower=round(weapon['shells']['AP']['penetrationMm']),initSpeed=float(weapon['muzzleVelocity']),calibre=round(weapon['caliber']),fireSize=2,barrelTrf=pp(nt[byname['Barrel_Recoil']].path_id));write_mb(launcher,'Launcher',v)
         if weapon['ammo'].get('HE',0)>0 and not v['shellHeGos']:
-            from .t54_controls import clone_he_pool
+            from .weapon_assets import clone_he_pool
             clone_he_pool(adapter,launcher,root_tr)
     rigid=sf.objects[ids[116152]];v=rigid.read_typetree(check_read=False);v['m_Mass']=tank['weightTonnes']*1000.;rigid.save_typetree(v)
     hull_box=sf.objects[ids[116985]];v=hull_box.read_typetree(check_read=False);v['m_Size']=xyz(rig['colliders']['hull']['size']);v['m_Center']=xyz(rig['colliders']['hull']['center']);hull_box.save_typetree(v)
@@ -363,3 +365,4 @@ def prepare_assets(original,pack_directory,destination,log=print,cache_directory
             temporary=Path(temp);shutil.copyfile(output,temporary/'data.unity3d');shutil.copyfile(destination/'asset_report.json',temporary/'asset_report.json')
             if not cache.exists():shutil.copytree(temporary,cache)
     log('Prepared '+str(output));return report
+

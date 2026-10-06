@@ -419,7 +419,8 @@ class NativeTests(unittest.TestCase):
         m.qwrite(setter,m.stub(lambda:seen.append((m.x(0),m.f(0),m.f(1)))))
         def lookup():
             name=m.read(m.x(1),32).split(b'\0')[0]
-            return getter if name==b'get_material' else setter if name==b'set_mainTextureOffset' else 0
+            return getter if name==b'get_material' else setter if name==b'SetTextureOffsetImpl' else 0
+        m.global_i('track_texture_property_ready',1);m.global_i('track_texture_property',37)
         m.global_q('class_method',m.stub(lookup));clock=[10.]
         m.at(GAME+0x343a6dc,lambda:m.sf(0,clock[0]));m.u.mem_write(move+0x78,struct.pack('<f',5.))
         m.call('body_update',body,0);clock[0]+=.02;m.call('body_update',body,0)
@@ -571,3 +572,4 @@ if __name__=='__main__':
             'module_sha256':hashlib.sha256(Path(ARGS.module).read_bytes()).hexdigest(),
             'game_library_sha256':hashlib.sha256(Path(ARGS.game_library).read_bytes()).hexdigest()},indent=2)+'\n')
     sys.exit(0 if result.wasSuccessful() else 1)
+

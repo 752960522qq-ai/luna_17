@@ -1,0 +1,323 @@
+{
+  "passed": true,
+  "apis_checked": 39,
+  "native_entries_verified": true,
+  "stripped_index_format_setter_avoided": true,
+  "methods": [
+    {
+      "class": "GameObject",
+      "method": ".ctor",
+      "parameters": 1,
+      "native_entries": [
+        "0x3431b08"
+      ]
+    },
+    {
+      "class": "GameObject",
+      "method": "get_transform",
+      "parameters": 0,
+      "native_entries": [
+        "0x3430ef8"
+      ]
+    },
+    {
+      "class": "GameObject",
+      "method": "GetComponentsInternal",
+      "parameters": 6,
+      "native_entries": [
+        "0x3430a8c"
+      ]
+    },
+    {
+      "class": "GameObject",
+      "method": "GetComponentInChildren",
+      "parameters": 2,
+      "native_entries": [
+        "0x342e194"
+      ]
+    },
+    {
+      "class": "GameObject",
+      "method": "AddComponent",
+      "parameters": 1,
+      "native_entries": [
+        "0x3430ef4"
+      ]
+    },
+    {
+      "class": "Texture2D",
+      "method": ".ctor",
+      "parameters": 2,
+      "native_entries": [
+        "0x34131e8"
+      ]
+    },
+    {
+      "class": "Mesh",
+      "method": ".ctor",
+      "parameters": 0,
+      "native_entries": [
+        "0x340ca54"
+      ]
+    },
+    {
+      "class": "Mesh",
+      "method": "set_vertices",
+      "parameters": 1,
+      "native_entries": [
+        "0x340eae0"
+      ]
+    },
+    {
+      "class": "Mesh",
+      "method": "set_normals",
+      "parameters": 1,
+      "native_entries": [
+        "0x340eb8c"
+      ]
+    },
+    {
+      "class": "Mesh",
+      "method": "set_uv",
+      "parameters": 1,
+      "native_entries": [
+        "0x340ece4"
+      ]
+    },
+    {
+      "class": "Mesh",
+      "method": "set_triangles",
+      "parameters": 1,
+      "native_entries": [
+        "0x340fbcc"
+      ]
+    },
+    {
+      "class": "Mesh",
+      "method": "RecalculateBounds",
+      "parameters": 0,
+      "native_entries": [
+        "0x3410658"
+      ]
+    },
+    {
+      "class": "Material",
+      "method": ".ctor",
+      "parameters": 1,
+      "native_entries": [
+        "0x34075fc",
+        "0x3407690",
+        "0x3407724"
+      ]
+    },
+    {
+      "class": "Material",
+      "method": "set_color",
+      "parameters": 1,
+      "native_entries": [
+        "0x340798c"
+      ]
+    },
+    {
+      "class": "Material",
+      "method": "set_mainTexture",
+      "parameters": 1,
+      "native_entries": [
+        "0x3407b58"
+      ]
+    },
+    {
+      "class": "Material",
+      "method": "SetTexture",
+      "parameters": 2,
+      "native_entries": [
+        "0x340986c",
+        "0x3407bd4"
+      ]
+    },
+    {
+      "class": "Material",
+      "method": "SetTextureOffsetImpl",
+      "parameters": 2,
+      "native_entries": [
+        "0x34094c0"
+      ]
+    },
+    {
+      "class": "Renderer",
+      "method": "get_sharedMaterial",
+      "parameters": 0,
+      "native_entries": [
+        "0x3406634"
+      ]
+    },
+    {
+      "class": "Renderer",
+      "method": "set_sharedMaterial",
+      "parameters": 1,
+      "native_entries": [
+        "0x3406638"
+      ]
+    },
+    {
+      "class": "Renderer",
+      "method": "set_enabled",
+      "parameters": 1,
+      "native_entries": [
+        "0x3405e20"
+      ]
+    },
+    {
+      "class": "MeshFilter",
+      "method": "set_sharedMesh",
+      "parameters": 1,
+      "native_entries": [
+        "0x340bffc"
+      ]
+    },
+    {
+      "class": "Component",
+      "method": "get_transform",
+      "parameters": 0,
+      "native_entries": [
+        "0x342dd64"
+      ]
+    },
+    {
+      "class": "Component",
+      "method": "get_gameObject",
+      "parameters": 0,
+      "native_entries": [
+        "0x342de34"
+      ]
+    },
+    {
+      "class": "Transform",
+      "method": "get_parent",
+      "parameters": 0,
+      "native_entries": [
+        "0x343daec"
+      ]
+    },
+    {
+      "class": "Transform",
+      "method": "IsChildOf",
+      "parameters": 1,
+      "native_entries": [
+        "0x343fc70"
+      ]
+    },
+    {
+      "class": "Transform",
+      "method": "set_parent",
+      "parameters": 1,
+      "native_entries": [
+        "0x343e59c"
+      ]
+    },
+    {
+      "class": "Transform",
+      "method": "set_localPosition",
+      "parameters": 1,
+      "native_entries": [
+        "0x343d1f8"
+      ]
+    },
+    {
+      "class": "Transform",
+      "method": "set_localRotation",
+      "parameters": 1,
+      "native_entries": [
+        "0x343e0e0"
+      ]
+    },
+    {
+      "class": "Transform",
+      "method": "set_localScale",
+      "parameters": 1,
+      "native_entries": [
+        "0x343e4c8"
+      ]
+    },
+    {
+      "class": "Transform",
+      "method": "TransformPoint",
+      "parameters": 1,
+      "native_entries": [
+        "0x343f428"
+      ]
+    },
+    {
+      "class": "Transform",
+      "method": "InverseTransformPoint",
+      "parameters": 1,
+      "native_entries": [
+        "0x343f51c"
+      ]
+    },
+    {
+      "class": "LODGroup",
+      "method": "SetLODs",
+      "parameters": 1,
+      "native_entries": [
+        "0x340c94c"
+      ]
+    },
+    {
+      "class": "Shader",
+      "method": "PropertyToID",
+      "parameters": 1,
+      "native_entries": [
+        "0x34052d0"
+      ]
+    },
+    {
+      "class": "Object",
+      "method": "set_name",
+      "parameters": 1,
+      "native_entries": [
+        "0x34367b8"
+      ]
+    },
+    {
+      "class": "Object",
+      "method": "get_name",
+      "parameters": 0,
+      "native_entries": [
+        "0x3436664"
+      ]
+    },
+    {
+      "class": "BoxCollider",
+      "method": "set_size",
+      "parameters": 1,
+      "native_entries": [
+        "0x34a4264"
+      ]
+    },
+    {
+      "class": "BoxCollider",
+      "method": "set_center",
+      "parameters": 1,
+      "native_entries": [
+        "0x34a40b4"
+      ]
+    },
+    {
+      "class": "Rigidbody",
+      "method": "set_mass",
+      "parameters": 1,
+      "native_entries": [
+        "0x34aa00c"
+      ]
+    },
+    {
+      "class": "ImageConversion",
+      "method": "LoadImage",
+      "parameters": 2,
+      "native_entries": [
+        "0x345f4f4"
+      ]
+    }
+  ]
+}

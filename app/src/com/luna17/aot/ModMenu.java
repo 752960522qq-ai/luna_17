@@ -24,7 +24,7 @@ import java.util.Arrays;
 
 final class ModMenu {
     private final Activity activity;
-    private final Handler handler = new Handler();
+    private final Handler handler = new Handler(android.os.Looper.getMainLooper());
     private FrameLayout overlay;
     private Button bubble, swap;
     private ScrollView panel;
@@ -243,5 +243,6 @@ final class ModMenu {
     private void toast(String text) { Toast.makeText(activity,text,Toast.LENGTH_SHORT).show(); }
     void detach() { stopped=true; handler.removeCallbacks(poll); }
 }
+
 
 

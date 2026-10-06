@@ -1,0 +1,16 @@
+{
+  "runtime_nodes": 155,
+  "images": 22,
+  "triangles": 114477,
+  "max_mesh_vertices": 29193,
+  "track_minimum_y": [
+    0.0,
+    0.0
+  ],
+  "hull_support_bottom_y": 0,
+  "road_wheels": 20,
+  "track_renderers": 2,
+  "android_device_test": false,
+  "unity_gpu_test": false,
+  "ap_penetration_mm": 89
+}
