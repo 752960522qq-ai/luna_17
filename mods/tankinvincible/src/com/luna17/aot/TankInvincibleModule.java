@@ -8,9 +8,12 @@ import org.json.JSONObject;
 public final class TankInvincibleModule implements HatchModule {
     private ModMenu menu;
     @Override public int apiVersion() { return 2; }
-    @Override public void start(Activity activity, File library) {
+    @Override public void prepare(File library) {
         if (!NativeBridge.loaded) NativeBridge.start(library.getAbsolutePath());
         if (!NativeBridge.loaded) throw new IllegalStateException(NativeBridge.error);
+    }
+    @Override public void start(Activity activity, File library) {
+        if (!NativeBridge.loaded) throw new IllegalStateException("前置尚未完成启动初始化");
         if (menu != null) menu.detach();
         menu = new ModMenu(activity);
         menu.attach();

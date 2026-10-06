@@ -6,8 +6,9 @@ final class NativeBridge {
     static void start(String path) {
         try {
             System.load(path);
-            loaded = true;
             init();
+            if (state() != 2) throw new IllegalStateException("原生钩子初始化失败");
+            loaded = true;
         } catch (Throwable failure) {
             loaded = false;
             error = failure.getClass().getSimpleName() + ": " + failure.getMessage();

@@ -1,0 +1,28 @@
+{
+  "scope": "Startup crash-risk fixes; no APK or hatch packaging",
+  "native_tests": {
+    "passed": 29,
+    "execution": "Unicorn ARM64, actual module JNI initialization and original hook prologues"
+  },
+  "startup_tests": {
+    "passed": 5,
+    "execution": "JVM executing production launch gate with Android lifecycle doubles; input binary manifest patch parsed with Androguard"
+  },
+  "compilation": {
+    "loader": "passed, Java 8 against Android 35 SDK",
+    "prerequisite": "passed, Java 8 against Android 35 SDK",
+    "native": "passed, ARM64 Android freestanding"
+  },
+  "native_sha256": "5de3f7330cfb6e43e38caf698d8f9ee638f6fb08887af75234d4e509fd52a2a9",
+  "apk_packaged": false,
+  "hatch_packaged": false,
+  "device_run": {
+    "completed": false,
+    "reason": "No Android device, adb, emulator or KVM available"
+  },
+  "crash_root_cause_confirmed": false,
+  "limitations": [
+    "No device crash log supplied",
+    "Unity scene launch and Android linker namespaces still require device testing"
+  ]
+}

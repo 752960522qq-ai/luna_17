@@ -15,9 +15,10 @@ public final class HatchLoader {
     private static final ExecutorService IO = Executors.newSingleThreadExecutor();
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
     private static volatile String report = "舱盖 0.2 正在加载…";
-    private static HatchModule module;
+    private static volatile HatchModule module;
     private static File residentNative;
     private static volatile int generation;
+    private static final Set<String> loadedTanks = new HashSet<>();
     private HatchLoader() {}
     private static File folder(Activity activity) throws IOException {
         File base = activity.getExternalFilesDir(null);
@@ -26,13 +27,66 @@ public final class HatchLoader {
         if (!folder.isDirectory() && !folder.mkdirs()) throw new IOException("无法创建模组文件夹");
         return folder;
     }
+    interface Prepared { void complete(String failure); }
+    static void prepare(Activity activity, Prepared callback) {
+        IO.execute(() -> {
+            String failure = null;
+            try {
+                if (module == null) {
+                    // Resolve the engine through the app class loader, before Unity starts.
+                    System.loadLibrary("il2cpp");
+                    File mods = folder(activity);
+                    HatchPackage core = installCore(activity,mods);
+                    File cache = new File(activity.getCodeCacheDir(), "Hatch/" + core.manifest.getString("dex_sha256") + core.manifest.getString("native_sha256"));
+                    if (!cache.isDirectory() && !cache.mkdirs()) throw new IOException("无法创建模块缓存");
+                    File dex = publish(core,cache,"module.dex","dex_sha256","dex_bytes");
+                    File nativeFile = publish(core,cache,"module.so","native_sha256","native_bytes");
+                    DexClassLoader loader = new DexClassLoader(dex.getAbsolutePath(),cache.getAbsolutePath(),activity.getApplicationInfo().nativeLibraryDir,HatchLoader.class.getClassLoader());
+                    HatchModule loaded = (HatchModule)loader.loadClass(core.manifest.getString("entry_class")).newInstance();
+                    if (loaded.apiVersion() != 2) throw new IOException("前置 API 版本不兼容");
+                    loaded.prepare(nativeFile);
+                    residentNative = nativeFile;
+                    module = loaded;
+                }
+            } catch (Exception | LinkageError e) { failure = e.getClass().getSimpleName()+": "+e.getMessage(); }
+            String result = failure;
+            MAIN.post(() -> callback.complete(result));
+        });
+    }
+    private static File publish(HatchPackage core, File cache, String name, String sha, String size) throws Exception {
+        File target = new File(cache,name), temp = File.createTempFile("code-",".tmp",cache);
+        try {
+            core.extract(name,sha,size,temp);
+            if (!temp.setReadOnly()) throw new IOException("无法保护模块文件");
+            if (!temp.renameTo(target)) throw new IOException("模块安装失败");
+            return target;
+        } finally { temp.delete(); }
+    }
+    private static HatchPackage installCore(Activity activity, File mods) throws Exception {
+        File temp = File.createTempFile("core-",".tmp",mods);
+        try {
+            try (InputStream in=activity.getAssets().open("Hatch/mods/tankinvincible3000.hatch"); OutputStream out=new FileOutputStream(temp)) {
+                HatchPackage.copy(in,out,HatchPackage.MAX_BYTES,null);
+            }
+            HatchPackage builtIn=HatchPackage.inspect(temp);
+            if (!"tankinvincible3000".equals(builtIn.id) || !"module".equals(builtIn.type)) throw new IOException("内置前置包无效");
+            File target=new File(mods,"tankinvincible3000.hatch");
+            // This loader and its prerequisite ship together. Matching version text alone
+            // cannot identify a compatible build; use the bundled, verified code hashes.
+            if (!temp.renameTo(target)) throw new IOException("无法更新必备前置");
+            File[] peers=mods.listFiles((d,n)->n.endsWith(".hatch"));
+            if (peers!=null) for(File peer:peers) if(!peer.equals(target)) {
+                try { if(builtIn.id.equals(HatchPackage.inspect(peer).id)) peer.delete(); } catch(Exception ignored) {}
+            }
+            return HatchPackage.inspect(target);
+        } finally { temp.delete(); }
+    }
     public static void start(Activity activity) {
         final int session = ++generation;
-        if (module != null) {
-            try { module.start(activity,residentNative); } catch (Exception e) { report="前置恢复失败: "+e.getMessage(); show(activity); }
-            return;
-        }
-        IO.execute(() -> scan(activity, session));
+        if (module == null) throw new IllegalStateException("必须通过舱盖启动入口初始化");
+        try { module.start(activity,residentNative); }
+        catch (Exception e) { report="前置恢复失败: "+e.getMessage(); show(activity); return; }
+        IO.execute(() -> scan(activity,session));
     }
     private static void scan(Activity activity, int session) {
         StringBuilder log = new StringBuilder(); List<HatchPackage> tanks = new ArrayList<>(); HatchPackage core = null;
@@ -50,25 +104,11 @@ public final class HatchLoader {
                 } catch (Exception e) { log.append("✗ ").append(file.getName()).append(": ").append(e.getMessage()).append('\n'); }
             }
             if (core == null) throw new IOException("缺少必备前置：坦无敌3000 1.0");
-            File cache = new File(activity.getCodeCacheDir(), "Hatch/" + core.manifest.getString("dex_sha256") + core.manifest.getString("native_sha256"));
-            if (!cache.isDirectory() && !cache.mkdirs()) throw new IOException("无法创建模块缓存");
-            File dex = new File(cache,"module.dex"), nativeFile = new File(cache,"module.so");
-            // Re-extract to temporary writable files, then publish immutable code.
-            File tempDex = new File(cache,"module.dex.tmp"), tempNative = new File(cache,"module.so.tmp");
-            core.extract("module.dex","dex_sha256","dex_bytes",tempDex); core.extract("module.so","native_sha256","native_bytes",tempNative);
-            if (!tempDex.setReadOnly() || !tempNative.setReadOnly()) throw new IOException("无法保护模块文件");
-            dex.delete(); nativeFile.delete();
-            if (!tempDex.renameTo(dex) || !tempNative.renameTo(nativeFile)) throw new IOException("模块安装失败");
-            DexClassLoader loader = new DexClassLoader(dex.getAbsolutePath(), cache.getAbsolutePath(), null, HatchLoader.class.getClassLoader());
-            HatchModule loaded = (HatchModule) loader.loadClass(core.manifest.getString("entry_class")).newInstance();
-            if (loaded.apiVersion() != 2) throw new IOException("前置 API 版本不兼容");
-            CountDownLatch started = new CountDownLatch(1); Throwable[] error = new Throwable[1];
-            MAIN.post(() -> { try { if (session != generation || activity.isFinishing()) throw new IOException("加载已取消"); loaded.start(activity,nativeFile); residentNative=nativeFile; module = loaded; } catch (Throwable t) { error[0]=t; } finally { started.countDown(); } });
-            if (!started.await(30,TimeUnit.SECONDS)) throw new IOException("前置启动超时");
-            if (error[0] != null) throw new IOException("前置启动失败: " + error[0].getMessage());
+            HatchModule loaded = module;
             log.append("✓ 坦无敌3000 1.0（前置）\n"); int count = 0;
             for (HatchPackage tank : tanks) {
                 if (session != generation) return;
+                if (loadedTanks.contains(tank.id)) { log.append("✓ ").append(tank.name).append("（已加载）\n"); count++; continue; }
                 File runtime = File.createTempFile("hatch-", ".bin", activity.getCacheDir());
                 try {
                     JSONObject requires = tank.manifest.optJSONObject("requires");
@@ -76,6 +116,7 @@ public final class HatchLoader {
                     tank.extract("runtime.bin","runtime_sha256","runtime_bytes",runtime);
                     String failure = loaded.loadTank(runtime,tank.manifest.toString());
                     if (failure == null || !failure.isEmpty()) throw new IOException(failure == null ? "加载失败" : failure);
+                    loadedTanks.add(tank.id);
                     log.append("✓ ").append(tank.name).append(tank.manifest.has("magazine") ? "（弹匣炮）" : "").append('\n'); count++;
                 } catch (Exception e) { log.append("✗ ").append(tank.name).append(": ").append(e.getMessage()).append('\n'); }
                 finally { runtime.delete(); }

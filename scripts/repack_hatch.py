@@ -31,7 +31,7 @@ def repack_loader(source, dex, output, profile_path, packages, unity_data=None):
         migrated = 'lib/arm64-v8a/libaotmod.so' in base.namelist()
         if migrated and hashlib.sha256(Path(source).read_bytes()).hexdigest() != R11_SHA256:
             raise ValueError('Migration requires the exact released r11 APK')
-        manifest = patch_manifest(base.read('AndroidManifest.xml'), launcher='com.hatch.loader.HatchActivity', label='突击坦克 · 舱盖', old_launchers=('com.unity3d.player.UnityPlayerActivity','com.luna17.aot.ModActivity'))
+        manifest = patch_manifest(base.read('AndroidManifest.xml'), launcher='com.hatch.loader.HatchActivity', game_activity='com.hatch.loader.HatchGameActivity', label='突击坦克 · 舱盖', old_launchers=('com.unity3d.player.UnityPlayerActivity','com.luna17.aot.ModActivity'))
         replacement = None
         if unity_data:
             replacement = Path(unity_data).read_bytes()

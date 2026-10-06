@@ -1,20 +1,29 @@
 package com.hatch.loader;
 
-import android.os.Bundle;
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
-import com.unity3d.player.UnityPlayerActivity;
+import android.os.Bundle;
+import android.widget.TextView;
 
-public final class HatchActivity extends UnityPlayerActivity {
+/** The game is launched only after its prerequisite is ready. */
+public final class HatchActivity extends Activity {
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
-        HatchLoader.start(this);
-    }
-    @Override protected void onActivityResult(int request, int result, Intent data) {
-        if (!HatchLoader.result(this, request, result, data))
-            super.onActivityResult(request, result, data);
-    }
-    @Override protected void onDestroy() {
-        HatchLoader.stop();
-        super.onDestroy();
+        TextView status = new TextView(this);
+        status.setText("舱盖 0.2：正在初始化坦无敌3000…");
+        status.setPadding(32,32,32,32);
+        setContentView(status);
+        HatchLoader.prepare(this, failure -> {
+            if (isFinishing() || isDestroyed()) return;
+            if (failure != null) {
+                new AlertDialog.Builder(this).setTitle("舱盖启动失败")
+                    .setMessage(failure).setCancelable(false)
+                    .setPositiveButton("退出", (d,w) -> finish()).show();
+                return;
+            }
+            startActivity(new Intent(this,HatchGameActivity.class));
+            finish();
+        });
     }
 }

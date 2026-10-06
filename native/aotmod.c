@@ -17,8 +17,6 @@ extern int getpagesize(void);
 typedef struct { long seconds, nanoseconds; } Timespec;
 extern int clock_gettime(int, Timespec *);
 extern int usleep(unsigned);
-extern int pthread_create(unsigned long *, const void *, void *(*)(void *), void *);
-extern int pthread_detach(unsigned long);
 extern int __android_log_print(int, const char *, const char *, ...);
 
 static void clear_cache(void *start,void *end) {
@@ -154,11 +152,8 @@ static bool environment_check(void *self,const void *mi) {
 static void *worker(void *unused) {
     (void)unused;
     void *lib=0,*symbol=0;
-    for(int i=0;i<600;i++) {
-        lib=dlopen("libil2cpp.so",2|4);
-        if(lib && (symbol=dlsym(lib,SYMBOL_BASE_ANCHOR))) break;
-        usleep(100000);
-    }
+    lib=dlopen("libil2cpp.so",2|4);
+    if(lib)symbol=dlsym(lib,SYMBOL_BASE_ANCHOR);
     DlInfo info;
     if(!symbol || !dladdr(symbol,&info)) {ready=-1;state=-1;return 0;}
     base=(uintptr_t)info.base;
@@ -175,25 +170,26 @@ static void *worker(void *unused) {
     if(!hatch_bind(lib)){ready=-1;state=-1;return 0;}
     long n=getpagesize();if(n==4096 || n==16384)page_size=n;
     int ok=install(RVA_1978CF0,damage_hook,&original_damage);
-    ok&=install(RVA_197AA98,set_damage_hook,&original_set_damage);
-    ok&=install(RVA_197B638,engine_hook,&original_engine_hit);
-    ok&=install(RVA_195D1D4,player_update,(void **)&original_player_update);
-    ok&=install(RVA_1984348,game_update,(void **)&original_game_update);
-    ok&=install(RVA_1990828,environment_check,&original_environment_check);
-    ok&=install(RVA_TITLE_START,title_start,(void **)&original_title_start);
-    ok&=install(RVA_IS_PRODUCT,product_check,(void **)&original_product_check);
-    ok&=install(RVA_LOAD_FLAG,load_flag,(void **)&original_load_flag);
-    ok&=install(RVA_IS_HNZ2,hnz_check,(void **)&original_hnz_check);
-    ok&=install(RVA_IAP_SANITY,iap_sanity,(void **)&original_iap_sanity);
-    ok&=install(RVA_STATUS_ENABLE,status_enable,(void **)&original_status_enable);
-    ok&=install(RVA_STATUS_START,status_start,(void **)&original_status_start);
-    ok&=install(RVA_BODY_UPDATE,body_update,(void **)&original_body_update);
-    ok&=install(RVA_ATTACK_INFO,attack_info,(void **)&original_attack_info);
-    ok&=install(RVA_TURRET_UPDATE,turret_update,(void **)&original_turret_update);
-    ok&=install(RVA_LAUNCHER_FIRE,launcher_fire,(void **)&original_launcher_fire);
-    ok&=install(RVA_SHELL_FIXED_UPDATE,shell_fixed_update,(void **)&original_shell_fixed_update);
-    ok&=install(RVA_CAMERA_LATE_UPDATE,camera_late_update,(void **)&original_camera_late_update);
-    ok&=install(RVA_UI_SIGHT,sight_type,(void **)&original_sight_type);
+    ok=ok && install(RVA_197AA98,set_damage_hook,&original_set_damage);
+    ok=ok && install(RVA_197B638,engine_hook,&original_engine_hit);
+    ok=ok && install(RVA_195D1D4,player_update,(void **)&original_player_update);
+    ok=ok && install(RVA_1984348,game_update,(void **)&original_game_update);
+    ok=ok && install(RVA_1990828,environment_check,&original_environment_check);
+    ok=ok && install(RVA_TITLE_START,title_start,(void **)&original_title_start);
+    ok=ok && install(RVA_IS_PRODUCT,product_check,(void **)&original_product_check);
+    ok=ok && install(RVA_LOAD_FLAG,load_flag,(void **)&original_load_flag);
+    ok=ok && install(RVA_IS_HNZ2,hnz_check,(void **)&original_hnz_check);
+    ok=ok && install(RVA_IAP_SANITY,iap_sanity,(void **)&original_iap_sanity);
+    ok=ok && install(RVA_STATUS_ENABLE,status_enable,(void **)&original_status_enable);
+    ok=ok && install(RVA_STATUS_START,status_start,(void **)&original_status_start);
+    ok=ok && install(RVA_BODY_UPDATE,body_update,(void **)&original_body_update);
+    ok=ok && install(RVA_ATTACK_INFO,attack_info,(void **)&original_attack_info);
+    ok=ok && install(RVA_TURRET_UPDATE,turret_update,(void **)&original_turret_update);
+    ok=ok && install(RVA_LAUNCHER_FIRE,launcher_fire,(void **)&original_launcher_fire);
+    ok=ok && install(RVA_SHELL_FIXED_UPDATE,shell_fixed_update,(void **)&original_shell_fixed_update);
+    ok=ok && install(RVA_CAMERA_LATE_UPDATE,camera_late_update,(void **)&original_camera_late_update);
+    ok=ok && install(RVA_UI_SIGHT,sight_type,(void **)&original_sight_type);
+    if(!ok)rollback_hooks();
     ready=ok?1:-1;state=ok?2:-1;
     __android_log_print(ok?4:6,"Luna17","Attack on Tank 5.1.0 module %s",ok?"ready":"failed");
     return 0;

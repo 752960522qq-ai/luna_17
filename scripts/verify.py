@@ -48,7 +48,10 @@ def verify(apk, source, native_test_report=None, profile_path=None, unity_data=N
         assert len(added)==1
         dex=DEX(z.read(next(iter(added))))
         classes=list(dex.get_classes());assert classes and all(c.get_name().startswith('Lcom/hatch/loader/') for c in classes)
-        activity=dex.get_class('Lcom/hatch/loader/HatchActivity;');assert activity.get_superclassname()=='Lcom/unity3d/player/UnityPlayerActivity;'
+        activity=dex.get_class('Lcom/hatch/loader/HatchActivity;');assert activity.get_superclassname()=='Landroid/app/Activity;'
+        assert dex.get_class('Lcom/hatch/loader/HatchGameActivity;').get_superclassname()=='Lcom/unity3d/player/UnityPlayerActivity;'
+        game=next(a for a in app.findall('activity') if a.attrib[NS+'name']=='com.hatch.loader.HatchGameActivity')
+        assert game.find('intent-filter') is None
         assert dex.get_class('Lcom/luna17/aot/NativeBridge;') is None
         assert dex.get_class('Lcom/unity3d/player/UnityPlayerActivity;') is None
         assert 'lib/arm64-v8a/libaotmod.so' not in z.namelist()

@@ -1,0 +1,10 @@
+test_delayed_success_opens_game_once (__main__.Startup.test_delayed_success_opens_game_once) ... ok
+test_destroyed_gate_never_opens_game (__main__.Startup.test_destroyed_gate_never_opens_game) ... ok
+test_finishing_gate_never_opens_game (__main__.Startup.test_finishing_gate_never_opens_game) ... ok
+test_init_failure_never_opens_unity (__main__.Startup.test_init_failure_never_opens_unity) ... ok
+test_manifest_retains_unity_config_and_blocks_direct_entry (__main__.Startup.test_manifest_retains_unity_config_and_blocks_direct_entry) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.636s
+
+OK

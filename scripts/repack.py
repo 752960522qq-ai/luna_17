@@ -63,7 +63,7 @@ def extend_pool(chunk, added):
             + chunk[28:header] + struct.pack('<'+'I'*new_count,*old_offsets)
             + style_offsets + text + style_data)
 
-def patch_manifest(data, launcher="com.luna17.aot.ModActivity", label="坦无敌3000", old_launchers=("com.unity3d.player.UnityPlayerActivity",)):
+def patch_manifest(data, launcher="com.luna17.aot.ModActivity", label="坦无敌3000", old_launchers=("com.unity3d.player.UnityPlayerActivity",), game_activity=None):
     kind, header, total = struct.unpack_from('<HHI',data)
     if kind != 3 or total != len(data):
         raise ValueError('Invalid binary AndroidManifest.xml')
@@ -77,7 +77,7 @@ def patch_manifest(data, launcher="com.luna17.aot.ModActivity", label="坦无敌
         pos += size
     pool = next(c for typ,c in chunks if typ == 1)
     names = strings(pool)
-    added = [launcher, label]
+    added = [launcher, label] + ([game_activity] if game_activity else [])
     activity_index, label_index = len(names), len(names)+1
     names.extend(added)
     out = []; skipping = 0; activity_changed = False; split_removed = 0
@@ -115,6 +115,46 @@ def patch_manifest(data, launcher="com.luna17.aot.ModActivity", label="坦无敌
         out.append(new)
     if not activity_changed:
         raise ValueError('Unity launcher activity was not found')
+    if game_activity:
+        # Reuse Unity's orientation/configuration and metadata, but never its
+        # launcher intent filter. The prerequisite gate is the sole entry point.
+        game_nodes=[]; capture=False; depth=0; skip_filter=0
+        for node in out:
+            typ,node_header=struct.unpack_from('<HH',node)
+            tag=None
+            if typ in (0x102,0x103): tag=names[struct.unpack_from('<I',node,node_header+4)[0]]
+            if not capture and typ==0x102 and tag=='activity':
+                attr_start,attr_size,count=struct.unpack_from('<3H',node,node_header+8)
+                start=node_header+attr_start
+                for i in range(count):
+                    at=start+i*attr_size
+                    if names[struct.unpack_from('<I',node,at+4)[0]]=='name' and struct.unpack_from('<I',node,at+16)[0]==activity_index:
+                        capture=True
+                        node=bytearray(node)
+                        struct.pack_into('<I',node,at+8,len(names)-1)
+                        struct.pack_into('<I',node,at+16,len(names)-1)
+                        for j in range(count):
+                            exported_at=start+j*attr_size
+                            if names[struct.unpack_from('<I',node,exported_at+4)[0]]=='exported':
+                                struct.pack_into('<I',node,exported_at+8,NO_INDEX)
+                                node[exported_at+15]=18
+                                struct.pack_into('<I',node,exported_at+16,0)
+                        break
+            if not capture:continue
+            if typ==0x102:
+                depth+=1
+                if tag=='intent-filter' or skip_filter:skip_filter+=1
+            if not skip_filter:game_nodes.append(node)
+            if typ==0x103:
+                if skip_filter:skip_filter-=1
+                depth-=1
+                if not depth:break
+        if not game_nodes:raise ValueError('Missing Unity activity for startup gate')
+        for i,node in enumerate(out):
+            typ,node_header=struct.unpack_from('<HH',node)
+            if typ==0x103 and names[struct.unpack_from('<I',node,node_header+4)[0]]=='application':
+                out[i:i]=game_nodes
+                break
     body = b''.join(out)
     return data[:4]+struct.pack('<I',header+len(body))+data[8:header]+body
 

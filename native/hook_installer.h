@@ -1,9 +1,15 @@
 #pragma once
+// Installed only while the launcher holds Unity behind its startup gate.
+typedef struct { void *entry, *trampoline; void **original; uint32_t saved[4]; } HookRecord;
+static HookRecord installed_hooks[32];
+static unsigned installed_hook_count;
+__attribute__((visibility("hidden"),noinline)) int rollback_hooks(void);
 static void emit_absolute(uint32_t **out,uintptr_t destination,unsigned reg) {
     *(*out)++=0xd2800000|((destination&0xffff)<<5)|reg;
     for(unsigned i=1;i<4;i++) *(*out)++=0xf2800000|(i<<21)|(((destination>>(i*16))&0xffff)<<5)|reg;
 }
 int install(uintptr_t rva,void *replacement,void **original) {
+    if(installed_hook_count>=32)return 0;
     uint32_t *entry=(uint32_t *)(base+rva);
     uint32_t *tramp=mmap(0,(size_t)page_size,3,0x22,-1,0);
     if(tramp==(void *)-1) return 0;
@@ -36,12 +42,30 @@ int install(uintptr_t rva,void *replacement,void **original) {
     uintptr_t resume=base+rva+16;memcpy(cursor,&resume,8);
     clear_cache(tramp,(uint8_t *)cursor+8);
     if(mprotect(tramp,(size_t)page_size,5)) {munmap(tramp,(size_t)page_size);return 0;}
-    *original=tramp;
     uintptr_t page=(uintptr_t)entry&~((uintptr_t)page_size-1);
     size_t span=((((uintptr_t)entry+16+page_size-1)&~((uintptr_t)page_size-1))-page);
-    if(mprotect((void *)page,span,7)) return 0;
+    if(mprotect((void *)page,span,7)) {munmap(tramp,(size_t)page_size);return 0;}
+    HookRecord *record=&installed_hooks[installed_hook_count++];
+    record->entry=entry;record->trampoline=tramp;record->original=original;
+    memcpy(record->saved,entry,16);*original=tramp;
     uint32_t patch[4]={0x58000050,0xd61f0200,0,0};memcpy(patch+2,&replacement,8);
     memcpy(entry,patch,16);clear_cache(entry,(uint8_t *)entry+16);
     return mprotect((void *)page,span,5)==0;
 }
 
+
+__attribute__((visibility("hidden"),noinline)) int rollback_hooks(void) {
+    int ok=1;
+    while(installed_hook_count) {
+        HookRecord *record=&installed_hooks[installed_hook_count-1];
+        uintptr_t page=(uintptr_t)record->entry&~((uintptr_t)page_size-1);
+        size_t span=((((uintptr_t)record->entry+16+page_size-1)&~((uintptr_t)page_size-1))-page);
+        if(mprotect((void *)page,span,7))return 0;
+        memcpy(record->entry,record->saved,16);
+        clear_cache(record->entry,(uint8_t *)record->entry+16);
+        if(mprotect((void *)page,span,5))ok=0;
+        *record->original=0;munmap(record->trampoline,(size_t)page_size);
+        installed_hook_count--;
+    }
+    return ok;
+}

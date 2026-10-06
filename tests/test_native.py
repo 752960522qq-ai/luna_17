@@ -37,6 +37,7 @@ class Machine:
         self.callbacks={}
         self.symbols={}
         self.calls=[]
+        self.imports={}
         with Path(game).open('rb') as file:
             elf=ELFFile(file)
             self.game_segments=[(s['p_vaddr'],s.data()) for s in elf.iter_segments() if s['p_type']=='PT_LOAD']
@@ -71,7 +72,9 @@ class Machine:
                     elif kind in (1025,1026,257):
                         symbol=dynamic.get_symbol(relocation['r_info_sym'])
                         if symbol['st_shndx']!='SHN_UNDEF':value=LIB+symbol['st_value']+add
-                        else:value=self.stub(imports.get(symbol.name,lambda:0))+add
+                        else:
+                            value=self.stub(imports.get(symbol.name,lambda:0))+add
+                            self.imports[symbol.name]=value-add
                     else:raise AssertionError(f'Unexpected relocation: {kind}')
                     self.qwrite(LIB+relocation['r_offset'],value)
         self.u.hook_add(UC_HOOK_CODE,self.on_code)
@@ -353,6 +356,84 @@ class NativeTests(unittest.TestCase):
         # Two copied STPs, four MOV-wide instructions replacing ADRP, then MOV.
         m.u.emu_start(trampoline,trampoline+28,count=7)
         self.assertEqual(m.x(20),GAME+0x3bcc000)
+
+    def startup_engine(self):
+        import re
+        root=Path(__file__).resolve().parents[1]
+        definitions=dict(re.findall(r'#define\s+(RVA_\w+)\s+(0x[0-9a-fA-F]+)',(root/'native/profile_config.h').read_text()))
+        names=re.findall(r'install\((RVA_\w+),',(root/'native/aotmod.c').read_text())
+        m=self.m;entries=[]
+        for name in names:
+            rva=int(definitions[name],16);original=m.game_read(rva,16)
+            m.u.mem_write(GAME+rva,original);entries.append((GAME+rva,original))
+        symbol=m.stub(lambda:0)
+        m.callbacks[m.imports['dlopen']]=lambda:1
+        m.callbacks[m.imports['dlsym']]=lambda:symbol
+        def address():
+            m.qwrite(m.x(1)+8,GAME)
+            return 1
+        m.callbacks[m.imports['dladdr']]=address
+        return entries
+
+    def test_prerequisite_init_finishes_all_hooks_before_returning(self):
+        m=self.m;entries=self.startup_engine()
+        m.call('Java_com_luna17_aot_NativeBridge_init',0,0)
+        self.assertEqual(m.call('Java_com_luna17_aot_NativeBridge_state',0,0),2)
+        self.assertEqual(struct.unpack('<I',m.read(m.symbols['installed_hook_count'],4))[0],20)
+        for entry,_ in entries:
+            self.assertEqual(m.read(entry,8),struct.pack('<2I',0x58000050,0xd61f0200))
+        patched=[m.read(entry,16) for entry,_ in entries]
+        m.call('Java_com_luna17_aot_NativeBridge_init',0,0)
+        self.assertEqual([m.read(entry,16) for entry,_ in entries],patched)
+
+    def test_prerequisite_failure_stops_installing_and_restores_game(self):
+        m=self.m;entries=self.startup_engine();failed=[False]
+        target=entries[4][0]&~4095
+        def protect():
+            if not failed[0] and m.x(0)==target and m.x(2)==7:
+                failed[0]=True
+                return -1
+            return 0
+        m.callbacks[m.imports['mprotect']]=protect
+        m.call('Java_com_luna17_aot_NativeBridge_init',0,0)
+        self.assertTrue(failed[0])
+        self.assertEqual(m.call('Java_com_luna17_aot_NativeBridge_state',0,0)&0xffffffff,0xffffffff)
+        self.assertEqual(struct.unpack('<I',m.read(m.symbols['installed_hook_count'],4))[0],0)
+        for entry,original in entries:self.assertEqual(m.read(entry,16),original)
+
+    def test_startup_hook_failure_rolls_back_previous_entries(self):
+        m=self.m;entries=[];outputs=[]
+        for rva in [0x1984348,0x195d1d4]:
+            original=m.game_read(rva,16);m.u.mem_write(GAME+rva,original)
+            entries.append((GAME+rva,original));out=m.alloc(8);outputs.append(out)
+            self.assertEqual(m.call('install',rva,m.stub(lambda:0),out),1)
+        # Refuse to make the next game's code page writable. Previously installed
+        # hooks must remain tracked and be restored before startup is allowed.
+        rva=0x1978cf0;original=m.game_read(rva,16);m.u.mem_write(GAME+rva,original)
+        m.callbacks[m.imports['mprotect']]=lambda: -1 if m.x(2)==7 else 0
+        out=m.alloc(8)
+        self.assertEqual(m.call('install',rva,m.stub(lambda:0),out),0)
+        self.assertEqual(m.qread(out),0)
+        self.assertEqual(m.read(GAME+rva,16),original)
+        m.callbacks[m.imports['mprotect']]=lambda:0
+        self.assertEqual(m.call('rollback_hooks'),1)
+        for (entry,original),output in zip(entries,outputs):
+            self.assertEqual(m.read(entry,16),original)
+            self.assertEqual(m.qread(output),0)
+        self.assertEqual(m.call('rollback_hooks'),1)
+
+    def test_hook_rx_failure_can_be_restored(self):
+        m=self.m;rva=0x1984348;entry=GAME+rva;original=m.game_read(rva,16)
+        m.u.mem_write(entry,original);out=m.alloc(8)
+        calls=[0]
+        def protect():
+            calls[0]+=1
+            return -1 if calls[0]==3 else 0
+        m.callbacks[m.imports['mprotect']]=protect
+        self.assertEqual(m.call('install',rva,m.stub(lambda:0),out),0)
+        self.assertEqual(m.call('rollback_hooks'),1)
+        self.assertEqual(m.read(entry,16),original)
+        self.assertEqual(m.qread(out),0)
 
     def swap_scene(self):
         m=self.m;game=m.object();params=m.object();gen=m.object();old_go=m.object();old_s=m.object();old_pc=m.object();new_go=m.object();new_s=m.object();new_pc=m.object()

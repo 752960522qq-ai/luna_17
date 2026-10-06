@@ -3,8 +3,9 @@ JNIEXPORT void JNICALL Java_com_luna17_aot_NativeBridge_init(JNIEnv *env,jclass 
     (void)env;(void)cls;
     static int started;
     if(__atomic_exchange_n(&started,1,__ATOMIC_ACQ_REL))return;
-    state=1;unsigned long thread;
-    if(pthread_create(&thread,0,worker,0)) {ready=-1;state=-1;} else pthread_detach(thread);
+    // The launcher has loaded IL2CPP but has not started Unity yet.
+    // Complete installation on this thread before allowing game startup.
+    state=1;worker(0);
 }
 JNIEXPORT jint JNICALL Java_com_luna17_aot_NativeBridge_state(JNIEnv *env,jclass cls) {
     (void)env;(void)cls;

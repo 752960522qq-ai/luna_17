@@ -1,0 +1,9 @@
+{
+  "runner": "Unicorn ARM64",
+  "tests_run": 29,
+  "failures": 0,
+  "errors": 0,
+  "passed": true,
+  "module_sha256": "5de3f7330cfb6e43e38caf698d8f9ee638f6fb08887af75234d4e509fd52a2a9",
+  "game_library_sha256": "f68552eaee3018948258966a6e262b0b567b8a1ecc199e60e59f175d388ef4a7"
+}
