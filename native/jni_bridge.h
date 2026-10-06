@@ -7,6 +7,9 @@ JNIEXPORT void JNICALL Java_com_luna17_aot_NativeBridge_init(JNIEnv *env,jclass 
     // Complete installation on this thread before allowing game startup.
     state=1;worker(0);
 }
+JNIEXPORT jstring JNICALL Java_com_luna17_aot_NativeBridge_initError(JNIEnv *env,jclass cls) {
+    (void)cls;return (*env)->NewStringUTF(env,startup_error[0]?startup_error:"unknown native startup failure");
+}
 JNIEXPORT jint JNICALL Java_com_luna17_aot_NativeBridge_state(JNIEnv *env,jclass cls) {
     (void)env;(void)cls;
     if(state==3 && now_ms()-__atomic_load_n(&last_update_ms,__ATOMIC_ACQUIRE)>2000) return 2;

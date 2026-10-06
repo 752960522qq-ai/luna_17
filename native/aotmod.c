@@ -6,6 +6,7 @@
 
 extern void *dlopen(const char *, int);
 extern void *dlsym(void *, const char *);
+extern char *dlerror(void);
 typedef struct { const char *name; void *base; const char *symbol; void *address; } DlInfo;
 extern int dladdr(const void *, DlInfo *);
 extern void *mmap(void *, size_t, int, int, int, long);
@@ -44,6 +45,7 @@ typedef void *(*MethodFn)(void *, const char *, int);
 typedef void *(*FieldsFn)(void *, void **);
 
 static uintptr_t base;
+static char startup_error[256];
 static int offline_mode(void);
 static __attribute__((noinline)) void rebuild_player_ui(void *,void *,void *);
 static int camera_binding_ready(void *);
@@ -152,22 +154,43 @@ static bool environment_check(void *self,const void *mi) {
 static void *worker(void *unused) {
     (void)unused;
     void *lib=0,*symbol=0;
+    startup_error[0]=0;
     lib=dlopen("libil2cpp.so",2|4);
-    if(lib)symbol=dlsym(lib,SYMBOL_BASE_ANCHOR);
+    if(!lib) {
+        const char *detail=dlerror();
+        snprintf(startup_error,sizeof(startup_error),"IL2CPP lookup: %s",detail?detail:"library is not visible in the app namespace");
+        ready=-1;state=-1;return 0;
+    }
+    symbol=dlsym(lib,SYMBOL_BASE_ANCHOR);
     DlInfo info;
-    if(!symbol || !dladdr(symbol,&info)) {ready=-1;state=-1;return 0;}
+    if(!symbol || !dladdr(symbol,&info)) {
+        snprintf(startup_error,sizeof(startup_error),"IL2CPP base symbol unavailable: %s",SYMBOL_BASE_ANCHOR);
+        ready=-1;state=-1;return 0;
+    }
     base=(uintptr_t)info.base;
     class_method=(MethodFn)dlsym(lib,SYMBOL_CLASS_METHOD);
     class_fields=(FieldsFn)dlsym(lib,SYMBOL_CLASS_FIELDS);
-    if(!class_method || !class_fields || *(uint32_t *)(base+RVA_195D1D4)!=0xd10143ff ||
-       *(uint32_t *)(base+RVA_1978CF0)!=0xd10243ff || *(uint32_t *)(base+RVA_197AA98)!=0xd10303ff ||
-       *(uint32_t *)(base+RVA_197B638)!=0xfc1e0fe8 || *(uint32_t *)(base+RVA_1984348)!=0xa9be57fe ||
-       *(uint32_t *)(base+RVA_1990828)!=0xd10183ff ||
-       *(uint32_t *)(base+RVA_LAUNCHER_FIRE)!=0xd10283ff ||
-       *(uint32_t *)(base+RVA_SHELL_FIXED_UPDATE)!=0xd10443ff) {
+    if(!class_method || !class_fields) {
+        snprintf(startup_error,sizeof(startup_error),"IL2CPP reflection exports unavailable");
         ready=-1;state=-1;return 0;
     }
-    if(!hatch_bind(lib)){ready=-1;state=-1;return 0;}
+    const struct { uintptr_t rva; uint32_t first; } fingerprints[]={
+        {RVA_195D1D4,0xd10143ff},{RVA_1978CF0,0xd10243ff},
+        {RVA_197AA98,0xd10303ff},{RVA_197B638,0xfc1e0fe8},
+        {RVA_1984348,0xa9be57fe},{RVA_1990828,0xd10183ff},
+        {RVA_LAUNCHER_FIRE,0xd10283ff},{RVA_SHELL_FIXED_UPDATE,0xd10443ff}
+    };
+    for(unsigned i=0;i<sizeof(fingerprints)/sizeof(fingerprints[0]);i++) {
+        uint32_t actual=*(uint32_t *)(base+fingerprints[i].rva);
+        if(actual!=fingerprints[i].first) {
+            snprintf(startup_error,sizeof(startup_error),"Game entry mismatch at 0x%lx: got %08x, expected %08x",(unsigned long)fingerprints[i].rva,actual,fingerprints[i].first);
+            ready=-1;state=-1;return 0;
+        }
+    }
+    if(!hatch_bind(lib)) {
+        snprintf(startup_error,sizeof(startup_error),"Missing IL2CPP API: %s",hatch_bind_error?hatch_bind_error:"unknown");
+        ready=-1;state=-1;return 0;
+    }
     long n=getpagesize();if(n==4096 || n==16384)page_size=n;
     int ok=install(RVA_1978CF0,damage_hook,&original_damage);
     ok=ok && install(RVA_197AA98,set_damage_hook,&original_set_damage);
@@ -189,11 +212,15 @@ static void *worker(void *unused) {
     ok=ok && install(RVA_SHELL_FIXED_UPDATE,shell_fixed_update,(void **)&original_shell_fixed_update);
     ok=ok && install(RVA_CAMERA_LATE_UPDATE,camera_late_update,(void **)&original_camera_late_update);
     ok=ok && install(RVA_UI_SIGHT,sight_type,(void **)&original_sight_type);
-    if(!ok)rollback_hooks();
+    if(!ok && !rollback_hooks()) {
+        size_t used=strlen(startup_error);
+        snprintf(startup_error+used,sizeof(startup_error)-used,"; rollback failed; restart required");
+    }
     ready=ok?1:-1;state=ok?2:-1;
     __android_log_print(ok?4:6,"Luna17","Attack on Tank 5.1.0 module %s",ok?"ready":"failed");
     return 0;
 }
 
 #include "jni_bridge.h"
+#include "jni_module_host.h"
 

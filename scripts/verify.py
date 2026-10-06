@@ -74,7 +74,10 @@ def verify(apk, source, native_test_report=None, profile_path=None, unity_data=N
         assert {'坦无敌3000 1.0','必备前置模组','舱盖 0.2 · 管理 / 导入模组'}.issubset(set(mod.get_strings()))
         bridge=mod.get_class('Lcom/luna17/aot/NativeBridge;')
         native_names={m.get_name() for m in bridge.get_methods() if m.get_access_flags()&0x100}
-        assert 'configureMagazine' in native_names
+        assert {'configureMagazine','initError'}.issubset(native_names)
+        host=dex.get_class('Lcom/hatch/loader/NativeHost;')
+        assert host is not None
+        assert mod.get_class('Lcom/hatch/loader/NativeHost;') is None
         elf=ELFFile(io.BytesIO(module));assert elf['e_machine']=='EM_AARCH64'
         dynamic=elf.get_section_by_name('.dynamic')
         assert {t.needed for t in dynamic.iter_tags() if t.entry.d_tag=='DT_NEEDED'}=={'libc.so','libdl.so','liblog.so'}
@@ -82,6 +85,7 @@ def verify(apk, source, native_test_report=None, profile_path=None, unity_data=N
         assert all(s['p_align']>=16384 for s in elf.iter_segments() if s['p_type']=='PT_LOAD')
         exports={s.name for s in elf.get_section_by_name('.dynsym').iter_symbols() if s['st_shndx']!='SHN_UNDEF'}
         assert all('Java_com_luna17_aot_NativeBridge_'+name in exports for name in native_names)
+        assert 'Java_com_hatch_loader_NativeHost_bind' in exports
         assert not any(s.name.startswith('__aarch64_') and s['st_shndx']=='SHN_UNDEF' for s in elf.get_section_by_name('.dynsym').iter_symbols())
         assert hashlib.sha256(z.read('lib/arm64-v8a/libil2cpp.so')).hexdigest()==profile['libil2cpp_sha256']
         with Path(apk).open('rb') as file:

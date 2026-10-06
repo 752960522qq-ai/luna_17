@@ -15,6 +15,7 @@ public final class HatchLoader {
     private static final ExecutorService IO = Executors.newSingleThreadExecutor();
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
     private static volatile String report = "舱盖 0.2 正在加载…";
+    private static final ModuleSession SESSION = new ModuleSession();
     private static volatile HatchModule module;
     private static File residentNative;
     private static volatile int generation;
@@ -33,20 +34,22 @@ public final class HatchLoader {
             String failure = null;
             try {
                 if (module == null) {
-                    // Resolve the engine through the app class loader, before Unity starts.
-                    System.loadLibrary("il2cpp");
-                    File mods = folder(activity);
-                    HatchPackage core = installCore(activity,mods);
-                    File cache = new File(activity.getCodeCacheDir(), "Hatch/" + core.manifest.getString("dex_sha256") + core.manifest.getString("native_sha256"));
-                    if (!cache.isDirectory() && !cache.mkdirs()) throw new IOException("无法创建模块缓存");
-                    File dex = publish(core,cache,"module.dex","dex_sha256","dex_bytes");
-                    File nativeFile = publish(core,cache,"module.so","native_sha256","native_bytes");
-                    DexClassLoader loader = new DexClassLoader(dex.getAbsolutePath(),cache.getAbsolutePath(),activity.getApplicationInfo().nativeLibraryDir,HatchLoader.class.getClassLoader());
-                    HatchModule loaded = (HatchModule)loader.loadClass(core.manifest.getString("entry_class")).newInstance();
-                    if (loaded.apiVersion() != 2) throw new IOException("前置 API 版本不兼容");
-                    loaded.prepare(nativeFile);
-                    residentNative = nativeFile;
-                    module = loaded;
+                    ModuleSession.Loaded resident = SESSION.prepare(() -> {
+                        // Resolve the engine through the app class loader, before Unity starts.
+                        System.loadLibrary("il2cpp");
+                        File mods = folder(activity);
+                        HatchPackage core = installCore(activity,mods);
+                        File cache = new File(activity.getCodeCacheDir(), "Hatch/" + core.manifest.getString("dex_sha256") + core.manifest.getString("native_sha256"));
+                        if (!cache.isDirectory() && !cache.mkdirs()) throw new IOException("无法创建模块缓存");
+                        File dex = publish(core,cache,"module.dex","dex_sha256","dex_bytes");
+                        File nativeFile = publish(core,cache,"module.so","native_sha256","native_bytes");
+                        DexClassLoader loader = new DexClassLoader(dex.getAbsolutePath(),cache.getAbsolutePath(),activity.getApplicationInfo().nativeLibraryDir,HatchLoader.class.getClassLoader());
+                        HatchModule loaded = (HatchModule)loader.loadClass(core.manifest.getString("entry_class")).newInstance();
+                        if (loaded.apiVersion() != 2) throw new IOException("前置 API 版本不兼容");
+                        return new ModuleSession.Loaded(loaded,nativeFile,loader);
+                    });
+                    residentNative = resident.library;
+                    module = resident.module;
                 }
             } catch (Exception | LinkageError e) { failure = e.getClass().getSimpleName()+": "+e.getMessage(); }
             String result = failure;

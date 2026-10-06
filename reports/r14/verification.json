@@ -1,0 +1,17 @@
+{
+  "fixes": [
+    "Parent loader owns native library and RegisterNatives binds child bridge",
+    "Persistent module session and first failure",
+    "Library load and readiness tracked separately",
+    "Native stage diagnostics"
+  ],
+  "tests": {
+    "arm64": 32,
+    "jvm_startup": 5,
+    "jvm_jni_module_loading": 5,
+    "passed": true
+  },
+  "apk_verification": "passed",
+  "same_signing_certificate_as_previous_02": true,
+  "android_device_run": false
+}

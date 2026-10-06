@@ -61,7 +61,7 @@ class Machine:
             imports={
                 'memcpy':self.memcpy,'memset':self.memset,'mmap':self.mmap,
                 'mprotect':lambda:0,'munmap':lambda:0,'getpagesize':lambda:4096,
-                'clock_gettime':self.clock,
+                'clock_gettime':self.clock,'snprintf':self.snprintf,
                 'strcmp':lambda: 0 if self.read(self.x(0),64).split(b'\0')[0]==self.read(self.x(1),64).split(b'\0')[0] else 1,
             }
             for section in elf.iter_sections():
@@ -154,6 +154,21 @@ class Machine:
     def memset(self):
         out=self.x(0);self.u.mem_write(out,bytes([self.x(1)&255])*self.x(2));return out
     def mmap(self):return (self.alloc(self.x(1)+4096)+4095)&~4095
+    def c_string(self,address):
+        return self.read(address,512).split(b'\0')[0].decode()
+    def snprintf(self):
+        import re
+        out,limit,fmt=self.x(0),self.x(1),self.c_string(self.x(2));argument=[3]
+        def expand(match):
+            value=self.x(argument[0]);argument[0]+=1
+            token=match.group()
+            if token=='%s':return self.c_string(value) if value else '(null)'
+            if token=='%lx':return format(value,'x')
+            if token=='%08x':return format(value&0xffffffff,'08x')
+            return str(value)
+        result=re.sub(r'%s|%lx|%08x|%d|%u',expand,fmt).encode()
+        if limit:self.u.mem_write(out,result[:limit-1]+b'\0')
+        return len(result)
     def clock(self):self.u.mem_write(self.x(1),struct.pack('<2q',100,0));return 0
     def call(self,name,*args):
         for n,value in enumerate(args):self.sx(n,value)
@@ -374,6 +389,29 @@ class NativeTests(unittest.TestCase):
             return 1
         m.callbacks[m.imports['dladdr']]=address
         return entries
+
+    def test_startup_diagnostic_reports_il2cpp_visibility_failure(self):
+        m=self.m;self.startup_engine()
+        detail=m.alloc(512);m.u.mem_write(detail,b'namespace cannot see libil2cpp.so\0')
+        m.callbacks[m.imports['dlopen']]=lambda:0
+        m.callbacks[m.imports['dlerror']]=lambda:detail
+        m.call('Java_com_luna17_aot_NativeBridge_init',0,0)
+        self.assertIn('namespace cannot see',m.c_string(m.symbols['startup_error']))
+        self.assertEqual(m.call('Java_com_luna17_aot_NativeBridge_state',0,0)&0xffffffff,0xffffffff)
+
+    def test_startup_diagnostic_identifies_wrong_game_entry(self):
+        m=self.m;self.startup_engine();m.iwrite(GAME+0x195d1d4,0)
+        m.call('Java_com_luna17_aot_NativeBridge_init',0,0)
+        error=m.c_string(m.symbols['startup_error'])
+        self.assertIn('0x195d1d4',error)
+        self.assertIn('got 00000000',error)
+        self.assertEqual(struct.unpack('<I',m.read(m.symbols['installed_hook_count'],4))[0],0)
+
+    def test_startup_diagnostic_identifies_missing_embedding_api(self):
+        m=self.m;self.startup_engine();symbol=m.stub(lambda:0)
+        m.callbacks[m.imports['dlsym']]=lambda:0 if m.c_string(m.x(1))=='UfzMkOtv_Gn' else symbol
+        m.call('Java_com_luna17_aot_NativeBridge_init',0,0)
+        self.assertIn('Missing IL2CPP API: UfzMkOtv_Gn',m.c_string(m.symbols['startup_error']))
 
     def test_prerequisite_init_finishes_all_hooks_before_returning(self):
         m=self.m;entries=self.startup_engine()

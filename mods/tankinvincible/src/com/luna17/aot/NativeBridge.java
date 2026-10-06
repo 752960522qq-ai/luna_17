@@ -1,21 +1,27 @@
 package com.luna17.aot;
 
+import com.hatch.loader.NativeHost;
+
 final class NativeBridge {
     static boolean loaded;
+    static boolean libraryLoaded;
     static String error = "";
-    static void start(String path) {
+    static synchronized void start(String path) {
+        if (loaded || !error.isEmpty()) return;
         try {
-            System.load(path);
+            NativeHost.load(path,NativeBridge.class);
+            libraryLoaded = true;
             init();
-            if (state() != 2) throw new IllegalStateException("原生钩子初始化失败");
+            if (state() != 2) throw new IllegalStateException("原生钩子初始化失败: "+initError());
             loaded = true;
-        } catch (Throwable failure) {
+        } catch (Exception | LinkageError failure) {
             loaded = false;
             error = failure.getClass().getSimpleName() + ": " + failure.getMessage();
         }
     }
     private static native void init();
     static native int state();
+    private static native String initError();
     static native boolean toggle(int feature, boolean enabled);
     static native String[] tanks(int nation);
     static native boolean switchTank(int nation, int index);

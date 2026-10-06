@@ -13,12 +13,16 @@ static void *(*ha_type)(void *);
 static void *(*ha_param_class)(void *);
 static void *(*ha_reflect_type)(void *);
 static int hatch_engine_ok, hatch_engine_error;
+static const char *hatch_bind_error;
 static int hatch_bind(void *lib) {
+  hatch_bind_error=0;
 #define HB(var, symbol)                                                        \
   do {                                                                         \
     *(void **)(&(var)) = dlsym(lib, symbol);                                   \
-    if (!(var))                                                                \
+    if (!(var)) {                                                              \
+      hatch_bind_error=symbol;                                                  \
       return 0;                                                                \
+    }                                                                \
   } while (0)
   HB(ha_domain, "UfzMkOtv_Gn");
   HB(ha_assemblies, "rVAuNLFRLxv");
@@ -189,3 +193,4 @@ static void hatch_model_point(void *root, void *tr, const float *model,
   if (result)
     memcpy(local, (unsigned char *)result + 0x10, 12);
 }
+

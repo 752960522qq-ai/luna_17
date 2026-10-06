@@ -1,0 +1,10 @@
+test_different_library_path_requires_restart (__main__.ModuleLoading.test_different_library_path_requires_restart) ... ok
+test_loaded_library_and_failed_initialization_are_separate (__main__.ModuleLoading.test_loaded_library_and_failed_initialization_are_separate) ... ok
+test_session_failure_preserves_loader_and_first_cause (__main__.ModuleLoading.test_session_failure_preserves_loader_and_first_cause) ... ok
+test_session_success_initializes_only_once (__main__.ModuleLoading.test_session_success_initializes_only_once) ... ok
+test_two_real_class_loaders_share_parent_native_library (__main__.ModuleLoading.test_two_real_class_loaders_share_parent_native_library) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 1.444s
+
+OK
