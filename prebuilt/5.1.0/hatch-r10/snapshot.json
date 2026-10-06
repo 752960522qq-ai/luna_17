@@ -1,0 +1,14 @@
+{
+  "build": "0.1-r10-texture-mesh-fix",
+  "native_base_commit": "48eea65d70cf41e0640f467cd8a3b11f8b7d506d",
+  "modifier_name": "坦无敌3000",
+  "loader": "Hatch",
+  "loader_version": "0.1",
+  "game": "5.1.0",
+  "abi": "arm64-v8a",
+  "sha256": {
+    "mod.dex": "7091c5cf81a6b9d893240188737f8666956a8f903d819d791faf6ec472504d9e",
+    "libaotmod.so": "072ae7e224b284206e06fc7bb5f2dbc3aead69e1a21aa94accd293dd92a7c7c3"
+  },
+  "android_device_test": "not performed"
+}

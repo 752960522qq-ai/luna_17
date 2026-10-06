@@ -19,4 +19,7 @@ final class NativeBridge {
     static native String[] tanks(int nation);
     static native boolean switchTank(int nation, int index);
     static native int switchResult();
+    static native String loadHatch(String path);
+    static native String hatchError();
 }
+

@@ -3,6 +3,7 @@
 #include "custom_tanks.h"
 static const CustomTank *tank_config(void *status) {
     char name[64];if(!status)return 0;utf8_name(P(status,0x68),name,sizeof(name));
+    const CustomTank *external=hatch_find_config(name);if(external)return external;
     for(int i=0;i<CUSTOM_TANK_COUNT;i++){int j=0;while(name[j] && name[j]==custom_tanks[i].id[j])j++;if(!name[j] && !custom_tanks[i].id[j])return &custom_tanks[i];}
     return 0;
 }
@@ -151,3 +152,4 @@ static void body_update(void *self,const void *mi) {
         local.y+=previous_compression[i];set_vec(wheel,"set_localPosition",local);
     }
 }
+

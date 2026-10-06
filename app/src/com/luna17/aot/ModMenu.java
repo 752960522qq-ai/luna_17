@@ -68,7 +68,11 @@ final class ModMenu {
     void attach() {
         overlay = new FrameLayout(activity);
         overlay.setClipChildren(false);
-        bubble = button("MOD");
+        bubble = button("坦无敌\n3000");
+        bubble.setTextSize(11);
+        bubble.setPadding(0,0,0,0);
+        bubble.setMinWidth(0); bubble.setMinHeight(0);
+        bubble.setMaxLines(2);
         bubble.setTextColor(Color.WHITE);
         bubble.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
         bubble.setBackground(background(Color.rgb(187, 74, 46), 24));
@@ -107,7 +111,7 @@ final class ModMenu {
         activity.addContentView(overlay, new ViewGroup.LayoutParams(-1,-1));
         overlay.post(new Runnable() { @Override public void run() { positionPanel(); }});
         handler.post(poll);
-        toast("修改菜单已载入，点击左上角 MOD");
+        toast("修改菜单已载入，点击左上角坦无敌3000");
     }
 
     private void buildPanel() {
@@ -117,9 +121,11 @@ final class ModMenu {
         body.setClickable(true);
         TextView title = label("坦无敌3000", 17, white);
         title.setTypeface(Typeface.DEFAULT, Typeface.BOLD); body.addView(title);
-        body.addView(label("TankInvincible", 12, muted));
+        body.addView(label("坦克模组加载器", 12, muted));
         body.addView(label(FeatureConfig.BUILD_LABEL, 11, muted));
         status = label("等待游戏模块…", 12, accent); body.addView(status);
+        Button importTank=button("舱盖 · 管理 / 导入坦克包");body.addView(importTank);
+        importTank.setOnClickListener(v -> HatchLoader.show(activity));
         god = feature("无敌", 0); body.addView(god);
         ammo = feature("无限弹药", 1); body.addView(ammo);
         body.addView(label("对局换坦克", 14, white));
@@ -221,6 +227,8 @@ final class ModMenu {
                         case -4: result.setText("新载具玩家控制器未找到（-4）。"); break;
                         case -5: result.setText("新载具状态引用未就绪（-5）。"); break;
                         case -6: result.setText("对局状态改变，已取消替换。"); break;
+                        case -20: result.setText("Hatch 加载失败："+NativeBridge.hatchError()); break;
+                        case -21: result.setText("未找到 T34_85 模板车型。"); break;
                         case -7: result.setText("新车武器初始化超时，已保留原坦克。"); break;
                         default: result.setText("替换失败（"+r+"）。");
                     }
@@ -235,3 +243,5 @@ final class ModMenu {
     private void toast(String text) { Toast.makeText(activity,text,Toast.LENGTH_SHORT).show(); }
     void detach() { stopped=true; handler.removeCallbacks(poll); }
 }
+
+

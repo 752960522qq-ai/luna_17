@@ -1,0 +1,4 @@
+full production pipeline: 178 nodes, 36 textures, 80 meshes; ammo enum verified
+decoder false: no mesh creation; image index and size retained
+upstream exception retained; decoder was not called after failure
+oversized mesh rejected before allocation or Unity calls

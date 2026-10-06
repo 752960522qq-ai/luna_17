@@ -56,6 +56,8 @@ static void *player_control, *player_status;
 static char catalog[6][MAX_TANKS][112];
 static volatile int catalog_count[6];
 static void *catalog_source[6];
+static int catalog_stock[6],catalog_hatch[6][MAX_TANKS];
+static unsigned catalog_generation[6];
 static MethodFn class_method;
 static FieldsFn class_fields;
 static UpdateFn original_game_update, original_player_update, original_status_enable, original_status_start, original_body_update, original_title_start;
@@ -86,6 +88,10 @@ static void managed_store(void *object,int offset,void *value) {
     FN(RVA_17CA9E4,void (*)(void **,void *))((void **)((uint8_t *)object+offset),value);
 }
 
+#include "hatch_data.h"
+static void utf8_name(void *,char *,size_t);
+#include "hatch_engine.h"
+void t54_stats(void *);
 static void *player_tag(void) {
     // _GenerateUnit takes the managed string "Player", not a System.Type.
     // Reuse the exact metadata literal used by GeneratePlayerTank.
@@ -149,9 +155,11 @@ static void build_catalog(void *gen) {
         if(!a) continue;
         int n=I(a,0x18);
         if(n<0 || n>MAX_TANKS) continue;
-        if(catalog_source[nation]==a && catalog_count[nation]==n) continue;
+        unsigned generation=__atomic_load_n(&hatch_count,__ATOMIC_ACQUIRE);
+        if(catalog_source[nation]==a && catalog_stock[nation]==n && catalog_generation[nation]==generation) continue;
         catalog_count[nation]=0;
         for(int i=0;i<n;i++) {
+            catalog_hatch[nation][i]=-1;
             void *go=P(a,0x20+i*8);
             void *m=method(go,"get_name",0);
             void *str=m ? ((void *(*)(void *,const void *))P(m,0))(go,m) : 0;
@@ -162,7 +170,12 @@ static void build_catalog(void *gen) {
                 q[1]=(char)('0'+v/100);q[2]=(char)('0'+v/10%10);q[3]=(char)('0'+v%10);q[4]=0;
             }
         }
-        catalog_source[nation]=a;
+        catalog_stock[nation]=n;
+        for(unsigned h=0;h<generation && n<MAX_TANKS;h++)if(hatch_tanks[h].disk.nation==(unsigned)nation){
+            snprintf(catalog[nation][n],sizeof(catalog[nation][n]),"Hatch · %s",hatch_tanks[h].disk.id);
+            catalog_hatch[nation][n++]=(int)h;
+        }
+        catalog_source[nation]=a;catalog_generation[nation]=generation;
         __atomic_store_n(&catalog_count[nation],n,__ATOMIC_RELEASE);
     }
 }
@@ -260,7 +273,13 @@ static void switch_tank(void *game,void *parameters,int command) {
     void *pc_type=get_type(old_pc);
     void *tag=player_tag();
     if(!pc_type || !tag) {switch_result=-2;return;}
-    void *new_go=FN(RVA_1994A88,void *(*)(void *,void *,int,int,Vec3,Quat,bool,const void *))(gen,tag,nation,index,pos,rot,false,0);
+    int h=(catalog_generation[nation]>0 && index>=catalog_stock[nation])?catalog_hatch[nation][index]:-1,template_nation=nation,template_index=index;
+    if(h>=0){
+        template_nation=0;template_index=-1;
+        for(int i=0;i<catalog_stock[0];i++)if(!strcmp(catalog[0][i],"T34_85_Player") || !strcmp(catalog[0][i],"T34_85")){template_index=i;break;}
+        if(template_index<0){switch_result=-21;return;}
+    }
+    void *new_go=FN(RVA_1994A88,void *(*)(void *,void *,int,int,Vec3,Quat,bool,const void *))(gen,tag,template_nation,template_index,pos,rot,false,0);
     if(!unity_exists(new_go)) {switch_result=-3;return;}
     void *new_pc=get_component(new_go,pc_type);
     if(!unity_exists(new_pc)) {
@@ -273,6 +292,13 @@ static void switch_tank(void *game,void *parameters,int command) {
         FN(RVA_3431140,void (*)(void *,bool,const void *))(new_go,false,0);
         switch_result=-5;return;
     }
+    if(h>=0 && !hatch_apply_tank(&hatch_tanks[h],new_go,new_pc,new_status)){
+        FN(RVA_3431140,void (*)(void *,bool,const void *))(new_go,false,0);
+        FN(RVA_1982C3C,void (*)(void *,void *,const void *))(game,old_go,0);
+        FN(RVA_1982C54,void (*)(void *,void *,const void *))(game,old_status,0);
+        switch_result=-20;return;
+    }
+    if(h>=0)t54_stats(new_status);
     memcpy((uint8_t *)new_status+0x20,(uint8_t *)old_status+0x20,2);
     I(new_status,0x64)=I(old_status,0x64); // UnitNation is battle identity, separate from the catalog nationality.
     B(new_status,0x202)=0;
@@ -400,6 +426,7 @@ static void *worker(void *unused) {
        *(uint32_t *)(base+RVA_1990828)!=0xd10183ff) {
         ready=-1;state=-1;return 0;
     }
+    if(!hatch_bind(lib)){ready=-1;state=-1;return 0;}
     long n=getpagesize();if(n==4096 || n==16384)page_size=n;
     int ok=install(RVA_1978CF0,damage_hook,&original_damage);
     ok&=install(RVA_197AA98,set_damage_hook,&original_set_damage);
@@ -457,3 +484,14 @@ JNIEXPORT jboolean JNICALL Java_com_luna17_aot_NativeBridge_switchTank(JNIEnv *e
 JNIEXPORT jint JNICALL Java_com_luna17_aot_NativeBridge_switchResult(JNIEnv *env,jclass cls) {
     (void)env;(void)cls;return switch_result;
 }
+
+
+JNIEXPORT jstring JNICALL Java_com_luna17_aot_NativeBridge_loadHatch(JNIEnv *env,jclass cls,jstring path){
+    (void)cls;const char *p=(*env)->GetStringUTFChars(env,path,0);
+    if(!p)return 0;int ok=hatch_load_file(p);(*env)->ReleaseStringUTFChars(env,path,p);
+    return (*env)->NewStringUTF(env,ok?"":hatch_error);
+}
+JNIEXPORT jstring JNICALL Java_com_luna17_aot_NativeBridge_hatchError(JNIEnv *env,jclass cls){
+    (void)cls;return (*env)->NewStringUTF(env,hatch_error);
+}
+
