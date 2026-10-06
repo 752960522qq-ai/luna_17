@@ -6,6 +6,7 @@ Unity scene initialization and Android launch still require a device test.
 Run: python tests/test_native.py --module FILE --game-library FILE
 """
 import argparse
+import ctypes
 import hashlib
 import json
 import struct
@@ -161,6 +162,144 @@ class Machine:
 
 class NativeTests(unittest.TestCase):
     def setUp(self):self.m=Machine(ARGS.module,ARGS.game_library)
+
+    def external_config(self, ident="MagazineTest", capacity=5, interval=.25, reload=8.):
+        m=self.m
+        class Config(ctypes.Structure):
+            _fields_=[('id',ctypes.c_uint64)] + [(n,ctypes.c_int) for n in ['penetration','caliber','speed','reload']] + [('reload_offset',ctypes.c_float),('power',ctypes.c_int),('max_speed',ctypes.c_int),('reverse_speed',ctypes.c_float),('turret_speed',ctypes.c_int),('weight',ctypes.c_float)] + [(n,ctypes.c_int) for n in ['elevation','depression','crew','tier']] + [(n,ctypes.c_int*size) for n,size in [('body_armor',4),('turret_armor',4),('ammo',5)]] + [('mg_ammo',ctypes.c_int),('shell_penetration',ctypes.c_int*5),('wheel_count',ctypes.c_int)] + [(n,ctypes.c_float) for n in ['travel','rest','spring','damper','radius','track_length']] + [('magazine_capacity',ctypes.c_int),('shot_interval',ctypes.c_float),('magazine_reload',ctypes.c_float)]
+        entry=m.symbols['hatch_tanks'];m.u.mem_write(entry,ident.encode()+b'\0')
+        c=Config(id=entry,penetration=89,caliber=20,speed=780,reload=8,elevation=20,depression=10,magazine_capacity=capacity,shot_interval=interval,magazine_reload=reload)
+        c.shell_penetration[0]=89
+        m.u.mem_write(entry+592,bytes(c));m.global_i('hatch_count',1)
+        status=m.object();m.qwrite(status+0x68,m.string(ident))
+        return status,entry+592
+
+    def test_original_shell_instructions_confirm_scale_and_gravity_step(self):
+        m=self.m;shell,info,transform=[m.object() for _ in range(3)]
+        m.qwrite(shell+0x20,transform);m.qwrite(shell+0x90,info)
+        m.u.mem_write(info+0x18,struct.pack('<f',895./.23))
+        m.u.mem_write(GAME+0x9a9214,m.game_read(0x9a9214,4))
+        self.assertAlmostEqual(struct.unpack('<f',m.read(GAME+0x9a9214,4))[0],.23,places=6)
+        m.u.mem_write(GAME+0x1960904,m.game_read(0x1960904,0x38))
+        def forward():
+            for i,v in enumerate([0.,0.,1.]):m.sf(i,v)
+        m.at(GAME+0x343e264,forward)
+        m.at(GAME+0x196093c,lambda:m.sx(30,HALT))
+        m.sx(19,shell);m.sx(8,info);m.sx(0,transform);m.call(GAME+0x1960904)
+        self.assertAlmostEqual(struct.unpack('<f',m.read(shell+0x98,4))[0],895.,places=3)
+        self.assertAlmostEqual(struct.unpack('<f',m.read(shell+0x8c,4))[0],895.,places=3)
+        m.u.mem_write(GAME+0x1960880,m.game_read(0x1960880,0x24))
+        m.u.mem_write(shell+0x7c,struct.pack('<f',9.81));m.at(GAME+0x343a824,lambda:m.sf(0,.02))
+        m.at(GAME+0x19608a4,lambda:m.sx(30,HALT))
+        for _ in range(50):m.sx(19,shell);m.call(GAME+0x1960880)
+        self.assertAlmostEqual(struct.unpack('<f',m.read(shell+0x88,4))[0],-9.81,places=4)
+
+    def test_stock_scope_uses_new_vehicle_limits_and_restores_input(self):
+        m=self.m;camera,pc,status,ui,turret,gun,params=[m.object() for _ in range(7)]
+        m.qwrite(status+0x68,m.string('StockVehicle'));m.iwrite(status+0xc0,35);m.iwrite(status+0xc4,10)
+        m.global_q('player_status',status);m.global_q('player_control',pc);m.global_i('state',3)
+        m.at(GAME+0x1931cfc,lambda:params);m.at(GAME+0x3402abc,lambda:100)
+        m.qwrite(pc+0x28,turret);m.qwrite(pc+0x30,gun);m.qwrite(camera+0x68,turret);m.qwrite(camera+0xe8,ui)
+        m.iwrite(ui+0x30,2)
+        for off,value in [(0x50,100.),(0x4c,1.)]:m.u.mem_write(camera+off,struct.pack('<f',value))
+        observed=[]
+        def original():
+            observed.append(struct.unpack('<i',m.read(camera+0x58,4))[0])
+            pitch=struct.unpack('<f',m.read(camera+0xa8,4))[0]-sum(struct.unpack('<f',m.read(camera+o,4))[0] for o in [0xd4,0xdc])
+            m.u.mem_write(camera+0xa8,struct.pack('<f',pitch))
+        m.global_q('original_camera_late_update',m.stub(original))
+        for elevation,depression in [(35,10),(20,20)]:
+            m.iwrite(status+0xc0,elevation);m.iwrite(status+0xc4,depression)
+            for delta,expected in [(100.,-float(elevation)),(-100.,float(depression))]:
+                m.u.mem_write(camera+0xd4,struct.pack('<f',delta));m.call('camera_late_update',camera,0)
+                self.assertAlmostEqual(struct.unpack('<f',m.read(camera+0xa8,4))[0],expected)
+                self.assertAlmostEqual(struct.unpack('<f',m.read(camera+0xd4,4))[0],delta)
+        self.assertEqual(observed,[35,35,20,20])
+
+    def test_aircraft_view_changes_clear_reticle_calibration_preserve_secondary(self):
+        m=self.m;camera,pc,status,ui,game,params,air,secondary=[m.object() for _ in range(8)]
+        m.global_q('player_status',status);m.global_q('player_control',pc);m.global_i('state',3)
+        m.qwrite(ui+0x300,game);m.qwrite(game+0x118,status);m.qwrite(ui+0x218,secondary)
+        m.qwrite(camera+0xe8,ui);m.qwrite(camera+0x68,air);m.iwrite(camera+0x38,1)
+        m.at(GAME+0x1931cfc,lambda:params);m.global_q('original_camera_late_update',m.stub(lambda:0))
+        m.global_q('original_sight_type',m.stub(lambda:0))
+        for mode in [1,2,3]:
+            m.iwrite(camera+0x38,mode);m.u.mem_write(ui+0x2c0,struct.pack('<f',19.))
+            m.call('camera_late_update',camera,0)
+            self.assertEqual(m.read(ui+0x2c0,4),b'\0'*4);self.assertEqual(m.qread(camera+0x68),air)
+        m.iwrite(ui+0x2c,0);m.u.mem_write(ui+0x2c0,struct.pack('<f',12.));m.call('sight_type',ui,2,0)
+        self.assertEqual(m.qread(ui+0x218),secondary);self.assertEqual(m.read(ui+0x2c0,4),b'\0'*4)
+        m.u.mem_write(ui+0x2c0,struct.pack('<f',7.));m.call('camera_late_update',camera,0)
+        self.assertEqual(struct.unpack('<f',m.read(ui+0x2c0,4))[0],7.) # Stable view retains new calibration.
+
+    def test_imported_shell_uses_physical_speed_without_mutating_shared_info(self):
+        m=self.m;status,config=self.external_config(ident='BallisticsTest',capacity=0);m.iwrite(config+16,895)
+        launcher,info,shell=[m.object() for _ in range(3)]
+        m.qwrite(launcher+0x38,status)
+        m.u.mem_write(launcher+0x54,struct.pack('<f',1000.));m.u.mem_write(info+0x18,struct.pack('<f',1100.))
+        m.global_q('original_attack_info',m.stub(lambda:info));m.call('attack_info',launcher,2,1,0)
+        physical=895.*1.1;self.assertAlmostEqual(struct.unpack('<f',m.read(info+0x18,4))[0],physical,places=3)
+        m.qwrite(shell+0x90,info)
+        observed=[]
+        def original():
+            observed.append(struct.unpack('<f',m.read(info+0x18,4))[0])
+            if not m.read(shell+0x9c,1)[0]:
+                speed=observed[-1]*.23;m.u.mem_write(shell+0x98,struct.pack('<f',speed));m.u.mem_write(shell+0x9c,b'\1')
+        m.global_q('original_shell_fixed_update',m.stub(original))
+        for _ in range(2):m.call('shell_fixed_update',shell,0)
+        self.assertAlmostEqual(struct.unpack('<f',m.read(shell+0x98,4))[0],physical,places=3)
+        self.assertAlmostEqual(struct.unpack('<f',m.read(shell+0x7c,4))[0],9.81,places=5)
+        self.assertAlmostEqual(observed[0],physical/.23,places=2);self.assertAlmostEqual(observed[1],physical,places=3)
+        self.assertAlmostEqual(struct.unpack('<f',m.read(info+0x18,4))[0],physical,places=3)
+        # The same managed address reused by stock ammunition must lose its imported profile.
+        m.qwrite(status+0x68,m.string('Stock'));m.u.mem_write(info+0x18,struct.pack('<f',800.))
+        m.call('attack_info',launcher,0,1,0);m.u.mem_write(shell+0x9c,b'\0');m.u.mem_write(shell+0x7c,struct.pack('<f',8.))
+        m.call('shell_fixed_update',shell,0)
+        self.assertEqual(observed[-1],800.);self.assertAlmostEqual(struct.unpack('<f',m.read(shell+0x98,4))[0],184.,places=4)
+        self.assertEqual(struct.unpack('<f',m.read(shell+0x7c,4))[0],8.)
+
+    def test_magazine_counts_main_shots_and_waits_for_full_reload(self):
+        m=self.m;status,config=self.external_config();launcher=m.object();m.qwrite(launcher+0x38,status)
+        info=m.object();clock=[10.];m.at(GAME+0x343a6dc,lambda:m.sf(0,clock[0]))
+        m.global_q('original_launcher_fire',m.stub(lambda:m.global_q('firing_info',info)))
+        state=m.symbols.get('magazine_state',m.symbols.get('magazine_state.0'))
+        turret=m.object();m.qwrite(turret+0x40,status);seen=[]
+        def original_update():
+            raw=struct.unpack('<4I',m.read(status+0xdc,16));whole=((raw[1]-raw[2])&0xffffffff)^raw[2]
+            seen.append(whole+struct.unpack('<f',m.read(turret+0x80,4))[0])
+        m.global_q('original_turret_update',m.stub(original_update))
+        def delay():
+            m.call('turret_update',turret,0);return seen[-1]
+        self.assertAlmostEqual(delay(),.25)
+        for remaining in [4,3,2,1,0]:
+            m.call('launcher_fire',launcher,0,1,0)
+            self.assertEqual(struct.unpack('<i',m.read(state+8,4))[0],remaining)
+            clock[0]+=.25
+        self.assertEqual(delay(),8.)
+        for _ in range(3):self.assertEqual(delay(),8.) # Pause: game time unchanged.
+        clock[0]=18.9;self.assertEqual(delay(),8.)
+        clock[0]=19.;self.assertAlmostEqual(delay(),.25);self.assertEqual(struct.unpack('<i',m.read(state+8,4))[0],5)
+        m.global_q('original_launcher_fire',m.stub(lambda:0));m.call('launcher_fire',launcher,0,1,0)
+        self.assertEqual(struct.unpack('<i',m.read(state+8,4))[0],5) # Failed shot.
+        m.global_q('original_launcher_fire',m.stub(lambda:m.global_q('firing_info',info)));m.u.mem_write(launcher+0xa0,b'\1')
+        m.call('launcher_fire',launcher,0,1,0);self.assertEqual(struct.unpack('<i',m.read(state+8,4))[0],5) # Coax.
+        m.u.mem_write(launcher+0xa0,b'\0');m.call('launcher_fire',launcher,0,1,0)
+        clock[0]=0.;self.assertAlmostEqual(delay(),.25);self.assertEqual(struct.unpack('<i',m.read(state+8,4))[0],5) # New match.
+        other=m.object();m.qwrite(other+0x68,m.string('MagazineTest'));m.qwrite(launcher+0x38,other)
+        m.call('launcher_fire',launcher,0,1,0);self.assertEqual(m.qread(state),other);self.assertEqual(struct.unpack('<i',m.read(state+8,4))[0],4)
+
+    def test_magazine_feeds_original_reload_machine_and_restores_transient_fields(self):
+        m=self.m;status,config=self.external_config(capacity=2,interval=.2,reload=7.5);turret=m.object();m.qwrite(turret+0x40,status)
+        m.u.mem_write(turret+0x80,struct.pack('<f',42.));m.u.mem_write(turret+0xde,b'\0')
+        m.at(GAME+0x343a6dc,lambda:m.sf(0,10.));seen=[]
+        def original():
+            raw=struct.unpack('<4I',m.read(status+0xdc,16));whole=((raw[1]-raw[2])&0xffffffff)^raw[2]
+            seen.append(whole+struct.unpack('<f',m.read(turret+0x80,4))[0])
+        m.global_q('original_turret_update',m.stub(original));m.call('turret_update',turret,0)
+        self.assertAlmostEqual(seen[-1],.2,places=5)
+        state=m.symbols.get('magazine_state',m.symbols.get('magazine_state.0'));m.iwrite(state+8,0);m.u.mem_write(state+12,struct.pack('<f',10.));m.call('turret_update',turret,0)
+        self.assertEqual(seen[-1],7.5);self.assertEqual(struct.unpack('<f',m.read(turret+0x80,4))[0],42.);self.assertEqual(m.read(turret+0xde,1),b'\0')
+
     def test_only_current_offline_player_is_protected(self):
         m=self.m;s=m.object();hit=m.object();m.qwrite(hit+0x38,s);m.qwrite(hit+0x40,s)
         m.global_i('ready',1);m.global_i('state',3);m.global_i('god',1);m.global_q('player_status',s)
@@ -466,11 +605,15 @@ class NativeTests(unittest.TestCase):
                 self.assertAlmostEqual(acceleration,(t['enginePower']/t['weightTonnes'])*.5/17.8571434,places=6)
                 self.assertEqual(fake,struct.unpack('<I',struct.pack('<f',acceleration))[0])
                 launcher=m.object();info=m.object();owner=m.object();m.qwrite(s+0x260,owner);m.qwrite(launcher+0x38,s)
-                m.global_q('original_attack_info',m.stub(lambda:info))
+                m.u.mem_write(launcher+0x54,struct.pack('<f',w['muzzleVelocity']))
+                def original_info():
+                    ratio=1.1 if m.x(1)==2 else .95 if m.x(1) in (1,4) else 1.0
+                    m.u.mem_write(info+0x18,struct.pack('<f',w['muzzleVelocity']*ratio));return info
+                m.global_q('original_attack_info',m.stub(original_info))
                 for shell,penetration in [(0,w['shells']['AP']['penetrationMm']),(4,w['shells']['HEAT']['penetrationMm']),(2,w['shells']['APCR']['penetrationMm'])]:
                     self.assertEqual(m.call('attack_info',launcher,shell,1,0),info)
                     self.assertEqual(struct.unpack('<i',m.read(info+0x1c,4))[0],penetration)
-                    self.assertEqual(m.read(info+0x18,4),struct.pack('<f',w['muzzleVelocity']));self.assertEqual(m.qread(info+0x20),owner)
+                    self.assertAlmostEqual(struct.unpack('<f',m.read(info+0x18,4))[0],w['muzzleVelocity']*(1.1 if shell==2 else .95 if shell==4 else 1.),places=3);self.assertEqual(m.qread(info+0x20),owner)
                 controller=m.object();m.qwrite(controller+0x40,s);m.u.mem_write(controller+0x80,struct.pack('<f',1.5))
                 observed=[]
                 m.global_q('original_turret_update',m.stub(lambda:observed.append((struct.unpack('<f',m.read(controller+0x80,4))[0],m.read(controller+0xde,1)))))
@@ -533,7 +676,7 @@ class NativeTests(unittest.TestCase):
     def test_all_new_hook_prologues_can_be_relocated(self):
         m=self.m
         profile=json.loads((Path(__file__).resolve().parents[1]/'profiles/attack-on-tank-5.1.0.json').read_text())
-        for name in ['TITLE_START','IS_PRODUCT','LOAD_FLAG','IS_HNZ2','IAP_SANITY','STATUS_ENABLE','STATUS_START','BODY_UPDATE','ATTACK_INFO','TURRET_UPDATE','CAMERA_LATE_UPDATE','UI_SIGHT']:
+        for name in ['TITLE_START','IS_PRODUCT','LOAD_FLAG','IS_HNZ2','IAP_SANITY','STATUS_ENABLE','STATUS_START','BODY_UPDATE','ATTACK_INFO','TURRET_UPDATE','LAUNCHER_FIRE','SHELL_FIXED_UPDATE','CAMERA_LATE_UPDATE','UI_SIGHT']:
             rva=int(profile['native_macros']['RVA_'+name],16);m.u.mem_write(GAME+rva,m.game_read(rva,16))
             with self.subTest(name=name):self.assertEqual(m.call('install',rva,m.stub(lambda:0),m.alloc(8)),1)
 
@@ -572,4 +715,5 @@ if __name__=='__main__':
             'module_sha256':hashlib.sha256(Path(ARGS.module).read_bytes()).hexdigest(),
             'game_library_sha256':hashlib.sha256(Path(ARGS.game_library).read_bytes()).hexdigest()},indent=2)+'\n')
     sys.exit(0 if result.wasSuccessful() else 1)
+
 

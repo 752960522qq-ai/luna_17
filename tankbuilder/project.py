@@ -28,6 +28,12 @@ def document_errors(doc):
     num(m,'tier',1,255,True)
     for k,lo,hi,integer in [('crew',1,20,True),('maxForwardSpeed',1,150,True),('maxReverseSpeed',0,80,False),('enginePower',1,3000,True),('weightTonnes',1,200,False),('gunElevation',0,80,True),('gunDepression',-30,0,True),('turretRotation',1,90,True)]:num(t,k,lo,hi,integer)
     for k,lo,hi,integer in [('caliber',1,300,True),('reload',1,120,False),('muzzleVelocity',1,2500,True)]:num(w,k,lo,hi,integer)
+    magazine=w.get('magazine')
+    if magazine is not None:
+        if not isinstance(magazine,dict):errors.append('magazine 需要对象')
+        else:
+            num(magazine,'capacity',2,200,True);num(magazine,'shotInterval',.03,60);num(magazine,'reloadTime',.03,300)
+            if isinstance(magazine.get('reloadTime'),(int,float)) and isinstance(magazine.get('shotInterval'),(int,float)) and magazine['reloadTime']<magazine['shotInterval']:errors.append('整匣换弹时间不能小于射击间隔')
     if not isinstance(w.get('name'),str) or not 1<=len(w['name'])<=128:errors.append('需要火炮名称')
     ammo=w.get('ammo',{})
     if not isinstance(ammo,dict) or not ammo:errors.append('需要弹药分配')
@@ -222,6 +228,8 @@ def generate_runtime_header(directories,destination):
         doc=read_documents(directory);m,t,w,a,rig=[doc[k] for k in ['manifest','tank','weapon','armor','rig']]
         wheels=[x for x in rig['wheels'] if x['roadWheel']];sus=rig['suspension']
         values=[m['id'],round(w['shells']['AP']['penetrationMm']),round(w['caliber']),round(w['muzzleVelocity']),math.ceil(w['reload']),w['reload']-math.ceil(w['reload']),round(t['enginePower']),round(t['maxForwardSpeed']),t['maxReverseSpeed']/3.6,round(t['turretRotation']),t['weightTonnes'],round(t['gunElevation']),round(abs(t['gunDepression'])),t['crew'],m['tier'],[a['body'][x] for x in ['front','side','side','rear']],[a['turret'][x] for x in ['front','side','side','rear']],[w['ammo'].get(x,0) for x in ['AP','HE','APCR','WP','HEAT']],w['machineGun']['ammo'],[w['shells'].get(x,{}).get('penetrationMm',0) for x in ['AP','HE','APCR','WP','HEAT']],len(wheels),sus['travel'],sus['restCompression'],sus['springPerWheel'],sus['damperPerWheel'],sum(x['radius'] for x in wheels)/len(wheels),t['dimensionsMeters']['length']*.62]
+        magazine=w.get('magazine',{})
+        values.extend([magazine.get('capacity',0),magazine.get('shotInterval',0),magazine.get('reloadTime',0)])
         def c(v):
             if isinstance(v,str):return json.dumps(v)
             if isinstance(v,list):return '{'+','.join(map(c,v))+'}'
@@ -229,7 +237,8 @@ def generate_runtime_header(directories,destination):
         configs.append('{'+','.join(map(c,values))+'}')
     text='''#pragma once
 // Generated from validated project parameters. Never reuse with other resources.
-typedef struct { const char *id; int penetration,caliber,speed,reload; float reload_offset; int power,max_speed; float reverse_speed; int turret_speed; float weight; int elevation,depression,crew,tier; int body_armor[4],turret_armor[4],ammo[5],mg_ammo,shell_penetration[5],wheel_count; float travel,rest,spring,damper,radius,track_length; } CustomTank;
+typedef struct { const char *id; int penetration,caliber,speed,reload; float reload_offset; int power,max_speed; float reverse_speed; int turret_speed; float weight; int elevation,depression,crew,tier; int body_armor[4],turret_armor[4],ammo[5],mg_ammo,shell_penetration[5],wheel_count; float travel,rest,spring,damper,radius,track_length; int magazine_capacity; float shot_interval,magazine_reload; } CustomTank;
 '''+('static const CustomTank custom_tanks[]={'+','.join(configs)+'};\n' if configs else 'static const CustomTank custom_tanks[1]={{0}};\n')+f'#define CUSTOM_TANK_COUNT {len(configs)}\n'
     Path(destination).write_text(text,encoding='utf-8')
     return hashlib.sha256(text.encode()).hexdigest()
+

@@ -26,9 +26,10 @@ static int current_ui(void *ui) {
     return offline_mode() && unity_exists(game) && P(game,0x118)==player_status;
 }
 static void sight_type(void *ui,int kind,const void *mi) {
-    if(current_ui(ui)){
+    if(current_ui(ui) && (kind==0 || kind==1)){
         sight_active(P(ui,0x218),false);managed_store(ui,0x218,0);
     }
+    if(current_ui(ui) && I(ui,0x2c)!=kind)F(ui,0x2c0)=0;
     original_sight_type(ui,kind,mi);
     if(!current_ui(ui) || kind!=0 || vehicle_nation_owner!=player_status || player_vehicle_nation<0 || player_vehicle_nation>5)return;
     void *sights=P(ui,0x200);
@@ -53,19 +54,32 @@ static void rebuild_player_ui(void *ui,void *pc,void *status) {
 static float pitch_limit(float value,float low,float high) {
     return value<low?low:value>high?high:value;
 }
+static void *projection_camera, *projection_target;
+static int projection_mode=-1;
 static void camera_late_update(void *camera,const void *mi) {
     void *pc=player_control,*status=player_status;
     const CustomTank *c=unity_exists(status)?tank_config(status):0;
     void *ui=unity_exists(camera)?P(camera,0xe8):0;
+    if(unity_exists(camera) && unity_exists(ui) && state==3 && offline_mode()){
+        void *target=P(camera,0x68);int mode=I(camera,0x38);
+        if(projection_camera!=camera || projection_target!=target || projection_mode!=mode){
+            F(ui,0x2c0)=0;
+            projection_camera=camera;projection_target=target;projection_mode=mode;
+        }
+    }
+    int elevation=c?c->elevation:(unity_exists(status)?I(status,0xc0):0);
+    int depression=c?c->depression:(unity_exists(status)?I(status,0xc4):0);
+    if(depression<0)depression=-depression;
+    if(elevation<0)elevation=-elevation;
     // DisplayMode 2 = gun scope; Camera viewMode 0 = tank. Never override
     // air/ship/free views or a target selected by the original game.
-    int scoped=c && state==3 && offline_mode() && unity_exists(pc) && unity_exists(ui) &&
+    int scoped=elevation>0 && elevation<=90 && depression<=90 && state==3 && offline_mode() && unity_exists(pc) && unity_exists(ui) &&
         I(ui,0x30)==2 && I(camera,0x38)==0 && P(camera,0x68)==P(pc,0x28) && unity_exists(P(pc,0x30));
     float a=0,b=0;
     if(scoped){
         // Unity +X pitch points down: allowable local pitch is [-17,+4].
-        I(camera,0x58)=c->elevation;
-        float low=-(float)c->elevation,high=(float)c->depression;
+        I(camera,0x58)=elevation;
+        float low=-(float)elevation,high=(float)depression;
         F(camera,0xa8)=pitch_limit(F(camera,0xa8),low,high);
         a=F(camera,0xd4);b=F(camera,0xdc);
         int width=FN(0x3402abc,int (*)(const void *))(0);
@@ -78,7 +92,7 @@ static void camera_late_update(void *camera,const void *mi) {
     original_camera_late_update(camera,mi);
     if(scoped){
         F(camera,0xd4)=a;F(camera,0xdc)=b;
-        F(camera,0xa8)=pitch_limit(F(camera,0xa8),-(float)c->elevation,(float)c->depression);
+        F(camera,0xa8)=pitch_limit(F(camera,0xa8),-(float)elevation,(float)depression);
         // Copy the actual gun's WORLD rotation each frame. Its parent carries
         // terrain pitch/roll; no spawn-time quaternion is frozen or flattened.
         void *transform=P(camera,0x20),*gun=P(pc,0x30);
@@ -89,3 +103,4 @@ static void camera_late_update(void *camera,const void *mi) {
         }
     }
 }
+

@@ -1,5 +1,7 @@
 package com.luna17.aot;
 
+import com.hatch.loader.HatchLoader;
+
 import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -119,12 +121,12 @@ final class ModMenu {
         body.setOrientation(LinearLayout.VERTICAL); body.setPadding(dp(14),dp(10),dp(14),dp(12));
         body.setBackground(background(Color.argb(248, 19, 30, 46), 13));
         body.setClickable(true);
-        TextView title = label("坦无敌3000", 17, white);
+        TextView title = label("坦无敌3000 1.0", 17, white);
         title.setTypeface(Typeface.DEFAULT, Typeface.BOLD); body.addView(title);
-        body.addView(label("坦克模组加载器", 12, muted));
+        body.addView(label("必备前置模组", 12, muted));
         body.addView(label(FeatureConfig.BUILD_LABEL, 11, muted));
         status = label("等待游戏模块…", 12, accent); body.addView(status);
-        Button importTank=button("舱盖 · 管理 / 导入坦克包");body.addView(importTank);
+        Button importTank=button("舱盖 0.2 · 管理 / 导入模组");body.addView(importTank);
         importTank.setOnClickListener(v -> HatchLoader.show(activity));
         god = feature("无敌", 0); body.addView(god);
         ammo = feature("无限弹药", 1); body.addView(ammo);
@@ -243,6 +245,7 @@ final class ModMenu {
     private void toast(String text) { Toast.makeText(activity,text,Toast.LENGTH_SHORT).show(); }
     void detach() { stopped=true; handler.removeCallbacks(poll); }
 }
+
 
 
 

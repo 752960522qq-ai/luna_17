@@ -1,0 +1,31 @@
+{
+  "file": "Attack-on-Tank-Hatch-0.2-TankInvincible3000-1.0.apk",
+  "size_bytes": 238563511,
+  "sha256": "a35a1f86578156ab8298837d386462b7cab8b5892e5c5eaf944feaffeeb607fd",
+  "preserved_original_entries": 618,
+  "loader_version": "0.2",
+  "prerequisite_version": "1.0",
+  "loader_module_separation_verified": true,
+  "module_16k_elf_alignment": true,
+  "native_methods": [
+    "configureMagazine",
+    "hatchError",
+    "init",
+    "loadHatch",
+    "state",
+    "switchResult",
+    "switchTank",
+    "tanks",
+    "toggle"
+  ],
+  "native_execution_tests": {
+    "runner": "Unicorn ARM64",
+    "tests_run": 25,
+    "failures": 0,
+    "errors": 0,
+    "passed": true,
+    "module_sha256": "65dc6eb6c2e4cfa4fff938e1241f44bca12eabc6ff9cdba04fdd6bb897c17a30",
+    "game_library_sha256": "f68552eaee3018948258966a6e262b0b567b8a1ecc199e60e59f175d388ef4a7"
+  },
+  "android_device_test": "not performed"
+}

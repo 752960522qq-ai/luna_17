@@ -37,3 +37,18 @@ damage_guard damage_hook,mod_ignore_damage,original_damage
 damage_guard set_damage_hook,mod_ignore_damage,original_set_damage
 damage_guard engine_hook,mod_ignore_engine,original_engine_hit
 .section .note.GNU-stack,"",%progbits
+
+
+.text
+.align 2
+// ARMv8 baseline atomic exchange for toolchains that emit an outlined helper.
+.global __aarch64_swp4_acq_rel
+.hidden __aarch64_swp4_acq_rel
+.type __aarch64_swp4_acq_rel, %function
+__aarch64_swp4_acq_rel:
+    mov w2, w0
+1:  ldaxr w0, [x1]
+    stlxr w3, w2, [x1]
+    cbnz w3, 1b
+    ret
+.size __aarch64_swp4_acq_rel, .-__aarch64_swp4_acq_rel

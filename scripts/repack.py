@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
-"""Merge the user's APKS, add the mod DEX/library, and edit only binary XML.
-
-The game APK, game libraries, metadata and signing key are never committed.
-"""
+"""Binary manifest editing and ZIP primitives shared by the Hatch build."""
 import argparse
 import io
 import hashlib
@@ -66,7 +63,7 @@ def extend_pool(chunk, added):
             + chunk[28:header] + struct.pack('<'+'I'*new_count,*old_offsets)
             + style_offsets + text + style_data)
 
-def patch_manifest(data):
+def patch_manifest(data, launcher="com.luna17.aot.ModActivity", label="坦无敌3000", old_launchers=("com.unity3d.player.UnityPlayerActivity",)):
     kind, header, total = struct.unpack_from('<HHI',data)
     if kind != 3 or total != len(data):
         raise ValueError('Invalid binary AndroidManifest.xml')
@@ -80,7 +77,7 @@ def patch_manifest(data):
         pos += size
     pool = next(c for typ,c in chunks if typ == 1)
     names = strings(pool)
-    added = ['com.luna17.aot.ModActivity', '坦无敌3000']
+    added = [launcher, label]
     activity_index, label_index = len(names), len(names)+1
     names.extend(added)
     out = []; skipping = 0; activity_changed = False; split_removed = 0
@@ -107,7 +104,7 @@ def patch_manifest(data):
             skipping = 1; split_removed += 1; continue
         if tag == 'manifest':
             attrs = [a for a in attrs if names[struct.unpack_from('<I',a,4)[0]] not in {'requiredSplitTypes','splitTypes','isSplitRequired'}]
-        if tag == 'activity' and 'name' in by_name and value(by_name['name']) == 'com.unity3d.player.UnityPlayerActivity':
+        if tag == 'activity' and 'name' in by_name and value(by_name['name']) in old_launchers:
             a = by_name['name']; struct.pack_into('<I',a,8,activity_index); a[15]=3; struct.pack_into('<I',a,16,activity_index)
             activity_changed = True
         if tag == 'application' or (tag == 'activity' and activity_changed and 'name' in by_name and value(by_name['name']) == added[0]):
@@ -131,65 +128,3 @@ def write_entry(out, name, content, compression=zipfile.ZIP_DEFLATED):
             padding = -(position+4) % 4
             info.extra = struct.pack('<HH',0xd935,padding) + b'\0'*padding
     out.writestr(info,content,compresslevel=6)
-
-def repack(apks, dex, native, output, profile_path=None,unity_data=None,hatch_packages=None):
-    profile=json.loads(Path(profile_path or Path(__file__).resolve().parents[1]/'profiles/attack-on-tank-5.1.0.json').read_text())
-    replacement=None
-    if unity_data:
-        unity_data=Path(unity_data);replacement=unity_data.read_bytes();asset_report=json.loads((unity_data.parent/'asset_report.json').read_text())
-        if asset_report['input_sha256']!=profile['unity_data_sha256'] or asset_report['output_sha256']!=hashlib.sha256(replacement).hexdigest() or asset_report.get('adapter')!='aot-5.1.0-arm64-v1':raise ValueError('Derived Unity bundle or its source fingerprint does not match')
-    with zipfile.ZipFile(apks) as bundle:
-        with zipfile.ZipFile(io.BytesIO(bundle.read('base.apk'))) as base:
-            metadata=base.read('assets/bin/Data/Managed/Metadata/global-metadata.dat')
-            if hashlib.sha256(metadata).hexdigest()!=profile['metadata_sha256']:
-                raise ValueError('Unsupported game metadata; use the original 5.1.0 APKS')
-            manifest = patch_manifest(base.read('AndroidManifest.xml'))
-            if 'lib/arm64-v8a/libaotmod.so' in base.namelist():
-                raise ValueError('Already modified input')
-            if 'lib/arm64-v8a/libil2cpp.so' in base.namelist() and hashlib.sha256(base.read('lib/arm64-v8a/libil2cpp.so')).hexdigest()!=profile['libil2cpp_sha256']:
-                raise ValueError('Unsupported libil2cpp.so')
-            dex_indices = [int(m.group(1) or 1) for name in base.namelist()
-                           if (m := re.fullmatch(r'classes(\d*)\.dex',name))]
-            with zipfile.ZipFile(output,'w',allowZip64=False) as out:
-                written = set()
-                for info in base.infolist():
-                    name = info.filename
-                    if name == 'stamp-cert-sha256' or name == 'META-INF/MANIFEST.MF' or re.match(r'META-INF/[^/]+\.(?:RSA|DSA|EC|SF)$',name,re.I):
-                        continue
-                    content = manifest if name == 'AndroidManifest.xml' else replacement if replacement is not None and name=='assets/bin/Data/data.unity3d' else base.read(name)
-                    write_entry(out,name,content,info.compress_type); written.add(name)
-                arm_found = 'lib/arm64-v8a/libil2cpp.so' in written
-                for entry in bundle.namelist():
-                    if not entry.endswith('.apk') or entry == 'base.apk': continue
-                    with zipfile.ZipFile(io.BytesIO(bundle.read(entry))) as split:
-                        for info in split.infolist():
-                            if not info.filename.startswith('lib/arm64-v8a/') or info.is_dir(): continue
-                            if info.filename not in written:
-                                content=split.read(info.filename)
-                                if info.filename.endswith('/libil2cpp.so') and hashlib.sha256(content).hexdigest()!=profile['libil2cpp_sha256']:
-                                    raise ValueError('Unsupported libil2cpp.so; the native offsets are version-specific')
-                                write_entry(out,info.filename,content); written.add(info.filename); arm_found=True
-                if not arm_found: raise ValueError('ARM64 split is missing')
-                write_entry(out,f'classes{max(dex_indices)+1}.dex',Path(dex).read_bytes())
-                write_entry(out,'lib/arm64-v8a/libaotmod.so',Path(native).read_bytes())
-                if hatch_packages:
-                    from hatch.standalone.integrate import validate_pack
-                    mods = [validate_pack(Path(path)) for path in hatch_packages]
-                    if len(mods)>16 or len({m['id'] for m in mods})!=len(mods):
-                        raise ValueError('Built-in tank count/identity mismatch')
-                    catalog=[]
-                    for mod in mods:
-                        write_entry(out,'assets/Hatch/mods/'+mod['id']+'.hatch',mod['path'].read_bytes(),zipfile.ZIP_STORED)
-                        catalog.append({key:mod[key] for key in ['id','name','sha256','size','runtime_bytes']})
-                    write_entry(out,'assets/Hatch/catalog.json',json.dumps({'format':1,'mods':catalog},ensure_ascii=False,indent=2).encode())
-
-    return Path(output)
-
-if __name__ == '__main__':
-    parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--apks',required=True); parser.add_argument('--dex',required=True)
-    parser.add_argument('--native',required=True); parser.add_argument('--output',required=True)
-    args=parser.parse_args()
-    output=repack(args.apks,args.dex,args.native,args.output)
-    print(f'Unsigned APK: {output} ({output.stat().st_size:,} bytes)')
-

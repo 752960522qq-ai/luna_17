@@ -63,7 +63,9 @@ def compile_project(directory):
  if len(records)>2048 or len(images)>128:raise ValueError('模型或贴图数量超限')
  payload=cfg+b''.join(records)+b''.join(images);header=struct.pack('<8sIIII',MAGIC,1,24+len(payload),len(records),len(images));blob=header+payload
  if len(blob)>256*1024*1024:raise ValueError('运行时文件超过 256 MB')
- return blob,{'id':m['id'],'name':m['displayName'],'nodes':len(records),'textures':len(images),'runtime_bytes':len(blob),'format':1,'loader':'Hatch','loader_version':'0.1','game_version':'5.1.0','abi':'arm64-v8a','animated_skinning':False}
+ info={'id':m['id'],'name':m['displayName'],'nodes':len(records),'textures':len(images),'runtime_bytes':len(blob),'format':2,'loader':'Hatch','loader_version':'0.2','game_version':'5.1.0','abi':'arm64-v8a','animated_skinning':False,'type':'tank','requires':{'tankinvincible3000':'1.0'}}
+ if 'magazine' in w:info['magazine']=w['magazine']
+ return blob,info
 def pack_project(directory,output):
  data,info=compile_project(directory);out=Path(output);out.parent.mkdir(parents=True,exist_ok=True);tmp=out.with_suffix('.tmp')
  info['runtime_sha256']=hashlib.sha256(data).hexdigest()
@@ -75,10 +77,11 @@ def pack_project(directory,output):
  finally:tmp.unlink(missing_ok=True)
  return info
 def main():
- p=argparse.ArgumentParser(description='Hatch 舱盖 0.1：将坦克项目/Tank Pack 转为可外置加载的 .hatch');p.add_argument('input',type=Path);p.add_argument('--output',type=Path,required=True);a=p.parse_args()
+ p=argparse.ArgumentParser(description='Hatch 舱盖 0.2：将坦克项目/Tank Pack 转为可外置加载的 .hatch');p.add_argument('input',type=Path);p.add_argument('--output',type=Path,required=True);a=p.parse_args()
  if a.input.is_dir():result=pack_project(a.input,a.output)
  else:
   with tempfile.TemporaryDirectory() as temp:result=pack_project(extract_reviewed_pack(a.input,Path(temp)/'tank'),a.output)
  print(json.dumps(result,ensure_ascii=False,indent=2))
 if __name__=='__main__':main()
+
 

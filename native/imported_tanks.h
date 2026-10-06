@@ -1,5 +1,5 @@
 #include "track_material.h"
-// Player-only T-54 profile. Original controllers and codecs remain in charge.
+// Imported tank integration; the original controllers keep their state machines.
 #include "t54_asset_config.h"
 #include "custom_tanks.h"
 static const CustomTank *tank_config(void *status) {
@@ -8,12 +8,14 @@ static const CustomTank *tank_config(void *status) {
     for(int i=0;i<CUSTOM_TANK_COUNT;i++){int j=0;while(name[j] && name[j]==custom_tanks[i].id[j])j++;if(!name[j] && !custom_tanks[i].id[j])return &custom_tanks[i];}
     return 0;
 }
-static int named_t54(void *status) { return tank_config(status)!=0; }
+#include "magazine_runtime.h"
+#include "ballistics_runtime.h"
+static int is_custom_tank(void *status) { return tank_config(status)!=0; }
 void set_stat(void *status,int offset,int number) {
     ObscuredInt v=FN(RVA_18F26B0,ObscuredInt (*)(int,const void *))(number,0);
     memcpy((uint8_t *)status+offset,&v,sizeof(v));
 }
-void t54_stats(void *s) {
+void apply_custom_stats(void *s) {
     const CustomTank *c=tank_config(s);if(!c)return;
     set_stat(s,0x78,c->penetration);set_stat(s,0x88,c->turret_armor[0]);set_stat(s,0x98,c->body_armor[0]);set_stat(s,0xa8,c->speed);
     set_stat(s,0xdc,c->reload);set_stat(s,0x104,c->power);set_stat(s,0x114,c->max_speed);set_stat(s,0x124,c->turret_speed);
@@ -31,9 +33,9 @@ void t54_stats(void *s) {
     uint64_t tier=FN(RVA_OBSCURED_BYTE,uint64_t (*)(uint8_t,const void *))(c->tier,0);memcpy((uint8_t *)s+0x174,&tier,8);
 }
 static void status_enable(void *s,const void *mi) {
-    int custom=named_t54(s);void *name=custom?P(s,0x68):0,*gun_name=custom?P(s,0x70):0;
+    int custom=is_custom_tank(s);void *name=custom?P(s,0x68):0,*gun_name=custom?P(s,0x70):0;
     original_status_enable(s,mi);
-    if(custom){managed_store(s,0x68,name);managed_store(s,0x70,gun_name);t54_stats(s);}
+    if(custom){managed_store(s,0x68,name);managed_store(s,0x70,gun_name);apply_custom_stats(s);}
 }
 static void status_start(void *s,const void *mi) {
     original_status_start(s,mi);
@@ -44,17 +46,23 @@ static void status_start(void *s,const void *mi) {
     if(array && I(array,0x18)>=5)for(int i=0;i<I(array,0x18) && i<32;i++)write_ammo_slot(array,i,i<5?stocks[i]:0);
     write_ammo_slot(P(s,0xf8),0,c->mg_ammo);
     I(s,0x1cc)=c->ammo[2];I(s,0x1d0)=c->ammo[3];I(s,0x1d4)=c->ammo[4];
-    t54_stats(s);
+    apply_custom_stats(s);
 }
 static void *(*original_attack_info)(void *,int,int,const void *);
 static void *attack_info(void *launcher,int shell,int flag,const void *mi) {
     void *info=original_attack_info(launcher,shell,flag,mi);
+    record_shell_profile(info,0);
     const CustomTank *c=tank_config(P(launcher,0x38));
     if(info && c && !B(launcher,0xa0)){
         if(shell>=0 && shell<5 && c->shell_penetration[shell]>0)I(info,0x1c)=c->shell_penetration[shell];
-        F(info,0x18)=c->speed;I(info,0x50)=c->caliber;
+        // Keep the original ammunition speed multiplier (APCR/HE/HEAT).
+        float launcher_speed=F(launcher,0x54);
+        if(launcher_speed>0)F(info,0x18)=F(info,0x18)*(float)c->speed/launcher_speed;
+        I(info,0x50)=c->caliber;
+        record_shell_profile(info,F(info,0x18));
         managed_store(info,0x20,P(P(launcher,0x38),0x260));
     }
+    if(launcher==firing_launcher && info)firing_info=info;
     return info;
 }
 static UpdateFn original_turret_update;
@@ -64,7 +72,14 @@ static void turret_update(void *self,const void *mi) {
     // The game stores reload as whole seconds. Its existing float delay
     // supplies the fractional part without replacing its reload state machine.
     float saved=F(self,0x80);uint8_t enabled=B(self,0xde);
-    F(self,0x80)=c->reload_offset;B(self,0xde)=1;
+    float offset=c->reload_offset;
+    if(c->magazine_capacity>=2){
+        float now=FN(RVA_GAME_TIME,float (*)(const void *))(0);
+        float delay=magazine_delay(P(self,0x40),c,now);
+        int whole=(int)delay;if((float)whole<delay)whole++;
+        set_stat(P(self,0x40),0xdc,whole);offset=delay-whole;
+    }
+    F(self,0x80)=offset;B(self,0xde)=1;
     original_turret_update(self,mi);
     F(self,0x80)=saved;B(self,0xde)=enabled;
 }
@@ -150,5 +165,6 @@ static void body_update(void *self,const void *mi) {
         local.y+=previous_compression[i];set_vec(wheel,"set_localPosition",local);
     }
 }
+
 
 

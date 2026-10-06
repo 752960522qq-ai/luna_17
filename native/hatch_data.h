@@ -16,6 +16,7 @@ static HatchTank hatch_tanks[HATCH_MAX_TANKS];
 static unsigned hatch_count;
 static size_t hatch_bytes;
 static char hatch_error[192];
+static struct {char id[64];int capacity;float interval,reload;} staged_magazine;
 static uint32_t hatch_u32(const unsigned char *p){uint32_t v;memcpy(&v,p,4);return v;}
 static int hatch_fail(const char *message){snprintf(hatch_error,sizeof(hatch_error),"%s",message);return 0;}
 static int hatch_finite(const float *a,size_t n){for(size_t i=0;i<n;i++)if(!isfinite(a[i]) || fabsf(a[i])>1000000000)return 0;return 1;}
@@ -96,7 +97,12 @@ static int hatch_load_file(const char *path){
  if(got!=(size_t)n){free(b);return hatch_fail("Incomplete file read");}
  if(!hatch_parse(&t,b,(size_t)n)){hatch_release(&t);return 0;}
  for(unsigned i=0;i<hatch_count;i++)if(!strcmp(hatch_tanks[i].disk.id,t.disk.id)){hatch_release(&t);return hatch_fail("Duplicate tank ID");}
+ if(staged_magazine.capacity>=2 && !strcmp(staged_magazine.id,t.disk.id)){
+  t.config.magazine_capacity=staged_magazine.capacity;t.config.shot_interval=staged_magazine.interval;t.config.magazine_reload=staged_magazine.reload;
+  memset(&staged_magazine,0,sizeof(staged_magazine));
+ }
  unsigned index=hatch_count;hatch_tanks[index]=t;hatch_tanks[index].config.id=hatch_tanks[index].disk.id;hatch_bytes+=(size_t)n;__atomic_store_n(&hatch_count,index+1,__ATOMIC_RELEASE);hatch_error[0]=0;return 1;
 }
 static const CustomTank *hatch_find_config(const char *name){for(unsigned i=0;i<__atomic_load_n(&hatch_count,__ATOMIC_ACQUIRE);i++)if(!strcmp(name,hatch_tanks[i].disk.id))return &hatch_tanks[i].config;return 0;}
+
 

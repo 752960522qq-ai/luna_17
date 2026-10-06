@@ -3,14 +3,14 @@ package com.luna17.aot;
 final class NativeBridge {
     static boolean loaded;
     static String error = "";
-    static void start() {
+    static void start(String path) {
         try {
-            System.loadLibrary("aotmod");
+            System.load(path);
             loaded = true;
             init();
         } catch (Throwable failure) {
             loaded = false;
-            error = failure.getClass().getSimpleName();
+            error = failure.getClass().getSimpleName() + ": " + failure.getMessage();
         }
     }
     private static native void init();
@@ -21,5 +21,7 @@ final class NativeBridge {
     static native int switchResult();
     static native String loadHatch(String path);
     static native String hatchError();
+    static native boolean configureMagazine(String id, int capacity, float interval, float reload);
 }
+
 

@@ -1,0 +1,63 @@
+{
+  "file": "Attack-on-Tank-Hatch-0.2-TankInvincible3000-1.0.apk",
+  "size_bytes": 238563511,
+  "sha256": "a35a1f86578156ab8298837d386462b7cab8b5892e5c5eaf944feaffeeb607fd",
+  "preserved_original_entries": 618,
+  "loader_version": "0.2",
+  "prerequisite_version": "1.0",
+  "loader_module_separation_verified": true,
+  "module_16k_elf_alignment": true,
+  "native_methods": [
+    "configureMagazine",
+    "hatchError",
+    "init",
+    "loadHatch",
+    "state",
+    "switchResult",
+    "switchTank",
+    "tanks",
+    "toggle"
+  ],
+  "native_execution_tests": {
+    "runner": "Unicorn ARM64",
+    "tests_run": 25,
+    "failures": 0,
+    "errors": 0,
+    "passed": true,
+    "module_sha256": "65dc6eb6c2e4cfa4fff938e1241f44bca12eabc6ff9cdba04fdd6bb897c17a30",
+    "game_library_sha256": "f68552eaee3018948258966a6e262b0b567b8a1ecc199e60e59f175d388ef4a7"
+  },
+  "android_device_test": "not performed",
+  "unity_api_check": 39,
+  "texture_counts": {
+    "t54": 36,
+    "matilda": 22
+  },
+  "host_pipelines": {
+    "T54_1949": "AP/HE mesh renderers and MG particles preserved; old hull/LOD disabled; MG audio parent retained\nfull production pipeline: 180 nodes, 36 textures, 81 meshes; ammo enum verified\nupstream exception retained; decoder was not called after failure\nDecoder failure stops before mesh construction\n",
+    "Matilda_III": "AP/HE mesh renderers and MG particles preserved; old hull/LOD disabled; MG audio parent retained\nfull production pipeline: 155 nodes, 22 textures, 51 meshes; ammo enum verified\nupstream exception retained; decoder was not called after failure\nDecoder failure stops before mesh construction\n"
+  },
+  "package_tests_passed": 6,
+  "project_tests_passed": 4,
+  "previous_certificate_sha256": "cbb55ab6751c15d911b2ad7630459f39c47b93a1c1d4c4cd3bda689c1dfcc69f",
+  "certificate_sha256": "da78d3414154f762d80eddfb59a012e956bf465210f6e8e06449585bbcb58259",
+  "signature_matches_previous": false,
+  "deliverables": {
+    "Matilda_III-Hatch-0.2.hatch": {
+      "size_bytes": 27990380,
+      "sha256": "d07d3feb4616d112359dab4f411d9cc8f4508a42ea8943ee75230b9f59de3115"
+    },
+    "T54_1949-Hatch-0.2.hatch": {
+      "size_bytes": 35561421,
+      "sha256": "642186e82836df6a428000b4ce3607d040df5141079968fca896b0560bd8999f"
+    },
+    "Attack-on-Tank-Hatch-0.2-TankInvincible3000-1.0.apk": {
+      "size_bytes": 238563511,
+      "sha256": "a35a1f86578156ab8298837d386462b7cab8b5892e5c5eaf944feaffeeb607fd"
+    },
+    "TankInvincible3000-1.0.hatch": {
+      "size_bytes": 100324,
+      "sha256": "d57a0285c356a552c59605a35661fb405027e3013a6e470691b1dbcf8a872d38"
+    }
+  }
+}

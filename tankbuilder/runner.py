@@ -55,14 +55,14 @@ def run_build(input_path, output, config_path, selected=None, tankpacks=(), prof
             if not shutil.which('java'):raise ValueError('需要 JDK 17 或更高版本')
             with tempfile.TemporaryDirectory(prefix='tank-build-',dir=output.parent) as temporary:
                 work=Path(temporary);source=work/'source'
-                for directory in ('app','native','scripts','profiles','tests','tankbuilder'):
+                for directory in ('app','loader','mods','hatch','native','scripts','profiles','tests','tankbuilder'):
                     shutil.copytree(ROOT/directory,source/directory,ignore=shutil.ignore_patterns('__pycache__'))
                 generate_header(profile,source/'native/profile_config.h')
                 chosen=source/'profiles/selected.json';chosen.write_text(json.dumps(profile),encoding='utf-8')
                 flags={'GODMODE':'godmode','INFINITE_AMMO':'infinite_ammo','TANK_SWAP':'tank_swap'}
                 feature_java='package com.luna17.aot;\nfinal class FeatureConfig {\nstatic final String BUILD_LABEL = '+json.dumps(profile['version_name']+'  /  ARM64 '+profile['builder']['revision'])+';\n'+''.join(
                     'static final boolean '+k+' = '+str(v in selected).lower()+';\n' for k,v in flags.items())+'}\n'
-                (source/'app/src/com/luna17/aot/FeatureConfig.java').write_text(feature_java,encoding='utf-8')
+                (source/'mods/tankinvincible/src/com/luna17/aot/FeatureConfig.java').write_text(feature_java,encoding='utf-8')
                 normalized=game.normalized(work/'input.apks')
                 original_lib=work/'libil2cpp.so';original_lib.write_bytes(game.library)
                 native=cfg.get('native_prebuilt')
@@ -121,6 +121,9 @@ def run_build(input_path, output, config_path, selected=None, tankpacks=(), prof
                 report.update(status='succeeded',selected_features=selected,verification=verification,
                     signing_certificate_sha256=certificate,output=str(output))
                 # Only a fully checked APK becomes the user's output.
+                prerequisite=work/'TankInvincible3000-1.0.hatch'
+                shutil.copy2(prerequisite,output.parent/prerequisite.name)
+                report['prerequisite_mod']=str(output.parent/prerequisite.name)
                 os.replace(work/'signed.apk',output)
                 log('构建成功：'+str(output))
     except Exception as exc:
@@ -128,3 +131,4 @@ def run_build(input_path, output, config_path, selected=None, tankpacks=(), prof
         log('构建未完成：'+str(exc))
     write_report(report,output.parent)
     return report
+

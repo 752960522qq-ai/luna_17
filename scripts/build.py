@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the in-game menu and sign an ARM64 development APK."""
+"""Build Hatch 0.2, its independent TankInvincible3000 1.0 prerequisite, and an APK."""
 import argparse
 import os
 import secrets
@@ -8,7 +8,10 @@ import subprocess
 import sys
 import platform
 from pathlib import Path
-from repack import repack
+ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT))
+from repack_hatch import repack_loader
+from hatch.package import pack_module
 
 ROOT=Path(__file__).resolve().parents[1]
 
@@ -54,7 +57,7 @@ def main():
     for directory in [classes,dex]:
         if directory.exists():shutil.rmtree(directory)
         directory.mkdir()
-    sources=sorted((ROOT/'app/src').rglob('*.java'))+sorted((ROOT/'app/stubs').rglob('*.java'))
+    sources=sorted((ROOT/'loader/src').rglob('*.java'))+sorted((ROOT/'app/stubs').rglob('*.java'))
     if args.ecj:
         run(java,'-jar',args.ecj,'-8','-encoding','UTF-8',
             '-cp',args.android_jar,'-d',classes,*sources)
@@ -62,11 +65,22 @@ def main():
         run(java,'com.sun.tools.javac.Main','--release','8','-encoding','UTF-8',
             '-cp',args.android_jar,'-d',classes,*sources)
     # The compile-time Unity stub must not be included in the new DEX.
-    added_classes=sorted((classes/'com/luna17/aot').rglob('*.class'))
+    added_classes=sorted((classes/'com/hatch/loader').rglob('*.class'))
     run(java,'-cp',args.r8,'com.android.tools.r8.D8','--lib',args.android_jar,
         '--classpath',classes,'--min-api','28','--output',dex,*added_classes)
+    module_classes=work/'module-classes';module_dex=work/'module-dex'
+    for directory in [module_classes,module_dex]:
+        if directory.exists():shutil.rmtree(directory)
+        directory.mkdir()
+    module_sources=sorted((ROOT/'mods/tankinvincible/src').rglob('*.java'))
+    run(java,'com.sun.tools.javac.Main','--release','8','-encoding','UTF-8',
+        '-cp',os.pathsep.join(map(str,[args.android_jar,classes])),'-d',module_classes,*module_sources)
+    run(java,'-cp',args.r8,'com.android.tools.r8.D8','--lib',args.android_jar,
+        '--classpath',classes,'--min-api','28','--output',module_dex,*sorted(module_classes.rglob('*.class')))
+    prerequisite=args.output.parent/'TankInvincible3000-1.0.hatch'
+    pack_module(module_dex/'classes.dex',library,prerequisite)
     unsigned=work/'unsigned.apk'
-    repack(args.apks,dex/'classes.dex',library,unsigned,args.profile,args.unity_data,args.hatch)
+    repack_loader(args.apks,dex/'classes.dex',unsigned,args.profile,[prerequisite,*args.hatch],args.unity_data)
     aligned=work/'aligned.apk'
     run(args.zipalign,'-f','-P','16','4',unsigned,aligned)
     keystore=args.keystore;password=args.password_file
@@ -90,4 +104,5 @@ def main():
     print(args.output)
 
 if __name__=='__main__':main()
+
 
