@@ -39,7 +39,7 @@ def validate_documents(documents):
     if not isinstance(ammo,dict) or not ammo:errors.append('缺少弹药分配')
     else:
         for k,v in ammo.items():
-            if k not in ('AP','APCR','HE','HEAT') or type(v)!=int or v<0:errors.append('弹药种类或数量无效')
+            if k not in ('AP','APCR','HE','HEAT','WP') or type(v)!=int or v<0:errors.append('弹药种类或数量无效')
     adapter=manifest.get('role')=='player' and manifest.get('adapter')=='aot-5.1.0-arm64-v1' and manifest.get('basePrefab')=='T34_85_Player'
     if adapter:
         from .project import document_errors

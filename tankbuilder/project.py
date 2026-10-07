@@ -40,7 +40,7 @@ def document_errors(doc):
     if not isinstance(ammo,dict) or not ammo:errors.append('需要弹药分配')
     else:
         for k,v in ammo.items():
-            if k not in ['AP','APCR','HE','HEAT'] or type(v)!=int or not 0<=v<=1000:errors.append('弹种或备弹量错误')
+            if k not in ['AP','APCR','HE','HEAT','WP'] or type(v)!=int or not 0<=v<=1000:errors.append('弹种或备弹量错误')
     shells=w.get('shells',{})
     for kind in ['AP','APCR','HEAT']:
         num(shells.get(kind,{}) if isinstance(shells,dict) else {},'penetrationMm',0,2000,True)
@@ -93,7 +93,7 @@ def validate_project(directory):
             node=r.get(key,{}).get('node')
             if type(node)!=int or not 0<=node<len(names) or names[node]!=name:errors.append('rig.'+key+' 与模型节点不一致')
         wheels=r.get('wheels',[]);road=[w for w in wheels if w.get('roadWheel')];tracks=r.get('tracks',[])
-        if not 4<=len(road)<=24 or len(road)%2 or len(wheels)>28:errors.append('需要 4–24 个偶数负重轮；总轮数最多 28')
+        if not 4<=len(road)<=24 or len(road)%2 or len(wheels)-len(road)>64:errors.append('需要 4–24 个偶数负重轮；辅助轮最多 64')
         if len({w.get('node') for w in wheels})!=len(wheels):errors.append('车轮节点重复')
         if sum(w.get('side')=='left' for w in road)!=len(road)//2:errors.append('左右负重轮数量应相同')
         for wheel in wheels:
