@@ -688,6 +688,64 @@ class NativeTests(unittest.TestCase):
         seen.clear();m.u.mem_write(move+0x78,struct.pack('<f',0.));m.u.mem_write(move+0x84,struct.pack('<f',60.));clock[0]+=.02;m.call('body_update',body,0)
         self.assertNotEqual(seen[0][2],seen[1][2])
 
+    def test_original_local_quaternion_wrapper_abi(self):
+        m=self.m;wheel=m.object();seen=[];pose=[.5,0.,0.,.8660254]
+        for address,size in [(0x343dffc,0xe4),(0x343e0e0,0xc0)]:
+            m.u.mem_write(GAME+address,m.game_read(address,size))
+        m.u.mem_write(GAME+0x3bd59ee,b'\1\1')
+        def get():m.u.mem_write(m.x(1),struct.pack('<4f',*pose))
+        def put():seen.append(struct.unpack('<4f',m.read(m.x(1),16)))
+        m.qwrite(GAME+0x3bd5a40,m.stub(get));m.qwrite(GAME+0x3bd5a48,m.stub(put))
+        m.call(GAME+0x343dffc,wheel,0)
+        for i,want in enumerate(pose):self.assertAlmostEqual(m.f(i),want,places=6)
+        for i,v in enumerate(pose):m.sf(i,v)
+        m.call(GAME+0x343e0e0,wheel,0)
+        for got,want in zip(seen[-1],pose):self.assertAlmostEqual(got,want,places=6)
+
+    def test_wheels_rotate_continuously_with_quaternions(self):
+        import math
+        m=self.m;status,config=self.external_config('Panzer_II_Ausf_L',10,.4,4.85)
+        body,move,params=[m.object() for _ in range(3)]
+        m.qwrite(body+0x38,status);m.qwrite(body+0x28,move)
+        m.at(GAME+0x1931cfc,lambda:params)
+        poses={};sides={};history=[]
+        for offset,count in [(0x50,10),(0x58,4)]:
+            array=m.alloc(0x20+count*8);m.iwrite(array+0x18,count);m.qwrite(body+offset,array)
+            for i in range(count):
+                wheel=m.object();m.qwrite(array+0x20+i*8,wheel)
+                poses[wheel]=[0.,0.,0.,1.];sides[wheel]=i>=count//2
+        def get():
+            for i,v in enumerate(poses[m.x(0)]):m.sf(i,v)
+        def put():
+            poses[m.x(0)]=[m.f(i) for i in range(4)];history.append(m.x(0))
+        getter,setter=m.alloc(32),m.alloc(32);m.qwrite(getter,m.stub(get));m.qwrite(setter,m.stub(put))
+        def lookup():
+            name=m.read(m.x(1),40).split(b'\0')[0]
+            self.assertNotIn(name,[b'get_localEulerAngles',b'set_localEulerAngles'])
+            return getter if name==b'get_localRotation' else setter if name==b'set_localRotation' else 0
+        m.global_q('class_method',m.stub(lookup))
+        for name,fn in [('sinf',math.sin),('cosf',math.cos)]:
+            if name in m.imports:m.callbacks[m.imports[name]]=lambda fn=fn:m.sf(0,fn(m.f(0)))
+        clock=[10.];m.at(GAME+0x343a6dc,lambda:m.sf(0,clock[0]))
+        m.call('body_update',body,0)
+        radius=.36752
+        m.u.mem_write(config+36,struct.pack('<f',12./3.6))
+        m.u.mem_write(config+160,struct.pack('<f',radius))
+        angles={w:0. for w in poses}
+        for speed,yaw,frames in [(5.,0.,240),(-3.,0.,180),(0.,60.,120),(0.,0.,30)]:
+            m.u.mem_write(move+0x78,struct.pack('<f',speed));m.u.mem_write(move+0x84,struct.pack('<f',yaw))
+            for frame in range(frames):
+                before=struct.unpack('<f',struct.pack('<f',clock[0]))[0];clock[0]+=.02
+                after=struct.unpack('<f',struct.pack('<f',clock[0]))[0];dt=after-before
+                m.call('body_update',body,0)
+                for wheel,q in poses.items():
+                    belt=speed+(1 if sides[wheel] else -1)*yaw*.0174532925*1.3
+                    angles[wheel]+=belt*dt/radius
+                    expected=[math.sin(angles[wheel]/2),0.,0.,math.cos(angles[wheel]/2)]
+                    self.assertLess(min(sum((a-b)**2 for a,b in zip(q,expected)),sum((a+b)**2 for a,b in zip(q,expected))),1e-8)
+                    self.assertAlmostEqual(sum(v*v for v in q),1.,places=5)
+        self.assertEqual(len(history),570*14)
+
     def test_custom_names_armor_ammo_penetration_and_reload(self):
         if getattr(ARGS,'tank_configs',None):docs=json.loads(ARGS.tank_configs.read_text())
         else:
@@ -834,5 +892,6 @@ if __name__=='__main__':
             'module_sha256':hashlib.sha256(Path(ARGS.module).read_bytes()).hexdigest(),
             'game_library_sha256':hashlib.sha256(Path(ARGS.game_library).read_bytes()).hexdigest()},indent=2)+'\n')
     sys.exit(0 if result.wasSuccessful() else 1)
+
 
 

@@ -95,6 +95,7 @@ static Vec3 call_vec(void *object,const char *name) {
 static void set_vec(void *object,const char *name,Vec3 v) {
     void *m=method(object,name,1);if(m)((void (*)(void *,Vec3,const void *))P(m,0))(object,v,m);
 }
+#include "wheel_rotation.h"
 static void body_update(void *self,const void *mi) {
     void *status=P(self,0x38);
     const CustomTank *c=tank_config(status);
@@ -116,8 +117,7 @@ static void body_update(void *self,const void *mi) {
         int n=I(array,0x18);if(n<0 || n>28)continue;
         for(int j=0;j<n;j++){
             void *wheel=P(array,0x20+j*8);if(!unity_exists(wheel))continue;
-            Vec3 angle=call_vec(wheel,"get_localEulerAngles");
-            angle.x+=(j<n/2?left:right)*dt/c->radius*57.2957795f;set_vec(wheel,"set_localEulerAngles",angle);
+            rotate_wheel(wheel,(j<n/2?left:right)*dt/c->radius);
         }
     }
     // Resolve materials on the visible renderers, not the inherited cached

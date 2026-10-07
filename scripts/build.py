@@ -52,7 +52,7 @@ def main():
         library=work/'libaotmod.so'
         run(clang,'-shared','-fPIC','-O2','-Wall','-Wextra','-mno-outline-atomics',
             '-Wl,-z,max-page-size=16384,--hash-style=both,-z,defs,-soname,libaotmod.so',
-            ROOT/'native/aotmod.c',ROOT/'native/guards.S','-ldl','-llog','-o',library)
+            ROOT/'native/aotmod.c',ROOT/'native/guards.S','-ldl','-llog','-lm','-o',library)
     classes=work/'classes';dex=work/'dex'
     for directory in [classes,dex]:
         if directory.exists():shutil.rmtree(directory)
