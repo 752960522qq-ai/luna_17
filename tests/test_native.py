@@ -181,12 +181,12 @@ class Machine:
 class NativeTests(unittest.TestCase):
     def setUp(self):self.m=Machine(ARGS.module,ARGS.game_library)
 
-    def external_config(self, ident="MagazineTest", capacity=5, interval=.25, reload=8.):
+    def external_config(self, ident="MagazineTest", capacity=5, interval=.25, reload=8., ballistics=0, traverse=0.):
         m=self.m
         class Config(ctypes.Structure):
-            _fields_=[('id',ctypes.c_uint64)] + [(n,ctypes.c_int) for n in ['penetration','caliber','speed','reload']] + [('reload_offset',ctypes.c_float),('power',ctypes.c_int),('max_speed',ctypes.c_int),('reverse_speed',ctypes.c_float),('turret_speed',ctypes.c_int),('weight',ctypes.c_float)] + [(n,ctypes.c_int) for n in ['elevation','depression','crew','tier']] + [(n,ctypes.c_int*size) for n,size in [('body_armor',4),('turret_armor',4),('ammo',5)]] + [('mg_ammo',ctypes.c_int),('shell_penetration',ctypes.c_int*5),('wheel_count',ctypes.c_int)] + [(n,ctypes.c_float) for n in ['travel','rest','spring','damper','radius','track_length']] + [('magazine_capacity',ctypes.c_int),('shot_interval',ctypes.c_float),('magazine_reload',ctypes.c_float)]
+            _fields_=[('id',ctypes.c_uint64)] + [(n,ctypes.c_int) for n in ['penetration','caliber','speed','reload']] + [('reload_offset',ctypes.c_float),('power',ctypes.c_int),('max_speed',ctypes.c_int),('reverse_speed',ctypes.c_float),('turret_speed',ctypes.c_int),('weight',ctypes.c_float)] + [(n,ctypes.c_int) for n in ['elevation','depression','crew','tier']] + [(n,ctypes.c_int*size) for n,size in [('body_armor',4),('turret_armor',4),('ammo',5)]] + [('mg_ammo',ctypes.c_int),('shell_penetration',ctypes.c_int*5),('wheel_count',ctypes.c_int)] + [(n,ctypes.c_float) for n in ['travel','rest','spring','damper','radius','track_length']] + [('magazine_capacity',ctypes.c_int),('shot_interval',ctypes.c_float),('magazine_reload',ctypes.c_float),('ballistics_profile',ctypes.c_int),('turret_speed_exact',ctypes.c_float)]
         entry=m.symbols['hatch_tanks'];m.u.mem_write(entry,ident.encode()+b'\0')
-        c=Config(id=entry,penetration=89,caliber=20,speed=780,reload=8,elevation=20,depression=10,magazine_capacity=capacity,shot_interval=interval,magazine_reload=reload)
+        c=Config(id=entry,penetration=89,caliber=20,speed=780,reload=8,elevation=20,depression=10,magazine_capacity=capacity,shot_interval=interval,magazine_reload=reload,ballistics_profile=ballistics,turret_speed=int(traverse),turret_speed_exact=traverse)
         c.shell_penetration[0]=89
         m.u.mem_write(entry+592,bytes(c));m.global_i('hatch_count',1)
         status=m.object();m.qwrite(status+0x68,m.string(ident))
@@ -258,15 +258,18 @@ class NativeTests(unittest.TestCase):
         m.global_q('original_attack_info',m.stub(lambda:info));m.call('attack_info',launcher,2,1,0)
         physical=895.*1.1;self.assertAlmostEqual(struct.unpack('<f',m.read(info+0x18,4))[0],physical,places=3)
         m.qwrite(shell+0x90,info)
-        observed=[]
+        observed=[];gravity_seen=[]
+        m.u.mem_write(shell+0x7c,struct.pack('<f',7.25))
         def original():
+            gravity_seen.append(struct.unpack('<f',m.read(shell+0x7c,4))[0])
             observed.append(struct.unpack('<f',m.read(info+0x18,4))[0])
             if not m.read(shell+0x9c,1)[0]:
                 speed=observed[-1]*.23;m.u.mem_write(shell+0x98,struct.pack('<f',speed));m.u.mem_write(shell+0x9c,b'\1')
         m.global_q('original_shell_fixed_update',m.stub(original))
         for _ in range(2):m.call('shell_fixed_update',shell,0)
         self.assertAlmostEqual(struct.unpack('<f',m.read(shell+0x98,4))[0],physical,places=3)
-        self.assertAlmostEqual(struct.unpack('<f',m.read(shell+0x7c,4))[0],9.81,places=5)
+        self.assertAlmostEqual(gravity_seen[0],9.81,places=5)
+        self.assertEqual(struct.unpack('<f',m.read(shell+0x7c,4))[0],7.25)
         self.assertAlmostEqual(observed[0],physical/.23,places=2);self.assertAlmostEqual(observed[1],physical,places=3)
         self.assertAlmostEqual(struct.unpack('<f',m.read(info+0x18,4))[0],physical,places=3)
         # The same managed address reused by stock ammunition must lose its imported profile.
@@ -275,6 +278,44 @@ class NativeTests(unittest.TestCase):
         m.call('shell_fixed_update',shell,0)
         self.assertEqual(observed[-1],800.);self.assertAlmostEqual(struct.unpack('<f',m.read(shell+0x98,4))[0],184.,places=4)
         self.assertEqual(struct.unpack('<f',m.read(shell+0x7c,4))[0],8.)
+
+    def test_stock_template_ballistics_preserves_game_speed_scale_and_gravity(self):
+        m=self.m;status,config=self.external_config(ident='StockBallistics',capacity=0,ballistics=1)
+        m.iwrite(config+16,895)
+        launcher,info,shell=[m.object() for _ in range(3)]
+        m.qwrite(launcher+0x38,status);m.qwrite(shell+0x90,info)
+        m.u.mem_write(launcher+0x54,struct.pack('<f',895.))
+        m.u.mem_write(info+0x18,struct.pack('<f',895.))
+        m.u.mem_write(shell+0x7c,struct.pack('<f',7.25))
+        # Address reuse must clear an earlier physical profile before stock shots.
+        m.global_q('original_attack_info',m.stub(lambda:info))
+        m.iwrite(config+180,0);m.call('attack_info',launcher,0,1,0)
+        m.iwrite(config+180,1);m.call('attack_info',launcher,0,1,0)
+        seen=[]
+        def original():
+            seen.append((struct.unpack('<f',m.read(info+0x18,4))[0],struct.unpack('<f',m.read(shell+0x7c,4))[0]))
+        m.global_q('original_shell_fixed_update',m.stub(original))
+        m.call('shell_fixed_update',shell,0)
+        self.assertEqual(seen,[(895.,7.25)])
+        # Execute the real stock initialization multiply, not a success mock.
+        m.u.mem_write(GAME+0x9a9214,m.game_read(0x9a9214,4))
+        m.u.mem_write(GAME+0x1960904,m.game_read(0x1960904,0x38))
+        m.qwrite(shell+0x20,m.object())
+        def forward():
+            for i,v in enumerate([0.,0.,1.]):m.sf(i,v)
+        m.at(GAME+0x343e264,forward);m.at(GAME+0x196093c,lambda:m.sx(30,HALT))
+        m.sx(19,shell);m.sx(8,info);m.sx(0,m.qread(shell+0x20));m.call(GAME+0x1960904)
+        self.assertAlmostEqual(struct.unpack('<f',m.read(shell+0x98,4))[0],895.*.23,places=4)
+        self.assertEqual(struct.unpack('<f',m.read(shell+0x7c,4))[0],7.25)
+
+    def test_fractional_traverse_scales_the_cached_controller_speed(self):
+        m=self.m;status,config=self.external_config(capacity=0,traverse=17.5)
+        controller=m.object();m.qwrite(controller+0x40,status);seen=[]
+        m.global_q('original_turret_update',m.stub(lambda:seen.append(struct.unpack('<f',m.read(controller+0xd0,4))[0])))
+        for cached,expected in [(17.,17.5),(8.5,8.75),(0.,0.)]:
+            m.u.mem_write(controller+0xd0,struct.pack('<f',cached));m.call('turret_update',controller,0)
+            self.assertAlmostEqual(seen[-1],expected,places=6)
+            self.assertEqual(struct.unpack('<f',m.read(controller+0xd0,4))[0],cached)
 
     def test_magazine_counts_main_shots_and_waits_for_full_reload(self):
         m=self.m;status,config=self.external_config();launcher=m.object();m.qwrite(launcher+0x38,status)
@@ -688,6 +729,33 @@ class NativeTests(unittest.TestCase):
         seen.clear();m.u.mem_write(move+0x78,struct.pack('<f',0.));m.u.mem_write(move+0x84,struct.pack('<f',60.));clock[0]+=.02;m.call('body_update',body,0)
         self.assertNotEqual(seen[0][2],seen[1][2])
 
+    def test_wheel_sizes_select_each_axles_angular_velocity(self):
+        m=self.m;status,config=self.external_config(ident='WheelSizes',capacity=0)
+        body,move,params=[m.object() for _ in range(3)]
+        m.qwrite(body+0x38,status);m.qwrite(body+0x28,move);m.at(GAME+0x1931cfc,lambda:params)
+        wheels=[m.object() for _ in range(4)];array=m.alloc(64);m.iwrite(array+0x18,4);m.qwrite(body+0x50,array)
+        radii=[.44,.27,.44,.27];cache=m.symbols['hatch_wheel_sizes']
+        for i,w in enumerate(wheels):
+            m.qwrite(array+0x20+i*8,w);m.qwrite(cache+i*16,w);m.u.mem_write(cache+i*16+8,struct.pack('<f',radii[i]))
+        m.global_i('hatch_wheel_size_count',4);poses={w:[0.,0.,0.,1.] for w in wheels}
+        def get():
+            for i,v in enumerate(poses[m.x(0)]):m.sf(i,v)
+        def put():poses[m.x(0)]=[m.f(i) for i in range(4)]
+        getter,setter=m.alloc(32),m.alloc(32);m.qwrite(getter,m.stub(get));m.qwrite(setter,m.stub(put))
+        def lookup():
+            n=m.read(m.x(1),40).split(b'\0')[0]
+            return getter if n==b'get_localRotation' else setter if n==b'set_localRotation' else 0
+        m.global_q('class_method',m.stub(lookup))
+        import math
+        for name,fn in [('sinf',math.sin),('cosf',math.cos)]:
+            if name in m.imports:m.callbacks[m.imports[name]]=lambda fn=fn:m.sf(0,fn(m.f(0)))
+        clock=[10.];m.at(GAME+0x343a6dc,lambda:m.sf(0,clock[0]));m.call('body_update',body,0)
+        m.u.mem_write(move+0x78,struct.pack('<f',5.));clock[0]+=.02;m.call('body_update',body,0)
+        dt=struct.unpack('<f',struct.pack('<f',clock[0]))[0]-10.
+        for wheel,radius in zip(wheels,radii):
+            self.assertAlmostEqual(poses[wheel][0],math.sin(5.*dt/radius/2),places=6)
+        self.assertGreater(poses[wheels[1]][0],poses[wheels[0]][0])
+
     def test_original_local_quaternion_wrapper_abi(self):
         m=self.m;wheel=m.object();seen=[];pose=[.5,0.,0.,.8660254]
         for address,size in [(0x343dffc,0xe4),(0x343e0e0,0xc0)]:
@@ -892,6 +960,7 @@ if __name__=='__main__':
             'module_sha256':hashlib.sha256(Path(ARGS.module).read_bytes()).hexdigest(),
             'game_library_sha256':hashlib.sha256(Path(ARGS.game_library).read_bytes()).hexdigest()},indent=2)+'\n')
     sys.exit(0 if result.wasSuccessful() else 1)
+
 
 
 

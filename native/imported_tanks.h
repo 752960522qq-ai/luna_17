@@ -59,7 +59,8 @@ static void *attack_info(void *launcher,int shell,int flag,const void *mi) {
         float launcher_speed=F(launcher,0x54);
         if(launcher_speed>0)F(info,0x18)=F(info,0x18)*(float)c->speed/launcher_speed;
         I(info,0x50)=c->caliber;
-        record_shell_profile(info,F(info,0x18));
+        if(c->ballistics_profile==HATCH_BALLISTICS_PHYSICAL)
+            record_shell_profile(info,F(info,0x18));
         managed_store(info,0x20,P(P(launcher,0x38),0x260));
     }
     if(launcher==firing_launcher && info)firing_info=info;
@@ -79,9 +80,14 @@ static void turret_update(void *self,const void *mi) {
         int whole=(int)delay;if((float)whole<delay)whole++;
         set_stat(P(self,0x40),0xdc,whole);offset=delay-whole;
     }
+    // TurretMove.RotateTurret uses its cached float at 0xd0. Scale that
+    // cache rather than rounding the requested speed or replacing aiming.
+    float traverse=F(self,0xd0);
+    if(c->turret_speed_exact>0 && c->turret_speed>0)
+        F(self,0xd0)=traverse*c->turret_speed_exact/c->turret_speed;
     F(self,0x80)=offset;B(self,0xde)=1;
     original_turret_update(self,mi);
-    F(self,0x80)=saved;B(self,0xde)=enabled;
+    F(self,0x80)=saved;B(self,0xde)=enabled;F(self,0xd0)=traverse;
 }
 typedef struct { Vec3 point,normal;unsigned face;float distance;float uv[2];int collider; } GroundHit;
 static float previous_compression[24];
@@ -117,7 +123,7 @@ static void body_update(void *self,const void *mi) {
         int n=I(array,0x18);if(n<0 || n>28)continue;
         for(int j=0;j<n;j++){
             void *wheel=P(array,0x20+j*8);if(!unity_exists(wheel))continue;
-            rotate_wheel(wheel,(j<n/2?left:right)*dt/c->radius);
+            rotate_wheel(wheel,(j<n/2?left:right)*dt/hatch_wheel_radius(wheel,c->radius));
         }
     }
     // Resolve materials on the visible renderers, not the inherited cached
@@ -165,6 +171,7 @@ static void body_update(void *self,const void *mi) {
         local.y+=previous_compression[i];set_vec(wheel,"set_localPosition",local);
     }
 }
+
 
 
 

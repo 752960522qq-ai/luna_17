@@ -19,6 +19,7 @@ static char hatch_error[192];
 static struct {char id[64];int capacity;float interval,reload;} staged_magazine;
 static uint32_t hatch_u32(const unsigned char *p){uint32_t v;memcpy(&v,p,4);return v;}
 static int hatch_fail(const char *message){snprintf(hatch_error,sizeof(hatch_error),"%s",message);return 0;}
+#include "hatch_options.h"
 static int hatch_finite(const float *a,size_t n){for(size_t i=0;i<n;i++)if(!isfinite(a[i]) || fabsf(a[i])>1000000000)return 0;return 1;}
 static void hatch_release(HatchTank *t){free(t->nodes);free(t->images);free(t->bytes);memset(t,0,sizeof(*t));}
 static int hatch_image_dimensions(const unsigned char *p,uint32_t n){
@@ -81,13 +82,12 @@ static int hatch_parse(HatchTank *tank,unsigned char *bytes,size_t size){
   if(!hatch_image_dimensions(at,n))return hatch_fail("Texture dimensions invalid or above 4096");
   tank->images[i]=(HatchImage){at,n};at+=n;
  }
- if(at!=end)return hatch_fail("Unexpected trailing data");
  tank->node_count=nodes;tank->image_count=images;CustomTank *c=&tank->config;int32_t *v=d->values;float *f=d->numbers;
  *c=(CustomTank){.id=d->id,.penetration=v[0],.caliber=v[1],.speed=v[2],.reload=v[3],.reload_offset=f[0],.power=v[4],.max_speed=v[5],.reverse_speed=f[1],.turret_speed=v[6],.weight=f[2],.elevation=v[7],.depression=v[8],.crew=v[9],.tier=v[10],.mg_ammo=v[24],.wheel_count=v[30],.travel=f[3],.rest=f[4],.spring=f[5],.damper=f[6],.radius=f[7],.track_length=f[8]};
  // Hatch 0.1 files store AP/HEAT/APCR/WP/HE; game enum is AP/HE/APCR/WP/HEAT.
  memcpy(c->body_armor,v+11,16);memcpy(c->turret_armor,v+15,16);memcpy(c->ammo,v+19,20);memcpy(c->shell_penetration,v+25,20);
  int swap=c->ammo[1];c->ammo[1]=c->ammo[4];c->ammo[4]=swap;
- swap=c->shell_penetration[1];c->shell_penetration[1]=c->shell_penetration[4];c->shell_penetration[4]=swap;return 1;
+ swap=c->shell_penetration[1];c->shell_penetration[1]=c->shell_penetration[4];c->shell_penetration[4]=swap;return hatch_read_options(c,at,(size_t)(end-at));
 }
 static int hatch_load_file(const char *path){
  if(hatch_count>=HATCH_MAX_TANKS)return hatch_fail("Maximum 16 tank packages");FILE *f=fopen(path,"rb");if(!f)return hatch_fail("Cannot open runtime.bin");
@@ -104,5 +104,6 @@ static int hatch_load_file(const char *path){
  unsigned index=hatch_count;hatch_tanks[index]=t;hatch_tanks[index].config.id=hatch_tanks[index].disk.id;hatch_bytes+=(size_t)n;__atomic_store_n(&hatch_count,index+1,__ATOMIC_RELEASE);hatch_error[0]=0;return 1;
 }
 static const CustomTank *hatch_find_config(const char *name){for(unsigned i=0;i<__atomic_load_n(&hatch_count,__ATOMIC_ACQUIRE);i++)if(!strcmp(name,hatch_tanks[i].disk.id))return &hatch_tanks[i].config;return 0;}
+
 
 

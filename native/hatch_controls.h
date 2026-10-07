@@ -1,4 +1,5 @@
 #pragma once
+#include "hatch_wheels.h"
 static int hatch_bind_controls(HatchTank *t, void *go, void *pc, void *status,
                                void *turret, void *gun, void *rendererklass,
                                void *transformklass) {
@@ -100,5 +101,7 @@ static int hatch_bind_controls(HatchTank *t, void *go, void *pc, void *status,
       hatch_field(status, track_fields[k], ha_array(c, 0));
   }
 
+  if (!hatch_engine_error) hatch_cache_wheel_sizes(t, hatch_transforms);
   return !hatch_engine_error;
 }
+

@@ -21,7 +21,7 @@ def compile_project(directory):
  if any(p.mode not in (None,4) for mesh in g.meshes for p in mesh.primitives):raise ValueError('Hatch 0.1 仅支持三角形网格')
  wheels=[x for x in r['wheels'] if x['roadWheel']];sus=r['suspension']
  ints=[w['shells']['AP']['penetrationMm'],w['caliber'],w['muzzleVelocity'],math.ceil(w['reload']),t['enginePower'],t['maxForwardSpeed'],t['turretRotation'],t['gunElevation'],abs(t['gunDepression']),t['crew'],m['tier']]+[a[k][f] for k in ['body','turret'] for f in ['front','side','side','rear']]+[w['ammo'].get(k,0) for k in ['AP','HEAT','APCR','WP','HE']]+[w['machineGun']['ammo']]+[w['shells'].get(k,{}).get('penetrationMm',0) for k in ['AP','HEAT','APCR','WP','HE']]+[len(wheels)]
- floats=[w['reload']-math.ceil(w['reload']),t['maxReverseSpeed']/3.6,t['weightTonnes'],sus['travel'],sus['restCompression'],sus['springPerWheel'],sus['damperPerWheel'],sum(x['radius'] for x in wheels)/len(wheels),t['dimensionsMeters']['length']*.62]
+ floats=[w['reload']-math.ceil(w['reload']),t['maxReverseSpeed']/3.6,t['weightTonnes'],sus['travel'],sus['restCompression'],sus['springPerWheel'],sus['damperPerWheel'],sum(x['radius'] for x in wheels)/len(wheels),r.get('trackLoopMeters',t['dimensionsMeters']['length']*.62)]
  boxes=[v for k in ['hull','turret','unit'] for f in ['size','center'] for v in r['colliders'][k][f]]
  pivots=r['gun']['pivot']+r['muzzle']['position']+r['coaxMuzzle']['position']
  cfg=CFG.pack(name(m['id'],64),name(m['displayName'],128),name(w['name'],128),NATIONS.index(m['country']),*map(int,ints),*floats,*boxes,*pivots)
@@ -61,9 +61,13 @@ def compile_project(directory):
   if len(b)>16*1024*1024:raise ValueError('贴图超过 16 MB')
   images.append(struct.pack('<I',len(b))+b)
  if len(records)>2048 or len(images)>128:raise ValueError('模型或贴图数量超限')
- payload=cfg+b''.join(records)+b''.join(images);header=struct.pack('<8sIIII',MAGIC,1,24+len(payload),len(records),len(images));blob=header+payload
+ options=b''
+ if w.get('ballistics','physical')!='physical' or int(t['turretRotation'])!=t['turretRotation']:
+  options=struct.pack('<8sIIf',b'HATCHOPT',20,1 if w.get('ballistics')=='stock-t34-85' else 0,t['turretRotation'])
+ payload=cfg+b''.join(records)+b''.join(images)+options;header=struct.pack('<8sIIII',MAGIC,1,24+len(payload),len(records),len(images));blob=header+payload
  if len(blob)>256*1024*1024:raise ValueError('运行时文件超过 256 MB')
  info={'id':m['id'],'name':m['displayName'],'nodes':len(records),'textures':len(images),'runtime_bytes':len(blob),'format':2,'loader':'Hatch','loader_version':'0.2','game_version':'5.1.0','abi':'arm64-v8a','animated_skinning':False,'type':'tank','requires':{'tankinvincible3000':'1.0'}}
+ if options:info['runtime_options']=dict(version=1,ballistics=w.get('ballistics','physical'),turret_speed=t['turretRotation'])
  if 'magazine' in w:info['magazine']=w['magazine']
  return blob,info
 def pack_project(directory,output):
@@ -83,5 +87,6 @@ def main():
   with tempfile.TemporaryDirectory() as temp:result=pack_project(extract_reviewed_pack(a.input,Path(temp)/'tank'),a.output)
  print(json.dumps(result,ensure_ascii=False,indent=2))
 if __name__=='__main__':main()
+
 
 

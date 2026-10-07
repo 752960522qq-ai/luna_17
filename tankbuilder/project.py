@@ -26,8 +26,9 @@ def document_errors(doc):
         v=section.get(key)
         if isinstance(v,bool) or not isinstance(v,(int,float)) or not math.isfinite(v) or not low<=v<=high or (integer and int(v)!=v):errors.append(key+' 数值超出范围')
     num(m,'tier',1,255,True)
-    for k,lo,hi,integer in [('crew',1,20,True),('maxForwardSpeed',1,150,True),('maxReverseSpeed',0,80,False),('enginePower',1,3000,True),('weightTonnes',1,200,False),('gunElevation',0,80,True),('gunDepression',-30,0,True),('turretRotation',1,90,True)]:num(t,k,lo,hi,integer)
+    for k,lo,hi,integer in [('crew',1,20,True),('maxForwardSpeed',1,150,True),('maxReverseSpeed',0,80,False),('enginePower',1,3000,True),('weightTonnes',1,200,False),('gunElevation',0,80,True),('gunDepression',-30,0,True),('turretRotation',1,90,False)]:num(t,k,lo,hi,integer)
     for k,lo,hi,integer in [('caliber',1,300,True),('reload',1,120,False),('muzzleVelocity',1,2500,True)]:num(w,k,lo,hi,integer)
+    if w.get('ballistics','physical') not in ('physical','stock-t34-85'):errors.append('不支持的弹道配置')
     magazine=w.get('magazine')
     if magazine is not None:
         if not isinstance(magazine,dict):errors.append('magazine 需要对象')
@@ -241,4 +242,5 @@ typedef struct { const char *id; int penetration,caliber,speed,reload; float rel
 '''+('static const CustomTank custom_tanks[]={'+','.join(configs)+'};\n' if configs else 'static const CustomTank custom_tanks[1]={{0}};\n')+f'#define CUSTOM_TANK_COUNT {len(configs)}\n'
     Path(destination).write_text(text,encoding='utf-8')
     return hashlib.sha256(text.encode()).hexdigest()
+
 
