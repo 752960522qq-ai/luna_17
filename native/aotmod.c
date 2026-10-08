@@ -110,11 +110,11 @@ static void game_update(void *self,const void *mi) {
     if(ready!=1)return;
     __atomic_store_n(&last_update_ms,now_ms(),__ATOMIC_RELEASE);
     void *parameters=FN(RVA_1931CFC,void *(*)(const void *))(0);
-    if(!parameters) {state=2;return;}
+    if(!parameters) {state=2;cancel_enemy_request();return;}
     int mode=I(parameters,FIELD_GAMEPARAMMANAGER_GAMEMODE_K__BACKINGFIELD);
-    if(mode==2) {state=4;pending=-1;enemy_pending=-1;enemy_result=-1;discard_new(-6);player_status=0;return;}
+    if(mode==2) {state=4;pending=-1;cancel_enemy_request();discard_new(-6);player_status=0;return;}
     void *status=P(self,0x118);
-    if(!unity_exists(status) || B(self,0x10c) || B(self,0x10d) || B(status,FIELD_UNITSTATUS_ISDESTROYED_K__BACKINGFIELD)) {state=2;pending=-1;enemy_pending=-1;enemy_result=-1;discard_new(-6);return;}
+    if(!unity_exists(status) || B(self,0x10c) || B(self,0x10d) || B(status,FIELD_UNITSTATUS_ISDESTROYED_K__BACKINGFIELD)) {state=2;pending=-1;cancel_enemy_request();discard_new(-6);return;}
     player_status=status;state=3;
     if(vehicle_nation_owner!=status && !swap.new_go){player_vehicle_nation=I(parameters,0x5c);vehicle_nation_owner=status;}
     void *gen=P(self,0x48);
@@ -122,8 +122,10 @@ static void game_update(void *self,const void *mi) {
     int command=__atomic_exchange_n(&pending,-1,__ATOMIC_ACQ_REL);
     if(command>=0 && !swap.new_go) switch_tank(self,parameters,command);
     advance_swap(self);
-    int enemy_command=__atomic_exchange_n(&enemy_pending,-1,__ATOMIC_ACQ_REL);
-    if(enemy_command>=0)spawn_enemy(self,enemy_command);
+    if (!swap.new_go) {
+        int enemy_command=__atomic_exchange_n(&enemy_pending,-1,__ATOMIC_ACQ_REL);
+        if(enemy_command>=0)spawn_enemy(self,enemy_command);
+    }
     if(ammo && player_status) refill(player_status);
 }
 static void player_update(void *self,const void *mi) {

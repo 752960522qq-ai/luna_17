@@ -81,10 +81,43 @@ class EnemySpawnTests(unittest.TestCase):
     def test_online_and_busy_requests_are_rejected(self):
         m=self.machine();m.global_i('ready',1);m.global_i('state',4);m.iwrite(m.symbols['enemy_count'],1)
         self.assertEqual(m.call('Java_com_luna17_aot_NativeBridge_spawnEnemy',0,0,0,0),0)
+
         m.global_i('state',3);m.global_q('last_update_ms',100000);m.global_i('pending',0)
         self.assertEqual(m.call('Java_com_luna17_aot_NativeBridge_spawnEnemy',0,0,0,0),0)
         m.global_i('pending',-1);self.assertEqual(m.call('Java_com_luna17_aot_NativeBridge_spawnEnemy',0,0,0,0),1)
         self.assertEqual(m.call('Java_com_luna17_aot_NativeBridge_spawnEnemy',0,0,0,0),0)
+
+    def lifecycle(self):
+        m=self.machine();game=m.object();params=m.object()
+        m.global_i('ready',1);m.global_q('original_game_update',m.stub(lambda:0))
+        m.at(GAME+0x1931cfc,lambda:params)
+        return m,game,params
+
+    def test_completed_result_survives_later_nonbattle_frames(self):
+        for result in (1,-2,-3,-4,-5,-7,-8):
+            with self.subTest(result=result):
+                m,game,params=self.lifecycle();m.global_i('enemy_pending',-1);m.global_i('enemy_result',result)
+                for _ in range(3):m.call('game_update',game,0)
+                self.assertEqual(m.read(m.symbols['enemy_result'],4),struct.pack('<i',result))
+
+    def test_leaving_battle_cancels_only_pending_request(self):
+        m,game,params=self.lifecycle();m.global_i('enemy_pending',0);m.global_i('enemy_result',0)
+        m.call('game_update',game,0)
+        self.assertEqual(m.read(m.symbols['enemy_pending'],4),struct.pack('<i',-1))
+        self.assertEqual(m.read(m.symbols['enemy_result'],4),struct.pack('<i',-6))
+
+    def test_request_waits_for_swap_then_runs_once(self):
+        m,game,params=self.lifecycle();status=m.object();m.qwrite(game+0x118,status)
+        m.global_i('pending',-1);m.global_i('enemy_pending',0);m.global_i('enemy_result',0)
+        m.qwrite(m.symbols['swap']+32,m.object())
+        m.at(m.symbols['advance_swap'],lambda:0)
+        calls=[]
+        m.at(m.symbols['spawn_enemy'],lambda:calls.append(m.x(1)))
+        m.call('game_update',game,0)
+        self.assertEqual(calls,[]);self.assertEqual(m.qread(m.symbols['enemy_pending'])&0xffffffff,0)
+        m.qwrite(m.symbols['swap']+32,0)
+        m.call('game_update',game,0);m.call('game_update',game,0)
+        self.assertEqual(calls,[0])
 
     def test_original_friend_getter_treats_explicit_iff_two_as_enemy(self):
         m=self.machine();address=GAME+0x1975cd0

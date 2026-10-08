@@ -260,7 +260,7 @@ final class ModMenu {
             }
             if (waitingEnemy) {
                 int r = NativeBridge.spawnEnemyResult();
-                if (r != 0 || currentState != 3) {
+                if (r != 0) {
                     waitingEnemy = false;
                     switch(r) {
                         case 1: enemyResult.setText("敌人坦克已添加。"); break;
@@ -268,7 +268,10 @@ final class ModMenu {
                         case -3: enemyResult.setText("屏幕中心没有命中场景，请对准地面。"); break;
                         case -4: enemyResult.setText("指向的表面过陡，请对准地面。"); break;
                         case -5: enemyResult.setText("敌人生成失败，请尝试其他 AI 车型。"); break;
-                        default: enemyResult.setText("对局状态已改变，或其他操作尚未完成。");
+                        case -6: enemyResult.setText("已离开对局，添加敌人已取消。"); break;
+                        case -7: enemyResult.setText("坦克生成器尚未就绪，请稍后重试。"); break;
+                        case -8: enemyResult.setText("AI 车型列表已改变，请重新选择车型。"); break;
+                        default: enemyResult.setText("添加敌人失败（"+r+"）。");
                     }
                 }
             }

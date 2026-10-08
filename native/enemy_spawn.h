@@ -4,6 +4,11 @@ static char enemy_catalog[6][MAX_TANKS][112];
 static volatile int enemy_count[6], enemy_pending = -1, enemy_result, enemy_request_lock;
 static void *enemy_source[6];
 
+static __attribute__((noinline)) void cancel_enemy_request(void) {
+    if (__atomic_exchange_n(&enemy_pending, -1, __ATOMIC_ACQ_REL) >= 0)
+        enemy_result = -6;
+}
+
 static void build_enemy_catalog(void *generator) {
     for (int nation = 0; nation < 6; ++nation) {
         void *array = P(generator, 0x60 + nation * 8);
@@ -108,9 +113,11 @@ static __attribute__((noinline)) int enemy_target_point(void *game, Vec3 *point,
 static __attribute__((noinline)) void spawn_enemy(void *game, int command) {
     int nation = (command >> 16) & 255, index = command & 0xffff;
     void *gen = P(game, FIELD_GAMECONTROL_TANKGENMANAGER);
-    if (state != 3 || !unity_exists(gen) || nation > 5 || index >= enemy_count[nation] || swap.new_go) { enemy_result = -1; return; }
+    if (state != 3) { enemy_result = -6; return; }
+    if (!unity_exists(gen)) { enemy_result = -7; return; }
+    if (nation > 5 || index >= enemy_count[nation]) { enemy_result = -8; return; }
     void *array = P(gen, 0x60 + nation * 8);
-    if (!array || index >= I(array, 0x18) || array != enemy_source[nation]) { enemy_result = -1; return; }
+    if (!array || index >= I(array, 0x18) || array != enemy_source[nation]) { enemy_result = -8; return; }
     Vec3 position, direction;
     int result = enemy_target_point(game, &position, &direction);
     if (result != 1) { enemy_result = result; return; }
