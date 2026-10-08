@@ -352,7 +352,7 @@ int main(int argc, char **argv) {
   assert(P(pc, 0x28) && P(pc, 0x30));
   assert(I(P(body, 0x410), 24) == tank.config.wheel_count &&
          I(P(body, 0x418), 24) == tank.config.wheel_count &&
-         I(P(body, 0x430), 24) == 2);
+         I(P(body, 0x430), 24) == (tank.config.vehicle_kind == HATCH_VEHICLE_TOWED ? 0 : 2));
   assert(!B(hull_renderer, 0x180) && B(lod, 0x181));
   assert(B(ap_renderer, 0x180) && B(he_renderer, 0x180) &&
          B(particle_renderer, 0x180));

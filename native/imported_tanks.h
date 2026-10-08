@@ -27,6 +27,7 @@ void apply_custom_stats(void *s) {
     ObscuredFloat acceleration=FN(RVA_OBSCURED_FLOAT,ObscuredFloat (*)(float,const void *))((c->power/c->weight)*.5f/17.8571434f,0);
     memcpy((uint8_t *)s+0x184,&acceleration,sizeof(acceleration));
     set_stat(s,0x198,(int)((c->power/c->weight)*35.f/17.8571434f));
+    if(c->vehicle_kind) I(s,0xc8)=c->traverse_half_angle;
     F(s,0x100)=c->weight;I(s,0xc0)=c->elevation;I(s,0xc4)=c->depression;
     I(s,0xcc)=c->elevation; // Camera uses the cached negative pitch limit.
     I(s,0x14c)=c->crew;I(s,0x150)=c->crew;
@@ -102,11 +103,38 @@ static void set_vec(void *object,const char *name,Vec3 v) {
     void *m=method(object,name,1);if(m)((void (*)(void *,Vec3,const void *))P(m,0))(object,v,m);
 }
 #include "wheel_rotation.h"
+static void *towed_wheel_owner;
+static Vec3 towed_previous_position;
+static float towed_previous_time;
+static void hatch_update_towed_wheels(void *body, const CustomTank *c) {
+    void *move=P(body,0x28), *transform=move?P(move,0x20):0;
+    if(!unity_exists(transform))return;
+    Vec3 position=call_vec(transform,"get_position");
+    float now=FN(RVA_GAME_TIME,float (*)(const void *))(0);
+    if(towed_wheel_owner!=body){towed_wheel_owner=body;towed_previous_position=position;towed_previous_time=now;return;}
+    float dt=now-towed_previous_time;
+    Vec3 delta={position.x-towed_previous_position.x,position.y-towed_previous_position.y,position.z-towed_previous_position.z};
+    towed_previous_position=position;towed_previous_time=now;
+    if(dt<=0 || dt>.1f || B(P(body,0x38),0x206))return;
+    Vec3 forward=call_vec(transform,"get_forward");
+    float distance=delta.x*forward.x+delta.y*forward.y+delta.z*forward.z;
+    if(fabsf(distance)>5.f)return;
+    void *wheels=P(body,0x58);int count=wheels?I(wheels,0x18):0;
+    for(int i=0;i<count && i<2;i++){
+        void *wheel=P(wheels,0x20+i*8);
+        if(unity_exists(wheel))rotate_wheel(wheel,distance/hatch_wheel_radius(wheel,c->radius));
+    }
+}
 static void body_update(void *self,const void *mi) {
     void *status=P(self,0x38);
     const CustomTank *c=tank_config(status);
     if(!c){original_body_update(self,mi);return;}
     if(!offline_mode())return;
+    if(c->vehicle_kind == HATCH_VEHICLE_TOWED) {
+        original_body_update(self,mi);
+        hatch_update_towed_wheels(self,c);
+        return;
+    }
     track_diagnostics.updates++;
     void *move=P(self,0x28),*body=move?P(move,0x28):0,*wheels=P(self,0x60),*centers=P(self,0x90);
     if(!unity_exists(move))return;

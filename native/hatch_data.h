@@ -47,8 +47,8 @@ static int hatch_parse(HatchTank *tank,unsigned char *bytes,size_t size){
  size_t length=strlen(d->id);if(!length || length>48)return hatch_fail("Invalid tank ID");
  for(size_t i=0;i<length;i++)if(!((d->id[i]>='A'&&d->id[i]<='Z')||(d->id[i]>='a'&&d->id[i]<='z')||(d->id[i]>='0'&&d->id[i]<='9')||d->id[i]=='_'||d->id[i]=='-'))return hatch_fail("Invalid tank ID characters");
  for(int i=0;i<31;i++)if(d->values[i]<0 || d->values[i]>3000)return hatch_fail("Tank parameter outside supported range");
- if(!hatch_finite(d->numbers,9)||!hatch_finite(d->boxes,18)||!hatch_finite(d->pivots,9)||d->numbers[2]<1 || d->numbers[7]<=0 || d->numbers[8]<=0 || d->values[30]<4 || d->values[30]>24 || d->values[30]%2)return hatch_fail("Invalid physics parameters");
- if(d->numbers[0]>0||d->numbers[0]<=-1||d->numbers[1]<0||d->numbers[1]>80.f/3.6f||d->numbers[2]>200||d->numbers[3]<=0||d->numbers[4]<=0||d->numbers[7]>2||d->values[1]<1||d->values[1]>300||d->values[2]<1||d->values[2]>2500||d->values[3]<1||d->values[3]>120||d->values[4]<1||d->values[5]<1||d->values[5]>150||d->values[9]<1||d->values[9]>20||d->values[10]<1||d->values[10]>255)return hatch_fail("Invalid tank/weapon ranges");
+ if(!hatch_finite(d->numbers,9)||!hatch_finite(d->boxes,18)||!hatch_finite(d->pivots,9)||d->numbers[2]<1 || d->numbers[7]<=0 || d->numbers[8]<=0 || d->values[30]<2 || d->values[30]>24 || d->values[30]%2)return hatch_fail("Invalid physics parameters");
+ if(d->numbers[0]>0||d->numbers[0]<=-1||d->numbers[1]<0||d->numbers[1]>80.f/3.6f||d->numbers[2]>200||d->numbers[3]<=0||d->numbers[4]<=0||d->numbers[7]>2||d->values[1]<1||d->values[1]>300||d->values[2]<1||d->values[2]>2500||d->values[3]<1||d->values[3]>120||d->values[5]>150||d->values[9]<1||d->values[9]>20||d->values[10]<1||d->values[10]>255)return hatch_fail("Invalid tank/weapon ranges");
  for(int i=0;i<18;i++)if((i%6)<3 && d->boxes[i]<=0)return hatch_fail("Invalid collider dimensions");
  tank->nodes=calloc(nodes,sizeof(HatchNode));tank->images=calloc(images?images:1,sizeof(HatchImage));if(!tank->nodes||!tank->images)return hatch_fail("Insufficient memory");
  const unsigned char *at=bytes+24+sizeof(*d),*end=bytes+size;unsigned controls[4]={0},road=0,left=0,right=0;
@@ -87,7 +87,16 @@ static int hatch_parse(HatchTank *tank,unsigned char *bytes,size_t size){
  // Hatch 0.1 files store AP/HEAT/APCR/WP/HE; game enum is AP/HE/APCR/WP/HEAT.
  memcpy(c->body_armor,v+11,16);memcpy(c->turret_armor,v+15,16);memcpy(c->ammo,v+19,20);memcpy(c->shell_penetration,v+25,20);
  int swap=c->ammo[1];c->ammo[1]=c->ammo[4];c->ammo[4]=swap;
- swap=c->shell_penetration[1];c->shell_penetration[1]=c->shell_penetration[4];c->shell_penetration[4]=swap;return hatch_read_options(c,at,(size_t)(end-at));
+ swap=c->shell_penetration[1];c->shell_penetration[1]=c->shell_penetration[4];c->shell_penetration[4]=swap;
+ if (!hatch_read_options(c,at,(size_t)(end-at))) return 0;
+ if (c->vehicle_kind == HATCH_VEHICLE_TOWED) {
+  if (c->power || c->max_speed || c->reverse_speed || c->mg_ammo || c->wheel_count != 2)
+   return hatch_fail("Towed gun requires two wheels, no engine or coaxial gun");
+ } else if (c->wheel_count < 4 || c->power < 1 || c->max_speed < 1)
+  return hatch_fail("Tracked vehicle requires engine and road wheels");
+ if (c->vehicle_kind == HATCH_VEHICLE_TD && c->mg_ammo)
+  return hatch_fail("SU85 template has no coaxial machine gun");
+ return 1;
 }
 static int hatch_load_file(const char *path){
  if(hatch_count>=HATCH_MAX_TANKS)return hatch_fail("Maximum 16 tank packages");FILE *f=fopen(path,"rb");if(!f)return hatch_fail("Cannot open runtime.bin");

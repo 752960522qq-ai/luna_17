@@ -39,11 +39,13 @@ static int hatch_bind_controls(HatchTank *t, void *go, void *pc, void *status,
   void *empty = ha_array(transformklass, 0);
   hatch_field(body, "partsTransforms", empty);
   hatch_field(body, "smallWheelLodTrfs", empty);
-  I(body, 0x68) = 1;
-  F(body, 0x88) = t->config.rest;
-  F(body, 0xa8) = 1;
-  I(body, 0xac) = 1;
-  I(body, 0xb0) = t->config.wheel_count / 2;
+  if (t->config.vehicle_kind != HATCH_VEHICLE_TOWED) {
+    I(body, 0x68) = 1;
+    F(body, 0x88) = t->config.rest;
+    F(body, 0xa8) = 1;
+    I(body, 0xac) = 1;
+    I(body, 0xb0) = t->config.wheel_count / 2;
+  }
   void *small = ha_array(transformklass, 64);
   int small_count = 0;
   for (int side = 0; side < 2; side++)
@@ -55,7 +57,7 @@ static int hatch_bind_controls(HatchTank *t, void *go, void *pc, void *status,
   for (int i = 0; i < small_count; i++)
     managed_store(smalls, 0x20 + i * 8, P(small, 0x20 + i * 8));
   hatch_field(body, "smallWheelLodTrfs", smalls);
-  void *tracks = ha_array(rendererklass, 2);
+  void *tracks = ha_array(rendererklass, t->config.vehicle_kind == HATCH_VEHICLE_TOWED ? 0 : 2);
   int track_count = 0;
   for (uint32_t i = 0; i < t->node_count && track_count < 2; i++)
     if (t->nodes[i].disk->flags & 64) {
@@ -63,7 +65,7 @@ static int hatch_bind_controls(HatchTank *t, void *go, void *pc, void *status,
       if (a && I(a, 0x18) > 0)
         managed_store(tracks, 0x20 + track_count++ * 8, P(a, 0x20));
     }
-  if (track_count == 2)
+  if (track_count == 2 || t->config.vehicle_kind == HATCH_VEHICLE_TOWED)
     hatch_field(body, "scrollLodRends", tracks);
   void *rb = hatch_get_child_component(go, "UnityEngine", "Rigidbody");
   if (rb) {

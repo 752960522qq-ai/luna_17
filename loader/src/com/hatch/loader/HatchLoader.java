@@ -14,16 +14,28 @@ public final class HatchLoader {
     private static final int PICK = 7301;
     private static final ExecutorService IO = Executors.newSingleThreadExecutor();
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
-    private static volatile String report = "舱盖 0.2 正在加载…";
+    private static volatile String report = "舱盖 0.3 正在加载…";
     private static final ModuleSession SESSION = new ModuleSession();
     private static volatile HatchModule module;
     private static File residentNative;
     private static volatile int generation;
     private static final Set<String> loadedTanks = new HashSet<>();
+    private static boolean noticeWritten;
     private HatchLoader() {}
     private static File folder(Activity activity) throws IOException {
         File base = activity.getExternalFilesDir(null);
         if (base == null) throw new IOException("游戏文件夹不可用");
+        if (!noticeWritten) {
+            File notice = new File(base,"RESOURCE_USAGE.txt");
+            File temp = File.createTempFile("notice-",".tmp",base);
+            try {
+                try (InputStream in=activity.getAssets().open("Hatch/RESOURCE_USAGE.txt"); OutputStream out=new FileOutputStream(temp)) {
+                    HatchPackage.copy(in,out,16384,null);
+                }
+                if (!temp.renameTo(notice)) throw new IOException("无法写入资源使用声明");
+                noticeWritten=true;
+            } finally { temp.delete(); }
+        }
         File folder = new File(base, "Hatch/mods");
         if (!folder.isDirectory() && !folder.mkdirs()) throw new IOException("无法创建模组文件夹");
         return folder;
@@ -117,7 +129,7 @@ public final class HatchLoader {
                 } catch (Exception e) { log.append("✗ ").append(file.getName()).append(": ").append(e.getMessage()).append('\n'); }
             }
             if (core == null || module == null) {
-                report="舱盖 0.2 · 空白调试包\n尚未加载坦无敌3000。原版游戏可正常启动。\n\n已发现 " + tanks.size() + " 个坦克包；导入坦无敌3000 1.0 前置并完全退出重启后，才能加载坦克模组。\n\n" + log;
+                report="舱盖 0.3 · 空白调试包\n尚未加载坦无敌3000。原版游戏可正常启动。\n\n已发现 " + tanks.size() + " 个坦克包；导入坦无敌3000 1.0 前置并完全退出重启后，才能加载坦克模组。\n\n" + log;
                 return;
             }
             HatchModule loaded = module;
@@ -137,9 +149,9 @@ public final class HatchLoader {
                 } catch (Exception e) { log.append("✗ ").append(tank.name).append(": ").append(e.getMessage()).append('\n'); }
                 finally { runtime.delete(); }
             }
-            report = "舱盖 0.2\n已加载前置及 " + count + " 个坦克包\n\n" + log + "\n导入或更新后，完全退出并重新打开游戏。";
+            report = "舱盖 0.3\n已加载前置及 " + count + " 个坦克包\n\n" + log + "\n导入或更新后，完全退出并重新打开游戏。";
         } catch (Exception | LinkageError e) {
-            report = "舱盖 0.2 加载失败：" + e.getMessage() + "\n\n" + log;
+            report = "舱盖 0.3 加载失败：" + e.getMessage() + "\n\n" + log;
             MAIN.post(() -> { if (session == generation && !activity.isFinishing()) show(activity); });
         }
     }
@@ -164,7 +176,7 @@ public final class HatchLoader {
         }
     }
     public static void show(Activity activity) {
-        new AlertDialog.Builder(activity).setTitle("舱盖 Hatch 0.2").setMessage(report)
+        new AlertDialog.Builder(activity).setTitle("舱盖 Hatch 0.3").setMessage(report)
             .setPositiveButton("导入 .hatch", (d,w) -> { Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("*/*"); activity.startActivityForResult(intent,PICK); })
             .setNegativeButton("关闭",null).show();
     }

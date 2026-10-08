@@ -22,7 +22,7 @@ final class HatchPackage {
         int format = doc.getInt("format");
         if (format != 1 && format != 2) throw new IOException("不支持的包格式");
         if (!"Hatch".equals(doc.getString("loader")) ||
-                !("0.1".equals(doc.getString("loader_version")) || "0.2".equals(doc.getString("loader_version"))) ||
+                !("0.1".equals(doc.getString("loader_version")) || "0.2".equals(doc.getString("loader_version")) || "0.3".equals(doc.getString("loader_version"))) ||
                 !"5.1.0".equals(doc.getString("game_version")) || !"arm64-v8a".equals(doc.getString("abi")))
             throw new IOException("游戏或加载器版本不兼容");
         if (!type.equals("tank") && !type.equals("module")) throw new IOException("不支持的模组类型");

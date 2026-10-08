@@ -40,7 +40,7 @@ def validate_documents(documents):
     else:
         for k,v in ammo.items():
             if k not in ('AP','APCR','HE','HEAT','WP') or type(v)!=int or v<0:errors.append('弹药种类或数量无效')
-    adapter=manifest.get('role')=='player' and manifest.get('adapter')=='aot-5.1.0-arm64-v1' and manifest.get('basePrefab')=='T34_85_Player'
+    adapter=manifest.get('role')=='player' and manifest.get('adapter')=='aot-5.1.0-arm64-v1' and manifest.get('basePrefab') in ('T34_85_Player','SU_85_Player','ZiS_3_Player')
     if adapter:
         from .project import document_errors
         errors.extend(document_errors(documents))

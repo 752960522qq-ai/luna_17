@@ -129,7 +129,7 @@ final class ModMenu {
         body.addView(label("必备前置模组", 12, muted));
         body.addView(label(FeatureConfig.BUILD_LABEL, 11, muted));
         status = label("等待游戏模块…", 12, accent); body.addView(status);
-        Button importTank=button("舱盖 0.2 · 管理 / 导入模组");body.addView(importTank);
+        Button importTank=button("舱盖 0.3 · 管理 / 导入模组");body.addView(importTank);
         importTank.setOnClickListener(v -> HatchLoader.show(activity));
         god = feature("无敌", 0); body.addView(god);
         ammo = feature("无限弹药", 1); body.addView(ammo);
@@ -252,7 +252,7 @@ final class ModMenu {
                         case -5: result.setText("新载具状态引用未就绪（-5）。"); break;
                         case -6: result.setText("对局状态改变，已取消替换。"); break;
                         case -20: result.setText("Hatch 加载失败："+NativeBridge.hatchError()); break;
-                        case -21: result.setText("未找到 T34_85 模板车型。"); break;
+                        case -21: result.setText("未找到对应的原版载具模板。"); break;
                         case -7: result.setText("新车武器初始化超时，已保留原坦克。"); break;
                         default: result.setText("替换失败（"+r+"）。");
                     }

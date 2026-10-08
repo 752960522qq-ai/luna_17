@@ -22,7 +22,7 @@ def validate(path):
         if archive.getinfo('hatch.json').file_size > 16384:
             raise ValueError('Manifest size limit')
         doc = json.loads(archive.read('hatch.json'))
-        if doc['format'] not in (1, 2) or doc['loader'] != 'Hatch' or doc['loader_version'] not in ('0.1', '0.2') or doc['game_version'] != '5.1.0' or doc['abi'] != 'arm64-v8a':
+        if doc['format'] not in (1, 2) or doc['loader'] != 'Hatch' or doc['loader_version'] not in ('0.1', '0.2', '0.3') or doc['game_version'] != '5.1.0' or doc['abi'] != 'arm64-v8a':
             raise ValueError('Unsupported game or loader')
         if not re.fullmatch('[A-Za-z0-9_-]{1,48}', doc['id']):
             raise ValueError('Invalid package ID')
@@ -56,7 +56,7 @@ def validate(path):
 def pack_module(dex, native, output):
     dex, native, output = Path(dex), Path(native), Path(output)
     content = {'module.dex': dex.read_bytes(), 'module.so': native.read_bytes()}
-    doc = dict(format=2, loader='Hatch', loader_version='0.2', game_version='5.1.0', abi='arm64-v8a', id=CORE_ID, name='坦无敌3000', type='module', version='1.0', api_version=2, entry_class='com.luna17.aot.TankInvincibleModule')
+    doc = dict(format=2, loader='Hatch', loader_version='0.3', game_version='5.1.0', abi='arm64-v8a', id=CORE_ID, name='坦无敌3000', type='module', version='1.0', api_version=2, entry_class='com.luna17.aot.TankInvincibleModule')
     for entry, prefix in [('module.dex','dex'), ('module.so','native')]:
         doc[prefix+'_sha256'] = hashlib.sha256(content[entry]).hexdigest()
         doc[prefix+'_bytes'] = len(content[entry])

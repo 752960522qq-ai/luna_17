@@ -95,7 +95,9 @@ static void switch_tank(void *game,void *parameters,int command) {
     int h=(catalog_generation[nation]>0 && index>=catalog_stock[nation])?catalog_hatch[nation][index]:-1,template_nation=nation,template_index=index;
     if(h>=0){
         template_nation=0;template_index=-1;
-        for(int i=0;i<catalog_stock[0];i++)if(!strcmp(catalog[0][i],"T34_85_Player") || !strcmp(catalog[0][i],"T34_85")){template_index=i;break;}
+        const char *template_name = hatch_tanks[h].config.vehicle_kind == HATCH_VEHICLE_TOWED ? "ZiS_3_Player" :
+            hatch_tanks[h].config.vehicle_kind == HATCH_VEHICLE_TD ? "SU_85_Player" : "T34_85_Player";
+        for(int i=0;i<catalog_stock[0];i++)if(!strcmp(catalog[0][i],template_name)){template_index=i;break;}
         if(template_index<0){switch_result=-21;return;}
     }
     void *new_go=FN(RVA_1994A88,void *(*)(void *,void *,int,int,Vec3,Quat,bool,const void *))(gen,tag,template_nation,template_index,pos,rot,false,0);

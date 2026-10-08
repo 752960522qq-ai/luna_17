@@ -9,6 +9,7 @@ import argparse
 import ctypes
 import hashlib
 import json
+import math
 import struct
 import sys
 import unittest
@@ -181,12 +182,12 @@ class Machine:
 class NativeTests(unittest.TestCase):
     def setUp(self):self.m=Machine(ARGS.module,ARGS.game_library)
 
-    def external_config(self, ident="MagazineTest", capacity=5, interval=.25, reload=8., ballistics=0, traverse=0.):
+    def external_config(self, ident="MagazineTest", capacity=5, interval=.25, reload=8., ballistics=0, traverse=0.,kind=0,half_angle=0):
         m=self.m
         class Config(ctypes.Structure):
-            _fields_=[('id',ctypes.c_uint64)] + [(n,ctypes.c_int) for n in ['penetration','caliber','speed','reload']] + [('reload_offset',ctypes.c_float),('power',ctypes.c_int),('max_speed',ctypes.c_int),('reverse_speed',ctypes.c_float),('turret_speed',ctypes.c_int),('weight',ctypes.c_float)] + [(n,ctypes.c_int) for n in ['elevation','depression','crew','tier']] + [(n,ctypes.c_int*size) for n,size in [('body_armor',4),('turret_armor',4),('ammo',5)]] + [('mg_ammo',ctypes.c_int),('shell_penetration',ctypes.c_int*5),('wheel_count',ctypes.c_int)] + [(n,ctypes.c_float) for n in ['travel','rest','spring','damper','radius','track_length']] + [('magazine_capacity',ctypes.c_int),('shot_interval',ctypes.c_float),('magazine_reload',ctypes.c_float),('ballistics_profile',ctypes.c_int),('turret_speed_exact',ctypes.c_float)]
+            _fields_=[('id',ctypes.c_uint64)] + [(n,ctypes.c_int) for n in ['penetration','caliber','speed','reload']] + [('reload_offset',ctypes.c_float),('power',ctypes.c_int),('max_speed',ctypes.c_int),('reverse_speed',ctypes.c_float),('turret_speed',ctypes.c_int),('weight',ctypes.c_float)] + [(n,ctypes.c_int) for n in ['elevation','depression','crew','tier']] + [(n,ctypes.c_int*size) for n,size in [('body_armor',4),('turret_armor',4),('ammo',5)]] + [('mg_ammo',ctypes.c_int),('shell_penetration',ctypes.c_int*5),('wheel_count',ctypes.c_int)] + [(n,ctypes.c_float) for n in ['travel','rest','spring','damper','radius','track_length']] + [('magazine_capacity',ctypes.c_int),('shot_interval',ctypes.c_float),('magazine_reload',ctypes.c_float),('ballistics_profile',ctypes.c_int),('turret_speed_exact',ctypes.c_float),('vehicle_kind',ctypes.c_int),('traverse_half_angle',ctypes.c_int)]
         entry=m.symbols['hatch_tanks'];m.u.mem_write(entry,ident.encode()+b'\0')
-        c=Config(id=entry,penetration=89,caliber=20,speed=780,reload=8,elevation=20,depression=10,magazine_capacity=capacity,shot_interval=interval,magazine_reload=reload,ballistics_profile=ballistics,turret_speed=int(traverse),turret_speed_exact=traverse)
+        c=Config(id=entry,penetration=89,caliber=20,speed=780,reload=8,elevation=20,depression=10,magazine_capacity=capacity,shot_interval=interval,magazine_reload=reload,ballistics_profile=ballistics,turret_speed=int(traverse),turret_speed_exact=traverse,vehicle_kind=kind,traverse_half_angle=half_angle)
         c.shell_penetration[0]=89
         m.u.mem_write(entry+592,bytes(c));m.global_i('hatch_count',1)
         status=m.object();m.qwrite(status+0x68,m.string(ident))
@@ -316,6 +317,30 @@ class NativeTests(unittest.TestCase):
             m.u.mem_write(controller+0xd0,struct.pack('<f',cached));m.call('turret_update',controller,0)
             self.assertAlmostEqual(seen[-1],expected,places=6)
             self.assertEqual(struct.unpack('<f',m.read(controller+0xd0,4))[0],cached)
+
+    def test_original_horizontal_clamp_honors_custom_status_limit(self):
+        # Execute the retained original RotateTurret clamp, replacing only
+        # Quaternion-to-Euler conversion and the boundary after clamping.
+        for yaw,expected in [(30.,15.),(10.,10.),(330.,345.),(350.,350.)]:
+            m=Machine(ARGS.module,ARGS.game_library);controller=m.object();status=m.object()
+            m.qwrite(controller+0x40,status);m.iwrite(status+0xc8,15)
+            start,end=0x1978850,0x19789c0
+            m.u.mem_write(GAME+start,m.game_read(start,end-start))
+            m.u.mem_write(GAME+0x9a9000,m.game_read(0x9a9000,0x1000))
+            def euler():
+                m.sf(0,0);m.sf(1,yaw*math.pi/180.);m.sf(2,0)
+            m.at(GAME+0x34208a4,euler)
+            m.at(GAME+0x3420e60,lambda:None)
+            m.at(GAME+end,lambda:m.sx(30,HALT))
+            m.sx(19,controller);m.sx(8,status);m.call(GAME+start)
+            self.assertAlmostEqual(m.f(0),expected,places=3)
+
+    def test_vehicle_stats_publish_horizontal_limit(self):
+        for kind in (1,2):
+            m=self.m;status,config=self.external_config(capacity=0,kind=kind,half_angle=25)
+            m.u.mem_write(config+44,struct.pack('<f',10.))
+            m.call('apply_custom_stats',status)
+            self.assertEqual(struct.unpack('<i',m.read(status+0xc8,4))[0],25)
 
     def test_magazine_counts_main_shots_and_waits_for_full_reload(self):
         m=self.m;status,config=self.external_config();launcher=m.object();m.qwrite(launcher+0x38,status)
@@ -569,6 +594,47 @@ class NativeTests(unittest.TestCase):
             old_pc=old_pc,new_go=new_go,new_s=new_s,new_pc=new_pc,camera=camera,
             old_tr=old_tr,new_tr=new_tr,old_tur=old_tur,new_tur=new_tur,array=array,ui=ui,launcher=launcher,
             pc_type=pc_type,get_component=get_component,old_gun=old_gun,new_gun=new_gun,active=active)
+
+    def test_imported_vehicle_selects_original_control_template(self):
+        for kind in (0,1,2):
+            with self.subTest(kind=kind):
+                self.m=Machine(ARGS.module,ARGS.game_library);m=self.m;s=self.swap_scene()
+                self.external_config(kind=kind,half_angle=15 if kind else 0)
+                for index,name in enumerate(('T34_85_Player','SU_85_Player','ZiS_3_Player')):
+                    m.u.mem_write(m.symbols['catalog']+index*112,name.encode()+b'\0')
+                m.global_i('catalog_count',4);m.global_i('catalog_stock',3);m.global_i('catalog_generation',1)
+                m.iwrite(m.symbols['catalog_hatch']+3*4,0)
+                m.iwrite(s.array+0x18,3);prefab=m.object();m.qwrite(s.array+0x20+kind*8,prefab)
+                m.at(m.symbols['hatch_apply_tank'],lambda:1)
+                m.call('switch_tank',s.game,s.params,3)
+                self.assertEqual(m.calls[-1] if m.calls[-1][0]=='instantiate' else [x for x in m.calls if x[0]=='instantiate'][-1],('instantiate',prefab,[11.,22.,33.,0.,0.,0.,1.]))
+                self.assertEqual(m.call('Java_com_luna17_aot_NativeBridge_switchResult',0,0),0)
+
+    def test_towed_wheels_follow_motion_without_tank_drive(self):
+        m=self.m;status,config=self.external_config(kind=2,half_angle=15)
+        body,move,transform,params=[m.object() for _ in range(4)]
+        m.qwrite(body+0x38,status);m.qwrite(body+0x28,move);m.qwrite(move+0x20,transform)
+        m.at(GAME+0x1931cfc,lambda:params)
+        original=[];m.global_q('original_body_update',m.stub(lambda:original.append(m.x(0))))
+        wheels=[m.object(),m.object()];array=m.alloc(64);m.iwrite(array+0x18,2);m.qwrite(body+0x58,array)
+        for i,wheel in enumerate(wheels):m.qwrite(array+0x20+i*8,wheel)
+        position=[0.];clock=[10.];m.u.mem_write(config+160,struct.pack('<f',.5))
+        def vector(z):
+            for i,v in enumerate((0.,0.,z)):m.sf(i,v)
+        getters={}
+        for name,callback in [('get_position',lambda:vector(position[0])),('get_forward',lambda:vector(1.))]:
+            info=m.alloc(32);m.qwrite(info,m.stub(callback));getters[name.encode()]=info
+        m.global_q('class_method',m.stub(lambda:getters.get(m.read(m.x(1),40).split(b'\0')[0],0)))
+        rotations=[];m.at(m.symbols['rotate_wheel'],lambda:rotations.append((m.x(0),m.f(0))))
+        m.at(GAME+0x343a6dc,lambda:m.sf(0,clock[0]))
+        m.call('body_update',body,0)
+        for z,want in [(1.,2.),(.5,-1.),(.5,0.),(20.,None)]:
+            position[0]=z;clock[0]+=.02;before=len(rotations);m.call('body_update',body,0)
+            if want is None:self.assertEqual(len(rotations),before)
+            else:
+                self.assertEqual(len(rotations),before+2)
+                for wheel,angle in rotations[-2:]:self.assertIn(wheel,wheels);self.assertAlmostEqual(angle,want,places=5)
+        self.assertEqual(original,[body]*5)
 
     def test_queued_swap_preserves_pose_and_updates_camera(self):
         m=self.m;s=self.swap_scene();m.call('game_update',s.game,0)
