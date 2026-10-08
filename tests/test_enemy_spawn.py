@@ -65,7 +65,10 @@ class EnemySpawnTests(unittest.TestCase):
     def test_original_ai_factory_all_six_countries_and_enemy_identity(self):
         for nation in range(6):
             with self.subTest(nation=nation):
-                m=self.machine();game=m.object();gen=m.object();params=m.object();prefab=m.object();old=m.object();new=m.object();ps=m.object();ns=m.object();array=m.object(64)
+                m=self.machine();game=m.object();gen=m.alloc();params=m.object();prefab=m.object();old=m.object();new=m.object();ps=m.object();ns=m.object();array=m.object(64)
+                # The generator is a managed factory reference. Do not invent
+                # a Unity native-object pointer at +0x10 to satisfy the caller.
+                m.qwrite(gen,m.alloc());self.assertEqual(m.qread(gen+0x10),0)
                 m.qwrite(game+0x48,gen);m.qwrite(game+0x110,old);m.iwrite(params+0x5c,nation);m.iwrite(array+24,1);m.qwrite(array+32,prefab);m.qwrite(gen+0x60+nation*8,array)
                 m.iwrite(m.symbols['enemy_count']+nation*4,1);m.qwrite(m.symbols['enemy_source']+nation*8,array);m.global_i('state',3);m.u.mem_write(ps+0x20,b'\1')
                 m.original_factory(params,new);ai=m.string('AI');m.global_q('ha_string',m.stub(lambda:ai))
@@ -77,6 +80,19 @@ class EnemySpawnTests(unittest.TestCase):
                     self.assertEqual(m.x(0),prefab);self.assertEqual(m.read(ps+0x20,1),b'\2');self.assertAlmostEqual(m.f(0),11);self.assertAlmostEqual(m.f(1),.15,places=5);self.assertAlmostEqual(m.f(2),22);m.calls.append(('enemy-instantiated',nation));return new
                 m.at(GAME+0x1d7f94c,instantiate);m.call('spawn_enemy',game,nation<<16)
                 self.assertEqual(m.read(ps+0x20,1),b'\1');self.assertEqual(m.read(ns+0x20,1),b'\2');self.assertEqual(m.read(ns+0x202,1),b'\0');self.assertEqual(m.qread(game+0x110),old);self.assertEqual(m.read(params+0x5c,4),struct.pack('<i',nation));self.assertEqual(m.qread(m.symbols['player_control']),0);self.assertEqual(m.read(m.symbols['enemy_result'],4),struct.pack('<i',1))
+
+    def test_missing_generator_remains_rejected(self):
+        m=self.machine();game=m.object();m.global_i('state',3)
+        m.call('spawn_enemy',game,0)
+        self.assertEqual(m.read(m.symbols['enemy_result'],4),struct.pack('<i',-7))
+
+    def test_changed_template_array_is_rejected_before_factory(self):
+        m=self.machine();game=m.object();gen=m.alloc();array=m.object(64)
+        m.qwrite(game+0x48,gen);m.qwrite(gen+0x60,array);m.iwrite(array+24,1)
+        m.global_i('state',3);m.iwrite(m.symbols['enemy_count'],1)
+        m.qwrite(m.symbols['enemy_source'],m.alloc())
+        m.call('spawn_enemy',game,0)
+        self.assertEqual(m.read(m.symbols['enemy_result'],4),struct.pack('<i',-8))
 
     def test_online_and_busy_requests_are_rejected(self):
         m=self.machine();m.global_i('ready',1);m.global_i('state',4);m.iwrite(m.symbols['enemy_count'],1)

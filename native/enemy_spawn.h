@@ -114,7 +114,10 @@ static __attribute__((noinline)) void spawn_enemy(void *game, int command) {
     int nation = (command >> 16) & 255, index = command & 0xffff;
     void *gen = P(game, FIELD_GAMECONTROL_TANKGENMANAGER);
     if (state != 3) { enemy_result = -6; return; }
-    if (!unity_exists(gen)) { enemy_result = -7; return; }
+    // Use the managed generator reference, as the stock tank-swap path does.
+    // The factory reads its prefab arrays; a Unity native-object pointer is
+    // not a prerequisite for invoking this managed factory.
+    if (!gen) { enemy_result = -7; return; }
     if (nation > 5 || index >= enemy_count[nation]) { enemy_result = -8; return; }
     void *array = P(gen, 0x60 + nation * 8);
     if (!array || index >= I(array, 0x18) || array != enemy_source[nation]) { enemy_result = -8; return; }
