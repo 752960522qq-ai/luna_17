@@ -50,6 +50,7 @@ String mode=args[0];
 if(mode.equals("two_loaders")) {Class<?> a=child(args[1]),b=child(args[1]);check(a!=b&&a.getClassLoader()!=b.getClassLoader());begin(a,args[2]);begin(b,args[2]);check((Boolean)call(a,"ready")&&(Boolean)call(b,"ready"));check((Integer)call(a,"value")==7&&(Integer)call(b,"value")==7);call(a,"operations");call(b,"operations");begin(a,args[2]);check((Boolean)call(a,"ready"));}
 if(mode.equals("bridge_failure")){System.setProperty("fixture.fail","yes");Class<?> a=child(args[1]);begin(a,args[2]);String original=(String)call(a,"error");check((Boolean)call(a,"library")&&!(Boolean)call(a,"ready")&&original.contains("first startup failure"));System.clearProperty("fixture.fail");begin(a,args[2]);check(original.equals(call(a,"error"))&&!(Boolean)call(a,"ready"));}
 if(mode.equals("different_path")){Class<?> a=child(args[1]),b=child(args[1]);begin(a,args[2]);begin(b,args[2]+".changed");check((Boolean)call(a,"ready")&&!(Boolean)call(b,"ready"));check(((String)call(b,"error")).contains("更新后需完全退出"));}
+if(mode.equals("empty_then_import")){ModuleSession s=new ModuleSession();check(s.prepare(()->null)==null);Stub stub=new Stub(false);ModuleSession.Loaded loaded=new ModuleSession.Loaded(stub,new File(args[2]),ModuleRun.class.getClassLoader());check(s.prepare(()->loaded)==loaded);check(stub.calls==1);check(s.prepare(()->null)==loaded);}
 if(mode.startsWith("session")){ModuleSession s=new ModuleSession();Stub stub=new Stub(mode.equals("session_failure"));int[] created={0};ModuleSession.Factory f=()->{created[0]++;return new ModuleSession.Loaded(stub,new File(args[2]),ModuleRun.class.getClassLoader());};if(stub.fail){String first=null;try{s.prepare(f);}catch(Exception e){first=e.getMessage();}check("first failure".equals(first));try{s.prepare(f);throw new AssertionError();}catch(IllegalStateException e){check(e.getCause()!=null&&e.getCause().getMessage().equals(first));}}else{check(s.prepare(f)==s.prepare(f));}check(created[0]==1&&stub.calls==1);}
 System.out.println(mode+": passed");}}
 '''
@@ -71,6 +72,7 @@ class ModuleLoading(unittest.TestCase):
     def test_two_real_class_loaders_share_parent_native_library(self):self.execute('two_loaders')
     def test_loaded_library_and_failed_initialization_are_separate(self):self.execute('bridge_failure')
     def test_different_library_path_requires_restart(self):self.execute('different_path')
+    def test_empty_install_can_prepare_imported_module_later(self):self.execute('empty_then_import')
     def test_session_success_initializes_only_once(self):self.execute('session_success')
     def test_session_failure_preserves_loader_and_first_cause(self):self.execute('session_failure')
 

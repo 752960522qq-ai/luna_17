@@ -6,12 +6,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
 
-/** The game is launched only after its prerequisite is ready. */
+/** Prepare an installed prerequisite before Unity starts; empty installs skip it. */
 public final class HatchActivity extends Activity {
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
         TextView status = new TextView(this);
-        status.setText("舱盖 0.2：正在初始化坦无敌3000…");
+        status.setText("舱盖 0.2：正在检查模组…");
         status.setPadding(32,32,32,32);
         setContentView(status);
         HatchLoader.prepare(this, failure -> {

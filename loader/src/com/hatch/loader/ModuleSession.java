@@ -22,6 +22,7 @@ final class ModuleSession {
         if (ready) return resident;
         try {
             if (resident == null) resident=factory.create();
+            if (resident == null) return null;
             resident.module.prepare(resident.library);
             ready=true;
             return resident;

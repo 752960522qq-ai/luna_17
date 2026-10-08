@@ -39,6 +39,7 @@ public final class HatchLoader {
                         System.loadLibrary("il2cpp");
                         File mods = folder(activity);
                         HatchPackage core = installCore(activity,mods);
+                        if (core == null) return null;
                         File cache = new File(activity.getCodeCacheDir(), "Hatch/" + core.manifest.getString("dex_sha256") + core.manifest.getString("native_sha256"));
                         if (!cache.isDirectory() && !cache.mkdirs()) throw new IOException("无法创建模块缓存");
                         File dex = publish(core,cache,"module.dex","dex_sha256","dex_bytes");
@@ -48,8 +49,10 @@ public final class HatchLoader {
                         if (loaded.apiVersion() != 2) throw new IOException("前置 API 版本不兼容");
                         return new ModuleSession.Loaded(loaded,nativeFile,loader);
                     });
-                    residentNative = resident.library;
-                    module = resident.module;
+                    if (resident != null) {
+                        residentNative = resident.library;
+                        module = resident.module;
+                    }
                 }
             } catch (Exception | LinkageError e) { failure = e.getClass().getSimpleName()+": "+e.getMessage(); }
             String result = failure;
@@ -66,16 +69,23 @@ public final class HatchLoader {
         } finally { temp.delete(); }
     }
     private static HatchPackage installCore(Activity activity, File mods) throws Exception {
+        File target=new File(mods,"tankinvincible3000.hatch");
+        if (target.isFile()) {
+            HatchPackage external=HatchPackage.inspect(target);
+            if (!"tankinvincible3000".equals(external.id) || !"module".equals(external.type)) throw new IOException("外部前置包无效");
+            return external;
+        }
+        InputStream bundled;
+        try { bundled=activity.getAssets().open("Hatch/mods/tankinvincible3000.hatch"); }
+        catch (FileNotFoundException absent) { return null; }
         File temp = File.createTempFile("core-",".tmp",mods);
         try {
-            try (InputStream in=activity.getAssets().open("Hatch/mods/tankinvincible3000.hatch"); OutputStream out=new FileOutputStream(temp)) {
+            try (InputStream in=bundled; OutputStream out=new FileOutputStream(temp)) {
                 HatchPackage.copy(in,out,HatchPackage.MAX_BYTES,null);
             }
             HatchPackage builtIn=HatchPackage.inspect(temp);
             if (!"tankinvincible3000".equals(builtIn.id) || !"module".equals(builtIn.type)) throw new IOException("内置前置包无效");
-            File target=new File(mods,"tankinvincible3000.hatch");
-            // This loader and its prerequisite ship together. Matching version text alone
-            // cannot identify a compatible build; use the bundled, verified code hashes.
+            // Seed only a missing prerequisite. Imported updates belong to the user.
             if (!temp.renameTo(target)) throw new IOException("无法更新必备前置");
             File[] peers=mods.listFiles((d,n)->n.endsWith(".hatch"));
             if (peers!=null) for(File peer:peers) if(!peer.equals(target)) {
@@ -86,8 +96,8 @@ public final class HatchLoader {
     }
     public static void start(Activity activity) {
         final int session = ++generation;
-        if (module == null) throw new IllegalStateException("必须通过舱盖启动入口初始化");
-        try { module.start(activity,residentNative); }
+        LoaderMenu.attach(activity);
+        try { if (module != null) module.start(activity,residentNative); }
         catch (Exception e) { report="前置恢复失败: "+e.getMessage(); show(activity); return; }
         IO.execute(() -> scan(activity,session));
     }
@@ -106,7 +116,10 @@ public final class HatchLoader {
                     else { if (tanks.size() >= 16) throw new IOException("最多加载 16 个坦克包"); tanks.add(pack); }
                 } catch (Exception e) { log.append("✗ ").append(file.getName()).append(": ").append(e.getMessage()).append('\n'); }
             }
-            if (core == null) throw new IOException("缺少必备前置：坦无敌3000 1.0");
+            if (core == null || module == null) {
+                report="舱盖 0.2 · 空白调试包\n尚未加载坦无敌3000。原版游戏可正常启动。\n\n已发现 " + tanks.size() + " 个坦克包；导入坦无敌3000 1.0 前置并完全退出重启后，才能加载坦克模组。\n\n" + log;
+                return;
+            }
             HatchModule loaded = module;
             log.append("✓ 坦无敌3000 1.0（前置）\n"); int count = 0;
             for (HatchPackage tank : tanks) {
