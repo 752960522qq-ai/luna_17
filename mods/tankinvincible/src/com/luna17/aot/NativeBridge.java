@@ -26,6 +26,9 @@ final class NativeBridge {
     static native String[] tanks(int nation);
     static native boolean switchTank(int nation, int index);
     static native int switchResult();
+    static native String[] enemyTanks(int nation);
+    static native boolean spawnEnemy(int nation, int index);
+    static native int spawnEnemyResult();
     static native String loadHatch(String path);
     static native String hatchError();
     static native boolean configureMagazine(String id, int capacity, float interval, float reload);

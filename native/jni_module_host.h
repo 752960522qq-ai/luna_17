@@ -13,6 +13,9 @@ JNIEXPORT jboolean JNICALL Java_com_hatch_loader_NativeHost_bind(JNIEnv *env,jcl
         NATIVE(tanks,"(I)[Ljava/lang/String;"),
         NATIVE(switchTank,"(II)Z"),
         NATIVE(switchResult,"()I"),
+        NATIVE(enemyTanks,"(I)[Ljava/lang/String;"),
+        NATIVE(spawnEnemy,"(II)Z"),
+        NATIVE(spawnEnemyResult,"()I"),
         NATIVE(loadHatch,"(Ljava/lang/String;)Ljava/lang/String;"),
         NATIVE(hatchError,"()Ljava/lang/String;"),
         NATIVE(configureMagazine,"(Ljava/lang/String;IFF)Z")

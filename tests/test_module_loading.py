@@ -22,6 +22,9 @@ JNIEXPORT jboolean JNICALL Java_com_luna17_aot_NativeBridge_toggle(JNIEnv *e,jcl
 JNIEXPORT jobjectArray JNICALL Java_com_luna17_aot_NativeBridge_tanks(JNIEnv *e,jclass c,jint nation){jclass s=(*e)->FindClass(e,"java/lang/String");return (*e)->NewObjectArray(e,0,s,0);}
 JNIEXPORT jboolean JNICALL Java_com_luna17_aot_NativeBridge_switchTank(JNIEnv *e,jclass c,jint nation,jint index){return JNI_TRUE;}
 JNIEXPORT jint JNICALL Java_com_luna17_aot_NativeBridge_switchResult(JNIEnv *e,jclass c){return 7;}
+JNIEXPORT jobjectArray JNICALL Java_com_luna17_aot_NativeBridge_enemyTanks(JNIEnv *e,jclass c,jint nation){jclass s=(*e)->FindClass(e,"java/lang/String");return (*e)->NewObjectArray(e,0,s,0);}
+JNIEXPORT jboolean JNICALL Java_com_luna17_aot_NativeBridge_spawnEnemy(JNIEnv *e,jclass c,jint nation,jint index){return JNI_TRUE;}
+JNIEXPORT jint JNICALL Java_com_luna17_aot_NativeBridge_spawnEnemyResult(JNIEnv *e,jclass c){return 1;}
 JNIEXPORT jstring JNICALL Java_com_luna17_aot_NativeBridge_loadHatch(JNIEnv *e,jclass c,jstring path){return (*e)->NewStringUTF(e,"");}
 JNIEXPORT jstring JNICALL Java_com_luna17_aot_NativeBridge_hatchError(JNIEnv *e,jclass c){return (*e)->NewStringUTF(e,"");}
 JNIEXPORT jboolean JNICALL Java_com_luna17_aot_NativeBridge_configureMagazine(JNIEnv *e,jclass c,jstring id,jint cap,jfloat interval,jfloat reload){return cap>=2;}
@@ -32,7 +35,7 @@ JAVA={
 'android/app/Activity.java':'package android.app; public class Activity {}',
 'com/luna17/aot/Probe.java':'''package com.luna17.aot;
 public class Probe {public static void start(String path){NativeBridge.start(path);} public static boolean ready(){return NativeBridge.loaded;} public static boolean library(){return NativeBridge.libraryLoaded;} public static String error(){return NativeBridge.error;} public static int value(){return NativeBridge.switchResult();} public static void operations(){
-if(!NativeBridge.toggle(0,true)||NativeBridge.tanks(0).length!=0||!NativeBridge.switchTank(0,0)||!NativeBridge.loadHatch("unused").isEmpty()||!NativeBridge.hatchError().isEmpty()||!NativeBridge.configureMagazine("fixture",2,.1f,1.f))throw new AssertionError("Native signature mismatch");}}
+if(!NativeBridge.toggle(0,true)||NativeBridge.tanks(0).length!=0||!NativeBridge.switchTank(0,0)||NativeBridge.enemyTanks(0).length!=0||!NativeBridge.spawnEnemy(0,0)||NativeBridge.spawnEnemyResult()!=1||!NativeBridge.loadHatch("unused").isEmpty()||!NativeBridge.hatchError().isEmpty()||!NativeBridge.configureMagazine("fixture",2,.1f,1.f))throw new AssertionError("Native signature mismatch");}}
 ''',
 'com/hatch/loader/ModuleRun.java':'''package com.hatch.loader;
 import java.io.File; import java.net.URLClassLoader; import java.net.URL; import java.lang.reflect.Method; import android.app.Activity;

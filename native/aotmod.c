@@ -103,6 +103,7 @@ static void utf8_name(void *text,char *out,size_t capacity) {
 #include "tank_catalog.h"
 
 #include "tank_swap.h"
+#include "enemy_spawn.h"
 
 static void game_update(void *self,const void *mi) {
     original_game_update(self,mi);
@@ -111,16 +112,18 @@ static void game_update(void *self,const void *mi) {
     void *parameters=FN(RVA_1931CFC,void *(*)(const void *))(0);
     if(!parameters) {state=2;return;}
     int mode=I(parameters,FIELD_GAMEPARAMMANAGER_GAMEMODE_K__BACKINGFIELD);
-    if(mode==2) {state=4;pending=-1;discard_new(-6);player_status=0;return;}
+    if(mode==2) {state=4;pending=-1;enemy_pending=-1;enemy_result=-1;discard_new(-6);player_status=0;return;}
     void *status=P(self,0x118);
-    if(!unity_exists(status) || B(self,0x10c) || B(self,0x10d) || B(status,FIELD_UNITSTATUS_ISDESTROYED_K__BACKINGFIELD)) {state=2;pending=-1;discard_new(-6);return;}
+    if(!unity_exists(status) || B(self,0x10c) || B(self,0x10d) || B(status,FIELD_UNITSTATUS_ISDESTROYED_K__BACKINGFIELD)) {state=2;pending=-1;enemy_pending=-1;enemy_result=-1;discard_new(-6);return;}
     player_status=status;state=3;
     if(vehicle_nation_owner!=status && !swap.new_go){player_vehicle_nation=I(parameters,0x5c);vehicle_nation_owner=status;}
     void *gen=P(self,0x48);
-    if(gen) build_catalog(gen);
+    if(gen) {build_catalog(gen);build_enemy_catalog(gen);}
     int command=__atomic_exchange_n(&pending,-1,__ATOMIC_ACQ_REL);
     if(command>=0 && !swap.new_go) switch_tank(self,parameters,command);
     advance_swap(self);
+    int enemy_command=__atomic_exchange_n(&enemy_pending,-1,__ATOMIC_ACQ_REL);
+    if(enemy_command>=0)spawn_enemy(self,enemy_command);
     if(ammo && player_status) refill(player_status);
 }
 static void player_update(void *self,const void *mi) {

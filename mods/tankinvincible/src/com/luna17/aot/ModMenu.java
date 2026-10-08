@@ -28,12 +28,15 @@ final class ModMenu {
     private final Activity activity;
     private final Handler handler = new Handler(android.os.Looper.getMainLooper());
     private FrameLayout overlay;
-    private Button bubble, swap;
+    private Button bubble, swap, spawnEnemy;
     private ScrollView panel;
-    private TextView status, result;
+    private TextView status, result, enemyResult;
     private CheckBox god, ammo;
-    private Spinner nation, tank;
+    private Spinner nation, tank, enemyNation, enemyTank;
     private String[] currentTanks = new String[0];
+    private String[] currentEnemies = new String[0];
+    private int shownEnemyNation = -1;
+    private boolean waitingEnemy;
     private int shownNation = -1, currentState;
     private boolean changing, waiting, stopped;
     private final int white = Color.rgb(237, 242, 249);
@@ -152,6 +155,25 @@ final class ModMenu {
             }
         });
         result = label("新坦克保留当前位置和朝向。", 11, muted); body.addView(result);
+        body.addView(label("添加敌人坦克", 14, white));
+        enemyNation = new Spinner(activity); enemyNation.setAdapter(adapter(countries));
+        body.addView(enemyNation, new LinearLayout.LayoutParams(-1,dp(42)));
+        enemyTank = new Spinner(activity); enemyTank.setAdapter(adapter(new String[]{"进入单人对局后读取 AI 车型"}));
+        body.addView(enemyTank, new LinearLayout.LayoutParams(-1,dp(42)));
+        enemyNation.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override public void onItemSelected(AdapterView<?> a,View v,int p,long id) { refreshEnemies(); }
+            @Override public void onNothingSelected(AdapterView<?> a) {}
+        });
+        spawnEnemy = button("在屏幕中心指向处添加敌人"); body.addView(spawnEnemy, new LinearLayout.LayoutParams(-1,dp(43)));
+        spawnEnemy.setEnabled(false);
+        enemyResult = label("先把屏幕中心对准地面，再选择原版 AI 坦克并添加。", 11, muted); body.addView(enemyResult);
+        spawnEnemy.setOnClickListener(v -> {
+            int n = enemyNation.getSelectedItemPosition(), i = enemyTank.getSelectedItemPosition();
+            if (NativeBridge.loaded && NativeBridge.spawnEnemy(n,i)) {
+                waitingEnemy = true; enemyResult.setText("正在添加敌人…");
+                spawnEnemy.setEnabled(false); swap.setEnabled(false);
+            } else toast("请在单人对局中选择有效 AI 车型，等待当前操作完成");
+        });
         body.addView(label("单人模式可用；联机模式自动暂停。", 11, muted));
         Button close = button("收起菜单"); body.addView(close,new LinearLayout.LayoutParams(-1,dp(36)));
         close.setOnClickListener(new View.OnClickListener() { @Override public void onClick(View v) {panel.setVisibility(View.GONE);} });
@@ -216,7 +238,7 @@ final class ModMenu {
             }
             god.setEnabled(FeatureConfig.GODMODE && (currentState==2 || currentState==3));
             ammo.setEnabled(FeatureConfig.INFINITE_AMMO && (currentState==2 || currentState==3));
-            if (panel.getVisibility()==View.VISIBLE) refreshTanks();
+            if (panel.getVisibility()==View.VISIBLE) { refreshTanks(); refreshEnemies(); }
             if (waiting) {
                 int r=NativeBridge.switchResult();
                 if (r!=0) {
@@ -236,11 +258,35 @@ final class ModMenu {
                     }
                 } else if(currentState!=3) {waiting=false;result.setText("已离开当前对局，替换取消。");}
             }
-            swap.setEnabled(FeatureConfig.TANK_SWAP && currentState==3 && currentTanks.length>0 && !waiting);
+            if (waitingEnemy) {
+                int r = NativeBridge.spawnEnemyResult();
+                if (r != 0 || currentState != 3) {
+                    waitingEnemy = false;
+                    switch(r) {
+                        case 1: enemyResult.setText("敌人坦克已添加。"); break;
+                        case -2: enemyResult.setText("相机或场景接口尚未就绪，请稍后重试。"); break;
+                        case -3: enemyResult.setText("屏幕中心没有命中场景，请对准地面。"); break;
+                        case -4: enemyResult.setText("指向的表面过陡，请对准地面。"); break;
+                        case -5: enemyResult.setText("敌人生成失败，请尝试其他 AI 车型。"); break;
+                        default: enemyResult.setText("对局状态已改变，或其他操作尚未完成。");
+                    }
+                }
+            }
+            swap.setEnabled(FeatureConfig.TANK_SWAP && currentState==3 && currentTanks.length>0 && !waiting && !waitingEnemy);
+            spawnEnemy.setEnabled(currentState==3 && currentEnemies.length>0 && !waiting && !waitingEnemy);
         } catch(Throwable failure) {
             status.setText("模块读取失败："+failure.getClass().getSimpleName());
-            god.setEnabled(false); ammo.setEnabled(false); swap.setEnabled(false);
+            god.setEnabled(false); ammo.setEnabled(false); swap.setEnabled(false); spawnEnemy.setEnabled(false);
         }
+    }
+    private void refreshEnemies() {
+        if (enemyTank==null || enemyNation==null || !NativeBridge.loaded) return;
+        int n = enemyNation.getSelectedItemPosition();
+        String[] next = NativeBridge.enemyTanks(n);
+        if (next == null) next = new String[0];
+        if (n==shownEnemyNation && Arrays.equals(next,currentEnemies)) return;
+        shownEnemyNation=n; currentEnemies=next;
+        enemyTank.setAdapter(adapter(next.length==0 ? new String[]{"进入单人对局后读取 AI 车型"} : next));
     }
     private void toast(String text) { Toast.makeText(activity,text,Toast.LENGTH_SHORT).show(); }
     void detach() { stopped=true; handler.removeCallbacks(poll); }
