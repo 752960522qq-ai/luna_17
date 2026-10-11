@@ -1,0 +1,32 @@
+{
+  "release": "更好的坦克体验0.1",
+  "apk": "Attack-on-Tank-Hatch-0.4-BTE0.1-Complete.apk",
+  "apk_size_bytes": 334507652,
+  "apk_sha256": "b0df439bfa0bcaabc1eb0d2f99f18ace7f3f9d6791dd1b852c51138a9f6568a6",
+  "signing_certificate_sha256": "734e17a0550eb23e3e5975dc90a7932eb513ee0e62ad4804b436cacd5f15413e",
+  "source_ammunition_sha256": "69a084cb496a9d09ccb43089f7fa3c3ec300e472c5f74da7cdb2f1276cd1e752",
+  "feature_ammunition_vehicles": 89,
+  "feature_ammunition_fields": 445,
+  "numeric_ammunition_fields": 439,
+  "null_fields_preserved": 6,
+  "voice_source_sha256": "bbb5135b6f4fea59966729e7e621a413e92e1cd8a319377299f7af5d8bfd53e4",
+  "embedded_packages": [
+    "tankinvincible3000",
+    "T54_1949",
+    "Matilda_III",
+    "Panzer_II_Ausf_L",
+    "T44_100",
+    "T30",
+    "SU_152",
+    "Grille",
+    "better_tank_experience"
+  ],
+  "verification": {
+    "ammunition_matches_uploaded_json": true,
+    "apk_zip_crc": "passed",
+    "apk_signature": "passed",
+    "elf_16kb_alignment": "passed",
+    "unit_tests_passed": 5,
+    "android_device_test": "not performed"
+  }
+}
