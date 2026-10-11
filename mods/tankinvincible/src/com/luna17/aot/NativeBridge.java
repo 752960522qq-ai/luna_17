@@ -19,6 +19,9 @@ final class NativeBridge {
             error = failure.getClass().getSimpleName() + ": " + failure.getMessage();
         }
     }
+    static native boolean configureExperience(int flags,float k,float khe);
+    static native float[] experienceSnapshot();
+    static native void experienceInput(int cycle,float dx,float dy,float zoom,float tilt);
     private static native void init();
     static native int state();
     private static native String initError();

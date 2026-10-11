@@ -28,6 +28,7 @@ def main():
     actions=project.add_subparsers(dest='operation',required=True)
     create=actions.add_parser('create');create.add_argument('directory',type=Path);create.add_argument('--template',default='T54_1949');create.add_argument('--id',required=True)
     check=actions.add_parser('check');check.add_argument('directory',type=Path)
+    preset=actions.add_parser('artillery-preset',help='对 GunMount 项目应用自行火炮类型及默认射界');preset.add_argument('directory',type=Path)
     pack=actions.add_parser('pack');pack.add_argument('directory',type=Path);pack.add_argument('--output',type=Path,required=True)
     model=actions.add_parser('model');model.add_argument('directory',type=Path);model.add_argument('input',type=Path);model.add_argument('--bindings',type=Path)
     texture=actions.add_parser('texture');texture.add_argument('directory',type=Path);texture.add_argument('input',type=Path);texture.add_argument('--material',required=True);texture.add_argument('--slot',choices=['baseColor','normal'],default='baseColor')
@@ -35,8 +36,9 @@ def main():
     args=parser.parse_args()
     try:
         if args.action=='project':
-            from .project import create_project,validate_project,pack_project,import_model,replace_texture
+            from .project import create_project,validate_project,pack_project,import_model,replace_texture,apply_artillery_preset
             if args.operation=='create':result=create_project(args.directory,args.template,args.id)
+            elif args.operation=='artillery-preset':result=apply_artillery_preset(args.directory)
             elif args.operation=='check':result=validate_project(args.directory)
             elif args.operation=='pack':result=pack_project(args.directory,args.output)
             elif args.operation=='model':result=import_model(args.directory,args.input,json.loads(args.bindings.read_text()) if args.bindings else None)

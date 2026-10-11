@@ -4,7 +4,7 @@ import tkinter as tk
 from tkinter import ttk,filedialog,messagebox
 from pathlib import Path
 from .project import (create_project,read_documents,save_documents,validate_project,
-    import_model,replace_texture,pack_project,NATIONS)
+    import_model,replace_texture,pack_project,NATIONS,apply_artillery_preset)
 
 def mount(parent):
     top=ttk.Frame(parent,padding=12);top.pack(fill='both',expand=True)
@@ -51,7 +51,9 @@ def mount(parent):
         if not r['valid']:raise ValueError('项目检查未通过')
         file=filedialog.asksaveasfilename(defaultextension='.tankpack')
         if file:state.set(json.dumps(pack_project(project.get(),file),ensure_ascii=False))
+    def artillery():
+        result=apply_artillery_preset(project.get());load();state.set('自行火炮预设已应用；需要更好的坦克体验0.1提供两级镜' if result['valid'] else '\n'.join(result['errors']))
     buttons=ttk.Frame(top);buttons.pack(fill='x')
-    for label,fn in [('保存并检查',save),('导入模型与绑定',model),('缩略图',thumbnail),('颜色贴图',texture),('法线贴图',lambda:texture('normal')),('导出 Tank Pack',export)]:ttk.Button(buttons,text=label,command=lambda f=fn:action(f)).pack(side='left',padx=(0,8))
+    for label,fn in [('保存并检查',save),('导入模型与绑定',model),('自行火炮预设',artillery),('缩略图',thumbnail),('颜色贴图',texture),('法线贴图',lambda:texture('normal')),('导出 Tank Pack',export)]:ttk.Button(buttons,text=label,command=lambda f=fn:action(f)).pack(side='left',padx=(0,8))
     ttk.Label(top,textvariable=state,wraplength=780).pack(anchor='w',pady=10)
     return project

@@ -1,4 +1,23 @@
 #pragma once
+JNIEXPORT jboolean JNICALL Java_com_luna17_aot_NativeBridge_configureExperience(JNIEnv *env,jclass cls,jint flags,jfloat k,jfloat khe){
+    (void)env;(void)cls;
+    if(flags<0 || flags>7 || !isfinite(k) || k<=0 || k>1000 || !isfinite(khe) || khe<=0 || khe>1000 || state==3)return JNI_FALSE;
+    experience_k=k;experience_khe=khe;
+    __atomic_store_n(&experience_flags,flags,__ATOMIC_RELEASE);return JNI_TRUE;
+}
+JNIEXPORT jfloatArray JNICALL Java_com_luna17_aot_NativeBridge_experienceSnapshot(JNIEnv *env,jclass cls){
+    (void)cls;float values[BTE_SNAPSHOT_SIZE];
+    bte_lock(&bte_snapshot_lock);memcpy(values,bte_snapshot,sizeof(values));bte_unlock(&bte_snapshot_lock);
+    jfloatArray result=(*env)->NewFloatArray(env,BTE_SNAPSHOT_SIZE);
+    if(result)(*env)->SetFloatArrayRegion(env,result,0,BTE_SNAPSHOT_SIZE,values);return result;
+}
+JNIEXPORT void JNICALL Java_com_luna17_aot_NativeBridge_experienceInput(JNIEnv *env,jclass cls,jint cycle,jfloat dx,jfloat dy,jfloat zoom,jfloat tilt){
+    (void)env;(void)cls;
+    if(cycle<0||cycle>1||!isfinite(dx)||!isfinite(dy)||!isfinite(zoom)||!isfinite(tilt))return;
+    bte_lock(&bte_command_lock);bte_next_mode=(bte_next_mode+cycle)%3;
+    bte_pan_x+=bte_limit(dx,-1,1);bte_pan_y+=bte_limit(dy,-1,1);bte_zoom+=bte_limit(zoom,-1,1);bte_tilt+=bte_limit(tilt,-20,20);
+    bte_unlock(&bte_command_lock);
+}
 JNIEXPORT void JNICALL Java_com_luna17_aot_NativeBridge_init(JNIEnv *env,jclass cls) {
     (void)env;(void)cls;
     static int started;

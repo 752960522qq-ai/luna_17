@@ -17,7 +17,7 @@ def repack_loader(source, dex, output, profile_path, packages, unity_data=None):
     profile = json.loads(Path(profile_path).read_text())
     docs = [validate(path) for path in packages]
     ids = [doc['id'] for doc in docs]
-    if len(ids) != len(set(ids)) or CORE_ID not in ids or sum(d.get('type','tank')=='tank' for d in docs)>16:
+    if len(ids) != len(set(ids)) or CORE_ID not in ids or sum(d.get('type','tank')!='module' for d in docs)>16:
         raise ValueError('Invalid builtin package catalog')
     with contextlib.ExitStack() as stack:
         outer = stack.enter_context(zipfile.ZipFile(source))
@@ -64,6 +64,6 @@ def repack_loader(source, dex, output, profile_path, packages, unity_data=None):
                 content = Path(path).read_bytes()
                 write_entry(out, 'assets/Hatch/mods/'+doc['id']+'.hatch', content, zipfile.ZIP_STORED)
                 catalog.append({'id':doc['id'],'name':doc['name'],'sha256':hashlib.sha256(content).hexdigest(),'size':len(content)})
-            write_entry(out,'assets/Hatch/catalog.json',json.dumps({'format':2,'loader_version':'0.3','mods':catalog},ensure_ascii=False,indent=2).encode())
+            write_entry(out,'assets/Hatch/catalog.json',json.dumps({'format':2,'loader_version':'0.4','mods':catalog},ensure_ascii=False,indent=2).encode())
             write_entry(out,'assets/Hatch/RESOURCE_USAGE.txt',(Path(__file__).resolve().parents[1]/'loader/assets/RESOURCE_USAGE.txt').read_bytes())
     return Path(output)

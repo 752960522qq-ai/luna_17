@@ -5,13 +5,13 @@ from PIL import Image
 from pygltflib import *
 from hatch.pack import compile_project, pack_project
 from hatch.package import validate
-from tankbuilder.project import read_documents, validate_project, ROOT
+from tankbuilder.project import read_documents, validate_project, ROOT, apply_artillery_preset
 
 def fixture(directory, kind):
     directory.mkdir(parents=True, exist_ok=True)
     docs=read_documents(ROOT/'tanks/T54_1949')
     docs['manifest'].update(id='CHECK_'+kind.replace('-','_'), displayName='Binding fixture',
-        basePrefab={'tank':'T34_85_Player','tank-destroyer':'SU_85_Player','towed-gun':'ZiS_3_Player'}[kind])
+        basePrefab={'tank':'T34_85_Player','tank-destroyer':'SU_85_Player','towed-gun':'ZiS_3_Player','self-propelled-artillery':'SU_85_Player'}[kind])
     docs['tank'].update(vehicleKind=kind, gunTraverseHalfAngle=15, turretRotation=12,
         dimensionsMeters={'length':4,'width':2,'height':2})
     docs['weapon']['machineGun']['ammo']=0 if kind!='tank' else 30
@@ -62,14 +62,14 @@ class Vehicles(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):cls.temp.cleanup()
     def test_all_vehicle_types_compile_and_bind(self):
-        for kind in ('tank','tank-destroyer','towed-gun'):
+        for kind in ('tank','tank-destroyer','towed-gun','self-propelled-artillery'):
             with self.subTest(kind=kind):
                 d=self.base/kind;fixture(d,kind)
                 checked=validate_project(d);self.assertTrue(checked['valid'],checked['errors'])
                 blob,doc=compile_project(d);runtime=d/'runtime.bin';runtime.write_bytes(blob)
-                package=d/'vehicle.hatch';pack_project(d,package);self.assertEqual(validate(package)['loader_version'],'0.3')
+                package=d/'vehicle.hatch';pack_project(d,package);self.assertEqual(validate(package)['loader_version'],'0.4' if kind=='self-propelled-artillery' else '0.3')
                 subprocess.run([str(self.binder),str(runtime)],check=True,capture_output=True,text=True)
-                if kind!='tank':self.assertEqual(struct.unpack_from('<Ii',blob,len(blob)-8),(1 if kind=='tank-destroyer' else 2,15))
+                if kind!='tank':self.assertEqual(struct.unpack_from('<Ii',blob,len(blob)-8),({'tank-destroyer':1,'towed-gun':2,'self-propelled-artillery':3}[kind],15))
     def test_towed_gun_rejects_engine_and_tracks(self):
         d=self.base/'bad-gun';docs=fixture(d,'towed-gun');docs['tank']['enginePower']=1
         (d/'tank.json').write_text(json.dumps(docs['tank']))
@@ -85,5 +85,11 @@ class Vehicles(unittest.TestCase):
         for angle in (0,181,15.5,float('nan')):
             docs['tank']['gunTraverseHalfAngle']=angle;(d/'tank.json').write_text(json.dumps(docs['tank']))
             self.assertFalse(validate_project(d)['valid'])
+    def test_artillery_preset_builds_real_options(self):
+        d=self.base/'artillery-preset';fixture(d,'tank-destroyer')
+        result=apply_artillery_preset(d);self.assertTrue(result['valid'],result['errors'])
+        doc=read_documents(d);self.assertEqual(doc['tank']['gunElevation'],70)
+        blob,info=compile_project(d);self.assertEqual(struct.unpack_from('<I',blob,len(blob)-8)[0],3)
+        self.assertEqual(info['loader_version'],'0.4')
 
 if __name__=='__main__':unittest.main()

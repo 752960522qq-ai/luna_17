@@ -22,7 +22,7 @@ def validate(path):
         if archive.getinfo('hatch.json').file_size > 16384:
             raise ValueError('Manifest size limit')
         doc = json.loads(archive.read('hatch.json'))
-        if doc['format'] not in (1, 2) or doc['loader'] != 'Hatch' or doc['loader_version'] not in ('0.1', '0.2', '0.3') or doc['game_version'] != '5.1.0' or doc['abi'] != 'arm64-v8a':
+        if doc['format'] not in (1, 2) or doc['loader'] != 'Hatch' or doc['loader_version'] not in ('0.1', '0.2', '0.3', '0.4') or doc['game_version'] != '5.1.0' or doc['abi'] != 'arm64-v8a':
             raise ValueError('Unsupported game or loader')
         if not re.fullmatch('[A-Za-z0-9_-]{1,48}', doc['id']):
             raise ValueError('Invalid package ID')
@@ -31,6 +31,12 @@ def validate(path):
             if doc['format'] != 2 or doc['id'] != CORE_ID or doc['version'] != '1.0' or doc['api_version'] != 2 or doc['entry_class'] != 'com.luna17.aot.TankInvincibleModule':
                 raise ValueError('Unsupported prerequisite module')
             payloads = [('module.dex', 'dex'), ('module.so', 'native')]
+        elif kind == 'gameplay' and doc['id'] != CORE_ID:
+            if doc['format'] != 2 or doc['api_version'] != 1 or not isinstance(doc.get('capabilities'),list) or not doc['capabilities']:
+                raise ValueError('Invalid gameplay interface')
+            if not 1 <= len(doc['capabilities']) <= 32 or any(not isinstance(c,str) or not re.fullmatch('[a-z0-9-]{1,64}',c) for c in doc['capabilities']) or not 0 < doc['features_bytes'] <= 65536:
+                raise ValueError('Invalid gameplay capabilities or size')
+            payloads = [('features.json','features')]
         elif kind == 'tank' and doc['id'] != CORE_ID:
             payloads = [('runtime.bin', 'runtime')]
         else:
@@ -45,7 +51,7 @@ def validate(path):
             if magic != b'HATCH01\0' or version != 1 or size != len(content) or not 4 <= nodes <= 2048 or images > 128 or content[24:88].split(b'\0')[0].decode('ascii') != doc['id']:
                 raise ValueError('Runtime header mismatch')
         for name, version in doc.get('requires', {}).items():
-            if name != CORE_ID or version != '1.0':
+            if not re.fullmatch('[A-Za-z0-9_-]{1,48}', name) or not re.fullmatch(r'[0-9]+(?:\.[0-9]+){0,3}',version):
                 raise ValueError('Unsupported dependency: ' + name)
         if 'magazine' in doc:
             mag = doc['magazine']; cap, interval, reload = mag['capacity'], mag['shotInterval'], mag['reloadTime']
@@ -56,7 +62,7 @@ def validate(path):
 def pack_module(dex, native, output):
     dex, native, output = Path(dex), Path(native), Path(output)
     content = {'module.dex': dex.read_bytes(), 'module.so': native.read_bytes()}
-    doc = dict(format=2, loader='Hatch', loader_version='0.3', game_version='5.1.0', abi='arm64-v8a', id=CORE_ID, name='坦无敌3000', type='module', version='1.0', api_version=2, entry_class='com.luna17.aot.TankInvincibleModule')
+    doc = dict(format=2, loader='Hatch', loader_version='0.4', game_version='5.1.0', abi='arm64-v8a', id=CORE_ID, name='坦无敌3000', type='module', version='1.0', api_version=2, entry_class='com.luna17.aot.TankInvincibleModule')
     for entry, prefix in [('module.dex','dex'), ('module.so','native')]:
         doc[prefix+'_sha256'] = hashlib.sha256(content[entry]).hexdigest()
         doc[prefix+'_bytes'] = len(content[entry])

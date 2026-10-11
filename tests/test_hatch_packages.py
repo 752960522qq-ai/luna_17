@@ -28,7 +28,7 @@ class Packages(unittest.TestCase):
             with self.subTest(values=values),self.assertRaises(ValueError):
                 validate(self.rewrite(magazine=dict(zip(['capacity','shotInterval','reloadTime'],values))))
     def test_runtime_identity_checksum_and_dependency_rejected(self):
-        for updates in [dict(id='WrongTank'),dict(runtime_sha256='0'*64),dict(requires={'unknown':'1.0'}),dict(requires={'tankinvincible3000':'0.1'}),dict(id='tankinvincible3000')]:
+        for updates in [dict(id='WrongTank'),dict(runtime_sha256='0'*64),dict(requires={'../unknown':'1.0'}),dict(requires={'tankinvincible3000':'bad'}),dict(id='tankinvincible3000')]:
             with self.subTest(updates=updates),self.assertRaises(ValueError):validate(self.rewrite(**updates))
     def test_old_tank_format_supported(self):
         self.assertEqual(validate(self.rewrite(format=1,loader_version='0.1',requires={}))['format'],1)

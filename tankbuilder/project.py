@@ -7,7 +7,7 @@ from pygltflib import BufferView
 
 NATIONS=['USSR','Germany','USA','Japan','UK','Italy']
 ADAPTER='aot-5.1.0-arm64-v1'
-VEHICLE_TEMPLATES={'tank':'T34_85_Player','tank-destroyer':'SU_85_Player','towed-gun':'ZiS_3_Player'}
+VEHICLE_TEMPLATES={'tank':'T34_85_Player','tank-destroyer':'SU_85_Player','towed-gun':'ZiS_3_Player','self-propelled-artillery':'SU_85_Player'}
 FILES=['manifest.json','tank.json','weapon.json','armor.json','rig.json','model.glb','thumbnail.png']
 ROOT=Path(__file__).resolve().parents[1]
 
@@ -166,6 +166,21 @@ def save_documents(directory,doc):
         if key not in ['manifest','tank','weapon','armor','rig']:raise ValueError('未知项目文件')
         target=Path(directory)/(key+'.json');tmp=target.with_suffix('.tmp');tmp.write_text(json.dumps(value,ensure_ascii=False,indent=2)+'\n',encoding='utf-8');os.replace(tmp,target)
 
+def apply_artillery_preset(directory):
+    """Apply the tracked artillery preset to an existing canonical gun mount."""
+    directory=Path(directory);doc=read_documents(directory)
+    model=Model(directory/'model.glb')
+    if 'GunMount' not in [node.name for node in model.g.nodes]:
+        raise ValueError('自行火炮预设需要 GunMount 空转轴模型；固定战斗室网格绑定 Hull')
+    preset=json.loads((ROOT/'tankbuilder/presets/self-propelled-artillery.json').read_text())
+    for key in ('vehicleKind','gunTraverseHalfAngle','gunElevation','gunDepression','turretRotation'):
+        doc['tank'][key]=preset[key]
+    doc['manifest']['basePrefab']=preset['basePrefab']
+    doc['weapon']['ballistics']=preset['ballistics']
+    doc['weapon']['machineGun']['ammo']=0
+    save_documents(directory,doc)
+    return validate_project(directory)
+
 def infer_rig(model,tank):
     """Canonical named models: infer pivots and wheel radii, require an explicit muzzle marker."""
     import numpy as np
@@ -241,7 +256,7 @@ def generate_runtime_header(directories,destination):
         wheels=[x for x in rig['wheels'] if x['roadWheel']];sus=rig['suspension']
         values=[m['id'],round(w['shells']['AP']['penetrationMm']),round(w['caliber']),round(w['muzzleVelocity']),math.ceil(w['reload']),w['reload']-math.ceil(w['reload']),round(t['enginePower']),round(t['maxForwardSpeed']),t['maxReverseSpeed']/3.6,round(t['turretRotation']),t['weightTonnes'],round(t['gunElevation']),round(abs(t['gunDepression'])),t['crew'],m['tier'],[a['body'][x] for x in ['front','side','side','rear']],[a['turret'][x] for x in ['front','side','side','rear']],[w['ammo'].get(x,0) for x in ['AP','HE','APCR','WP','HEAT']],w['machineGun']['ammo'],[w['shells'].get(x,{}).get('penetrationMm',0) for x in ['AP','HE','APCR','WP','HEAT']],len(wheels),sus['travel'],sus['restCompression'],sus['springPerWheel'],sus['damperPerWheel'],sum(x['radius'] for x in wheels)/len(wheels),t['dimensionsMeters']['length']*.62]
         magazine=w.get('magazine',{})
-        values.extend([magazine.get('capacity',0),magazine.get('shotInterval',0),magazine.get('reloadTime',0),1 if w.get('ballistics')=='stock-t34-85' else 0,t['turretRotation'],{'tank':0,'tank-destroyer':1,'towed-gun':2}[t.get('vehicleKind','tank')],t.get('gunTraverseHalfAngle',0) if t.get('vehicleKind','tank')!='tank' else 0])
+        values.extend([magazine.get('capacity',0),magazine.get('shotInterval',0),magazine.get('reloadTime',0),1 if w.get('ballistics')=='stock-t34-85' else 0,t['turretRotation'],{'tank':0,'tank-destroyer':1,'towed-gun':2,'self-propelled-artillery':3}[t.get('vehicleKind','tank')],t.get('gunTraverseHalfAngle',0) if t.get('vehicleKind','tank')!='tank' else 0])
         def c(v):
             if isinstance(v,str):return json.dumps(v)
             if isinstance(v,list):return '{'+','.join(map(c,v))+'}'

@@ -89,3 +89,7 @@ java -jar /path/to/apksigner.jar verify --verbose dist/TankInvincible-5.1.0-T54-
 构建器测试：`PYTHONPATH=. python tests/test_builder.py --apks /path/to/original.apks`。测试涵盖新版/被修改二进制/资源变化拦截、默认关闭的草案、非法 Tank Pack 路径、无效参数和失败时保留已有输出。
 
 
+
+## 更好的坦克体验 0.1（舱盖 0.4）
+
+本次重做与只构建模组的命令见 [docs/hatch-0.4.md](docs/hatch-0.4.md)。`scripts/build_mods.py` 只输出加载器 DEX 和 `.hatch`，不生成 APK。

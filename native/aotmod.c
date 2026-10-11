@@ -49,10 +49,13 @@ static char startup_error[256];
 static int offline_mode(void);
 static __attribute__((noinline)) void rebuild_player_ui(void *,void *,void *);
 static int camera_binding_ready(void *);
+static void experience_turret_target(void *);
 static int player_vehicle_nation=-1;
 static void *vehicle_nation_owner;
 static volatile int ready, state, god, ammo, pending=-1, switch_result;
 static void *player_control, *player_status;
+static volatile int experience_flags;
+static float experience_k=20.f, experience_khe=10.f;
 static char catalog[6][MAX_TANKS][112];
 static volatile int catalog_count[6];
 static void *catalog_source[6];
@@ -154,6 +157,8 @@ static bool environment_check(void *self,const void *mi) {
 }
 #include "offline_launch.h"
 #include "imported_tanks.h"
+#include "experience_damage.h"
+#include "experience_runtime.h"
 #include "view_runtime.h"
 
 static void *worker(void *unused) {
@@ -183,7 +188,7 @@ static void *worker(void *unused) {
         {RVA_195D1D4,0xd10143ff},{RVA_1978CF0,0xd10243ff},
         {RVA_197AA98,0xd10303ff},{RVA_197B638,0xfc1e0fe8},
         {RVA_1984348,0xa9be57fe},{RVA_1990828,0xd10183ff},
-        {RVA_LAUNCHER_FIRE,0xd10283ff},{RVA_SHELL_FIXED_UPDATE,0xd10443ff}
+        {RVA_TURRET_TARGET_DIR,0xd10143ff},{RVA_CAL_DAMAGE,0xd10403ff},{RVA_LAUNCHER_FIRE,0xd10283ff},{RVA_SHELL_FIXED_UPDATE,0xd10443ff}
     };
     for(unsigned i=0;i<sizeof(fingerprints)/sizeof(fingerprints[0]);i++) {
         uint32_t actual=*(uint32_t *)(base+fingerprints[i].rva);
@@ -216,6 +221,8 @@ static void *worker(void *unused) {
     ok=ok && install(RVA_LAUNCHER_FIRE,launcher_fire,(void **)&original_launcher_fire);
     ok=ok && install(RVA_SHELL_FIXED_UPDATE,shell_fixed_update,(void **)&original_shell_fixed_update);
     ok=ok && install(RVA_CAMERA_LATE_UPDATE,camera_late_update,(void **)&original_camera_late_update);
+    ok=ok && install(RVA_TURRET_TARGET_DIR,experience_turret_target_dir,(void **)&original_turret_target_dir);
+    ok=ok && install(RVA_CAL_DAMAGE,experience_cal_damage,(void **)&original_cal_damage);
     ok=ok && install(RVA_UI_SIGHT,sight_type,(void **)&original_sight_type);
     if(!ok && !rollback_hooks()) {
         size_t used=strlen(startup_error);

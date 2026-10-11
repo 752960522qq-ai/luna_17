@@ -31,7 +31,15 @@ static void bind_player(void *go,void *status,void *pc,void *old_go,void *old_st
     replace_references(P(game,FIELD_GAMECONTROL_POSTPROCESSCTRL),old,fresh,14);
     player_control=pc;player_status=status;player_vehicle_nation=nation;vehicle_nation_owner=status;
     B(status,0x202)=1;
-    if(unity_exists(camera))FN(RVA_191F324,void (*)(void *,void *,const void *))(camera,P(pc,0x28),0);
+    if(unity_exists(camera)){
+        int view=I(camera,0x38);void *target=P(camera,0x68);
+        FN(RVA_191F324,void (*)(void *,void *,const void *))(camera,P(pc,0x28),0);
+        // Updating the tank mount must not exit a currently selected aircraft,
+        // ship or free view. The validated TargetTrf setter refreshes its own
+        // offsets; never copy the tank camera quaternion onto an aircraft.
+        if(view!=0 && unity_exists(target))
+            FN(0x191f3b0,void (*)(void *,void *,const void *))(camera,target,0);
+    }
     rebuild_player_ui(ui,pc,status);
     memset(&ammo_snapshot,0,sizeof(ammo_snapshot));
 }
@@ -96,7 +104,7 @@ static void switch_tank(void *game,void *parameters,int command) {
     if(h>=0){
         template_nation=0;template_index=-1;
         const char *template_name = hatch_tanks[h].config.vehicle_kind == HATCH_VEHICLE_TOWED ? "ZiS_3_Player" :
-            hatch_tanks[h].config.vehicle_kind == HATCH_VEHICLE_TD ? "SU_85_Player" : "T34_85_Player";
+            (hatch_tanks[h].config.vehicle_kind == HATCH_VEHICLE_TD || hatch_tanks[h].config.vehicle_kind == HATCH_VEHICLE_SPG) ? "SU_85_Player" : "T34_85_Player";
         for(int i=0;i<catalog_stock[0];i++)if(!strcmp(catalog[0][i],template_name)){template_index=i;break;}
         if(template_index<0){switch_result=-21;return;}
     }

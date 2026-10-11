@@ -14,7 +14,7 @@ public final class HatchLoader {
     private static final int PICK = 7301;
     private static final ExecutorService IO = Executors.newSingleThreadExecutor();
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
-    private static volatile String report = "舱盖 0.3 正在加载…";
+    private static volatile String report = "舱盖 0.4 正在加载…";
     private static final ModuleSession SESSION = new ModuleSession();
     private static volatile HatchModule module;
     private static File residentNative;
@@ -119,39 +119,65 @@ public final class HatchLoader {
             File mods = folder(activity); seed(activity, mods, log);
             File[] files = mods.listFiles((d,n) -> n.endsWith(".hatch"));
             if (files == null) throw new IOException("无法读取模组文件夹");
-            Arrays.sort(files); Set<String> ids = new HashSet<>();
+            Arrays.sort(files); Set<String> ids = new HashSet<>(); Set<String> duplicates=new HashSet<>();
             for (File file : files) {
                 try {
                     HatchPackage pack = HatchPackage.inspect(file);
-                    if (!ids.add(pack.id)) throw new IOException("重复模组 ID: " + pack.id);
+                    if (!ids.add(pack.id)) { duplicates.add(pack.id); throw new IOException("重复模组 ID: " + pack.id); }
                     if (pack.type.equals("module")) core = pack;
-                    else { if (tanks.size() >= 16) throw new IOException("最多加载 16 个坦克包"); tanks.add(pack); }
+                    else { if (tanks.size() >= 16) throw new IOException("最多加载 16 个内容包"); tanks.add(pack); }
                 } catch (Exception e) { log.append("✗ ").append(file.getName()).append(": ").append(e.getMessage()).append('\n'); }
             }
+            if (!duplicates.isEmpty())throw new IOException("重复模组 ID，已停止加载: "+duplicates);
             if (core == null || module == null) {
-                report="舱盖 0.3 · 空白调试包\n尚未加载坦无敌3000。原版游戏可正常启动。\n\n已发现 " + tanks.size() + " 个坦克包；导入坦无敌3000 1.0 前置并完全退出重启后，才能加载坦克模组。\n\n" + log;
+                report="舱盖 0.4 · 空白调试包\n尚未加载坦无敌3000。原版游戏可正常启动。\n\n已发现 " + tanks.size() + " 个坦克包；导入坦无敌3000 1.0 前置并完全退出重启后，才能加载坦克模组。\n\n" + log;
                 return;
             }
             HatchModule loaded = module;
             log.append("✓ 坦无敌3000 1.0（前置）\n"); int count = 0;
+            Map<String,HatchPackage> packages = new HashMap<>();
+            List<DependencyOrder.Node> nodes = new ArrayList<>();
+            List<HatchPackage> discovered = new ArrayList<>(tanks); discovered.add(core);
+            for (HatchPackage pack : discovered) {
+                Map<String,String> requires = new HashMap<>();
+                JSONObject deps = pack.manifest.optJSONObject("requires");
+                if (deps != null) { Iterator<String> keys=deps.keys(); while(keys.hasNext()) { String key=keys.next(); requires.put(key,deps.getString(key)); } }
+                nodes.add(new DependencyOrder.Node(pack.id,pack.manifest.optString("version","1.0"),requires)); packages.put(pack.id,pack);
+            }
+            tanks.clear();
+            for(String id : DependencyOrder.resolve(nodes)) if(!id.equals(core.id)) tanks.add(packages.get(id));
+            Set<String> successful = new HashSet<>(loadedTanks); successful.add(core.id);
             for (HatchPackage tank : tanks) {
                 if (session != generation) return;
                 if (loadedTanks.contains(tank.id)) { log.append("✓ ").append(tank.name).append("（已加载）\n"); count++; continue; }
                 File runtime = File.createTempFile("hatch-", ".bin", activity.getCacheDir());
                 try {
                     JSONObject requires = tank.manifest.optJSONObject("requires");
-                    if (requires != null && !"1.0".equals(requires.optString("tankinvincible3000","1.0"))) throw new IOException("前置版本不兼容");
-                    tank.extract("runtime.bin","runtime_sha256","runtime_bytes",runtime);
-                    String failure = loaded.loadTank(runtime,tank.manifest.toString());
+                    if (requires != null) { Iterator<String> keys=requires.keys(); while(keys.hasNext()) { String id=keys.next(); if(!successful.contains(id))throw new IOException("依赖加载失败: "+id); } }
+                    String failure;
+                    if(tank.type.equals("gameplay")) {
+                        if(!(loaded instanceof HatchFeatureHost))throw new IOException("前置不支持玩法扩展，请更新坦无敌3000");
+                        HatchFeatureHost host=(HatchFeatureHost)loaded;
+                        Set<String> supported=new HashSet<>(Arrays.asList(host.capabilities()));
+                        JSONArray needed=tank.manifest.getJSONArray("capabilities");
+                        for(int i=0;i<needed.length();i++) if(!supported.contains(needed.getString(i)))throw new IOException("缺少扩展能力: "+needed.getString(i));
+                        tank.extract("features.json","features_sha256","features_bytes",runtime);
+                        ByteArrayOutputStream bytes=new ByteArrayOutputStream();
+                        try(InputStream in=new FileInputStream(runtime)){HatchPackage.copy(in,bytes,65536,null);}
+                        failure=host.loadFeatures(tank.id,bytes.toString("UTF-8"));
+                    } else {
+                        tank.extract("runtime.bin","runtime_sha256","runtime_bytes",runtime);
+                        failure=loaded.loadTank(runtime,tank.manifest.toString());
+                    }
                     if (failure == null || !failure.isEmpty()) throw new IOException(failure == null ? "加载失败" : failure);
-                    loadedTanks.add(tank.id);
+                    loadedTanks.add(tank.id); successful.add(tank.id);
                     log.append("✓ ").append(tank.name).append(tank.manifest.has("magazine") ? "（弹匣炮）" : "").append('\n'); count++;
                 } catch (Exception e) { log.append("✗ ").append(tank.name).append(": ").append(e.getMessage()).append('\n'); }
                 finally { runtime.delete(); }
             }
-            report = "舱盖 0.3\n已加载前置及 " + count + " 个坦克包\n\n" + log + "\n导入或更新后，完全退出并重新打开游戏。";
+            report = "舱盖 0.4\n已加载前置及 " + count + " 个模组\n\n" + log + "\n导入或更新后，完全退出并重新打开游戏。";
         } catch (Exception | LinkageError e) {
-            report = "舱盖 0.3 加载失败：" + e.getMessage() + "\n\n" + log;
+            report = "舱盖 0.4 加载失败：" + e.getMessage() + "\n\n" + log;
             MAIN.post(() -> { if (session == generation && !activity.isFinishing()) show(activity); });
         }
     }
@@ -176,7 +202,7 @@ public final class HatchLoader {
         }
     }
     public static void show(Activity activity) {
-        new AlertDialog.Builder(activity).setTitle("舱盖 Hatch 0.3").setMessage(report)
+        new AlertDialog.Builder(activity).setTitle("舱盖 Hatch 0.4").setMessage(report)
             .setPositiveButton("导入 .hatch", (d,w) -> { Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("*/*"); activity.startActivityForResult(intent,PICK); })
             .setNegativeButton("关闭",null).show();
     }

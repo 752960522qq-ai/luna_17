@@ -22,25 +22,33 @@ final class HatchPackage {
         int format = doc.getInt("format");
         if (format != 1 && format != 2) throw new IOException("不支持的包格式");
         if (!"Hatch".equals(doc.getString("loader")) ||
-                !("0.1".equals(doc.getString("loader_version")) || "0.2".equals(doc.getString("loader_version")) || "0.3".equals(doc.getString("loader_version"))) ||
+                !("0.1".equals(doc.getString("loader_version")) || "0.2".equals(doc.getString("loader_version")) || "0.3".equals(doc.getString("loader_version")) || "0.4".equals(doc.getString("loader_version"))) ||
                 !"5.1.0".equals(doc.getString("game_version")) || !"arm64-v8a".equals(doc.getString("abi")))
             throw new IOException("游戏或加载器版本不兼容");
-        if (!type.equals("tank") && !type.equals("module")) throw new IOException("不支持的模组类型");
+        if (!type.equals("tank") && !type.equals("module") && !type.equals("gameplay")) throw new IOException("不支持的模组类型");
         if (type.equals("module") && (format != 2 || doc.getInt("api_version") != 2 ||
                 !id.equals("tankinvincible3000") || !"1.0".equals(doc.getString("version"))))
             throw new IOException("前置模组接口不兼容");
         if (type.equals("tank") && id.equals("tankinvincible3000")) throw new IOException("坦克不能使用前置模组 ID");
         if (type.equals("module") && !"com.luna17.aot.TankInvincibleModule".equals(doc.getString("entry_class")))
             throw new IOException("前置入口不兼容");
+        if(type.equals("gameplay")) {
+            org.json.JSONArray capabilities=doc.getJSONArray("capabilities");
+            if(capabilities.length()<1 || capabilities.length()>32 || doc.getLong("features_bytes")>65536)throw new IOException("玩法能力或配置大小无效");
+            for(int i=0;i<capabilities.length();i++)if(!capabilities.getString(i).matches("[a-z0-9-]{1,64}"))throw new IOException("扩展能力名称无效");
+        }
         JSONObject requires = doc.optJSONObject("requires");
+        if(doc.has("requires") && requires==null)throw new IOException("依赖声明需要对象");
         if (requires != null) {
             Iterator<String> keys = requires.keys();
             while (keys.hasNext()) {
                 String key = keys.next();
-                if (!"tankinvincible3000".equals(key) || !"1.0".equals(requires.getString(key)))
-                    throw new IOException("不支持的前置依赖: " + key);
+                if (!key.matches("[A-Za-z0-9_-]{1,48}") || !requires.getString(key).matches("[0-9]+(?:\\.[0-9]+){0,3}"))
+                    throw new IOException("依赖声明无效: " + key);
             }
         }
+        if (type.equals("gameplay") && (format != 2 || doc.getInt("api_version") != 1 || id.equals("tankinvincible3000")))
+            throw new IOException("玩法模组接口不兼容");
         JSONObject magazine = doc.optJSONObject("magazine");
         if (magazine != null) {
             double rawCapacity = magazine.getDouble("capacity");
@@ -78,6 +86,9 @@ final class HatchPackage {
                         runtime.getInt(16) < 4 || runtime.getInt(16) > 2048 || runtime.getInt(20) < 0 || runtime.getInt(20) > 128 ||
                         !pack.id.equals(new String(header,24,end-24,StandardCharsets.US_ASCII)))
                     throw new IOException("坦克运行数据与清单不一致");
+            }
+            else if (pack.type.equals("gameplay")) {
+                pack.verify(zip, "features.json", "features_sha256", "features_bytes", null);
             }
             else {
                 pack.verify(zip, "module.dex", "dex_sha256", "dex_bytes", null);

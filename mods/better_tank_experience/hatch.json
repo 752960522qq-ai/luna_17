@@ -1,0 +1,14 @@
+{
+  "format": 2,
+  "loader": "Hatch",
+  "loader_version": "0.4",
+  "game_version": "5.1.0",
+  "abi": "arm64-v8a",
+  "type": "gameplay",
+  "api_version": 1,
+  "id": "better_tank_experience",
+  "name": "更好的坦克体验0.1",
+  "version": "0.1",
+  "requires": {"tankinvincible3000": "1.0"},
+  "capabilities": ["ballistic-preview-v1", "damage-formula-v1", "artillery-sight-v1"]
+}

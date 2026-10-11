@@ -4,7 +4,7 @@
 // retain physical ballistics and integer turret speeds.
 #define HATCH_OPTIONS_MAGIC "HATCHOPT"
 enum { HATCH_BALLISTICS_PHYSICAL, HATCH_BALLISTICS_STOCK_TEMPLATE };
-enum { HATCH_VEHICLE_TANK, HATCH_VEHICLE_TD, HATCH_VEHICLE_TOWED };
+enum { HATCH_VEHICLE_TANK, HATCH_VEHICLE_TD, HATCH_VEHICLE_TOWED, HATCH_VEHICLE_SPG };
 typedef struct {
     char magic[8];
     uint32_t size, ballistics;
@@ -27,7 +27,7 @@ static int hatch_read_options(CustomTank *config, const unsigned char *bytes,
     if (length == 28) {
         uint32_t kind; int32_t angle;
         memcpy(&kind, bytes + 20, 4); memcpy(&angle, bytes + 24, 4);
-        if (kind > HATCH_VEHICLE_TOWED || (kind && (angle < 1 || angle > 180)) || (!kind && angle))
+        if (kind > HATCH_VEHICLE_SPG || (kind && (angle < 1 || angle > 180)) || (!kind && angle))
             return hatch_fail("Invalid vehicle kind or horizontal traverse");
         config->vehicle_kind = kind; config->traverse_half_angle = angle;
     }

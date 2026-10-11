@@ -1,0 +1,13 @@
+{
+  "vehicleKind": "self-propelled-artillery",
+  "basePrefab": "SU_85_Player",
+  "mountNode": "GunMount",
+  "gunTraverseHalfAngle": 15,
+  "gunElevation": 70,
+  "gunDepression": -5,
+  "turretRotation": 8,
+  "ballistics": "physical",
+  "machineGunAmmo": 0,
+  "sightModule": "better_tank_experience",
+  "directMagnification": 2.5
+}

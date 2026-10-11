@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "aim": true,
+  "artillery": true,
+  "damage": {
+    "formula": "two-stage-0.1",
+    "K": 20.0,
+    "K_HE": 10.0,
+    "apFillingGrams": 155,
+    "apcrFillingGrams": 0,
+    "heFillingGrams": 710
+  }
+}

@@ -65,12 +65,12 @@ def compile_project(directory):
  if len(records)>2048 or len(images)>128:raise ValueError('模型或贴图数量超限')
  options=b''
  if kind!='tank':
-  options=struct.pack('<8sIIfIi',b'HATCHOPT',28,1 if w.get('ballistics')=='stock-t34-85' else 0,t['turretRotation'],1 if kind=='tank-destroyer' else 2,t['gunTraverseHalfAngle'])
+  options=struct.pack('<8sIIfIi',b'HATCHOPT',28,1 if w.get('ballistics')=='stock-t34-85' else 0,t['turretRotation'],{'tank-destroyer':1,'towed-gun':2,'self-propelled-artillery':3}[kind],t['gunTraverseHalfAngle'])
  elif w.get('ballistics','physical')!='physical' or int(t['turretRotation'])!=t['turretRotation']:
   options=struct.pack('<8sIIf',b'HATCHOPT',20,1 if w.get('ballistics')=='stock-t34-85' else 0,t['turretRotation'])
  payload=cfg+b''.join(records)+b''.join(images)+options;header=struct.pack('<8sIIII',MAGIC,1,24+len(payload),len(records),len(images));blob=header+payload
  if len(blob)>256*1024*1024:raise ValueError('运行时文件超过 256 MB')
- info={'id':m['id'],'name':m['displayName'],'nodes':len(records),'textures':len(images),'runtime_bytes':len(blob),'format':2,'loader':'Hatch','loader_version':'0.3','game_version':'5.1.0','abi':'arm64-v8a','animated_skinning':False,'type':'tank','requires':{'tankinvincible3000':'1.0'}}
+ info={'id':m['id'],'name':m['displayName'],'nodes':len(records),'textures':len(images),'runtime_bytes':len(blob),'format':2,'loader':'Hatch','loader_version':'0.4' if kind=='self-propelled-artillery' else '0.3','game_version':'5.1.0','abi':'arm64-v8a','animated_skinning':False,'type':'tank','version':'1.0','requires':{'tankinvincible3000':'1.0'}}
  if options:info['runtime_options']=dict(version=2 if kind!='tank' else 1,ballistics=w.get('ballistics','physical'),turret_speed=t['turretRotation'])
  info['vehicle_kind']=kind
  if kind!='tank':info['horizontal_half_angle']=t['gunTraverseHalfAngle']

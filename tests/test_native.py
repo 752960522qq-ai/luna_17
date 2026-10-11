@@ -65,6 +65,14 @@ class Machine:
                 'clock_gettime':self.clock,'snprintf':self.snprintf,
                 'strcmp':lambda: 0 if self.read(self.x(0),64).split(b'\0')[0]==self.read(self.x(1),64).split(b'\0')[0] else 1,
             }
+            for name,fn in {'sinf':math.sin,'cosf':math.cos,'powf':math.pow,'expf':math.exp,'atanf':math.atan,'tanf':math.tan}.items():
+                def floating(fn=fn,name=name):
+                    value=fn(self.f(0),self.f(1)) if name=='powf' else fn(self.f(0));self.sf(0,value)
+                imports[name]=floating
+            def sincos():
+                angle=self.f(0);self.u.mem_write(self.x(0),struct.pack('<f',math.sin(angle)));self.u.mem_write(self.x(1),struct.pack('<f',math.cos(angle)))
+            imports['sincosf']=sincos
+            imports['lroundf']=lambda:math.floor(self.f(0)+.5) if self.f(0)>=0 else math.ceil(self.f(0)-.5)
             for section in elf.iter_sections():
                 if section['sh_type']!='SHT_RELA':continue
                 for relocation in section.iter_relocations():
@@ -483,7 +491,7 @@ class NativeTests(unittest.TestCase):
         m=self.m;entries=self.startup_engine()
         m.call('Java_com_luna17_aot_NativeBridge_init',0,0)
         self.assertEqual(m.call('Java_com_luna17_aot_NativeBridge_state',0,0),2)
-        self.assertEqual(struct.unpack('<I',m.read(m.symbols['installed_hook_count'],4))[0],20)
+        self.assertEqual(struct.unpack('<I',m.read(m.symbols['installed_hook_count'],4))[0],len(entries))
         for entry,_ in entries:
             self.assertEqual(m.read(entry,8),struct.pack('<2I',0x58000050,0xd61f0200))
         patched=[m.read(entry,16) for entry,_ in entries]
@@ -567,7 +575,10 @@ class NativeTests(unittest.TestCase):
         def set_active():
             active[m.x(0)]=bool(m.x(1));m.calls.append(('active',m.x(0),m.x(1)))
         m.at(GAME+0x3431140,set_active)
-        m.at(GAME+0x191f324,lambda:m.calls.append(('camera',m.x(0),m.x(1))))
+        def bind_camera():
+            m.qwrite(m.x(0)+0x60,m.x(1));m.qwrite(m.x(0)+0x68,m.x(1));m.calls.append(('camera',m.x(0),m.x(1)))
+        m.at(GAME+0x191f324,bind_camera)
+        m.at(GAME+0x191f3b0,lambda:m.qwrite(m.x(0)+0x68,m.x(1)))
         pc_type=m.alloc();status_type=m.alloc()
         get_type=m.alloc(32);m.qwrite(get_type,m.stub(lambda:pc_type if m.x(0)==old_pc else status_type))
         # The shipped T34_85_Player and ZiS_3_Player prefabs have PlayerControl
@@ -596,7 +607,7 @@ class NativeTests(unittest.TestCase):
             pc_type=pc_type,get_component=get_component,old_gun=old_gun,new_gun=new_gun,active=active)
 
     def test_imported_vehicle_selects_original_control_template(self):
-        for kind in (0,1,2):
+        for kind in (0,1,2,3):
             with self.subTest(kind=kind):
                 self.m=Machine(ARGS.module,ARGS.game_library);m=self.m;s=self.swap_scene()
                 self.external_config(kind=kind,half_angle=15 if kind else 0)
@@ -604,7 +615,7 @@ class NativeTests(unittest.TestCase):
                     m.u.mem_write(m.symbols['catalog']+index*112,name.encode()+b'\0')
                 m.global_i('catalog_count',4);m.global_i('catalog_stock',3);m.global_i('catalog_generation',1)
                 m.iwrite(m.symbols['catalog_hatch']+3*4,0)
-                m.iwrite(s.array+0x18,3);prefab=m.object();m.qwrite(s.array+0x20+kind*8,prefab)
+                m.iwrite(s.array+0x18,3);prefab=m.object();m.qwrite(s.array+0x20+(1 if kind==3 else kind)*8,prefab)
                 m.at(m.symbols['hatch_apply_tank'],lambda:1)
                 m.call('switch_tank',s.game,s.params,3)
                 self.assertEqual(m.calls[-1] if m.calls[-1][0]=='instantiate' else [x for x in m.calls if x[0]=='instantiate'][-1],('instantiate',prefab,[11.,22.,33.,0.,0.,0.,1.]))
@@ -642,14 +653,15 @@ class NativeTests(unittest.TestCase):
         self.assertEqual(m.call('Java_com_luna17_aot_NativeBridge_switchResult',0,0),0)
         m.call('game_update',s.game,0)
         self.assertEqual(m.qread(s.game+0x110),s.new_go);self.assertEqual(m.qread(s.game+0x118),s.new_s)
-        self.assertEqual(m.qread(s.camera+0x60),s.new_tur);self.assertEqual(m.qread(s.camera+0x68),s.new_tr)
+        self.assertEqual(m.qread(s.camera+0x60),s.new_tur);self.assertEqual(m.qread(s.camera+0x68),s.new_tur)
         self.assertEqual(m.read(s.new_s+0x20,2),b'\x01\x01')
         self.assertEqual(m.qread(m.symbols['player_control']),s.new_pc)
         self.assertEqual(m.qread(m.symbols['player_status']),s.new_s)
         self.assertEqual(struct.unpack('<I',m.read(s.params+0x64,4))[0],0)
         self.assertEqual(m.read(s.new_s+0x64,4),m.read(s.old_s+0x64,4))
-        self.assertEqual(m.read(s.ui+0x278,1),b'\0')
-        self.assertEqual(m.read(s.ui+0x2bc,4),b'\0'*4)
+        self.assertEqual(m.read(s.ui+0x278,1),b'\1')
+        self.assertAlmostEqual(struct.unpack('<f',m.read(s.ui+0x2bc,4))[0],895/810*.18,places=6)
+        self.assertEqual(m.qread(s.ui+0x320),s.new_gun)
         self.assertEqual(m.qread(s.launcher+0x38),s.new_s)
         self.assertEqual(m.qread(s.launcher+0xb0),s.game)
         self.assertEqual(m.read(s.launcher+0x50,4),struct.pack('<i',212))
@@ -695,6 +707,97 @@ class NativeTests(unittest.TestCase):
         self.assertEqual(m.qread(s.camera+0x60),s.old_tur)
         self.assertFalse(any(c[0]=='camera' for c in m.calls))
         self.assertEqual(m.call('Java_com_luna17_aot_NativeBridge_switchResult',0,0)&0xffffffff,(-9)&0xffffffff)
+
+    def test_swap_while_aircraft_view_preserves_live_target(self):
+        m=self.m;s=self.swap_scene();aircraft=m.object()
+        m.iwrite(s.camera+0x38,1);m.qwrite(s.camera+0x68,aircraft)
+        m.call('game_update',s.game,0);m.call('game_update',s.game,0)
+        self.assertEqual(m.qread(s.camera+0x60),s.new_tur)
+        self.assertEqual(m.qread(s.camera+0x68),aircraft)
+        self.assertEqual(m.qread(s.ui+0x320),s.new_gun)
+
+    def test_artillery_sights_pan_zoom_and_restore_on_aircraft_view(self):
+        m=self.m;status,config=self.external_config(kind=3,half_angle=15)
+        params,pc,ui,control,camera,transform,gun,turret,tm,root=[m.object() for _ in range(10)]
+        m.at(GAME+0x1931cfc,lambda:params);m.global_i('state',3);m.global_i('experience_flags',4)
+        m.global_q('player_control',pc);m.global_q('player_status',status)
+        for offset,value in [(0x20,root),(0x28,turret),(0x30,gun),(0x50,tm)]:m.qwrite(pc+offset,value)
+        for offset,value in [(0xe8,ui),(0x28,camera),(0x20,transform),(0x68,turret)]:m.qwrite(control+offset,value)
+        m.global_q('original_camera_late_update',m.stub(lambda:0))
+        def quaternion():
+            for i,value in enumerate((0.,0.,0.,1.)):m.sf(i,value)
+        m.at(GAME+0x343de40,quaternion)
+        position={root:(0.,0.,0.),gun:(0.,2.,0.),tm:(0.,0.,200.),transform:(0.,0.,0.)}
+        fov=[60.];rotations=[];targets=[]
+        def vec(v):
+            for i,value in enumerate(v):m.sf(i,value)
+        methods={}
+        callbacks={
+            'get_fieldOfView':lambda:m.sf(0,fov[0]),
+            'set_fieldOfView':lambda:fov.__setitem__(0,m.f(0)),
+            'get_position':lambda:vec(position.get(m.x(0),(0.,0.,0.))),
+            'get_forward':lambda:vec((0.,0.,1.)),
+            'get_TargetPos':lambda:vec(position[tm]),
+            'set_TargetPos':lambda:targets.append(tuple(m.f(i) for i in range(3))),
+            'set_position':lambda:position.__setitem__(m.x(0),tuple(m.f(i) for i in range(3))),
+            'set_rotation':lambda:rotations.append(tuple(m.f(i) for i in range(4))),
+        }
+        for name,callback in callbacks.items():
+            method=m.alloc(32);m.qwrite(method,m.stub(callback));methods[name.encode()]=method
+        m.global_q('class_method',m.stub(lambda:methods.get(m.read(m.x(1),48).split(b'\0')[0],0)))
+        launcher,info=m.object(),m.object();launchers=m.alloc(64);m.iwrite(launchers+0x18,1);m.qwrite(launchers+0x20,launcher);m.qwrite(pc+0x58,launchers)
+        m.u.mem_write(info+0x18,struct.pack('<f',850));m.u.mem_write(launcher+0x54,struct.pack('<f',850));m.iwrite(config+16,850)
+        m.global_q('original_attack_info',m.stub(lambda:info))
+        field=m.alloc(32);name=m.alloc(64);m.u.mem_write(name,b'loadedShell\0');m.qwrite(field,name);m.iwrite(field+0x18,0x1ec)
+        def fields():
+            if m.qread(m.x(1)):return 0
+            m.qwrite(m.x(1),1);return field
+        m.global_q('class_fields',m.stub(fields));m.at(m.symbols['bte_cast'],lambda:0)
+        m.at(m.symbols['bte_project'],lambda:0)
+        m.global_i('bte_next_mode',1);m.call('camera_late_update',control,0)
+        self.assertAlmostEqual(fov[0],2*math.atan(math.tan(math.radians(30))/2.5)*180/math.pi,places=4)
+        self.assertEqual(position[transform],position[gun])
+        m.global_i('bte_next_mode',1);m.call('camera_late_update',control,0)
+        self.assertAlmostEqual(fov[0],60,places=5);self.assertGreater(position[transform][1],30)
+        self.assertEqual(m.read(m.symbols['shell_profile_cursor'],4),bytes(4))
+        self.assertTrue(targets);self.assertGreater(targets[-1][1],0) # Gravity-compensated barrel target.
+        m.qwrite(tm+0x40,status)
+        def default_direction():vec((0.,0.,1.))
+        m.global_q('original_turret_target_dir',m.stub(default_direction))
+        m.call('experience_turret_target_dir',tm,0);self.assertGreater(m.f(1),-.01);self.assertGreater(m.f(2),.99) # Drop compensation raises aim above the raw ground direction.
+        before=position[transform];m.u.mem_write(m.symbols['bte_pan_x'],struct.pack('<f',.1));m.u.mem_write(m.symbols['bte_zoom'],struct.pack('<f',.2))
+        m.call('camera_late_update',control,0)
+        self.assertLess(position[transform][0],before[0]);self.assertGreater(position[transform][1],before[1])
+        count=len(rotations);m.iwrite(control+0x38,1);m.iwrite(ui+0x2c,3);m.call('camera_late_update',control,0)
+        self.assertEqual(len(rotations),count);self.assertEqual(m.read(m.symbols['bte_snapshot'],4),bytes(4))
+        self.assertEqual(m.read(m.symbols['bte_mode'],4),bytes(4))
+        m.call('experience_turret_target_dir',tm,0);self.assertEqual((m.f(0),m.f(1),m.f(2)),(0.,0.,1.))
+
+    def test_two_stage_damage_and_he_collision_classification(self):
+        m=self.m;params=m.object();m.at(GAME+0x1931cfc,lambda:params)
+        m.global_i('state',3);m.global_i('experience_flags',2)
+        damage,info,status,result=[m.object() for _ in range(4)]
+        armor=m.alloc(128);m.iwrite(armor+0x18,16);m.iwrite(armor+0x20,45)
+        m.qwrite(status+0x1b8,armor);m.qwrite(damage+0x38,status)
+        m.iwrite(info+0x1c,96);m.iwrite(info+0x50,100);m.iwrite(result+0x18,4)
+        seen=[]
+        def original():
+            seen.append(m.x(3));m.iwrite(result+0x20,99);m.iwrite(result+0x24,4);m.iwrite(result+0x28,30);m.iwrite(result+0x2c,2);return result
+        m.global_q('original_cal_damage',m.stub(original))
+        m.call('experience_cal_damage',damage,info,0,0,0)
+        self.assertEqual(struct.unpack('<i',m.read(result+0x20,4))[0],28)
+        self.assertEqual(m.read(result+0x24,4),bytes(4))
+        m.iwrite(armor+0x20,49);m.call('experience_cal_damage',damage,info,0,0,0)
+        self.assertEqual(m.read(result+0x20,4),bytes(4));self.assertEqual(m.read(result+0x2c,4),bytes(4))
+        m.iwrite(info+0x4c,1);m.iwrite(info+0x1c,27);m.iwrite(armor+0x20,45)
+        m.call('experience_cal_damage',damage,info,0,1,0)
+        self.assertEqual(seen[-1],0);self.assertEqual(struct.unpack('<i',m.read(result+0x20,4))[0],5)
+        m.iwrite(armor+0x20,10);m.call('experience_cal_damage',damage,info,0,1,0)
+        self.assertEqual(struct.unpack('<i',m.read(result+0x20,4))[0],32)
+        m.iwrite(info+0x4c,6);m.call('experience_cal_damage',damage,info,0,1,0)
+        self.assertEqual(seen[-1],1);self.assertEqual(struct.unpack('<i',m.read(result+0x20,4))[0],99)
+        m.iwrite(info+0x4c,0);m.iwrite(params+0x58,2);m.call('experience_cal_damage',damage,info,0,0,0)
+        self.assertEqual(struct.unpack('<i',m.read(result+0x20,4))[0],99)
 
     def test_completed_swap_does_not_overwrite_aircraft_target(self):
         m=self.m;s=self.swap_scene()

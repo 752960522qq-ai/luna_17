@@ -45,7 +45,13 @@ static void rebuild_player_ui(void *ui,void *pc,void *status) {
     void *tm=P(pc,0x50);managed_store(ui,0x290,tm);
     void *guns=unity_exists(tm)?P(tm,0x48):0;
     if(B(status,0x23) && guns && I(guns,0x18)>=2 && I(guns,0x18)<=8 && unity_exists(P(guns,0x28)))managed_store(ui,0x328,P(guns,0x28));
-    B(ui,0x278)=0;F(ui,0x2bc)=0; // Trajectory must be derived again.
+    // The stock initializer searches the original prefab's absolute Gun path.
+    // Imported rigs move that subtree. Keep the explicitly bound live gun;
+    // rerunning the stock initializer would replace it with null/retired data.
+    int speed=plain_int(*(ObscuredInt *)((uint8_t *)status+0xa8));
+    float scaled=(float)speed/810.f;
+    B(ui,0x278)=1;F(ui,0x2bc)=scaled*(speed<810?scaled:1.f)*.18f;
+    F(ui,0x2c0)=0;I(ui,0x2b8)=0;
     void *camera=P(ui,0x2f8);
     if(unity_exists(camera))I(camera,0x58)=I(status,0xcc);
     void *sights=P(ui,0x200);
@@ -89,6 +95,7 @@ static void camera_late_update(void *camera,const void *mi) {
             F(camera,0xd4)=(F(camera,0xa8)-wanted)/factor;F(camera,0xdc)=0;
         }
     }
+    experience_camera_prepare(camera);
     original_camera_late_update(camera,mi);
     if(scoped){
         F(camera,0xd4)=a;F(camera,0xdc)=b;
@@ -102,5 +109,6 @@ static void camera_late_update(void *camera,const void *mi) {
             ((void (*)(void *,Quat,const void *))P(set,0))(transform,q,set);
         }
     }
+    experience_camera_update(camera);
 }
 

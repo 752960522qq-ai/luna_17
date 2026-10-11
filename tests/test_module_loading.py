@@ -28,6 +28,9 @@ JNIEXPORT jint JNICALL Java_com_luna17_aot_NativeBridge_spawnEnemyResult(JNIEnv 
 JNIEXPORT jstring JNICALL Java_com_luna17_aot_NativeBridge_loadHatch(JNIEnv *e,jclass c,jstring path){return (*e)->NewStringUTF(e,"");}
 JNIEXPORT jstring JNICALL Java_com_luna17_aot_NativeBridge_hatchError(JNIEnv *e,jclass c){return (*e)->NewStringUTF(e,"");}
 JNIEXPORT jboolean JNICALL Java_com_luna17_aot_NativeBridge_configureMagazine(JNIEnv *e,jclass c,jstring id,jint cap,jfloat interval,jfloat reload){return cap>=2;}
+JNIEXPORT jboolean JNICALL Java_com_luna17_aot_NativeBridge_configureExperience(JNIEnv *e,jclass c,jint flags,jfloat k,jfloat khe){return flags==7;}
+JNIEXPORT jfloatArray JNICALL Java_com_luna17_aot_NativeBridge_experienceSnapshot(JNIEnv *e,jclass c){return (*e)->NewFloatArray(e,24);}
+JNIEXPORT void JNICALL Java_com_luna17_aot_NativeBridge_experienceInput(JNIEnv *e,jclass c,jint cycle,jfloat dx,jfloat dy,jfloat zoom,jfloat tilt){}
 #include "jni_module_host.h"
 '''
 
@@ -35,7 +38,7 @@ JAVA={
 'android/app/Activity.java':'package android.app; public class Activity {}',
 'com/luna17/aot/Probe.java':'''package com.luna17.aot;
 public class Probe {public static void start(String path){NativeBridge.start(path);} public static boolean ready(){return NativeBridge.loaded;} public static boolean library(){return NativeBridge.libraryLoaded;} public static String error(){return NativeBridge.error;} public static int value(){return NativeBridge.switchResult();} public static void operations(){
-if(!NativeBridge.toggle(0,true)||NativeBridge.tanks(0).length!=0||!NativeBridge.switchTank(0,0)||NativeBridge.enemyTanks(0).length!=0||!NativeBridge.spawnEnemy(0,0)||NativeBridge.spawnEnemyResult()!=1||!NativeBridge.loadHatch("unused").isEmpty()||!NativeBridge.hatchError().isEmpty()||!NativeBridge.configureMagazine("fixture",2,.1f,1.f))throw new AssertionError("Native signature mismatch");}}
+if(!NativeBridge.toggle(0,true)||NativeBridge.tanks(0).length!=0||!NativeBridge.switchTank(0,0)||NativeBridge.enemyTanks(0).length!=0||!NativeBridge.spawnEnemy(0,0)||NativeBridge.spawnEnemyResult()!=1||!NativeBridge.loadHatch("unused").isEmpty()||!NativeBridge.hatchError().isEmpty()||!NativeBridge.configureMagazine("fixture",2,.1f,1.f)||!NativeBridge.configureExperience(7,20,10)||NativeBridge.experienceSnapshot().length!=24)throw new AssertionError("Native signature mismatch");NativeBridge.experienceInput(1,.1f,.2f,.3f,4);}}
 ''',
 'com/hatch/loader/ModuleRun.java':'''package com.hatch.loader;
 import java.io.File; import java.net.URLClassLoader; import java.net.URL; import java.lang.reflect.Method; import android.app.Activity;

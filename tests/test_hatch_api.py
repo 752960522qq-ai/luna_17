@@ -23,7 +23,7 @@ def audit(library,decoded):
   off=struct.unpack_from('<I',b,p)[0]
   methods.append((struct.unpack_from('<H',b,p+4)[0],s[off:s.index(0,off)].decode(),struct.unpack_from('<H',b,p+28)[0],struct.unpack_from('<I',b,p+18)[0]))
  core={
- 'Camera':(0x16ed,[('ScreenPointToRay',1)]),
+ 'Camera':(0x16ed,[('ScreenPointToRay',1),('WorldToScreenPoint',1),('get_fieldOfView',0),('set_fieldOfView',1)]),
  'Screen':(0x1710,[('get_width',0),('get_height',0)]),
  'GameObject':(0x17ca,[('.ctor',1),('get_transform',0),('GetComponentsInternal',6),('GetComponentInChildren',2),('AddComponent',1)]),
  'Texture2D':(0x1755,[('.ctor',2)]),
@@ -35,8 +35,8 @@ def audit(library,decoded):
  'Transform':(0x1812,[('get_parent',0),('IsChildOf',1),('set_parent',1),('set_localPosition',1),('set_localRotation',1),('set_localScale',1),('TransformPoint',1),('InverseTransformPoint',1)]),
  'LODGroup':(0x1750,[('SetLODs',1)]),
  'Shader':(0x1723,[('PropertyToID',1)]),
- 'Object':(0x17eb,[('set_name',1),('get_name',0)])}
- physics={'BoxCollider':(0x289e,[('set_size',1),('set_center',1)]),'Rigidbody':(0x28b7,[('set_mass',1)]),'Physics':(0x28a5,[('Raycast',6)]),'RaycastHit':(0x28b6,[('get_collider',0)])}
+ 'Object':(0x17eb,[('set_name',1),('get_name',0),('FindObjectsOfType',2)])}
+ physics={'BoxCollider':(0x289e,[('set_size',1),('set_center',1)]),'Rigidbody':(0x28b7,[('set_mass',1),('get_linearVelocity',0)]),'Physics':(0x28a5,[('Raycast',6)]),'RaycastHit':(0x28b6,[('get_collider',0)])}
  result=[]
  for module,classes in [('CoreModule',core),('PhysicsModule',physics),('ImageConversionModule',{'ImageConversion':(0x2bcd,[('LoadImage',2)])})]:
   for klass,(index,apis) in classes.items():

@@ -18,7 +18,10 @@ JNIEXPORT jboolean JNICALL Java_com_hatch_loader_NativeHost_bind(JNIEnv *env,jcl
         NATIVE(spawnEnemyResult,"()I"),
         NATIVE(loadHatch,"(Ljava/lang/String;)Ljava/lang/String;"),
         NATIVE(hatchError,"()Ljava/lang/String;"),
-        NATIVE(configureMagazine,"(Ljava/lang/String;IFF)Z")
+        NATIVE(configureMagazine,"(Ljava/lang/String;IFF)Z"),
+        NATIVE(configureExperience,"(IFF)Z"),
+        NATIVE(experienceSnapshot,"()[F"),
+        NATIVE(experienceInput,"(IFFFF)V")
 #undef NATIVE
     };
     return (*env)->RegisterNatives(env,bridge,methods,sizeof(methods)/sizeof(methods[0]))==JNI_OK?JNI_TRUE:JNI_FALSE;

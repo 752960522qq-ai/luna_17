@@ -69,6 +69,7 @@ static void *attack_info(void *launcher,int shell,int flag,const void *mi) {
 }
 static UpdateFn original_turret_update;
 static void turret_update(void *self,const void *mi) {
+    experience_turret_target(self);
     const CustomTank *c=tank_config(P(self,0x40));
     if(!c){original_turret_update(self,mi);return;}
     // The game stores reload as whole seconds. Its existing float delay
