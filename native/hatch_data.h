@@ -17,6 +17,7 @@ static unsigned hatch_count;
 static size_t hatch_bytes;
 static char hatch_error[192];
 static struct {char id[64];int capacity;float interval,reload;} staged_magazine;
+static struct {char id[64];float grams[5];unsigned mask;} staged_filling;
 static uint32_t hatch_u32(const unsigned char *p){uint32_t v;memcpy(&v,p,4);return v;}
 static int hatch_fail(const char *message){snprintf(hatch_error,sizeof(hatch_error),"%s",message);return 0;}
 #include "hatch_options.h"
@@ -109,6 +110,10 @@ static int hatch_load_file(const char *path){
  if(staged_magazine.capacity>=2 && !strcmp(staged_magazine.id,t.disk.id)){
   t.config.magazine_capacity=staged_magazine.capacity;t.config.shot_interval=staged_magazine.interval;t.config.magazine_reload=staged_magazine.reload;
   memset(&staged_magazine,0,sizeof(staged_magazine));
+ }
+ if(staged_filling.mask && !strcmp(staged_filling.id,t.disk.id)){
+  memcpy(t.config.filling_grams,staged_filling.grams,sizeof(t.config.filling_grams));
+  t.config.filling_mask=staged_filling.mask;memset(&staged_filling,0,sizeof(staged_filling));
  }
  unsigned index=hatch_count;hatch_tanks[index]=t;hatch_tanks[index].config.id=hatch_tanks[index].disk.id;hatch_bytes+=(size_t)n;__atomic_store_n(&hatch_count,index+1,__ATOMIC_RELEASE);hatch_error[0]=0;return 1;
 }

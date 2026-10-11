@@ -19,6 +19,9 @@ final class NativeBridge {
             error = failure.getClass().getSimpleName() + ": " + failure.getMessage();
         }
     }
+    static native boolean configureCrew(boolean enabled, int mask);
+    static native int[] crewEvent();
+    static native void crewFinished();
     static native boolean configureExperience(int flags,float k,float khe);
     static native float[] experienceSnapshot();
     static native void experienceInput(int cycle,float dx,float dy,float zoom,float tilt);
@@ -32,8 +35,11 @@ final class NativeBridge {
     static native String[] enemyTanks(int nation);
     static native boolean spawnEnemy(int nation, int index);
     static native int spawnEnemyResult();
+    static native void clearTankConfiguration();
     static native String loadHatch(String path);
     static native String hatchError();
+    static native boolean configureAmmunition(String id, float[] grams, int mask);
+    static native boolean configureFilling(String id, float[] grams, int mask);
     static native boolean configureMagazine(String id, int capacity, float interval, float reload);
 }
 

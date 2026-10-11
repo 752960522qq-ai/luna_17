@@ -3,22 +3,37 @@
 #include "../native/experience_math.h"
 static int near(float a,float b){return fabsf(a-b)<.0002f;}
 int main(void){
-    BteDamage ap=bte_damage(BTE_AP,96,100,.5f,45,20,10);
+    assert(bte_ground_sight(0,0)&&bte_ground_sight(0,1)&&bte_ground_sight(0,2));
+    assert(!bte_ground_sight(0,3)&&!bte_ground_sight(0,-1)&&!bte_ground_sight(3,2));
+    BteDamage ap=bte_damage(BTE_AP,96,100,.5f,45,20,10,155);
     assert(ap.penetrated && near(ap.effective_penetration,48));
     assert(near(ap.damage,20*(48.f/45)*(1+.25f*sqrtf(1.55f))));
-    assert(!bte_damage(BTE_AP,96,100,.5f,49,20,10).penetrated);
-    assert(bte_damage(BTE_AP,96,100,.5f,49,20,10).damage==0);
-    BteDamage apcr=bte_damage(BTE_APCR,96,100,.5f,45,20,10);
+    assert(!bte_damage(BTE_AP,96,100,.5f,49,20,10,155).penetrated);
+    assert(bte_damage(BTE_AP,96,100,.5f,49,20,10,155).damage==0);
+    BteDamage apcr=bte_damage(BTE_APCR,96,100,.5f,45,20,10,155);
     assert(!apcr.penetrated && near(apcr.effective_penetration,96*powf(.5f,1.4f)));
-    BteDamage cap=bte_damage(BTE_APCR,1000,100,1,1,20,10);
+    BteDamage cap=bte_damage(BTE_APCR,1000,100,1,1,20,10,155);
     assert(near(cap.damage,21)); // No filling boost, 1.5x penetration cap.
-    BteDamage he=bte_damage(BTE_HE,27,152,1,20,20,10);
-    BteDamage blocked=bte_damage(BTE_HE,27,152,.5f,20,20,10);
+    BteDamage he=bte_damage(BTE_HE,27,152,1,20,20,10,710);
+    BteDamage blocked=bte_damage(BTE_HE,27,152,.5f,20,20,10,710);
     assert(he.penetrated && !blocked.penetrated && near(blocked.damage,he.damage*.15f));
     assert(near(he.damage,10*powf(7.1f,.6f)*sqrtf(1.52f)));
-    assert(bte_damage(BTE_AP,96,100,-1,45,20,10).damage==0);
-    assert(bte_damage(BTE_AP,NAN,100,1,45,20,10).damage==0);
-    assert(bte_damage(BTE_WP,96,100,1,45,20,10).damage==0);
+    assert(bte_damage(BTE_AP,96,100,-1,45,20,10,155).damage==0);
+    assert(bte_damage(BTE_AP,NAN,100,1,45,20,10,155).damage==0);
+    assert(bte_damage(BTE_WP,96,100,1,45,20,10,155).damage==0);
+    assert(bte_damage(BTE_AP,96,100,.5f,45,20,10,0).damage < ap.damage);
+    assert(bte_damage(BTE_HE,27,152,1,20,20,10,8300).damage > he.damage);
+    assert(bte_damage(BTE_HE,27,152,1,20,20,10,0).damage==0);
+    assert(bte_damage(BTE_HE,27,152,1,20,20,10,NAN).damage==0);
+    assert(bte_damage(BTE_HEAT,200,150,1,100,20,10,2400).damage>bte_damage(BTE_HEAT,200,150,1,100,20,10,1200).damage);
+    assert(bte_damage(BTE_HEAT,200,150,1,100,20,10,0).damage==0);
+    assert(bte_damage(BTE_HEAT,200,150,1,201,20,10,2400).damage==0);
+    BteMotion motion={0};BteVec measured;
+    assert(!bte_motion_velocity(&motion,(BteVec){0},1,&measured));
+    assert(bte_motion_velocity(&motion,(BteVec){0,0,9},1.1f,&measured));
+    assert(fabsf(measured.z-90)<.001f);
+    assert(!bte_motion_velocity(&motion,(BteVec){10000,0,0},1.2f,&measured));
+    assert(!bte_motion_velocity(&motion,(BteVec){0},.5f,&measured));
     // Reconstruct both trajectories at the solution time, including drop.
     BteVec target={1000,100,0},velocity={0,0,90},aim;float time;
     assert(bte_intercept(target,velocity,850,9.81f,120,&aim,&time));

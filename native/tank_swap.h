@@ -17,7 +17,8 @@ static void replace_references(void *object,void **old,void **fresh,int count) {
     }
 }
 
-typedef struct { void *game,*old_go,*old_status,*old_pc,*new_go,*new_status,*new_pc; int frames,battle_nation,vehicle_nation,phase,previous_vehicle_nation; } SwapTransaction;
+#include "swap_collision.h"
+typedef struct { void *game,*old_go,*old_status,*old_pc,*new_go,*new_status,*new_pc; int frames,battle_nation,vehicle_nation,phase,previous_vehicle_nation; SwapCollisionGuard collisions; } SwapTransaction;
 static SwapTransaction swap;
 static void bind_player(void *go,void *status,void *pc,void *old_go,void *old_status,void *old_pc,int nation) {
     void *game=swap.game;
@@ -51,24 +52,11 @@ static void discard_new(int error) {
     if(unity_exists(swap.new_go))FN(RVA_3431140,void (*)(void *,bool,const void *))(swap.new_go,false,0);
     switch_result=error;memset(&swap,0,sizeof(swap));
 }
-static int weapon_ready(void *pc,void *status,void *game) {
-    void *array=P(pc,0x58);if(!array)return 0;
-    int n=I(array,0x18);if(n<1 || n>8)return 0;
-    int power=plain_int(*(ObscuredInt *)((uint8_t *)status+0x78));
-    int speed=plain_int(*(ObscuredInt *)((uint8_t *)status+0xa8));
-    if(power<=0 || speed<=0 || !P(status,0xf0))return 0;
-    for(int i=0;i<n;i++){
-        void *launcher=P(array,0x20+i*8);
-        if(!unity_exists(launcher) || !unity_exists(P(launcher,0x20)))return 0;
-        managed_store(launcher,0x38,status);managed_store(launcher,0xb0,game);
-        if(!B(launcher,0xa0)){I(launcher,0x50)=power;F(launcher,0x54)=(float)speed;}
-        if(I(launcher,0x50)<=0 || F(launcher,0x54)<=0)return 0;
-    }
-    return hatch_machine_gun_ready(pc);
-}
+#include "weapon_readiness.h"
 static void advance_swap(void *game) {
     if(!swap.new_go)return;
     if(game!=swap.game || state!=3 || !unity_exists(swap.old_go) || B(swap.old_status,0x206)){discard_new(-6);return;}
+    if(!swap.phase && !swap_collisions(swap.new_go,&swap.collisions,0)){discard_new(-10);return;}
     if(++swap.frames<2)return; // Unity Start must run before handing over control.
     if(swap.phase){
         void *check=method(swap.old_go,"get_activeSelf",0);
@@ -83,9 +71,19 @@ static void advance_swap(void *game) {
     if(!camera_binding_ready(swap.new_pc)){discard_new(-9);return;}
     // Mark the one-time handover before callbacks. Later frames only verify
     // retirement; they never rebind a camera that has switched to an aircraft.
+    // Align at the old vehicle's current location after staging, so gravity
+    // or stock controllers cannot move the new body while collisions are off.
+    void *old_transform=P(swap.old_pc,FIELD_PLAYERCONTROL_THISTRF),*new_transform=P(swap.new_pc,FIELD_PLAYERCONTROL_THISTRF);
+    Vec3 position=FN(RVA_343DBC4,Vec3 (*)(void *,const void *))(old_transform,0);
+    Quat rotation=FN(RVA_343DE40,Quat (*)(void *,const void *))(old_transform,0);
+    void *set_position=method(new_transform,"set_position",1),*set_rotation=method(new_transform,"set_rotation",1);
+    if(!set_position||!set_rotation){discard_new(-10);return;}
+    ((void (*)(void *,Vec3,const void *))P(set_position,0))(new_transform,position,set_position);
+    ((void (*)(void *,Quat,const void *))P(set_rotation,0))(new_transform,rotation,set_rotation);
     swap.phase=1;
     bind_player(swap.new_go,swap.new_status,swap.new_pc,swap.old_go,swap.old_status,swap.old_pc,swap.vehicle_nation);
     FN(RVA_3431140,void (*)(void *,bool,const void *))(swap.old_go,false,0);
+    if(!swap_collisions(swap.new_go,&swap.collisions,1)){discard_new(-10);return;}
     // Retain the attacker Transform while shells already in flight finish.
     // Do not destroy a retired unit whose projectiles may still reference it.
     // Scene unload reclaims inactive retired tanks and their shell pools.
@@ -109,6 +107,10 @@ static void switch_tank(void *game,void *parameters,int command) {
         if(template_index<0){switch_result=-21;return;}
     }
     void *new_go=FN(RVA_1994A88,void *(*)(void *,void *,int,int,Vec3,Quat,bool,const void *))(gen,tag,template_nation,template_index,pos,rot,false,0);
+    // The stock factory may assign its new player before validation. Restore
+    // the old owner immediately, including every early failure path.
+    FN(RVA_1982C3C,void (*)(void *,void *,const void *))(game,old_go,0);
+    FN(RVA_1982C54,void (*)(void *,void *,const void *))(game,old_status,0);
     if(!unity_exists(new_go)) {switch_result=-3;return;}
     void *new_pc=get_component(new_go,pc_type);
     if(!unity_exists(new_pc)) {
@@ -139,7 +141,8 @@ static void switch_tank(void *game,void *parameters,int command) {
         void *lm=method(og,"get_layer",0),*sm=method(ng,"set_layer",1);
         if(lm && sm)((void (*)(void *,int,const void *))P(sm,0))(ng,((int (*)(void *,const void *))P(lm,0))(og,lm),sm);
     }
-    swap=(SwapTransaction){game,old_go,old_status,old_pc,new_go,new_status,new_pc,0,I(parameters,0x5c),nation,0,player_vehicle_nation};
+    swap=(SwapTransaction){.game=game,.old_go=old_go,.old_status=old_status,.old_pc=old_pc,.new_go=new_go,.new_status=new_status,.new_pc=new_pc,.battle_nation=I(parameters,0x5c),.vehicle_nation=nation,.previous_vehicle_nation=player_vehicle_nation};
+    if(!swap_collisions(new_go,&swap.collisions,0)){discard_new(-10);return;}
     FN(RVA_1982C3C,void (*)(void *,void *,const void *))(game,old_go,0);
     FN(RVA_1982C54,void (*)(void *,void *,const void *))(game,old_status,0);
     switch_result=0;

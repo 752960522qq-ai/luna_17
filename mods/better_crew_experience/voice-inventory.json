@@ -1,0 +1,2566 @@
+{
+  "voice_message_artillery_1.wav": {
+    "bytes": 42290,
+    "sha256": "d55f911b3c9d6a046e85bdbc64ffe03c075a20e45cd99e125b6c8f4b854623ad"
+  },
+  "voice_message_artillery_10.wav": {
+    "bytes": 37704,
+    "sha256": "83c0f0015d081ad3fa62e4e1ceef513c86a09a963a1de9ad7a918cdd0fe9ebd9"
+  },
+  "voice_message_artillery_2.wav": {
+    "bytes": 51640,
+    "sha256": "a64dc69dd9ad50781d535635e263dfc8ec47f30d595cb0667c56d34082987f93"
+  },
+  "voice_message_artillery_3.wav": {
+    "bytes": 47672,
+    "sha256": "f2db9b861e21c33f493ee44d4bf9fc4e4a8a774e7bf02f7a869233f9abe7776e"
+  },
+  "voice_message_artillery_4.wav": {
+    "bytes": 47852,
+    "sha256": "05c2910c792d7436458994cf9f2e4f53bfa3e6d325ed4470c90403b74d539468"
+  },
+  "voice_message_artillery_5.wav": {
+    "bytes": 34796,
+    "sha256": "71c6f9691d8141367c4123a6e36c11c2c3a9dd54c44389fb626156186a6855f7"
+  },
+  "voice_message_artillery_6.wav": {
+    "bytes": 44936,
+    "sha256": "7bbdc3ed262ac82c7ac16f27cd5cb564d690d3bcde0e6e18eef45e9615b35b99"
+  },
+  "voice_message_artillery_7.wav": {
+    "bytes": 49700,
+    "sha256": "adfb29120625a2b15fc4b0f6f85d7a585537ce144ca8bb82d7b96d2d79fd941d"
+  },
+  "voice_message_artillery_8.wav": {
+    "bytes": 30252,
+    "sha256": "677a1b2075cd44683185a63b52a7ea1c35762710ec18ec40cf57631b79da90bd"
+  },
+  "voice_message_artillery_9.wav": {
+    "bytes": 44584,
+    "sha256": "1f29e59d1e5628588e8e2f32e8438b118d9d4aaf822f07461e7cceea0867014b"
+  },
+  "voice_message_artillery_A.wav": {
+    "bytes": 38498,
+    "sha256": "8c81d0c0b673ad9f631b5502bb7eacc75beee1379a0e20feb5bdbf5a17bdfecf"
+  },
+  "voice_message_artillery_acknowledged_v1.wav": {
+    "bytes": 147980,
+    "sha256": "88b459f1d9bf0ae5cbea64ec553d2e7470c9c9419f08da39758aae5ec0cce264"
+  },
+  "voice_message_artillery_acknowledged_v2.wav": {
+    "bytes": 115056,
+    "sha256": "2c5320a0ed9dd995b948e920ab5789044d6dfc00c1623b7b35621cd88e11ed4c"
+  },
+  "voice_message_artillery_acknowledged_v3.wav": {
+    "bytes": 108620,
+    "sha256": "d4aaa1ecaf9ab055b1e12007b0d6ab4f01386a145a3c4f586f146bec7efab483"
+  },
+  "voice_message_artillery_B.wav": {
+    "bytes": 37792,
+    "sha256": "5e6e948722609f687a4ddde322995045af2092116caaa9b6e999e0d7685c9c90"
+  },
+  "voice_message_artillery_bracketed_v1.wav": {
+    "bytes": 158636,
+    "sha256": "55bb4bbeebe1c11236189406a7c760f10eab268f180aacac8b99dab6d7f3c87c"
+  },
+  "voice_message_artillery_bracketed_v2.wav": {
+    "bytes": 162188,
+    "sha256": "c091c9bde1a3c7f94106311e9b8a86375c9a507e8d6b36187f1c1815663236fb"
+  },
+  "voice_message_artillery_bracketed_v3.wav": {
+    "bytes": 144524,
+    "sha256": "45dd6d05c29c5ad0cb7e6867e9ca5a47ddf9a693398e71baf8036d04d082b23b"
+  },
+  "voice_message_artillery_C.wav": {
+    "bytes": 47852,
+    "sha256": "4ee09d27832a3de4cb65ab22c33d204baade0e0059b2ebf32d1810fa36e93c35"
+  },
+  "voice_message_artillery_D.wav": {
+    "bytes": 36734,
+    "sha256": "b807e62df6876035bd19e2d0a7aaa20d8255a03ce640835ad06474ca0f6289d0"
+  },
+  "voice_message_artillery_E.wav": {
+    "bytes": 39116,
+    "sha256": "e65901e9882818ef06a983b5a9d9c9a69b2cc10f346a975b75e5e68fda15d65f"
+  },
+  "voice_message_artillery_F.wav": {
+    "bytes": 39404,
+    "sha256": "4244c0231aea234c53440f5ff0440e27cc9e8535fb0962a2f487bdab8f9b604d"
+  },
+  "voice_message_artillery_G.wav": {
+    "bytes": 43628,
+    "sha256": "5be63361cc6b7dc448cd2b65a954fbe380efae0c93049b2318bc2a47c758be8d"
+  },
+  "voice_message_artillery_H.wav": {
+    "bytes": 57068,
+    "sha256": "68f9b9b366715c1568320755984b02e23eaeb4734dfdf5e7f317a72a033d0818"
+  },
+  "voice_message_artillery_I.wav": {
+    "bytes": 42114,
+    "sha256": "98f44c39d693c2c1d270254b4e8519f04c4fc8200dddd0193d294a1cd30c909a"
+  },
+  "voice_message_artillery_J.wav": {
+    "bytes": 41586,
+    "sha256": "f7cd51913bdeafd75c2179f85dd47b2d5c101983dea638e6252b88bb0d527a71"
+  },
+  "voice_message_artillery_open_fire_v1.wav": {
+    "bytes": 53420,
+    "sha256": "0a332e82d5412055076668aa4d92e1d7087bf7356182c18c116de33f57d9df36"
+  },
+  "voice_message_artillery_open_fire_v2.wav": {
+    "bytes": 41674,
+    "sha256": "a68f5d5ace35f1fd728328825f1940813ac0cd4c823c4234fba366f8b15072b0"
+  },
+  "voice_message_artillery_open_fire_v3.wav": {
+    "bytes": 39292,
+    "sha256": "9a22ef7808fb30785a7a7411dcbafe053d2bf8e6af7e52aab4dffdec7fc399f2"
+  },
+  "voice_message_artillery_understood_v1.wav": {
+    "bytes": 52346,
+    "sha256": "7c3ede4e4f67a2144ab817b83e841e1ab5f18d4cb76b192e406513117005e55b"
+  },
+  "voice_message_artillery_understood_v2.wav": {
+    "bytes": 51288,
+    "sha256": "87fd32e3bbeedc553ab5172540599dcd64fcca89eb088f013e44300c588e0ab9"
+  },
+  "voice_message_artillery_understood_v3.wav": {
+    "bytes": 51992,
+    "sha256": "da2ac804886546da0b7b8d6594024269fa1ba5a6c579749ea54ec78c41c250c6"
+  },
+  "voice_message_aviation_on_the_way_v1.wav": {
+    "bytes": 294860,
+    "sha256": "0e268cf72aba255832d88f09110f26542432fcebb975e4bb469fcf4d75dfb388"
+  },
+  "voice_message_aviation_on_the_way_v2.wav": {
+    "bytes": 257420,
+    "sha256": "442eadedc400b630d0a4cc82d0de867f121e6f0d777cc88e5b6a04b62520f87c"
+  },
+  "voice_message_aviation_on_the_way_v3.wav": {
+    "bytes": 303212,
+    "sha256": "ab5bedf7498c48bb66bf80b2185d95dca1548d524bb0c187e44d1b535dce6dd6"
+  },
+  "voice_message_chief_air_danger_v1_1.wav": {
+    "bytes": 87450,
+    "sha256": "1e369d3a33eed1893bb13f834e7f5bbbbc8eebea54d762a54be60924524486d1"
+  },
+  "voice_message_chief_air_danger_v1_2.wav": {
+    "bytes": 155276,
+    "sha256": "77a416889314581c04d96465c0db9eda6318d363e39a50f385785b77aee66e2d"
+  },
+  "voice_message_chief_air_danger_v1_3.wav": {
+    "bytes": 130220,
+    "sha256": "a02c5748bf8fa27f3b63c1d60d47962d507f0ceddfce2b14c9e2d590fb935a39"
+  },
+  "voice_message_chief_air_danger_v2_1.wav": {
+    "bytes": 189850,
+    "sha256": "ff24e871310325c5b2cf8ecc18acb3cb28a4a68ce473920519fab65b18cf95e7"
+  },
+  "voice_message_chief_air_danger_v2_2.wav": {
+    "bytes": 93644,
+    "sha256": "97223a8fc697424f3de25ff12ea89fc24a0b76832b7008ba64a23dcd47b07341"
+  },
+  "voice_message_chief_air_danger_v2_3.wav": {
+    "bytes": 160748,
+    "sha256": "9bbf17a8b02fa689d76c402325c9f30912ad6d367656c4833f76dd18bf23c83e"
+  },
+  "voice_message_chief_artillery_danger_v1_1.wav": {
+    "bytes": 168858,
+    "sha256": "8cb236dfcedbbf94f509b1b4d332fd8d81c0dfe0d779d1d9d63a2a0f26062e24"
+  },
+  "voice_message_chief_artillery_danger_v1_2.wav": {
+    "bytes": 162092,
+    "sha256": "1262b771d78e709b8c646b5448ecda5961217f469f2330c38219510c0083cd57"
+  },
+  "voice_message_chief_artillery_danger_v2_1.wav": {
+    "bytes": 209420,
+    "sha256": "790f50ffa95f98b90d74c84091da5feed4089c0af6f547d2bc3202dc08f588ec"
+  },
+  "voice_message_chief_artillery_danger_v2_2.wav": {
+    "bytes": 144514,
+    "sha256": "c234e1c6ab2993efda584fef5270364ecac9e8856b85d31d6ca89c663d0dde53"
+  },
+  "voice_message_chief_artillery_danger_v3_1.wav": {
+    "bytes": 163628,
+    "sha256": "f7a80e07d44e15299f75615136bff26829247e0feaf832075b2e23dd7d9154dd"
+  },
+  "voice_message_chief_artillery_danger_v3_2.wav": {
+    "bytes": 207500,
+    "sha256": "e854f56f26e7b805fe559728954baa0e8933ac0e120f85ac34fd5de1e8250dbe"
+  },
+  "voice_message_chief_artillery_danger_v4_1.wav": {
+    "bytes": 202028,
+    "sha256": "42bb4e7f4abd8b4a82e9b55d5d10c0dec7c54f81b711a84ac6b48e0af1194fb4"
+  },
+  "voice_message_chief_artillery_danger_v4_2.wav": {
+    "bytes": 158636,
+    "sha256": "2315349fdb77d548e4ff6a2fac7acd92c9fd7f8efa79de631f8c274a34f350b6"
+  },
+  "voice_message_chief_battle_loose_nuke_v1.wav": {
+    "bytes": 307820,
+    "sha256": "a6ddc688c7925e0499f88552bae4e4d7381310b88820d63a722f06f0589200c5"
+  },
+  "voice_message_chief_battle_loose_nuke_v2.wav": {
+    "bytes": 506252,
+    "sha256": "8a73a8798e331e3c501310c22aa454066b8487d94469fcf1fded3b9624bc4152"
+  },
+  "voice_message_chief_battle_loose_v1.wav": {
+    "bytes": 258572,
+    "sha256": "c16a4275600d2307834d2b0e10295a4647b8bc43c8affdedacf0ce7e51aa7ff7"
+  },
+  "voice_message_chief_battle_loose_v2.wav": {
+    "bytes": 322316,
+    "sha256": "15809549758b5af82b72479d38f4fa004b10cf74adbaad7ede0ff90345f15b64"
+  },
+  "voice_message_chief_battle_loose_v3.wav": {
+    "bytes": 276814,
+    "sha256": "6892acacecde94a7d5c866945def922cdc3ad2dd55372c0f0dfc4d4a3d46b810"
+  },
+  "voice_message_chief_battle_loose_v4.wav": {
+    "bytes": 249452,
+    "sha256": "920c5db2228552801fc8179613a3d307d8184ac22f7a7946ba29d8bf9dd1c5d7"
+  },
+  "voice_message_chief_battle_start_v1_1.wav": {
+    "bytes": 233324,
+    "sha256": "2a4253a2b206bcf119ab975b7268350da1d44aa50cc159ab6edaec1738cd9ace"
+  },
+  "voice_message_chief_battle_start_v1_2.wav": {
+    "bytes": 205196,
+    "sha256": "7660c9cac648afb2554ab30a429bb7bdb449dbacb8b1c928b1e3e5bb70f82c6a"
+  },
+  "voice_message_chief_battle_start_v1_3.wav": {
+    "bytes": 219116,
+    "sha256": "b96c1e1bcf598ec1a97a7479db9c685b8e686710f795c20a2d0155e5ed3ecc38"
+  },
+  "voice_message_chief_battle_start_v2_1.wav": {
+    "bytes": 94124,
+    "sha256": "4b4bd4c3c92acc1a679e15c94d42b173c78cb39902715ae2c26e81a5de5d3724"
+  },
+  "voice_message_chief_battle_start_v2_2.wav": {
+    "bytes": 87308,
+    "sha256": "dbcfb99918971e45320e4dc732e7546cbd856b622f6d66406bc358211e90252e"
+  },
+  "voice_message_chief_battle_start_v2_3.wav": {
+    "bytes": 83480,
+    "sha256": "a9e08286374fac0c875fb7476a1764cbe7cf4abcc9b2be8433b958bd3ed7dc03"
+  },
+  "voice_message_chief_battle_start_v3_1.wav": {
+    "bytes": 92204,
+    "sha256": "25cd6ef2717046b301c82802623bcac065eca5332eb021f1667dc8ae3ef7fc4a"
+  },
+  "voice_message_chief_battle_start_v3_2.wav": {
+    "bytes": 115244,
+    "sha256": "bf020ac6e91d6ace0bcd2cd4cb0d94c341fb2d6440984c704f66e9d4b3833ac8"
+  },
+  "voice_message_chief_battle_start_v3_3.wav": {
+    "bytes": 104204,
+    "sha256": "4766433c0bb4f27296c66ffaab9fbce9e55a2561713750d07ab3770511ee104b"
+  },
+  "voice_message_chief_battle_win_nuke_v1.wav": {
+    "bytes": 380396,
+    "sha256": "22e106b75bc6be5af48de4cf2852789dae400b3e74b27cbea0dbd697d960f48a"
+  },
+  "voice_message_chief_battle_win_nuke_v2.wav": {
+    "bytes": 321164,
+    "sha256": "cce2df73fe13311c3c9992d5b9da40f00ac97c269297a48946436a36815c38ba"
+  },
+  "voice_message_chief_battle_win_v1.wav": {
+    "bytes": 290750,
+    "sha256": "b7cabc3c9dea1848c42a4ca3ed864aca2f4f1689f96d1821fbb9b5a5d30ab68e"
+  },
+  "voice_message_chief_battle_win_v2.wav": {
+    "bytes": 199198,
+    "sha256": "da7c8be87b450fe657a3ea82f9771cd0aafd4779474d60b22b3a94602325f5a1"
+  },
+  "voice_message_chief_battle_win_v3.wav": {
+    "bytes": 244844,
+    "sha256": "765bac048d9bb1b8ad4e26a69273597386314b37b5a27a7f5f17a88b3f999a6f"
+  },
+  "voice_message_chief_battle_win_v4.wav": {
+    "bytes": 269900,
+    "sha256": "b1c86dbe845c9f95a671638e105d1cea895be96bb047480a386c78d9d9b7d620"
+  },
+  "voice_message_commander_art_1.wav": {
+    "bytes": 41144,
+    "sha256": "245b7ed2d4c329a47291533e2409e95afd917d6db8522786129d472ddb5ddb57"
+  },
+  "voice_message_commander_art_10.wav": {
+    "bytes": 37792,
+    "sha256": "b429a42f807408465ec36176ae8cadca0f5dedfa055e4008aaaf91c272eaef03"
+  },
+  "voice_message_commander_art_2.wav": {
+    "bytes": 45642,
+    "sha256": "a3c4923ca471014ee04e8545c420289b30f7cfc0aa24ac335fb27b871d05e5a7"
+  },
+  "voice_message_commander_art_3.wav": {
+    "bytes": 48620,
+    "sha256": "ee25051f848795d8253b5798e07aef85c901d8dbb7718bddfa32b3640ca073dd"
+  },
+  "voice_message_commander_art_4.wav": {
+    "bytes": 49868,
+    "sha256": "3d2d205503f924a2f3e9b5f10071f182770b68739fe61ee59f1b506db79b8042"
+  },
+  "voice_message_commander_art_5.wav": {
+    "bytes": 46348,
+    "sha256": "94fb9eada2807f8c6b79848db5c7a439ace746bb9189bb4e882c34c596e92228"
+  },
+  "voice_message_commander_art_6.wav": {
+    "bytes": 45996,
+    "sha256": "3a1e52aa3e477449c35cbb7042b0260332ba5e271c444c4836ce869a9a7d5c03"
+  },
+  "voice_message_commander_art_7.wav": {
+    "bytes": 54092,
+    "sha256": "aecd8a2d5eb0e2c0dae89fd19dfa7f61d7cbee5b6e7a736325268b24776dedee"
+  },
+  "voice_message_commander_art_8.wav": {
+    "bytes": 43878,
+    "sha256": "7ba71a53ec8c9dd0da4eae57caf05c023ec58a83dde6874e0c9b38375dd131c8"
+  },
+  "voice_message_commander_art_9.wav": {
+    "bytes": 40526,
+    "sha256": "f10b62b0a38d4d775f8aa4915d6bc58bea80cd37136d43bbc267bab274ec53e0"
+  },
+  "voice_message_commander_art_A.wav": {
+    "bytes": 44144,
+    "sha256": "2d8f4909d6e49bf2d38f3cebfb4ca17a90fdda334c9e6352d35ab66d8143be92"
+  },
+  "voice_message_commander_art_B.wav": {
+    "bytes": 41612,
+    "sha256": "4cfebd30a49ffd9673877048c808045785a1d370ae12598418186061358a5328"
+  },
+  "voice_message_commander_art_barrage_v1_1.wav": {
+    "bytes": 81260,
+    "sha256": "fb3eca4d79834d9738297ef3eb2d855554f639c922b09de45b4a1f830c363da2"
+  },
+  "voice_message_commander_art_barrage_v1_2.wav": {
+    "bytes": 98444,
+    "sha256": "a95fae9ef72e018e1d6d2ed5f0cecf30308e787d75980495d76ccacd8191ffe8"
+  },
+  "voice_message_commander_art_barrage_v2_1.wav": {
+    "bytes": 109484,
+    "sha256": "ceef60603c52949a80bac1e83f0d8b35218e9699cac3f8d0ca7b2226daec9e0c"
+  },
+  "voice_message_commander_art_barrage_v2_2.wav": {
+    "bytes": 104972,
+    "sha256": "241e87603088698e5a35d0f10d44aacd9f957082250543c0816110bc9e2b3e34"
+  },
+  "voice_message_commander_art_C.wav": {
+    "bytes": 49868,
+    "sha256": "39df2582d735c1f54816a20cdfc109d90db4e73c437539f331023183484b9cea"
+  },
+  "voice_message_commander_art_coordinates_v1_1.wav": {
+    "bytes": 115320,
+    "sha256": "92cad9f508e0eb86178ddd973d0e97901b5ead650ba34b4fbb934183c177af10"
+  },
+  "voice_message_commander_art_coordinates_v1_2.wav": {
+    "bytes": 173324,
+    "sha256": "bde3329ece7f140fefd141b6e0cc8e1267d0dd0f0ab0361e42563f5060c15d31"
+  },
+  "voice_message_commander_art_coordinates_v2_1.wav": {
+    "bytes": 199628,
+    "sha256": "c6c3bc866bbfc57be45383f01069f576dfb4892e8a21344d7d2e06a5bb73273b"
+  },
+  "voice_message_commander_art_coordinates_v2_2.wav": {
+    "bytes": 124364,
+    "sha256": "22e24e785dfc6c10a968c5910bbb8e01ba8b4ebeac04efcd75f6993e92cd32e5"
+  },
+  "voice_message_commander_art_D.wav": {
+    "bytes": 41516,
+    "sha256": "9e06a88ea7789fffdfbd6a2efd01cbcbdbc9cccfae8d0fc6e18f6a7085d0fcd2"
+  },
+  "voice_message_commander_art_destroy_v1.wav": {
+    "bytes": 60716,
+    "sha256": "c12d93481465ebe13c96ba4ec8ce50f43e922a25d2894edd576f09dd6f815e2b"
+  },
+  "voice_message_commander_art_destroy_v2.wav": {
+    "bytes": 99116,
+    "sha256": "2751925cba53e659a5cfe74d0c86a13fd24ce9dbbb328a067b6336ad8f58fbe9"
+  },
+  "voice_message_commander_art_destroy_v3.wav": {
+    "bytes": 100844,
+    "sha256": "057673133de0441b60d1a65560c0abf49c7fc9b6b7b36ed8ecc372db91c2ffad"
+  },
+  "voice_message_commander_art_E.wav": {
+    "bytes": 45260,
+    "sha256": "22588d8676003de371b34f67d677727c610665afc81e849ede3a044a78ff4171"
+  },
+  "voice_message_commander_art_F.wav": {
+    "bytes": 46796,
+    "sha256": "6330bbc7d7f95b08ec685800bbacf3638314010ea365e4d7b4926e47f8a61f95"
+  },
+  "voice_message_commander_art_G.wav": {
+    "bytes": 49004,
+    "sha256": "70dad2e5feb4bc75ba79b45ddd97118c1aa5fd06da49f38db99a029d239b1004"
+  },
+  "voice_message_commander_art_H.wav": {
+    "bytes": 52940,
+    "sha256": "aab97effe72efe32fdc5db36277f8f3c4f647b46bac545c3f0e4538902a7786e"
+  },
+  "voice_message_commander_art_I.wav": {
+    "bytes": 42026,
+    "sha256": "154bb53c5e0626045480627286b26fe929c29afb193840ceced5b6557f09119e"
+  },
+  "voice_message_commander_art_J.wav": {
+    "bytes": 46988,
+    "sha256": "de0302551f38cdc9ffd9d82f86921fa78f7ab4a693612260dbdc22f416afacc1"
+  },
+  "voice_message_commander_art_on_me_v1_1.wav": {
+    "bytes": 219788,
+    "sha256": "5c5e281713ee8483ac7a03775ee5097e02094edfc5c0f11ac6cb11920be726fd"
+  },
+  "voice_message_commander_art_on_me_v1_2.wav": {
+    "bytes": 122906,
+    "sha256": "a582164343db11a199c95317bbb56f22b035c5f2ff9719e60cb87092e8e7766b"
+  },
+  "voice_message_commander_art_on_me_v2_1.wav": {
+    "bytes": 198860,
+    "sha256": "48b4c84bc3782e0edb098c45c2c0608af8bde5f87aaf892760862bfe54907844"
+  },
+  "voice_message_commander_art_on_me_v2_2.wav": {
+    "bytes": 121580,
+    "sha256": "858aab66fd017224370560ab8e09891de38bff900852a059398608f5671261f5"
+  },
+  "voice_message_commander_art_request_v1_1.wav": {
+    "bytes": 141644,
+    "sha256": "e2d66630ef83a5f5394b7eab6c85cb9d52cabc6bbad9dac02e3f41f863fb2e43"
+  },
+  "voice_message_commander_art_request_v1_2.wav": {
+    "bytes": 141164,
+    "sha256": "056ab43846c0e65d764d90d39876930e9896493ba9eafe2c384ecfc8723d204e"
+  },
+  "voice_message_commander_art_request_v1_3.wav": {
+    "bytes": 120812,
+    "sha256": "5d57178a573b2d0639387b3faefa62dfde23a2721a70cf8fa536a3cab38fd390"
+  },
+  "voice_message_commander_art_request_v2_1.wav": {
+    "bytes": 150284,
+    "sha256": "6aed67a5d82564ab01786684231cc03ccbdb41dee669b54df81b13463f98481d"
+  },
+  "voice_message_commander_art_request_v2_2.wav": {
+    "bytes": 153932,
+    "sha256": "6f9ef2e4e42f38d4b573da0835b11d0526a4acd6d8725fc6ac97c0e93dd402d8"
+  },
+  "voice_message_commander_art_request_v2_3.wav": {
+    "bytes": 147500,
+    "sha256": "a391af5a70ab41a2f438f7213f9cde3559488208fa56ba2ce48d8bcda4503119"
+  },
+  "voice_message_commander_bail_v1_1.wav": {
+    "bytes": 65420,
+    "sha256": "9c5c125f945bbc67665de649115facde4219883859c0319b09639df4fa1b13ff"
+  },
+  "voice_message_commander_bail_v1_2.wav": {
+    "bytes": 184844,
+    "sha256": "b364cbc86e319a7fb01090f1e1044ee5592a961db4b56b0f6c695d09b6039658"
+  },
+  "voice_message_commander_bail_v1_3.wav": {
+    "bytes": 195500,
+    "sha256": "c827eb9a2c8e353db82922317783d919f2fcf635dc4826657c0632dc328d617f"
+  },
+  "voice_message_commander_bail_v2_1.wav": {
+    "bytes": 190700,
+    "sha256": "abbe3757c2d5be50233b03316486ddac78e69a46902a5ff7e040ff532897e9fe"
+  },
+  "voice_message_commander_bail_v2_2.wav": {
+    "bytes": 92396,
+    "sha256": "c903b6732b84513f2ea21f0003928f60124a3830b91cc9de99752f0dcd491b9e"
+  },
+  "voice_message_commander_bail_v2_3.wav": {
+    "bytes": 133676,
+    "sha256": "7fe7c6b21ef86afa925817309b49e0da583fd2c907bfec639258c3483f29e32a"
+  },
+  "voice_message_commander_battle_start_v1_1.wav": {
+    "bytes": 92780,
+    "sha256": "283dfe2f6b59f8c2f1ab2d79d8c8f06d06b20fcfd1bebc01c3b120833440820c"
+  },
+  "voice_message_commander_battle_start_v1_2.wav": {
+    "bytes": 104684,
+    "sha256": "ba77006b1cc551692570233e18acda5218d939e8925c5dbb65317ec830ac73e9"
+  },
+  "voice_message_commander_battle_start_v1_3.wav": {
+    "bytes": 113420,
+    "sha256": "066c10116145c78429f81ccb0b7b6262621cf92ccfb8de163b1e2f0064bcc6e4"
+  },
+  "voice_message_commander_battle_start_v2_1.wav": {
+    "bytes": 123020,
+    "sha256": "8c015b04e024f10252aa93af30e3eeced7c0529dc673bfe809961449e477166c"
+  },
+  "voice_message_commander_battle_start_v2_2.wav": {
+    "bytes": 49170,
+    "sha256": "88ff0f046ee84857d650d06ac3864a38218ce3178131b2b03502bc79de02f3b1"
+  },
+  "voice_message_commander_battle_start_v2_3.wav": {
+    "bytes": 61342,
+    "sha256": "536b72fa60b58753a82ad82562e189351ecdfc97f9ece1bfcb0df49c8a5898c6"
+  },
+  "voice_message_commander_correction_002.wav": {
+    "bytes": 60428,
+    "sha256": "3ca400d9a6b6ff18088f28387a5c55febad147a6b4dad2d4aa0746fee11c3f71"
+  },
+  "voice_message_commander_correction_004.wav": {
+    "bytes": 55244,
+    "sha256": "db9f81d070d6d968cb28de22defa6a849da16bedc064711a53d7fef063b1f2a1"
+  },
+  "voice_message_commander_correction_006.wav": {
+    "bytes": 58696,
+    "sha256": "162929f2fe090a12b4886d7d3928117d6081186f081edd12ff74fac3d58d6144"
+  },
+  "voice_message_commander_correction_008.wav": {
+    "bytes": 54816,
+    "sha256": "5c466f6550b73cd2c286fc94dab4098c0f85ceff16e3ac0c4641b2ac44c46a1b"
+  },
+  "voice_message_commander_correction_010.wav": {
+    "bytes": 64076,
+    "sha256": "0cf5d357e552c16045e406b4972894fb79903b14201f76e6c4c16a3bbe7c170c"
+  },
+  "voice_message_commander_correction_012.wav": {
+    "bytes": 71756,
+    "sha256": "305d884fca61ce7b34122041e3fa7e16f175c66a4154c8b6ca00926e542cc96d"
+  },
+  "voice_message_commander_correction_014.wav": {
+    "bytes": 74924,
+    "sha256": "64fc5c0570be190e7835cd857103d6100a5a7d047f1806016bb21e192e87b27b"
+  },
+  "voice_message_commander_correction_016.wav": {
+    "bytes": 64460,
+    "sha256": "12fd791df99dbe315f840bb658354c7791998aea381b2f905bf1a2f33e8d764d"
+  },
+  "voice_message_commander_correction_left_v1.wav": {
+    "bytes": 61784,
+    "sha256": "20ed05813aa0e0dbf7946fedac8f2d483d9105a79ca4e3966c94c19a8940eac5"
+  },
+  "voice_message_commander_correction_left_v2.wav": {
+    "bytes": 63282,
+    "sha256": "fcb6ecdaec3b095d706f1241f09d685e08c4ac3fb487afb6deaed2a4f80a423f"
+  },
+  "voice_message_commander_correction_left_v3.wav": {
+    "bytes": 59180,
+    "sha256": "9807e063b81ea09ab2fc8a0789b558f77d3fd227785fac6c9f947f971778b65b"
+  },
+  "voice_message_commander_correction_right_v1.wav": {
+    "bytes": 52522,
+    "sha256": "bdfec8a8c6649a4bb684d01f74b2ece684cda2ef15ad2beb76fa0168c6597e3d"
+  },
+  "voice_message_commander_correction_right_v2.wav": {
+    "bytes": 62636,
+    "sha256": "40b6841663f6cfd4e99133c23636be9dfcafe1aa5143a7b34d508ec83966a368"
+  },
+  "voice_message_commander_correction_right_v3.wav": {
+    "bytes": 61868,
+    "sha256": "602df1fc954da4fe26c36ae78179fdb6293982abc706779f9a9b487cced7fccd"
+  },
+  "voice_message_commander_correction_target_destroyed_nice_shot_v1.wav": {
+    "bytes": 137708,
+    "sha256": "616373548d38715e3395caf445b6de041f92a4c2284e1c28b7ff9fcd09d27b2a"
+  },
+  "voice_message_commander_correction_target_destroyed_nice_shot_v2.wav": {
+    "bytes": 106796,
+    "sha256": "d3504bdd486d7601a1231d2df3b10e4527d8c54c42797e67b81e4dd52b4e3307"
+  },
+  "voice_message_commander_correction_target_destroyed_nice_shot_v3.wav": {
+    "bytes": 70700,
+    "sha256": "1d45d835c24d8ae05a95ef0ed129cba2e79102d851df248d127748e6e00b4a60"
+  },
+  "voice_message_commander_correction_target_destroyed_revenge_v1.wav": {
+    "bytes": 85196,
+    "sha256": "90d4e021bbfe984de4e95de77042699d8621150c22f22188bf62c7d17aa44bb7"
+  },
+  "voice_message_commander_correction_target_destroyed_revenge_v2.wav": {
+    "bytes": 156716,
+    "sha256": "58ed2b2b68548b348ef834b5141fc697f916710e91ce7abe361b8b3fa0328232"
+  },
+  "voice_message_commander_correction_target_destroyed_revenge_v3.wav": {
+    "bytes": 105644,
+    "sha256": "34a8cd4aa767728ee3cc7171809f22267228a611287d5144edf23fb9561a020b"
+  },
+  "voice_message_commander_crew_lost_v1.wav": {
+    "bytes": 154316,
+    "sha256": "e11c3343b6a638f08e11c3b13fd384c22afa2866429a60effde417b7ccb14b67"
+  },
+  "voice_message_commander_crew_lost_v2.wav": {
+    "bytes": 145772,
+    "sha256": "fed9c8f5fd1c2e20ed82b6f36ac622a099a14500d787f23b20430ba8bb7e5331"
+  },
+  "voice_message_commander_crew_lost_v3.wav": {
+    "bytes": 123212,
+    "sha256": "ea7bb90354ba5aa532171f7a11a8dc565b4a7f89dd373ae7b6d7d6c29059fb96"
+  },
+  "voice_message_commander_engine_prepare.wav": {
+    "bytes": 132236,
+    "sha256": "cf5debf0429aff7eb7b1a9c53173270e058c6269c39b6a88f6db5640fd83b99f"
+  },
+  "voice_message_commander_engine_start_v1.wav": {
+    "bytes": 106892,
+    "sha256": "cde37bfd25354125670992d7e5436fe15ff7118a892d7317e93e120ecd07da4e"
+  },
+  "voice_message_commander_engine_start_v2.wav": {
+    "bytes": 113612,
+    "sha256": "5b4383dd4d8381b95c46b390dfdace9bdba3cea8b0f9f69023eb1e3b5020413e"
+  },
+  "voice_message_commander_engine_start_v3.wav": {
+    "bytes": 126284,
+    "sha256": "2dac698073c853008fbf83e85e5627e75e5dbaff98f56a8e6131e30ffefdb238"
+  },
+  "voice_message_commander_engine_stop_v1.wav": {
+    "bytes": 109964,
+    "sha256": "cea21b875661f7c8c96d8e2e0da001e588e6e5db66ed784742bba4fb33210d53"
+  },
+  "voice_message_commander_engine_stop_v2.wav": {
+    "bytes": 103052,
+    "sha256": "99a7ea8f7947b3b78a6ade2fe4f7f606dfe8486cf3a13d27e235cd9ad3d467e7"
+  },
+  "voice_message_commander_engine_stop_v3.wav": {
+    "bytes": 83852,
+    "sha256": "da7a6e5cb00141f70bb19025159ea188bbb92d17741636bf2486304fe52c18e1"
+  },
+  "voice_message_commander_load_AP_v1.wav": {
+    "bytes": 101208,
+    "sha256": "66fb6a1d7e4abbcb3985747590ab3b8a0343dccfe8edb54d5f648e29406e9987"
+  },
+  "voice_message_commander_load_AP_v2.wav": {
+    "bytes": 107206,
+    "sha256": "8ff57b8dd551823c61065b773ac5801df5b3a4199b68510cd1e11b87338a22cd"
+  },
+  "voice_message_commander_load_AP_v3.wav": {
+    "bytes": 100748,
+    "sha256": "232672f259afb0ac6f8f1489af13383d6a168cc485115fe8a325a764667a54e8"
+  },
+  "voice_message_commander_load_APCR_v1.wav": {
+    "bytes": 144812,
+    "sha256": "afceb031f479c21879b684a0bee7991c9abac4e2a19e2f0f17b15575316e2378"
+  },
+  "voice_message_commander_load_APCR_v2.wav": {
+    "bytes": 139724,
+    "sha256": "0e6725262e77cf99d4d03c4163db42c8d855638a300a31cb3e9e5800688b692c"
+  },
+  "voice_message_commander_load_APCR_v3.wav": {
+    "bytes": 129068,
+    "sha256": "729573c9002d9954afcc9c9ea5812f3589fbb446ffdf1de798d41c44335a1252"
+  },
+  "voice_message_commander_load_canister_v1.wav": {
+    "bytes": 93932,
+    "sha256": "574774cf64577421bdfe4feb71202650b94329fce2e165feec5a58167d63f8b7"
+  },
+  "voice_message_commander_load_canister_v2.wav": {
+    "bytes": 97676,
+    "sha256": "db7cf84326ccea112d3176613d73a1b4456a994f51b6e97101fcd5f6de4e2f2e"
+  },
+  "voice_message_commander_load_canister_v3.wav": {
+    "bytes": 100172,
+    "sha256": "b18f8b1c23e3a2c985a2aaaa8ca6473898a7e3ee953d5a3bcb14ce73b45ce755"
+  },
+  "voice_message_commander_load_dart_v1.wav": {
+    "bytes": 116972,
+    "sha256": "8c41b915c3af82be11af5961bfeccab919572689cecc0f11270edbfc0ebfffa5"
+  },
+  "voice_message_commander_load_dart_v2.wav": {
+    "bytes": 115724,
+    "sha256": "b95c3c8491974b5a225a4985540cce6a3fa40037cd5b351f4f29b8eac4ff0074"
+  },
+  "voice_message_commander_load_dart_v3.wav": {
+    "bytes": 129164,
+    "sha256": "a5e81e7adef4ed03582c00a7499397f18d6330f9d86b0efa20c2722d77ff0678"
+  },
+  "voice_message_commander_load_flares_v1.wav": {
+    "bytes": 96886,
+    "sha256": "85763998428b99f28b2920da7c991e33a316b47d6d801fd4bc6f19c357f44b65"
+  },
+  "voice_message_commander_load_flares_v2.wav": {
+    "bytes": 100238,
+    "sha256": "2a1af3de2f405393469f740a6931725a9cb1e971b0a1fea8c6e2017c2fcc1477"
+  },
+  "voice_message_commander_load_flares_v3.wav": {
+    "bytes": 113132,
+    "sha256": "79cd951e083e926c17fa6c5f95235226b8435606bddab845db744e07c8fbd647"
+  },
+  "voice_message_commander_load_frag_v1.wav": {
+    "bytes": 114092,
+    "sha256": "2b3c76430d23d34831230ea185d2c8e10d3a4f5403f2b0e6b1a2bec8686d6da0"
+  },
+  "voice_message_commander_load_frag_v2.wav": {
+    "bytes": 108176,
+    "sha256": "1506f786f1a9bed942c10e79dc7d25f1c4f91a4e9862087e89ee79a6b317ff67"
+  },
+  "voice_message_commander_load_frag_v3.wav": {
+    "bytes": 143660,
+    "sha256": "a7768ca134477cd2be4155f9530bb4a113d883286ae73e7a6456a9ab0d3d9407"
+  },
+  "voice_message_commander_load_HE_v1.wav": {
+    "bytes": 113804,
+    "sha256": "a4c8866425cfc2cc86f96ac7c5f3c030b91cc58be5d591d06a76b5ea50744ce1"
+  },
+  "voice_message_commander_load_HE_v2.wav": {
+    "bytes": 101296,
+    "sha256": "ed6739c3aad96fdb7b6e5a97c8eb3d61688d9d5ed5a1e1f654409fa796b54e7d"
+  },
+  "voice_message_commander_load_HE_v3.wav": {
+    "bytes": 116972,
+    "sha256": "3d5733a62ba1fa4e17f030d4c5bd7c155820a4e06b08371e9b2fa37987d878da"
+  },
+  "voice_message_commander_load_HEAT_v1.wav": {
+    "bytes": 106220,
+    "sha256": "c52ea407448b2abe9b072fb0fd1160e0ebd265dcb87a77340209ad0fbba8e845"
+  },
+  "voice_message_commander_load_HEAT_v2.wav": {
+    "bytes": 94946,
+    "sha256": "4f47f317eb50a9c3705fbc90a9a838e840a0acb840d8252924f1b80cd1923cdc"
+  },
+  "voice_message_commander_load_HEAT_v3.wav": {
+    "bytes": 96812,
+    "sha256": "a45d918bee86fea2a7f199a9a72d1a051acd23f181b0105599314c6bcf01ba72"
+  },
+  "voice_message_commander_load_HESH_v1.wav": {
+    "bytes": 100748,
+    "sha256": "24daa7bf81b6def0d7b8f9b60a10bdf6f5e210078f591454cf43a46e5b8867ef"
+  },
+  "voice_message_commander_load_HESH_v2.wav": {
+    "bytes": 109580,
+    "sha256": "2b910907f97379911bb6d2c879700caeb693d0f4dd3abc26ae715d6511950b9e"
+  },
+  "voice_message_commander_load_HESH_v3.wav": {
+    "bytes": 102380,
+    "sha256": "08e80c33c662e70a7995a4d350311c05e068291d14fc7e96f0659fc2cd6a842b"
+  },
+  "voice_message_commander_load_missile_v1.wav": {
+    "bytes": 86252,
+    "sha256": "f5e4c88050c70c3330399f7736fa5fe2b67cf85a3bb4936d2a9cb3eca39bc9fb"
+  },
+  "voice_message_commander_load_missile_v2.wav": {
+    "bytes": 89654,
+    "sha256": "666bf6c58d930e7d6623b987d3770926a8322ebbf15b76fbd7801fc2355d3bc1"
+  },
+  "voice_message_commander_load_missile_v3.wav": {
+    "bytes": 74572,
+    "sha256": "93706d8cf8a86226fddc5cd927794579d20a1d3d34eb228a1ec3b11720ca85e9"
+  },
+  "voice_message_commander_load_sabot_v1.wav": {
+    "bytes": 110636,
+    "sha256": "babd3d290e08ef5f6d647ff7bd3f93a8b293b036f573c7b4edcf4d7648637703"
+  },
+  "voice_message_commander_load_sabot_v2.wav": {
+    "bytes": 100944,
+    "sha256": "ca1856e6b535bd1b266dcefce857189d97a25b38fd300712f58e081a2717ee10"
+  },
+  "voice_message_commander_load_sabot_v3.wav": {
+    "bytes": 118700,
+    "sha256": "b75e9bdd73a834db81db8088b0004efb2c655132de50c31f39662a4c8694ca32"
+  },
+  "voice_message_commander_load_shrapnel_v1.wav": {
+    "bytes": 105356,
+    "sha256": "f9e2ae827b61fe5c61128d16b8cbf6f177913ec120f0285f1240b1ff37aeff7a"
+  },
+  "voice_message_commander_load_shrapnel_v2.wav": {
+    "bytes": 109100,
+    "sha256": "17e046ca735f73cef912a2c66dff1c3bed6beb1deca05476bcb248447cb09eef"
+  },
+  "voice_message_commander_load_shrapnel_v3.wav": {
+    "bytes": 103916,
+    "sha256": "202edd1b0f8e2a6c64bf96225b0d0f9e34457f433a15fd2f0959150b3b0119ef"
+  },
+  "voice_message_commander_load_smoke_v1.wav": {
+    "bytes": 84626,
+    "sha256": "079798f1e2b482fb762601ad7e5074094b9d78be55ffaca969096340a045b0de"
+  },
+  "voice_message_commander_load_smoke_v2.wav": {
+    "bytes": 84716,
+    "sha256": "c9e38c693eeb337b7283f6012ad8922c9ccb7a4a149116bf76ec8036009e39d7"
+  },
+  "voice_message_commander_load_smoke_v3.wav": {
+    "bytes": 114438,
+    "sha256": "29f39d1d79993bb7ad529bfa160ed1949676bb15f90e2cfffc220382b7dfdd24"
+  },
+  "voice_message_commander_move_backward_v1.wav": {
+    "bytes": 58316,
+    "sha256": "b592c4d2e1aeafa8f13da95c5b07f1f579422603f82af5c3d220db7823327b6b"
+  },
+  "voice_message_commander_move_backward_v2.wav": {
+    "bytes": 60636,
+    "sha256": "6f07750874dbf2e8e74d95e7eb4c1ac1db86083d593a2507b5a79c7cc4cd55c2"
+  },
+  "voice_message_commander_move_backward_v3.wav": {
+    "bytes": 68398,
+    "sha256": "f5ce755860cf1d744dedbf476885cd3907292e5416233a9aac836b45ab8a437b"
+  },
+  "voice_message_commander_move_faster_v1.wav": {
+    "bytes": 93260,
+    "sha256": "363f3bca560d69d8c68eb7032934febd297b0e847c8e83a24d4aad7d560e0bf6"
+  },
+  "voice_message_commander_move_faster_v2.wav": {
+    "bytes": 98828,
+    "sha256": "c55e02ab3ac79b571168b4be52f0f11b4103db589770f3983d10d1a87e9699e8"
+  },
+  "voice_message_commander_move_faster_v3.wav": {
+    "bytes": 70426,
+    "sha256": "4ab6c8bb154ddec74ae6fe8a5b784742ec82c390c54fc757d4ebb6ff5b67e643"
+  },
+  "voice_message_commander_move_forward_v1.wav": {
+    "bytes": 54572,
+    "sha256": "d2e3dbbc3eb178d834df3e901b00e9ab988898662e02ffb54b8020779e7dccfc"
+  },
+  "voice_message_commander_move_forward_v2.wav": {
+    "bytes": 74444,
+    "sha256": "102a66a615ab8c5d36334226c64f889dace321d33ba49eaafc3cfc76dd9df6c8"
+  },
+  "voice_message_commander_move_forward_v3.wav": {
+    "bytes": 76652,
+    "sha256": "d038b0e4f531c9c6f74e8355b37f2a77a5cac21fd4d76dad994b467aeaafc924"
+  },
+  "voice_message_commander_move_revvs_v1.wav": {
+    "bytes": 120044,
+    "sha256": "011014fa5a2ae4fc97562bd458c75768f85eeed80493ec830bd9e6f68f302cc8"
+  },
+  "voice_message_commander_move_revvs_v2.wav": {
+    "bytes": 110348,
+    "sha256": "867c745b9a36695def4b0e17750eb52a5bfbc41360b1eff806e6c8f6eab358e3"
+  },
+  "voice_message_commander_move_revvs_v3.wav": {
+    "bytes": 122924,
+    "sha256": "3bde69206a9b3b621ab838f2d7ba512ab67333e1e2d275da5f7b8aa6f0f577fa"
+  },
+  "voice_message_commander_move_slower_v1.wav": {
+    "bytes": 59180,
+    "sha256": "e0a00d7d980356ac46f21209105dc8d04d2615836908f594cee2fed9ffc6edf0"
+  },
+  "voice_message_commander_move_slower_v2.wav": {
+    "bytes": 61484,
+    "sha256": "2bbf9f592249ded5f2ad07a688862ab1f012b76f998f812791aac9d2af9c5b12"
+  },
+  "voice_message_commander_move_slower_v3.wav": {
+    "bytes": 89228,
+    "sha256": "088f5421d9a43abdbf5d983efea280968b192f3157e4673fa51c8c1e858655d0"
+  },
+  "voice_message_commander_move_stop_v1.wav": {
+    "bytes": 105356,
+    "sha256": "994ff999ed1c7c075a9e1cbe8553f69d3cab48a3905b9d246e54be9938b63170"
+  },
+  "voice_message_commander_move_stop_v2.wav": {
+    "bytes": 64556,
+    "sha256": "f9133c3b07fa924ae07a0c461e169f53e759cec5b61bd45c70deb756f28354d7"
+  },
+  "voice_message_commander_move_stop_v3.wav": {
+    "bytes": 54380,
+    "sha256": "7131977953e274636934b4eeaf22e29c0d9f4fc440ec925072650672906dd004"
+  },
+  "voice_message_commander_night_vision_off_v1.wav": {
+    "bytes": 115436,
+    "sha256": "1c35cbc10da41c1d3234c4ab72f5edad120755e0654afb29a53fb15f513032a8"
+  },
+  "voice_message_commander_night_vision_off_v2.wav": {
+    "bytes": 120044,
+    "sha256": "292e106d2a3e041a2941d3004aa453d3de59667a956f4d9fc90e9a4c93b70bfd"
+  },
+  "voice_message_commander_night_vision_off_v3.wav": {
+    "bytes": 108044,
+    "sha256": "268323ae2278599c8a55ec196d6e93a27d484164495debdf95af35df07505e37"
+  },
+  "voice_message_commander_night_vision_on_v1.wav": {
+    "bytes": 118604,
+    "sha256": "474fee908d9964bcbfb7e1237ac75dd04ba68457badeaace1bd7336b6619b584"
+  },
+  "voice_message_commander_night_vision_on_v2.wav": {
+    "bytes": 133388,
+    "sha256": "41ad439f51f3b89411283237e716e146b9f1dfae27a3f4e3f8623e050671fc41"
+  },
+  "voice_message_commander_night_vision_on_v3.wav": {
+    "bytes": 126476,
+    "sha256": "930434b3f24cfbef88d64c310bf012fcb3c5445f89251a2fcd6f41312f0954d1"
+  },
+  "voice_message_commander_reload_v1.wav": {
+    "bytes": 95852,
+    "sha256": "09d78a1102bac6ac3e94f29f833fa4b71f1a2b7bbedcdc174eaffcceca90d294"
+  },
+  "voice_message_commander_reload_v2.wav": {
+    "bytes": 104876,
+    "sha256": "a59fb033b0b2910669d7df528ef00e10d9e8709f2c5a9d7ceaaf51b308e38f1c"
+  },
+  "voice_message_commander_reload_v3.wav": {
+    "bytes": 69164,
+    "sha256": "0d74239a28cb5a277c1005fb91b74e1d45e8df9c140bc591362822c4a5b165ce"
+  },
+  "voice_message_commander_repair_needed_v1.wav": {
+    "bytes": 86540,
+    "sha256": "3ba0fd0c972a73269b83b78dd5b8792e493ef354f0a6c273dc27816d8ed2f431"
+  },
+  "voice_message_commander_repair_needed_v2.wav": {
+    "bytes": 119276,
+    "sha256": "e3e932669303decc78c1c44d8a945c4f74c509060309a7d9b359904d7ce3bd62"
+  },
+  "voice_message_commander_repair_needed_v3.wav": {
+    "bytes": 124652,
+    "sha256": "bf2ec1d632c37b28d27902eccf99e1f9decd98829928c0c3304af782b8b7c76a"
+  },
+  "voice_message_commander_repair_needed_v4.wav": {
+    "bytes": 205964,
+    "sha256": "8e07e9559bb4a13f5b30a2159dca68119db8b157d3bb108fe1577e821ed548ef"
+  },
+  "voice_message_commander_shot_v1.wav": {
+    "bytes": 65420,
+    "sha256": "31507e5a780b01541ff24250b1a85f0e1cd38f3265d4463fabaadbe5e708f72b"
+  },
+  "voice_message_commander_shot_v2.wav": {
+    "bytes": 70074,
+    "sha256": "1b23943ed42b5a4e64e980f2286cb39340e944a93e0ea10ab5d041d6e1da05d5"
+  },
+  "voice_message_commander_shot_v3.wav": {
+    "bytes": 47760,
+    "sha256": "83c73e9e977dc1d951010c6d73b97aad8ded4435814e2bb93825ab7d869ad03c"
+  },
+  "voice_message_commander_shovel_off_v2_2.wav": {
+    "bytes": 103628,
+    "sha256": "7b8e11a4ea977bd5d4555e20922ef447da7b737d7e713b2fa453f2785e8e741d"
+  },
+  "voice_message_commander_shovel_off_v2_3.wav": {
+    "bytes": 126572,
+    "sha256": "c335d7e7db3b639083a8be55e6ce6e39d977e54ad5bdcc556bc80260a0b3e7b6"
+  },
+  "voice_message_commander_shovel_on_v1_1.wav": {
+    "bytes": 77612,
+    "sha256": "3f583c5221a2ace387d5afbb411f27954429c1e9a25c2a72a5109eda4d834975"
+  },
+  "voice_message_commander_shovel_on_v1_2.wav": {
+    "bytes": 108332,
+    "sha256": "996fd2b7787b1938226b305e3cb8d746ce16dadbf40256eee3abbeca34a0d2ae"
+  },
+  "voice_message_commander_shovel_on_v1_3.wav": {
+    "bytes": 95372,
+    "sha256": "7354982aaebe13bfd8712642317768e27ea2602943908bfd27463e988f1451e8"
+  },
+  "voice_message_commander_shovel_on_v2_1.wav": {
+    "bytes": 142028,
+    "sha256": "68a0c4113e1a0fb709e7d535838cc1126dd87f62d8d621e574405af0fb63432f"
+  },
+  "voice_message_commander_stabilizer_off_v1.wav": {
+    "bytes": 97004,
+    "sha256": "a19fdb19a51d449daf366405e385f7b8925eec2fdf389bbe920c197aca0f669a"
+  },
+  "voice_message_commander_stabilizer_off_v2.wav": {
+    "bytes": 118232,
+    "sha256": "24c68eb1a17dc9331f59bd345533574a583ebb5251c32bde5000155047355e89"
+  },
+  "voice_message_commander_stabilizer_off_v3.wav": {
+    "bytes": 117068,
+    "sha256": "516dac36e4757907077e381cd61cbf0e1b1c296945d56d58aaad7ebed7accdac"
+  },
+  "voice_message_commander_stabilizer_on_v1.wav": {
+    "bytes": 119372,
+    "sha256": "58c09cc24a0af9306c57e739d5da39414024c032e5b9067fadbf4247ef9b5611"
+  },
+  "voice_message_commander_stabilizer_on_v2.wav": {
+    "bytes": 148364,
+    "sha256": "470decc4614e3597997eef83f5d58720f18040c02a9603fa3d49bb5a510252e1"
+  },
+  "voice_message_commander_stabilizer_on_v3.wav": {
+    "bytes": 106412,
+    "sha256": "10802b1a9163bcc0f384b1965fc384a8d93d25efa126c21ad5be2b16f3324df3"
+  },
+  "voice_message_commander_target.wav": {
+    "bytes": 49876,
+    "sha256": "5a8b897a8f51ab004540f7634dac884b2632cb7e3a81ce3a5abfbe52b98d8639"
+  },
+  "voice_message_commander_target_1000_m.wav": {
+    "bytes": 55820,
+    "sha256": "243406cdf086cfec48c084f951ccc64c935db32148e3d1e10597d9bd90fd5073"
+  },
+  "voice_message_commander_target_10_h.wav": {
+    "bytes": 89612,
+    "sha256": "cbe46888f85cda4502423e0c0670a1811665f3a801a0c0c49613d7ad9e206a65"
+  },
+  "voice_message_commander_target_1100_m.wav": {
+    "bytes": 82892,
+    "sha256": "8544231247d2aff597938ec4f8862a9e986c1b488dec247c37b10d891858510c"
+  },
+  "voice_message_commander_target_11_h.wav": {
+    "bytes": 101324,
+    "sha256": "8a4ff5dc8b0dd0a0e35a8001db60af919a7589350fe617e1443bdf404842e2ce"
+  },
+  "voice_message_commander_target_1200_m.wav": {
+    "bytes": 88940,
+    "sha256": "b6ac54abb58b6dd87c0925b73829a6604abd26b26f1f1442bd67fb7feb8edfac"
+  },
+  "voice_message_commander_target_12_h.wav": {
+    "bytes": 98060,
+    "sha256": "524d85d6c8e66e8880a9dd225fe5f26a28d229cf7072a0c3849c98028631a26f"
+  },
+  "voice_message_commander_target_1300_m.wav": {
+    "bytes": 86444,
+    "sha256": "f7d4a097e1d7d67ec3a9efe35de8b1c17296ceb4152420542024d99f646ca6f9"
+  },
+  "voice_message_commander_target_1400_m.wav": {
+    "bytes": 83756,
+    "sha256": "162304b42e501044e5d009fe4f9cfd3b374523f0ff954ff051eb235343c4d532"
+  },
+  "voice_message_commander_target_1500_m.wav": {
+    "bytes": 85676,
+    "sha256": "75401a22dc1987d32f9438633195b87702cd022e47fae45361ad827c56e31ff3"
+  },
+  "voice_message_commander_target_1600_m.wav": {
+    "bytes": 87788,
+    "sha256": "ef0ed66dc19231942b2a66b77019042354db8c7bc6879800e4f14bbbf4830ffe"
+  },
+  "voice_message_commander_target_1700_m.wav": {
+    "bytes": 92684,
+    "sha256": "9bac5e58f1970bdc009139a76a1d7c09ded2bd98ee8869e9650ad16fd3419949"
+  },
+  "voice_message_commander_target_1800_m.wav": {
+    "bytes": 84098,
+    "sha256": "1030fa8307860a7180e7c616c04b7f3a6d3f25319be0aa576e615dd15bf6e200"
+  },
+  "voice_message_commander_target_1900_m.wav": {
+    "bytes": 86156,
+    "sha256": "9f44704debb6929e2f4df0ab6904a108b140b0f7eeec1d5bbdf5fbfcae02a5f2"
+  },
+  "voice_message_commander_target_1_h.wav": {
+    "bytes": 101996,
+    "sha256": "c9534a2defe4832278e27af4ff13183e45dfc4b3b3488a9b6a7410f02545828e"
+  },
+  "voice_message_commander_target_2000_m.wav": {
+    "bytes": 55244,
+    "sha256": "fcca10e52aa468384023daf87d81af84fe53195e250da173caad35b32f1c2b8c"
+  },
+  "voice_message_commander_target_2_h.wav": {
+    "bytes": 94508,
+    "sha256": "0250ad5de3f3de8fd8e384735785688038956975daffd73b200072dabe67f4d5"
+  },
+  "voice_message_commander_target_300_m.wav": {
+    "bytes": 80684,
+    "sha256": "ec264f50d9b2a2e6578b00bff61210d4c0697341180deca8593e03547f8bbb05"
+  },
+  "voice_message_commander_target_350_m.wav": {
+    "bytes": 90764,
+    "sha256": "ffd2c191f07efda01fc805973528b6d75258c878939ba06fc54db87642757b06"
+  },
+  "voice_message_commander_target_3_h.wav": {
+    "bytes": 91052,
+    "sha256": "638d50b0427426e884bc2339cb638c1c2f29b47bc3cc588fda1810743f6e6efe"
+  },
+  "voice_message_commander_target_400_m.wav": {
+    "bytes": 67820,
+    "sha256": "79f60f7e276cecade5e6f03e22ff6287f4be33fbd548845b397218727ae6c401"
+  },
+  "voice_message_commander_target_450_m.wav": {
+    "bytes": 94604,
+    "sha256": "eb8bbb9d6468d02c098fa13c4d06038d2dcf6df8979f05b66ff1da146b3b82aa"
+  },
+  "voice_message_commander_target_4_h.wav": {
+    "bytes": 88556,
+    "sha256": "865e8ed19530a10f95a699483b64f2819257fc08946e62ece02780ff4960dc1b"
+  },
+  "voice_message_commander_target_500_m.wav": {
+    "bytes": 60812,
+    "sha256": "f42cab704e97a9389188f0260cac4c3d257e4b9d4dbf7429b0ff110d431394db"
+  },
+  "voice_message_commander_target_550_m.wav": {
+    "bytes": 95756,
+    "sha256": "cec5c427171bacf7d9afcb161e1e3aab2427fea7e56ec7cc7a87c940301b8316"
+  },
+  "voice_message_commander_target_5_h.wav": {
+    "bytes": 93452,
+    "sha256": "0c517b716c7cb0f3c9b041cfb61f20563bb04b5f4c79980389cb0eeb5b1b90d7"
+  },
+  "voice_message_commander_target_600_m.wav": {
+    "bytes": 62400,
+    "sha256": "1d129a5e3daf0b18de5df408a17a09507ac822bbc59c899d27cbd142ed0888a2"
+  },
+  "voice_message_commander_target_650_m.wav": {
+    "bytes": 84716,
+    "sha256": "892a34147a0b7749fc3a0e9526b09d39f134f3f8cc65c604887f2b849e21841b"
+  },
+  "voice_message_commander_target_6_h.wav": {
+    "bytes": 99308,
+    "sha256": "a3d72146834423c3cfbd9df80a88439c09024ee740ea01b1f13b67a598403661"
+  },
+  "voice_message_commander_target_700_m.wav": {
+    "bytes": 71564,
+    "sha256": "b69944bcbfd5c87a1e49c71370d5472d34460091f7ea814a7d4332d5caf3dea1"
+  },
+  "voice_message_commander_target_750_m.wav": {
+    "bytes": 90188,
+    "sha256": "00aaa294faa7ec4e714825e1ea2a214c90303249a617c85be3aa59581fd7c851"
+  },
+  "voice_message_commander_target_7_h.wav": {
+    "bytes": 93836,
+    "sha256": "b5255dcdb82f8997837b1934ef754ff603982e02927ae787602b1d62932f1ea3"
+  },
+  "voice_message_commander_target_800_m.wav": {
+    "bytes": 51464,
+    "sha256": "fd3bf99a2ca4d279ecaae8f5a62170ed6f42bd4d88c523c741a03f1abf1f7fef"
+  },
+  "voice_message_commander_target_850_m.wav": {
+    "bytes": 81548,
+    "sha256": "b8c3b9ae026ab082cda6ded2266188f9891533d0a310e0d90f2d438b3335d044"
+  },
+  "voice_message_commander_target_8_h.wav": {
+    "bytes": 87362,
+    "sha256": "2f3679d93e37896f345cbfb159a4b97b508f62443c688bda9288f2ea8534c94b"
+  },
+  "voice_message_commander_target_900_m.wav": {
+    "bytes": 48818,
+    "sha256": "32182b5e1024537c1fe4cc1f28a425deeb9f3901ba445a90dfd8aea93355b41b"
+  },
+  "voice_message_commander_target_950_m.wav": {
+    "bytes": 79436,
+    "sha256": "8400a15aa9729b3a63d611d0dab8bb50c97d53d897ba2fe421a017449b3376f8"
+  },
+  "voice_message_commander_target_9_h.wav": {
+    "bytes": 99596,
+    "sha256": "c80d9658bdc747567ad06e0d13f1be3c1fefdbc0c6da92dd664826d135df1db2"
+  },
+  "voice_message_commander_target_abrams.wav": {
+    "bytes": 94220,
+    "sha256": "8529397b3d625d8e6a92467f8bea3b205d74323627820f51cc3e68206c5425fc"
+  },
+  "voice_message_commander_target_aircraft.wav": {
+    "bytes": 59276,
+    "sha256": "e96e8f805b7046801964048e773ccc8a4462f13785637b9db34788398ac08d56"
+  },
+  "voice_message_commander_target_APC.wav": {
+    "bytes": 93888,
+    "sha256": "cecbde2c27706d6a65a50404d5c732b110d656e3c0d8f5a1bf553d30ca56ad4e"
+  },
+  "voice_message_commander_target_BMP.wav": {
+    "bytes": 83372,
+    "sha256": "dd80034ae368cbc0b5507841b6791d21dfb8d5c698ca3924685e0a6547c7a792"
+  },
+  "voice_message_commander_target_car.wav": {
+    "bytes": 63020,
+    "sha256": "4b2d26e79c70c74f9e31701e2a80ce1fca157d31222a688cc63a888ab2c21b53"
+  },
+  "voice_message_commander_target_distance_v1.wav": {
+    "bytes": 74540,
+    "sha256": "893aa1e6426559617a5961649ed32ef07d6ad442acf9cba257bf2b4e87438b2d"
+  },
+  "voice_message_commander_target_distance_v2.wav": {
+    "bytes": 70700,
+    "sha256": "9464b4113ca34d719a093bd016600ff9e210ac8f627125e1efc09ba419fc46e9"
+  },
+  "voice_message_commander_target_distance_v3.wav": {
+    "bytes": 100940,
+    "sha256": "8745c02a9ecbed13747912babea17953eb409b07aef8682b23c26e89958b26f5"
+  },
+  "voice_message_commander_target_drone.wav": {
+    "bytes": 74060,
+    "sha256": "668d9831f30aa627f360adfd5722e6d143eb837f4d68fe4b8737ae0dbbe326f6"
+  },
+  "voice_message_commander_target_enemy.wav": {
+    "bytes": 61772,
+    "sha256": "0576c9aa91722e1b95c3e84eff959fb92c782accf0c740635d565a564eb95c8e"
+  },
+  "voice_message_commander_target_helicopter.wav": {
+    "bytes": 67532,
+    "sha256": "97103fd960a298bcd63e159b55b94f4e04ab70cf2405bf7524d8f632d2d0740b"
+  },
+  "voice_message_commander_target_IFV.wav": {
+    "bytes": 77036,
+    "sha256": "c4a1f97494928910f8bd8f8b62d69bd34cd1104c024ce35d7be274a87ef2a34f"
+  },
+  "voice_message_commander_target_leclerc.wav": {
+    "bytes": 79864,
+    "sha256": "f14895289f66fad90b22585589b2acb9e5d816a983494a212950547d97559723"
+  },
+  "voice_message_commander_target_leopard.wav": {
+    "bytes": 61196,
+    "sha256": "32135cdd6c2af0c67f3ee05f452cad1b22fc51108d97b8889f7dd975a96495e4"
+  },
+  "voice_message_commander_target_merkava.wav": {
+    "bytes": 80780,
+    "sha256": "17d3e46f7b756f1693ee34c9b399e7bd3599b5cd76c473e0398e3212f1256df9"
+  },
+  "voice_message_commander_target_MLRS.wav": {
+    "bytes": 71180,
+    "sha256": "621ab0b24287091fe97c9b22186ab2f3f9395531d988e079adf96a8552d3f7b8"
+  },
+  "voice_message_commander_target_near_v1_1.wav": {
+    "bytes": 57644,
+    "sha256": "351fcd021c2fc0bc660d8272c0d634933611626a5eceb05e122fe70ed6ca5b15"
+  },
+  "voice_message_commander_target_near_v1_2.wav": {
+    "bytes": 98828,
+    "sha256": "f4dea925b74fc0c2a88c16691c0150076be523c04e3a75729b85da0feba7b6c7"
+  },
+  "voice_message_commander_target_near_v1_3.wav": {
+    "bytes": 72620,
+    "sha256": "7b65c118846a3de7e64e8078d43576721532dd33ee3389d7abd3dc481a9e9aa4"
+  },
+  "voice_message_commander_target_near_v2_1.wav": {
+    "bytes": 73004,
+    "sha256": "06caceb69146ca56afc26663059a9b63954001a4744f92d3fe0ff7c71433f1f3"
+  },
+  "voice_message_commander_target_near_v2_2.wav": {
+    "bytes": 58028,
+    "sha256": "f2055f6b0eefb8eb8ce426dd23a5febf4e3a446d7686c4abcc887087c840f954"
+  },
+  "voice_message_commander_target_near_v2_3.wav": {
+    "bytes": 72620,
+    "sha256": "ea12b2ea7f63cce58a72c8ab0b6b7084171454444683885df870f1fd598cd21e"
+  },
+  "voice_message_commander_target_on_the_move_v1.wav": {
+    "bytes": 80492,
+    "sha256": "5aedda6936a3e8ad4cebb2f5ad93e9cd4962ad95ca1efc7290ad0140843da5ef"
+  },
+  "voice_message_commander_target_on_the_move_v2.wav": {
+    "bytes": 88364,
+    "sha256": "3aac2e56f08e474291f5909f41eb2f678f85f0c66101833edea531b52442455f"
+  },
+  "voice_message_commander_target_on_the_move_v3.wav": {
+    "bytes": 89612,
+    "sha256": "943dd924a7536e2ecf6031253723cd59d953ec89de2417cb325846028b685d5d"
+  },
+  "voice_message_commander_target_panther.wav": {
+    "bytes": 50318,
+    "sha256": "64e7d4c60027dceb719344bd6302deaf3b20093a0bf96781e59d609d601276b8"
+  },
+  "voice_message_commander_target_prem_v1.wav": {
+    "bytes": 79724,
+    "sha256": "220a05744e4aff7166a7c86436d5f7f69828aa0a835f4b455fbae60390faf20d"
+  },
+  "voice_message_commander_target_prem_v2.wav": {
+    "bytes": 88268,
+    "sha256": "4c7f19b75b8677d1ae1a077dba60f439b8bb0eff6ab08275815b3def543538d1"
+  },
+  "voice_message_commander_target_SAM.wav": {
+    "bytes": 122732,
+    "sha256": "41ed87f40ac2dd64bea33a528fcd2fe4b8d2fb88e698707d4382b2e563418cfc"
+  },
+  "voice_message_commander_target_SPAA.wav": {
+    "bytes": 103148,
+    "sha256": "503347e7a7cf2c92a48a64d19895adffbd815ba9c9069b387126d6034182ccda"
+  },
+  "voice_message_commander_target_t34.wav": {
+    "bytes": 77612,
+    "sha256": "95d30035cb94429a867af8849b9701c04f579e2b2cd9cf782ee0795ccae84fe8"
+  },
+  "voice_message_commander_target_t64.wav": {
+    "bytes": 75020,
+    "sha256": "9fc78fb29afd51e39cb886778c6574b4f4bffa87c472b180c3374466be8e1b75"
+  },
+  "voice_message_commander_target_t72.wav": {
+    "bytes": 81164,
+    "sha256": "c14a8caa1744dba5cad56f6caf85faa316a7e312f58c58fdc51109cac1fd4a4d"
+  },
+  "voice_message_commander_target_t80.wav": {
+    "bytes": 68840,
+    "sha256": "63379cbf34c149d92120753c3ea5134599ed2f1f70aad99d07fe64428cbb819d"
+  },
+  "voice_message_commander_target_tank.wav": {
+    "bytes": 57260,
+    "sha256": "2d3b29c16029fbc212417a9957638862b684372a1cdf25975b0f8f7fc8760ed0"
+  },
+  "voice_message_commander_target_tiger.wav": {
+    "bytes": 48524,
+    "sha256": "8f8e2a750606209b4b16b43c2878557ed2acbd0efd0bdb5cf09719e36527940e"
+  },
+  "voice_message_commander_target_vehicle.wav": {
+    "bytes": 49388,
+    "sha256": "c0eb2e6285da11f5ba2e78c6c1275eec679cc096d2d6448c2ddf6029069228d6"
+  },
+  "voice_message_commander_ucav_launch_v1_1.wav": {
+    "bytes": 148460,
+    "sha256": "b9e304cca8789f384cf6019d975c6888b40fb4d699de28f4115cbcd7019db7f8"
+  },
+  "voice_message_commander_ucav_launch_v1_2.wav": {
+    "bytes": 110156,
+    "sha256": "c5052ffdef0cf20356b78f5ed99916478770890142a2c766c20670fc806ee7cd"
+  },
+  "voice_message_commander_ucav_launch_v1_3.wav": {
+    "bytes": 174092,
+    "sha256": "96f1659a7cab9794a56f6c48a88c0d1c57904ebc7e6dfb41e46cc5e43e7007c8"
+  },
+  "voice_message_commander_ucav_launch_v2.wav": {
+    "bytes": 145772,
+    "sha256": "4b756e2bcd72f18ba67e6c7bed516a502c84d482916b821c7abd7aaf0747e951"
+  },
+  "voice_message_commander_ucav_launch_v3.wav": {
+    "bytes": 169772,
+    "sha256": "da0a678f398963f8672ba6d01fbe31db11a43c0760adfac366c9466f88066946"
+  },
+  "voice_message_commander_ucav_launch_v4.wav": {
+    "bytes": 152300,
+    "sha256": "2df4a1fdb4c7a4fb4beda01b1ebddff64b94c64a9bcc98f704f9cc8b3757c626"
+  },
+  "voice_message_commander_ucav_recover_v1_1.wav": {
+    "bytes": 119852,
+    "sha256": "a31a0bbbc4defbfd4e5aaec72d4c58e4eb931814b6bcbe226bfafbafa0156a37"
+  },
+  "voice_message_commander_ucav_recover_v1_2.wav": {
+    "bytes": 153836,
+    "sha256": "f3f8677db71f80584968091bfdd7c9948803f2a20658ef9abfb19ffff3b019a3"
+  },
+  "voice_message_commander_ucav_recover_v1_3.wav": {
+    "bytes": 128684,
+    "sha256": "bebd3a967238ef152ebb10546697037ab4af2b327c457fc417c8106a6a35ef3f"
+  },
+  "voice_message_commander_ucav_recover_v2.wav": {
+    "bytes": 106988,
+    "sha256": "0a498e4916d843a8e8fe13ce00fb599a0e71699b36d5a13f475f8bd3a2084aff"
+  },
+  "voice_message_driver_armor_breached_v1.wav": {
+    "bytes": 102764,
+    "sha256": "9ce94495f65ae1097fdb3d90f4512699a379497f444baa684ba5f24158c36dde"
+  },
+  "voice_message_driver_armor_breached_v2.wav": {
+    "bytes": 113516,
+    "sha256": "417927e3e46a175f2b60ed7d2222ffa53f62cae5623bf5991f7d371cde71814a"
+  },
+  "voice_message_driver_armor_breached_v3.wav": {
+    "bytes": 112556,
+    "sha256": "b9244bae4efac185fbb9ae3837b38e68237074b1af77059fb8d6ffe7aac2a936"
+  },
+  "voice_message_driver_battle_ready_v1.wav": {
+    "bytes": 103436,
+    "sha256": "3a021a283583ffe1cbd39c6337f43de6d0abe593bbd51eab78c1520689411862"
+  },
+  "voice_message_driver_battle_ready_v2.wav": {
+    "bytes": 106412,
+    "sha256": "01b8233eafd4c91e31628fe308c8a46eb9f24128851114227f07a40eed913a26"
+  },
+  "voice_message_driver_battle_ready_v3.wav": {
+    "bytes": 100556,
+    "sha256": "87878b89d35ffd19389528c0137ca55c4966295b8bfaaefb2db5b77539369457"
+  },
+  "voice_message_driver_correction_bracketed_v1.wav": {
+    "bytes": 85068,
+    "sha256": "113a1b6c5ce0148e39421a291d3815eb625831b932c4e18eb83d8298e52c32ce"
+  },
+  "voice_message_driver_correction_bracketed_v2.wav": {
+    "bytes": 96908,
+    "sha256": "6c143aa1badafd5cc5e7805416c986ecba39f3b97678568c65c52b6bb2a12bcb"
+  },
+  "voice_message_driver_correction_bracketed_v3.wav": {
+    "bytes": 101036,
+    "sha256": "2b974a9572919f1f56a1ca2920266d0a4c61faf3e4dc43df4c8aa7ce7a6da39c"
+  },
+  "voice_message_driver_correction_hit_v1.wav": {
+    "bytes": 63500,
+    "sha256": "a60990392914296da21c3112336d18330574e218924954ad72adabd5ffb15c7d"
+  },
+  "voice_message_driver_correction_hit_v2.wav": {
+    "bytes": 55628,
+    "sha256": "e37dca92ec1edb217d7e2e9485c41db524b1f20e7bd4805ad296a3683bec7fa0"
+  },
+  "voice_message_driver_correction_hit_v3.wav": {
+    "bytes": 71756,
+    "sha256": "95ab99f71578451c7efe3540a852986a0b11b9e559804030cba61314025faa76"
+  },
+  "voice_message_driver_correction_hit_v4.wav": {
+    "bytes": 88652,
+    "sha256": "75153c50e062e532184b47598bbbc47470fbcc567b543ab08abd341f920e0235"
+  },
+  "voice_message_driver_correction_hit_v5.wav": {
+    "bytes": 118796,
+    "sha256": "5f5169fd0629774c48fc1639b278ee090ebc69eaf9c1e1eb137a4823449a5ad7"
+  },
+  "voice_message_driver_correction_hit_v6.wav": {
+    "bytes": 101996,
+    "sha256": "1d7987b9640fe68ab9c7488441fb0050126fd41096204c225ccf3f2a0aec4de6"
+  },
+  "voice_message_driver_correction_left_v1.wav": {
+    "bytes": 210956,
+    "sha256": "12f1db66c7b948cee421fcb711d3bda3a213af8cb3811c16eae9dd85d58d1052"
+  },
+  "voice_message_driver_correction_left_v2.wav": {
+    "bytes": 168812,
+    "sha256": "1de8dfee932eb31e213835ccb5f7273bb429ff321706ce486c29bc7e17969399"
+  },
+  "voice_message_driver_correction_left_v3.wav": {
+    "bytes": 188012,
+    "sha256": "85ec1525554c5aca127b53e6c3d4c8a113ff4a342e9a1485297db3a7e76ac578"
+  },
+  "voice_message_driver_correction_next_target_v1.wav": {
+    "bytes": 102284,
+    "sha256": "4c1092de68917526dfb675b2364382420b96d9abc0e02e329fb9fb61ac2741eb"
+  },
+  "voice_message_driver_correction_next_target_v2.wav": {
+    "bytes": 122252,
+    "sha256": "9bae0e8d4a06fff0d8173a2527e005ec8f2037be125da73b52974a988ca17276"
+  },
+  "voice_message_driver_correction_next_target_v3.wav": {
+    "bytes": 71948,
+    "sha256": "3df5d163cad62c83b53d2eded0d81e7e2f4336ba497b7dacb47147c1546f6cc7"
+  },
+  "voice_message_driver_correction_retreat_v1.wav": {
+    "bytes": 220556,
+    "sha256": "45a106b3eb8501a75b7259f3c3ff2276eaf762067745e3aa87c9861410ecea23"
+  },
+  "voice_message_driver_correction_retreat_v2.wav": {
+    "bytes": 134252,
+    "sha256": "0361f345ed341080b26c0b62b725fe07423401a2f1ec7b484c22ae3f8a788d4f"
+  },
+  "voice_message_driver_correction_retreat_v3.wav": {
+    "bytes": 157580,
+    "sha256": "69d0d93272fe157ff91301f779d27fa9e9bc16102423f7782109085be4e68b79"
+  },
+  "voice_message_driver_correction_right_v1.wav": {
+    "bytes": 201548,
+    "sha256": "e671f9c51fdfaf273518c4c69f55ef68a92bf3d44b29d075d3446329a3b1108b"
+  },
+  "voice_message_driver_correction_right_v2.wav": {
+    "bytes": 174572,
+    "sha256": "8974f013b593b47ddca5d7b1c29799f88f9fb6865fe332cbf4e55d28841568ca"
+  },
+  "voice_message_driver_correction_right_v3.wav": {
+    "bytes": 212012,
+    "sha256": "487003d0fe7ca03e605c4e358701c528597292d0e0eaf9cdc99e89da1aa7aba3"
+  },
+  "voice_message_driver_correction_target_hit_v1.wav": {
+    "bytes": 60428,
+    "sha256": "65f2123bed6ff620820eda3fd622fed63b4bfb5757195445502a875db0832e88"
+  },
+  "voice_message_driver_correction_target_hit_v2.wav": {
+    "bytes": 78542,
+    "sha256": "ca8f2a08a5a890356402de2756878245547d72e9c5ef93289945cd25cfdc237b"
+  },
+  "voice_message_driver_correction_target_hit_v3.wav": {
+    "bytes": 64694,
+    "sha256": "094f84bd207b805da23ac7ad1728e976bc1b09ce939e1d59f4a96b3790e19f41"
+  },
+  "voice_message_driver_correction_target_hit_v4.wav": {
+    "bytes": 92492,
+    "sha256": "acf615ccd948476cea6cf75980c227992048d87fdf454627470f35248b0303b9"
+  },
+  "voice_message_driver_correction_target_hit_v5.wav": {
+    "bytes": 111692,
+    "sha256": "7b263b0e94f85a3af98e442a79b661831c1e43146c5e9b41a053e61faacb05e2"
+  },
+  "voice_message_driver_correction_target_hit_v6.wav": {
+    "bytes": 98636,
+    "sha256": "921cdbac02df2549e452a06e3a99ef7c99a131e9569388410622de1b7fc5acb8"
+  },
+  "voice_message_driver_correction_undershoot_v1.wav": {
+    "bytes": 148652,
+    "sha256": "3cb3448a52ed73ba72fa29823b7f28bd2bc3135fd6e1d94fac811ded5c88053f"
+  },
+  "voice_message_driver_correction_undershoot_v2.wav": {
+    "bytes": 161708,
+    "sha256": "786c6e43639150f95d3224eb6d39a2cb01a4a80e7cdeb3333c109da9920a1e94"
+  },
+  "voice_message_driver_correction_undershoot_v3.wav": {
+    "bytes": 205004,
+    "sha256": "eb2c8a3945ac1dd154c40d23dc5e9fc1192866d6f48cf8ae5fc8dac8c99ab579"
+  },
+  "voice_message_driver_damaged_v1.wav": {
+    "bytes": 115340,
+    "sha256": "ecefa5f1948c100b7020df708c7942c88ecb9c640c3c3579ab509eecc24a56ab"
+  },
+  "voice_message_driver_damaged_v2.wav": {
+    "bytes": 66476,
+    "sha256": "7f30591e680a920eb3aace3f16a9bc0d16850655ce6e28f633e69bc93d94335e"
+  },
+  "voice_message_driver_damaged_v3.wav": {
+    "bytes": 73868,
+    "sha256": "e4902c8ceff888c0120d4e310c1c49b80f6d065efaae12b55ff2ac0de3ca965c"
+  },
+  "voice_message_driver_engine_fuel_leak_v1_1.wav": {
+    "bytes": 81740,
+    "sha256": "0460520cef10b983b83738c8ee28fc50b4c214821b52f3d0d9b2f8c017a28291"
+  },
+  "voice_message_driver_engine_fuel_leak_v1_2.wav": {
+    "bytes": 246092,
+    "sha256": "124767481d075e136316ec9e7bc9272b23b3beb37f18cba7d851d579093dccf2"
+  },
+  "voice_message_driver_engine_fuel_leak_v1_3.wav": {
+    "bytes": 88508,
+    "sha256": "1f382d21ce56c485945a207b32c0b6372af60fa781fc64e76fc8e2879a6fd1fe"
+  },
+  "voice_message_driver_engine_fuel_leak_v2_1.wav": {
+    "bytes": 161804,
+    "sha256": "94d4bf5aa42559c0ca92b071b3e7604f49f8f0b5be5a7fc6691ecb3fe5bc6ab7"
+  },
+  "voice_message_driver_engine_fuel_leak_v2_2.wav": {
+    "bytes": 117740,
+    "sha256": "d22dfb03fe2b5b06c3455cd73e8834d9ab85c12ac5c63ed0538538b5e6641233"
+  },
+  "voice_message_driver_engine_fuel_leak_v2_3.wav": {
+    "bytes": 124316,
+    "sha256": "01ee8a1298e8476a38809a9d17e807ef9b39b8694efed6408ba8424aa31c7113"
+  },
+  "voice_message_driver_engine_ready_v1.1.wav": {
+    "bytes": 91052,
+    "sha256": "19cd61f30262a76f412665f4f426ca0a6c9e6bebb5bd6642ff45e600d6e249b7"
+  },
+  "voice_message_driver_engine_ready_v1.wav": {
+    "bytes": 60620,
+    "sha256": "4359677eef7b3fb5c49114688f3124fc34104ec72d89bf041fe0033288f4d470"
+  },
+  "voice_message_driver_engine_ready_v2.wav": {
+    "bytes": 93932,
+    "sha256": "8e0d521d9c49b8358d0ffddee3bfd226c0462394923e496bc51a08eca1e1bf07"
+  },
+  "voice_message_driver_engine_ready_v3.wav": {
+    "bytes": 102572,
+    "sha256": "dcdded34c393b80a4ebc854d52b3c772c451eb24ff55a5b08af177559283f677"
+  },
+  "voice_message_driver_engine_repaired_v1_1.wav": {
+    "bytes": 121388,
+    "sha256": "8e6c920b5b13cbc23e6424f196fd79672878e82dd5139b92c3fbf93f25fa10e5"
+  },
+  "voice_message_driver_engine_repaired_v1_2.wav": {
+    "bytes": 123020,
+    "sha256": "5b907f3a81509c14f5f704dd844d2d887a43c6040ad5ad507bf81a590ae0d6a5"
+  },
+  "voice_message_driver_engine_repaired_v1_3.wav": {
+    "bytes": 138764,
+    "sha256": "b3595d734ea7f098ca6f076383fb0fe54a5f0fad2e2759a6b18ec6fad4ab0815"
+  },
+  "voice_message_driver_engine_repaired_v2_1.wav": {
+    "bytes": 99020,
+    "sha256": "a1c05939773d65be4b57ad6f92cfd527acfcd38e3c65e6fef8de08b408533147"
+  },
+  "voice_message_driver_engine_repaired_v2_2.wav": {
+    "bytes": 112460,
+    "sha256": "748322020c2c801e82f0ee7b01147cc50a21e2ec6ce001fd330fcd092e105858"
+  },
+  "voice_message_driver_engine_repaired_v2_3.wav": {
+    "bytes": 104492,
+    "sha256": "83b31e5ddc8d5cd79c9a73e80a8f78296739d538793fff276201b33a27efbb4a"
+  },
+  "voice_message_driver_engine_stalled_v1_1.wav": {
+    "bytes": 85964,
+    "sha256": "b221693e67100244272f15b38494b523fa5f3877c2ba9066c87cafa440601650"
+  },
+  "voice_message_driver_engine_stalled_v1_2.wav": {
+    "bytes": 65708,
+    "sha256": "639244e075f0e964d490ce91fe7dee19dea90ed0854f2c376eeea180a144303d"
+  },
+  "voice_message_driver_engine_stalled_v1_3.wav": {
+    "bytes": 94220,
+    "sha256": "47b11241b00897528a0da8cfb1c33366494344ef98b84b3ad618b56385f0b71a"
+  },
+  "voice_message_driver_engine_stalled_v2.wav": {
+    "bytes": 104296,
+    "sha256": "1917e8356862895ac427e8b353e295d7b40c4528c04060a17880a50522c62b34"
+  },
+  "voice_message_driver_engine_stalled_v3.wav": {
+    "bytes": 112652,
+    "sha256": "e56bffc948046b6ca28927b7857c874387b040093b3a8072a08a780ee7d550aa"
+  },
+  "voice_message_driver_fire_engine_v2.1.wav": {
+    "bytes": 102572,
+    "sha256": "5be329f8a6e6ab0adf35976cc1d0454df42c77999450152df3364c9be7d124a3"
+  },
+  "voice_message_driver_fire_engine_v2.wav": {
+    "bytes": 111116,
+    "sha256": "b039c44599434675efd71bca0b7c853a7b97eab0cebf9f322c88af3295ae4b59"
+  },
+  "voice_message_driver_fire_engine_v3.wav": {
+    "bytes": 144044,
+    "sha256": "745d0bbbfd213177ea41853c0d62652895b067bb913968a267942976ec47b61d"
+  },
+  "voice_message_driver_fire_extinguished_v1.wav": {
+    "bytes": 105266,
+    "sha256": "32f937ccd9799da5c60b09121c6131b2f01df1a1af338b177332b2c448a29b1b"
+  },
+  "voice_message_driver_fire_extinguished_v2.wav": {
+    "bytes": 121676,
+    "sha256": "ed8ef7242598e9a64b96ac7a5f13cde53f6fb4993fba5c56b08e8593fd73a1a8"
+  },
+  "voice_message_driver_fire_extinguished_v3.wav": {
+    "bytes": 146540,
+    "sha256": "6f65157847b086ab2e1bf704a62127dada46db6f8f70e4e3609a9d97267bacbb"
+  },
+  "voice_message_driver_fire_fighting_compartment_v1.wav": {
+    "bytes": 119660,
+    "sha256": "7329f289a5022fc60ba3778e594f659490fea42f4c8c244d28ec1cf499040789"
+  },
+  "voice_message_driver_fire_fighting_compartment_v2.wav": {
+    "bytes": 107660,
+    "sha256": "3fdd520b468818b94c268369fb1fb8494755a8e7adb2938ec31e8ada1a7ad7e3"
+  },
+  "voice_message_driver_fire_fighting_compartment_v3.wav": {
+    "bytes": 106508,
+    "sha256": "7471e566534050766baa720bf94d963eed2a69998b69d2132a988fb71bb14a4d"
+  },
+  "voice_message_driver_fire_munition_compartment_v1.wav": {
+    "bytes": 111020,
+    "sha256": "47ce72e022afd30dee38bdff1a777e5e4285aa10e94af9a7e8d30a57201027ec"
+  },
+  "voice_message_driver_fire_munition_compartment_v2.wav": {
+    "bytes": 90890,
+    "sha256": "a63217f439c8b64c85140a85c94ba1b76a46617bc204007605eb2913dd99de81"
+  },
+  "voice_message_driver_fire_munition_compartment_v3.wav": {
+    "bytes": 105452,
+    "sha256": "3e9af09878760e0e56d6a5c10bae748913a34d1517bf9073085306668160d91a"
+  },
+  "voice_message_driver_fire_v1.wav": {
+    "bytes": 80876,
+    "sha256": "0386d2d2a3d8d70613d5fda13d98943a2b029cae50d4e37ff876c3e2cbf9a5ac"
+  },
+  "voice_message_driver_fire_v2.wav": {
+    "bytes": 112076,
+    "sha256": "caff50918d97a7651170a28d6ab3b565b09d693933020c5f22b110f6402003b8"
+  },
+  "voice_message_driver_fire_v3.wav": {
+    "bytes": 103854,
+    "sha256": "9acbba84c1e638e28cd9c25ba0b122062e418ea6f1ec8aed3a20169df15bf1bb"
+  },
+  "voice_message_driver_gunner_stunned_v1.wav": {
+    "bytes": 89324,
+    "sha256": "f1f561cd33dbf87444c99087b60cd347e24417ef3f44b296e7b10e31e0fab518"
+  },
+  "voice_message_driver_gunner_stunned_v2.wav": {
+    "bytes": 79688,
+    "sha256": "a6981f40750bb5ce5c53e78d8b467334f9e6d893e34c031c10d37ff2eb5d78be"
+  },
+  "voice_message_driver_gunner_stunned_v3.wav": {
+    "bytes": 88684,
+    "sha256": "6e6492e4902bcdf463667762a62112e2053d7b851927e81b637496029732901a"
+  },
+  "voice_message_driver_gunner_unconscious_v1.wav": {
+    "bytes": 114860,
+    "sha256": "10060761ba910650000f7f88bab88f333d9991fc3b87a02eba5328a86b87f30d"
+  },
+  "voice_message_driver_gunner_unconscious_v2.wav": {
+    "bytes": 90184,
+    "sha256": "4f89d9ad454a6d2f93ffe9924854b6d8ebc3997ba80f1f9047cc540a2acdcf1d"
+  },
+  "voice_message_driver_gunner_unconscious_v3.wav": {
+    "bytes": 110156,
+    "sha256": "8d2b5d686ca651fc2a692d0b98a9c283909e09cd661a1fc68675c83c0f3da1be"
+  },
+  "voice_message_driver_left_track_v1.wav": {
+    "bytes": 128492,
+    "sha256": "f97a6fed62b44e3bdfae4ebde54bf7560baf9c2ab635a626a59a93cc765a3835"
+  },
+  "voice_message_driver_left_track_v2.wav": {
+    "bytes": 111352,
+    "sha256": "b2ff6b7e481b6cb58d44132ab28478b4bf0db30a12c8cbe0c2924955176d28af"
+  },
+  "voice_message_driver_left_track_v3.wav": {
+    "bytes": 145580,
+    "sha256": "0bd10d752b4926fe8966c173b2af392695c1766ae52d29f0d2cc0b3c9393e5a0"
+  },
+  "voice_message_driver_loader_stunned_v1.wav": {
+    "bytes": 99692,
+    "sha256": "72d4479e427eba0fa4e28889004f8cd619eaa5ed4437f7986f3cb8164b239e9b"
+  },
+  "voice_message_driver_loader_stunned_v2.wav": {
+    "bytes": 123692,
+    "sha256": "6aba8099d8b5f764d57fe2fb643a815b03b571b8d9cbb3fd92f7adec5b7abc0b"
+  },
+  "voice_message_driver_loader_stunned_v3.wav": {
+    "bytes": 141836,
+    "sha256": "f78eaaa42aa86250fae9c7a4dfa93347bbfb28a8cd98ea78a4a2b94301845b1a"
+  },
+  "voice_message_driver_loader_unconscious_v1.wav": {
+    "bytes": 135116,
+    "sha256": "0501e5ca3eecdc5e683c3809b99b822229ab35b1762943dd55bec037aca6797a"
+  },
+  "voice_message_driver_loader_unconscious_v2.wav": {
+    "bytes": 97100,
+    "sha256": "3405db5c7562852b418821a2cffbfb62b4314cf7e8110935f14227b5216e9657"
+  },
+  "voice_message_driver_loader_unconscious_v3.wav": {
+    "bytes": 113900,
+    "sha256": "1cb516fe1c23cefa060ad9f58eecadb1e6326e800a970d77509dede44d9f84e5"
+  },
+  "voice_message_driver_move_forward_v1.wav": {
+    "bytes": 186764,
+    "sha256": "7f3e9ce9a1af06d4110390ad6e2349f9d26aba430cb5d61e911dfe2f2e61feae"
+  },
+  "voice_message_driver_move_forward_v2.wav": {
+    "bytes": 201164,
+    "sha256": "82ac4427efebbc86335a900415d6a84c931a4cea559e42b45a93a2be821d9889"
+  },
+  "voice_message_driver_move_forward_v3.wav": {
+    "bytes": 157196,
+    "sha256": "bca17949ccb511c15713e5f843932faad066644b3bec0967779da53babc044da"
+  },
+  "voice_message_driver_obstacle_v1.wav": {
+    "bytes": 113204,
+    "sha256": "460ba318b0ec3dd234280ee92de71bf5dfd771557d064d98e52121ab7103ec16"
+  },
+  "voice_message_driver_obstacle_v2.wav": {
+    "bytes": 112844,
+    "sha256": "3f31b1e5a139136f570c772347b9b8a3af450295d664caa7f75e45da9d83d361"
+  },
+  "voice_message_driver_obstacle_v3.wav": {
+    "bytes": 104492,
+    "sha256": "b61b30c3f33a7ca85b4b4fa32167ab616eacd73917061f42ac8f369cb86b0d88"
+  },
+  "voice_message_driver_on_the_move_v1.wav": {
+    "bytes": 188780,
+    "sha256": "7f06e143d26548087d79e27e328b8fd5fb915a5f316d231a53f9e7b67d9670a4"
+  },
+  "voice_message_driver_on_the_move_v2.wav": {
+    "bytes": 153260,
+    "sha256": "447b6953f45ad691ff716a07fdc817427202e0b9885abae57d1fa7b938258a61"
+  },
+  "voice_message_driver_on_the_move_v3.wav": {
+    "bytes": 180236,
+    "sha256": "2894bb07fcd00a0f8ea4386494c030bceb526895a04d13945231dd187f1071f4"
+  },
+  "voice_message_driver_radiator_damaged_1.wav": {
+    "bytes": 125420,
+    "sha256": "80d85d988be554f5b53bf9791f70942c3d61e060c8e233d3ec257e2333548f34"
+  },
+  "voice_message_driver_radiator_damaged_2.wav": {
+    "bytes": 105548,
+    "sha256": "146c19da51194237c76cf365c1859b3f74b59ed32212ebb6eb8126933f09f56e"
+  },
+  "voice_message_driver_radiator_damaged_3.wav": {
+    "bytes": 119852,
+    "sha256": "eb8c37c12cd300c299f4075d916a03db242521c4e478319a3dd97b8b5f6780ce"
+  },
+  "voice_message_driver_right_track_v1.wav": {
+    "bytes": 127436,
+    "sha256": "75a93c0a28691b8e77b04f754e8e8a21b606224f57ad2496e218d51fcddb5486"
+  },
+  "voice_message_driver_right_track_v2.wav": {
+    "bytes": 110998,
+    "sha256": "f8396bc0e5c8ba3c90d032ba8ef2a7f08339247f7488cdab8039637999bfb4ea"
+  },
+  "voice_message_driver_right_track_v3.wav": {
+    "bytes": 139052,
+    "sha256": "f071bc7fc068ff73c0848b3f4150f1c9bdf9d96c517c904e1d1c06c1b3d3f6dc"
+  },
+  "voice_message_driver_running_gear_damaged_v1.wav": {
+    "bytes": 101384,
+    "sha256": "676889fd12a3c3107e0bbdd5e6acb4d0a8ac8a567e93b33ac7b63d2f4476137c"
+  },
+  "voice_message_driver_running_gear_damaged_v2.wav": {
+    "bytes": 103590,
+    "sha256": "30f1c027284de8123e9e662cbe485f786894f0be7c00ad16dd3c300f8b161db3"
+  },
+  "voice_message_driver_running_gear_damaged_v3.wav": {
+    "bytes": 107852,
+    "sha256": "60d3bab1b02ef3587f5ebe3fdaad66a59bc9eaffb16df30c47ee1242c44901ed"
+  },
+  "voice_message_driver_taking_command_v1.wav": {
+    "bytes": 299276,
+    "sha256": "9bf0a915b1b21118a46628063b41ba4ae4ce527876df9e33b0c8a327fd8063ff"
+  },
+  "voice_message_driver_taking_command_v2.wav": {
+    "bytes": 245420,
+    "sha256": "66d1c731dd49ce466905dca01f2b08e368089f25a776ec3db8ad9e453430c36c"
+  },
+  "voice_message_driver_taking_command_v3.wav": {
+    "bytes": 337004,
+    "sha256": "c3373c9a94afae6e1603392dec7d8c3b45cd8ec5988936331c1cae838dccd454"
+  },
+  "voice_message_driver_track_lost_v1_1.wav": {
+    "bytes": 148172,
+    "sha256": "b781810bae2896491e0cd9d6111a011d8a0037d6c6adb4d10f73c438019a9d76"
+  },
+  "voice_message_driver_track_lost_v1_2.wav": {
+    "bytes": 137370,
+    "sha256": "46af0d6f7446725ad475f1989800e4960be0db20e78e404167083035e4ed5d6f"
+  },
+  "voice_message_driver_track_lost_v1_3.wav": {
+    "bytes": 138092,
+    "sha256": "01379669101b86da9d794f632c80218931c1af3d3f99a5083285994aafd49d8f"
+  },
+  "voice_message_driver_track_lost_v2_1.wav": {
+    "bytes": 182692,
+    "sha256": "0b638a27c1e6c0ffecf4ba2b42a64e9459b0332a44c5a4edca9c2d2c92ccd382"
+  },
+  "voice_message_driver_track_lost_v2_2.wav": {
+    "bytes": 116996,
+    "sha256": "3a0a6e63d5dab15ade0bceb124791eac916e1692c70b7b2e5f2755e424d9ca80"
+  },
+  "voice_message_driver_track_lost_v2_3.wav": {
+    "bytes": 123596,
+    "sha256": "9285806923ee8657843a5aa6fba9c12722cf17500c31ad7fb1e708d53dd93514"
+  },
+  "voice_message_driver_tracks_repaired_v1_1.wav": {
+    "bytes": 100556,
+    "sha256": "cde9170ef9152ffce64489a361611e7bfba61dc8b4bbaaaed50999b256bb659f"
+  },
+  "voice_message_driver_tracks_repaired_v1_2.wav": {
+    "bytes": 97484,
+    "sha256": "03260280e257f4a359dab5550726dded945bcacbbda230acfbf54bc955803372"
+  },
+  "voice_message_driver_tracks_repaired_v1_3.wav": {
+    "bytes": 140396,
+    "sha256": "9e12c36403e246b538e842b6e14dd2fb5fc25393cc925296db47ddd18052b49f"
+  },
+  "voice_message_driver_tracks_repaired_v2_1.wav": {
+    "bytes": 95564,
+    "sha256": "64d6b7a53139566055c13b4e905bdda6feff5d8f4931efff9dc3b9d5f399914c"
+  },
+  "voice_message_driver_tracks_repaired_v2_2.wav": {
+    "bytes": 133136,
+    "sha256": "62eff952708b03517b913a18deffe073fc017db290a9fe24b219cf0a4be49fad"
+  },
+  "voice_message_driver_tracks_repaired_v2_3.wav": {
+    "bytes": 123596,
+    "sha256": "769e1cff581762186f851a3b6215c61f5e1919af12cfdce22c1018b64fd1b1c3"
+  },
+  "voice_message_driver_transmission_damaged_v1.wav": {
+    "bytes": 106124,
+    "sha256": "ff93d02c14738b6fc23c54722734aea8e8df0ec0a6c42d08a0387200491ba29e"
+  },
+  "voice_message_driver_transmission_damaged_v2.wav": {
+    "bytes": 135500,
+    "sha256": "f011c686a85c71d4c6c3ff5f71e49260390ee513051a0b7a4fabe22a2afe888c"
+  },
+  "voice_message_driver_transmission_damaged_v3.wav": {
+    "bytes": 105068,
+    "sha256": "3d2a2cc99afbf24f3da0c93f7ba0cb8d674ad0415a84c115668db1192518be37"
+  },
+  "voice_message_driver_turning_left_v1.wav": {
+    "bytes": 57638,
+    "sha256": "2d0fe24900f5c81f2b2c62b431f5a21e12a40a5689db8a366b9ce79e6bcfca24"
+  },
+  "voice_message_driver_turning_left_v2.wav": {
+    "bytes": 102092,
+    "sha256": "b091af8c3d34e7e99340aabda86ccb26e83c29904ff024dcf63fca84cdc7097e"
+  },
+  "voice_message_driver_turning_left_v3.wav": {
+    "bytes": 105740,
+    "sha256": "3dfbbb345aa1950ebc9e0c5e432f045763f156e861bcf7f5dcd0251fc40e4ee1"
+  },
+  "voice_message_driver_turning_right_v1.wav": {
+    "bytes": 69260,
+    "sha256": "2d05c79eed88a12cbe4fe0f37912d10ddd55679e2f01b50985f88b32718c349a"
+  },
+  "voice_message_driver_turning_right_v2.wav": {
+    "bytes": 93740,
+    "sha256": "bea4b6783479ffec37a556b9e280ad939c3cea63944330afe82e9b58233c85e9"
+  },
+  "voice_message_driver_turning_right_v3.wav": {
+    "bytes": 86390,
+    "sha256": "079cc7c9a7850e3f5298e848c7af4c1725f29d939a2f330f3cf86e865803b545"
+  },
+  "voice_message_driver_weve_been_hit_v1.wav": {
+    "bytes": 108524,
+    "sha256": "56d8532b9979420459dadc0011823c76f1565a5c26a6f2b889f903d9d75e885f"
+  },
+  "voice_message_driver_weve_been_hit_v2.wav": {
+    "bytes": 108908,
+    "sha256": "ded990c3c9594ebca4201ff686f720b6edf0b0e0b555b8e8bb27b31b5c82f0c6"
+  },
+  "voice_message_driver_weve_been_hit_v3.wav": {
+    "bytes": 106676,
+    "sha256": "1a29eaa34672a1319c25f857194e6842715ffe2dc600ac056dfa89b8dda4476d"
+  },
+  "voice_message_driver_wheel_lost_v1_1.wav": {
+    "bytes": 149420,
+    "sha256": "ff4a31d6c3a54cccf655078dc1cc210bed9c15523f8f8028686919f32d002371"
+  },
+  "voice_message_driver_wheel_lost_v1_2.wav": {
+    "bytes": 130796,
+    "sha256": "787a54d34d81432154a479f519ea42f455a5b9536654b96e55184fa3b9cfbad7"
+  },
+  "voice_message_driver_wheel_lost_v1_3.wav": {
+    "bytes": 114572,
+    "sha256": "30f8450af3d9c355528c68c168b2e85d25378c233647c37ec0b7494294f64117"
+  },
+  "voice_message_driver_wheel_lost_v2_1.wav": {
+    "bytes": 99980,
+    "sha256": "92084b662a436ef854cbd6bb9d19eb6eedd748a11b6a0b95de5003e6927b7bde"
+  },
+  "voice_message_driver_wheel_lost_v2_2.wav": {
+    "bytes": 68662,
+    "sha256": "d661b51f26f84e5af3a7c7348ee724f7af63105f436477a3d682d412b55d712f"
+  },
+  "voice_message_driver_wheel_lost_v2_3.wav": {
+    "bytes": 88596,
+    "sha256": "4a325de4ce08a6b597a991988ce2d420655fca0d80ceb8fe67e284cb453a4688"
+  },
+  "voice_message_driver_wheel_repaired_v1.wav": {
+    "bytes": 99180,
+    "sha256": "d7568aee5b63da316e572c66d9daa6d50a5e21b7060a78fcc0ec0f9c96b3367a"
+  },
+  "voice_message_driver_wheel_repaired_v2.wav": {
+    "bytes": 109196,
+    "sha256": "c355797f3d3e520a3c304a383c82a15d490f5b764b2df10d9b0065f43818aaff"
+  },
+  "voice_message_driver_wheel_repaired_v3.wav": {
+    "bytes": 114174,
+    "sha256": "87a1c0329aee372f4d34017af95256f947545ab23639005556eaff9ea98904c8"
+  },
+  "voice_message_gunner_armor_breached_v1.wav": {
+    "bytes": 87212,
+    "sha256": "38c5b704718b59dca8ab06332c4505aa47b5f61781ab07e609961c08801a2b9f"
+  },
+  "voice_message_gunner_armor_breached_v2.wav": {
+    "bytes": 99596,
+    "sha256": "4f7f2eeb56b1696687b62f7f0303217801a4a267de5c20875ecd0a4041175844"
+  },
+  "voice_message_gunner_armor_breached_v3.wav": {
+    "bytes": 67252,
+    "sha256": "78316d14b0f0ab68b5da60590d6c739f724c43a9841b083edfe7e3ec576abaff"
+  },
+  "voice_message_gunner_barrel_damaged_v1.wav": {
+    "bytes": 99788,
+    "sha256": "dc59839b432e69df6d54bd50b3eb0e37d7a8c2438abc52d2dec0458ec2e8739e"
+  },
+  "voice_message_gunner_barrel_damaged_v2.wav": {
+    "bytes": 86156,
+    "sha256": "36b518463eb4ce9932ba7d113c9b3fe9186ce1bce6e9f847845f1756c81f21b2"
+  },
+  "voice_message_gunner_barrel_damaged_v3.wav": {
+    "bytes": 89900,
+    "sha256": "8fbd7c3b41eadf794ef7e315a4b5667b70677e5702d90d399e134a5ebfc48258"
+  },
+  "voice_message_gunner_battle_ready_v1.wav": {
+    "bytes": 98252,
+    "sha256": "e193fb8cbe40967c1febde17cc1efbce7c9361106dba667418c1450d8b8e3efe"
+  },
+  "voice_message_gunner_battle_ready_v2.wav": {
+    "bytes": 62224,
+    "sha256": "49500a2453ee2a686fc7bf7cfd0ecbbcb4b0d46fcd2ef18cccbaca49847ebf72"
+  },
+  "voice_message_gunner_battle_ready_v3.wav": {
+    "bytes": 73690,
+    "sha256": "310ab40e982809c1d881f96bd2b87ff340cffe3cbd58d319abcbe0793adfae78"
+  },
+  "voice_message_gunner_breech_damaged_v1.wav": {
+    "bytes": 96332,
+    "sha256": "7d0f0a21610d27616bc7b5d5c131bf65a7590e487dd18107c5d3d43b946eeb3a"
+  },
+  "voice_message_gunner_breech_damaged_v2.wav": {
+    "bytes": 115244,
+    "sha256": "df74ba3babaf5d06f9be86a106de1b4d74801abe06c77383a01cf3f5083f4e00"
+  },
+  "voice_message_gunner_breech_damaged_v3.wav": {
+    "bytes": 102956,
+    "sha256": "a030290ece7f28c23d2afc1e30f44b6e16a0aae79ae4060b6ef54fefa20b726f"
+  },
+  "voice_message_gunner_cannon_drives_repaired_v1.wav": {
+    "bytes": 137612,
+    "sha256": "03426deecb3e09a5ca50d33bd823ddf11cfd7447d5bd4268b3121d911795fbe0"
+  },
+  "voice_message_gunner_cannon_drives_repaired_v2.wav": {
+    "bytes": 136268,
+    "sha256": "c0fd3d1d79a864c69c8ba6193bf274547bf7224f8895a5847748744b329d06cb"
+  },
+  "voice_message_gunner_cannon_drives_repaired_v3.wav": {
+    "bytes": 162188,
+    "sha256": "dcd5511580a866448b9718fa0f990e839803b26c92b342be489c4424a900827c"
+  },
+  "voice_message_gunner_cannon_ready_v1_1.wav": {
+    "bytes": 93356,
+    "sha256": "e55d33955d2bb0a0332d5a9446923b032b669f92b3271d223de580eed5e742ed"
+  },
+  "voice_message_gunner_cannon_ready_v1_2.wav": {
+    "bytes": 150092,
+    "sha256": "8ada1284cb0414de348c3fe7ac25171d4eb1506f5a90476b4c47e65717786624"
+  },
+  "voice_message_gunner_cannon_ready_v1_3.wav": {
+    "bytes": 127148,
+    "sha256": "a40dbb533de8bf902eab03b9f437a529960a82cec523600df95409658eee0ca7"
+  },
+  "voice_message_gunner_cannon_ready_v2_1.wav": {
+    "bytes": 68840,
+    "sha256": "8ee7e263c7e2a4912a6d11f3f1fc20dad26945c8dd6579bdb4faf1edf900bad2"
+  },
+  "voice_message_gunner_cannon_ready_v2_2.wav": {
+    "bytes": 99116,
+    "sha256": "4de844b19d1ff4f4a29c614800faabc2f32350326db2fb6028f8373da4c2b76a"
+  },
+  "voice_message_gunner_cannon_ready_v2_3.wav": {
+    "bytes": 144716,
+    "sha256": "a2d51b19a9153cf28f31d21b67ac12c913efa936664e8ad86946b87a1c10400c"
+  },
+  "voice_message_gunner_damaged_v1.wav": {
+    "bytes": 61196,
+    "sha256": "4fe5ce4af52ea2794c6c4af084a61af02bf851f5ef23549e105baa2b4417eef3"
+  },
+  "voice_message_gunner_damaged_v2.wav": {
+    "bytes": 64748,
+    "sha256": "172efed15718d00dcdba84b42cdd64bb01590a31444a1ca45c1b32a3209f399a"
+  },
+  "voice_message_gunner_damaged_v3.wav": {
+    "bytes": 62924,
+    "sha256": "4d074be88556816ab3d04e5c46c357f1db02532a55f8bec99638e237147a5841"
+  },
+  "voice_message_gunner_driver_stunned_v1.wav": {
+    "bytes": 104108,
+    "sha256": "506f8e316fb0723d306bdb8cacfa7008aced321a8052f584a78471456faa7412"
+  },
+  "voice_message_gunner_driver_stunned_v2.wav": {
+    "bytes": 115628,
+    "sha256": "23e73db80ed40afd59fc39fecfd1fab9ddd699ebe66ad1c1491cf10488e45ad5"
+  },
+  "voice_message_gunner_driver_stunned_v3.wav": {
+    "bytes": 134444,
+    "sha256": "a572447960f8290724b24146d0c3af53ae9f5e32655e114a609d00e7913148a2"
+  },
+  "voice_message_gunner_driver_unconscious_v1.wav": {
+    "bytes": 103052,
+    "sha256": "17e48f527d5529c7afacd7ae6c49dbc1ff30a44c649f76a37a37c9212e834631"
+  },
+  "voice_message_gunner_driver_unconscious_v2.wav": {
+    "bytes": 94988,
+    "sha256": "96efd7dee2f1d738269b97d036a20e6e85a2d8b3c527b545a87c660664afcbe8"
+  },
+  "voice_message_gunner_driver_unconscious_v3.wav": {
+    "bytes": 100748,
+    "sha256": "324c531766fba14c2c0de7975bb04b423de45383a4d5baa0f9becd1b7ca7a795"
+  },
+  "voice_message_gunner_elevation_drive_damaged_v1.wav": {
+    "bytes": 99692,
+    "sha256": "ca961947777aa3dea6c7d91afc1495899caeafa971b27cee5fbe86792cc518d0"
+  },
+  "voice_message_gunner_elevation_drive_damaged_v2.wav": {
+    "bytes": 117644,
+    "sha256": "ca79336a12bfc00a111e53d8088ea2c6220ec93ede29070ceb194eb4884b8d5a"
+  },
+  "voice_message_gunner_elevation_drive_damaged_v3.wav": {
+    "bytes": 103532,
+    "sha256": "4945429979b07d225c2d6fc9e79d41755ed37944d4e15b2458cd8a4befbb27f8"
+  },
+  "voice_message_gunner_elevation_drive_repaired_v1.wav": {
+    "bytes": 113420,
+    "sha256": "e3342af43fc432df7407091e18b5fb561878a2fe8e011bf496af18691ae9066f"
+  },
+  "voice_message_gunner_elevation_drive_repaired_v2.wav": {
+    "bytes": 149900,
+    "sha256": "b5c492347c9a7f3853372843f9cca9f5fe66469153557d827c046cc00f7c9b64"
+  },
+  "voice_message_gunner_elevation_drive_repaired_v3.wav": {
+    "bytes": 134444,
+    "sha256": "f8e6799bf8c8e0ce69d94b652c2116639c91c7dbb72b188ea8c779e834c8cbc7"
+  },
+  "voice_message_gunner_fire_engine_v1.wav": {
+    "bytes": 94028,
+    "sha256": "297e97163956d7294bd25d79fffeceedb93c46e4ff1bff3353c41d339f49eecb"
+  },
+  "voice_message_gunner_fire_engine_v2.wav": {
+    "bytes": 89612,
+    "sha256": "f15dc948b3add5468879646c116f48460478e8775c2c5b000e7fc7f91f893f01"
+  },
+  "voice_message_gunner_fire_engine_v3.wav": {
+    "bytes": 125420,
+    "sha256": "71eade6026c04649f70035ec3ad7c3e8c250cd64bb42a9250fbefdf78b7500bf"
+  },
+  "voice_message_gunner_fire_extinguished_v1.wav": {
+    "bytes": 77218,
+    "sha256": "896d5e114a8a7d0c700fc057b0dd88232fede359e59dbcec7aa234ffd9f56a77"
+  },
+  "voice_message_gunner_fire_extinguished_v2.wav": {
+    "bytes": 53316,
+    "sha256": "8ed8e0eff2e816917c105ccd36352ba1b43a9555b02c2a1a1a2c918b86b40ff3"
+  },
+  "voice_message_gunner_fire_extinguished_v3.wav": {
+    "bytes": 85686,
+    "sha256": "6baf7f37264e0c0782d1513dc7d119c385a02d7620845d4600288c71f0d22baa"
+  },
+  "voice_message_gunner_fire_fighting_compartment_v1.wav": {
+    "bytes": 101708,
+    "sha256": "61f91c3f47c9f6ec6414918c437bcd7fcf44a38ce719050078a7ce2d94eb1876"
+  },
+  "voice_message_gunner_fire_fighting_compartment_v2.wav": {
+    "bytes": 134828,
+    "sha256": "b2041b82451c5797d364e2565d10504f250d8ccb242d7de6df90f9c1e20a4da7"
+  },
+  "voice_message_gunner_fire_fighting_compartment_v3.wav": {
+    "bytes": 111212,
+    "sha256": "b8ed2eed4ba960f43c76c1bc80deb40a00ff758a99e643fd415b79ceace72352"
+  },
+  "voice_message_gunner_fire_munition_compartment_v1.wav": {
+    "bytes": 107564,
+    "sha256": "17cf12748ce3a3611de11fd67188cc7eb4af539a6a2e122bb8b5ff087220d31a"
+  },
+  "voice_message_gunner_fire_munition_compartment_v2.wav": {
+    "bytes": 95300,
+    "sha256": "916f8c3044cd87187135e9214e568800f23643b5646f212a1afca4bf70384de9"
+  },
+  "voice_message_gunner_fire_munition_compartment_v3.wav": {
+    "bytes": 126092,
+    "sha256": "a7077e81dbe8ed3b7c4d2ae4261b17341df98fe5eeffb2f8f3887233854dfa4c"
+  },
+  "voice_message_gunner_fire_v1.wav": {
+    "bytes": 66860,
+    "sha256": "a2389cd6a2f1e3dd620dcfb0e52db9635d0468858e044cf9422abeeb3be17187"
+  },
+  "voice_message_gunner_fire_v2.wav": {
+    "bytes": 72632,
+    "sha256": "854316c40795186b70fa98779dfb966b09f82c234d85bcaa2285371bf3c8c3ec"
+  },
+  "voice_message_gunner_fire_v3.wav": {
+    "bytes": 93932,
+    "sha256": "0f51bb281dbb014b3fc446f73decc4ae719400efec4a4481e470489744f9811d"
+  },
+  "voice_message_gunner_loader_stunned_v1.wav": {
+    "bytes": 101996,
+    "sha256": "162f32a082b97c311ccdeba5f40a055ee012181232a2b42f3a6c4cda386c5eca"
+  },
+  "voice_message_gunner_loader_stunned_v2.wav": {
+    "bytes": 127052,
+    "sha256": "693db6a156d0515192fa325e406db6782313dfc22780d6fffeb5ec33073d9f9e"
+  },
+  "voice_message_gunner_loader_stunned_v3.wav": {
+    "bytes": 98540,
+    "sha256": "bba1366b5a2f6963c3026f35324f547d66bfff11f8b6ff601b430900fba6c691"
+  },
+  "voice_message_gunner_loader_unconscious_v1.wav": {
+    "bytes": 127532,
+    "sha256": "f60b94cb246052930671953bb62cd57820b326217d6b90afe0c3e2ccb7cbbab3"
+  },
+  "voice_message_gunner_loader_unconscious_v2.wav": {
+    "bytes": 116588,
+    "sha256": "3901b407124cb54af1f803bd90ce5d1fc1b2665f362016100997956286cbb748"
+  },
+  "voice_message_gunner_loader_unconscious_v3.wav": {
+    "bytes": 105356,
+    "sha256": "5ed9986c160761ad314d75b363097da957de87fcd15adea57c458af41e1fa575"
+  },
+  "voice_message_gunner_mg_aa_lost_v1.wav": {
+    "bytes": 120812,
+    "sha256": "28a64728ad048fb1aee622cc36b5bc8e8df9f4cf9a69c50de56cc75e6648365f"
+  },
+  "voice_message_gunner_mg_aa_lost_v2.wav": {
+    "bytes": 119564,
+    "sha256": "d28fb5109412e1b846ff70ea4bded219e1129958479d080bd73d726919ca888b"
+  },
+  "voice_message_gunner_mg_aa_lost_v3.wav": {
+    "bytes": 147308,
+    "sha256": "a159ccfd7da2c37c17956703aac2170b095d82ee8e79405463c0cb084bb454c5"
+  },
+  "voice_message_gunner_mg_directional_lost_v1.wav": {
+    "bytes": 134828,
+    "sha256": "684083796783c921944525f00dc3c05b7f57438c8422875d672c20cdb3654936"
+  },
+  "voice_message_gunner_mg_directional_lost_v2.wav": {
+    "bytes": 116780,
+    "sha256": "40bf90f4b6186aaefdd631ebb3d4b15ff947a730f3ece1037bb32f7df0353681"
+  },
+  "voice_message_gunner_mg_directional_lost_v3.wav": {
+    "bytes": 175820,
+    "sha256": "0762b520c3d37014cf1b7925c9736d06208423318ad054cc30c55581a294a9bc"
+  },
+  "voice_message_gunner_mg_ready_v1.wav": {
+    "bytes": 104588,
+    "sha256": "8d21c2f966930c78c1f1ade3aaae3750d2280c852ffebb0517fce565afff3d2d"
+  },
+  "voice_message_gunner_mg_ready_v2.wav": {
+    "bytes": 89804,
+    "sha256": "78b13cd359e55d5f246b0c40ea0c44412f273a9e5bdd46ff18f59de0db034100"
+  },
+  "voice_message_gunner_mg_ready_v3.wav": {
+    "bytes": 122540,
+    "sha256": "89e23fd2bdf3e6c1ef122cc877e95bd3f8f1044f73a07e43aded890bfb1d993c"
+  },
+  "voice_message_gunner_misfire_v1.wav": {
+    "bytes": 84716,
+    "sha256": "c1858920d3f986404b497f0774977c06fc85b56bf0abb9688727845d37543b67"
+  },
+  "voice_message_gunner_misfire_v2.wav": {
+    "bytes": 93356,
+    "sha256": "281894d4c7bf2f00524c16679243ac223c015d352a8fd94b3eb41640e6bef5ca"
+  },
+  "voice_message_gunner_misfire_v3.wav": {
+    "bytes": 96812,
+    "sha256": "35070d2af5f877a13acfca4759a7985857a825942bf50c966834b6a96516fb90"
+  },
+  "voice_message_gunner_rotation_drive_damaged_v1.wav": {
+    "bytes": 100172,
+    "sha256": "a240a42d7cc6bf69664efc61dec872544c32e515c2a83f5ecbac02d63ed88bc4"
+  },
+  "voice_message_gunner_rotation_drive_damaged_v2.wav": {
+    "bytes": 106796,
+    "sha256": "a9df56602c5a8f91a3f8e20bf950503946337060320e78f458a98eb9a0f84b2a"
+  },
+  "voice_message_gunner_rotation_drive_damaged_v3.wav": {
+    "bytes": 96908,
+    "sha256": "c4c3b5143fc874821415d46540a14302bff9e9657774e161bb4a95953edbb43a"
+  },
+  "voice_message_gunner_rotation_drive_repaired_v1.wav": {
+    "bytes": 115340,
+    "sha256": "4c27671509821839524942d28e7ab9f63a5b02e23e12a5ad64e97a2c39768070"
+  },
+  "voice_message_gunner_rotation_drive_repaired_v2.wav": {
+    "bytes": 148364,
+    "sha256": "7a44f2add7b0f10a41edd6e067b553da345357a4be39712f4d518c1d6593ecad"
+  },
+  "voice_message_gunner_rotation_drive_repaired_v3.wav": {
+    "bytes": 132428,
+    "sha256": "f71a38082b438d03969ec9b7b1d6ff8152bd004ea3295e572d9107d8409bd886"
+  },
+  "voice_message_gunner_shot_v1.wav": {
+    "bytes": 52364,
+    "sha256": "de3b87adc8fcb4edcabb9841aca3e9eb666e910db5e85ee8029f0bf3bc35249e"
+  },
+  "voice_message_gunner_shot_v2.wav": {
+    "bytes": 68588,
+    "sha256": "1d6d73d93922f725c6698f2949bb1a0c6b43f484898eab07275e1ac921d41a75"
+  },
+  "voice_message_gunner_shot_v3.wav": {
+    "bytes": 35146,
+    "sha256": "c94fd8c1a57a16606286b05573eae74266ac5dd719b0d9457591cb0ccb4dcb5f"
+  },
+  "voice_message_gunner_taking_command_v1.wav": {
+    "bytes": 257708,
+    "sha256": "39c129e70807b6d55702070d25424fe7440085c6bf818c81a7ce2c2be5547766"
+  },
+  "voice_message_gunner_taking_command_v2.wav": {
+    "bytes": 246476,
+    "sha256": "fcb20a444961e03a9dc97606adac24a75982b2e95444065594b44f93c5d8eb97"
+  },
+  "voice_message_gunner_taking_command_v3.wav": {
+    "bytes": 255788,
+    "sha256": "647bf416666fcf00a84fff881a26a0cee6633f3a717d53c90e38cdb64a1fd321"
+  },
+  "voice_message_gunner_turret_left_v1.wav": {
+    "bytes": 101036,
+    "sha256": "7b26388c2e7aa544b845c5dacd6a776dc5e81c49e18196b8cc1af670f24a7e52"
+  },
+  "voice_message_gunner_turret_left_v2.wav": {
+    "bytes": 99404,
+    "sha256": "7db1696f2a8190c52d19c8aa8639b345f4cae0d1f34cea4640f31dd44e796c89"
+  },
+  "voice_message_gunner_turret_left_v3.wav": {
+    "bytes": 57836,
+    "sha256": "69fb16ec2f5283245cfb7adb6739f0345adb1e4926891571ece7586440b599ea"
+  },
+  "voice_message_gunner_turret_right_v1.wav": {
+    "bytes": 107660,
+    "sha256": "4dbd6b6ddfba8668cfc5c1ed42014a8fdcc195a155f7d0e3ac86b97d550a233e"
+  },
+  "voice_message_gunner_turret_right_v2.wav": {
+    "bytes": 96044,
+    "sha256": "6ed7c328cf2a997aeee847e515d6909df7076d4aeac1f47e50b944fd712f532d"
+  },
+  "voice_message_gunner_turret_right_v3.wav": {
+    "bytes": 61078,
+    "sha256": "73b1d59b07288e306a016b4d03de254481ed75586dbd0ebc82e42d89a1911b59"
+  },
+  "voice_message_gunner_weve_been_hit_v1.wav": {
+    "bytes": 90668,
+    "sha256": "287bafb7d17a7dcb26ec1f159f08492b324c0ddecae9c4cd5d6b6786623276a9"
+  },
+  "voice_message_gunner_weve_been_hit_v2.wav": {
+    "bytes": 95122,
+    "sha256": "cac1512cc0f44a81ae95175d1c8da64d9a18151c657eceefe5b162df155e2da1"
+  },
+  "voice_message_gunner_weve_been_hit_v3.wav": {
+    "bytes": 64076,
+    "sha256": "f008b81f2da38d73fff317ab9b36c629a6d0e932e2cd061164d9f52dec3621e7"
+  },
+  "voice_message_loader_armor_breached_v1.wav": {
+    "bytes": 97292,
+    "sha256": "0699a9d58e5fc34538a5a32b5c29a4d088e781b4d79fc9b1d920af6b9e9381f0"
+  },
+  "voice_message_loader_armor_breached_v2.wav": {
+    "bytes": 86038,
+    "sha256": "a380ed8d0332db4e6992bb4e2e943cbcbdc4bedd8fb460db923299d41d431702"
+  },
+  "voice_message_loader_armor_breached_v3.wav": {
+    "bytes": 93068,
+    "sha256": "9ad50fe3fb36fe3be0ff9fe56882d162da13451bcb5c434e7b3e1007fa811b54"
+  },
+  "voice_message_loader_battle_ready_v1.wav": {
+    "bytes": 99596,
+    "sha256": "cfd64d352425f6a649f0ccc7cae235dd35f36a459100e126a046adf499ffe045"
+  },
+  "voice_message_loader_battle_ready_v2.wav": {
+    "bytes": 76778,
+    "sha256": "86f5fc57ae37a99c7cb8ba188996398e81507117170f8717c7233b5456e5031a"
+  },
+  "voice_message_loader_battle_ready_v3.wav": {
+    "bytes": 87626,
+    "sha256": "16dddd939a7e3b27f83b181d5caca9192a36224dc0890ee770ebbf02e54b1204"
+  },
+  "voice_message_loader_damaged_v1.wav": {
+    "bytes": 64748,
+    "sha256": "0940267f13b73f9cbcfa32192fc9e6a0ef915f1554adf2e56de7d606ca354362"
+  },
+  "voice_message_loader_damaged_v2.wav": {
+    "bytes": 89996,
+    "sha256": "9ae9f63c212a09fcb3c181df805fcf881ca401c821dd984b5bd6eb4a59eeb372"
+  },
+  "voice_message_loader_damaged_v3.wav": {
+    "bytes": 61292,
+    "sha256": "aabb8e80105c2f7ad525de736e233f4f338b90766bf786be13e912c3b26d6bdb"
+  },
+  "voice_message_loader_driver_stunned_v1.wav": {
+    "bytes": 102188,
+    "sha256": "d54add746a697ea17cfa2f0b6f5adfe917840952f61af55211b6a11980e5ffbb"
+  },
+  "voice_message_loader_driver_stunned_v2.wav": {
+    "bytes": 88652,
+    "sha256": "5966953bba5dde610b80d5a998baddcae2276008328e2bbdebf29a2c52171102"
+  },
+  "voice_message_loader_driver_stunned_v3.wav": {
+    "bytes": 89612,
+    "sha256": "9ae5b009cd5de759cfa3ee255d6af5294827926aface0b881fa8cd56b76a5ef8"
+  },
+  "voice_message_loader_driver_unconscious_v1.wav": {
+    "bytes": 101708,
+    "sha256": "323a39a63919b4c941ed6eacfccab9ccc1c699b97864add56d8dbcaefc972904"
+  },
+  "voice_message_loader_driver_unconscious_v2.wav": {
+    "bytes": 117548,
+    "sha256": "10e7f781e3d75d6fd975e10ad9de91f6b7b6ba5606167c322eedb883d81bd657"
+  },
+  "voice_message_loader_driver_unconscious_v3.wav": {
+    "bytes": 115532,
+    "sha256": "9b438216c1f48cc126248e8cfdc931bb70140aa2b63a599c897e542c96ab3ae0"
+  },
+  "voice_message_loader_fire_engine_v1.wav": {
+    "bytes": 121772,
+    "sha256": "d4632f9c330b81f9793d7d3b435d68fb92f9f59bbc8059be5d5fb92def4f4fed"
+  },
+  "voice_message_loader_fire_engine_v2.wav": {
+    "bytes": 107382,
+    "sha256": "11938a23361a306a4cb74ba7ead5a049926a09f18ac6adbf4b4031c9a30805ab"
+  },
+  "voice_message_loader_fire_engine_v3.wav": {
+    "bytes": 150284,
+    "sha256": "19f016e78573f8b0cc92e185ae5674d5737163ef612712aa5d8c221c7f054f81"
+  },
+  "voice_message_loader_fire_extinguished_v1.wav": {
+    "bytes": 78188,
+    "sha256": "67d930e8f17b151f16496bbb822c889ef939dee6005fefbdd0f753eafae33258"
+  },
+  "voice_message_loader_fire_extinguished_v2.wav": {
+    "bytes": 99020,
+    "sha256": "a925123b2094493f564314f839bbc75d340d380860a0122a412aaa608c574473"
+  },
+  "voice_message_loader_fire_extinguished_v3.wav": {
+    "bytes": 78630,
+    "sha256": "6bb79f9c7d7b24fc4122a28fcbfc262b2b01dd147f18b14cb97334f5e070410a"
+  },
+  "voice_message_loader_fire_fighting_compartment_v1.wav": {
+    "bytes": 123596,
+    "sha256": "d0989e4fe7776fb0e8a417e2e451ddb414e6fb516629fb1131cde7b46078d2a8"
+  },
+  "voice_message_loader_fire_fighting_compartment_v2.wav": {
+    "bytes": 142124,
+    "sha256": "5e168544f425e2598e97c18c58cfdcc34caa17627dbad98fd0495acf4fa16f97"
+  },
+  "voice_message_loader_fire_fighting_compartment_v3.wav": {
+    "bytes": 107736,
+    "sha256": "8843895777fa499ba7dc3aea642687a58abcb53731671e9665f650b3294316e8"
+  },
+  "voice_message_loader_fire_munition_compartment_v1.wav": {
+    "bytes": 123596,
+    "sha256": "706f718606211a930d07df3f87d818e6f5cce89652add39eabac6eaf96e63cea"
+  },
+  "voice_message_loader_fire_munition_compartment_v2.wav": {
+    "bytes": 105266,
+    "sha256": "e652a42e583b287d9d5777d9ebf119e59d677e28f02dd6ec9e338c17d83a01b9"
+  },
+  "voice_message_loader_fire_munition_compartment_v3.wav": {
+    "bytes": 112058,
+    "sha256": "9764cb8dc05d9d7b1ed6c00896e18eddf3a59f80b72ef513eb314869b016943e"
+  },
+  "voice_message_loader_fire_v1.wav": {
+    "bytes": 74444,
+    "sha256": "d5eb3f7411d233ef3726e2b20eb1c1ec662bbde797df217eba2d2db978926591"
+  },
+  "voice_message_loader_fire_v2.wav": {
+    "bytes": 77660,
+    "sha256": "d13dbab3a99b9b18dd54455818c22e00dc5b00ffbc790c2d5166a4647c9bced1"
+  },
+  "voice_message_loader_fire_v3.wav": {
+    "bytes": 101804,
+    "sha256": "33556c2ce6c4ab7e87486b8eb9bcbfd89e020dd1bb8195ea3d28d679a1f79629"
+  },
+  "voice_message_loader_gunner_stunned_v1.wav": {
+    "bytes": 83180,
+    "sha256": "2320a7ea31d2f707ee43b0a419eda746c5220b8fd4ace3dbfc3ce4a47718637d"
+  },
+  "voice_message_loader_gunner_stunned_v2.wav": {
+    "bytes": 77420,
+    "sha256": "07cc685c3498e9634d838cd23025cec22dd7a68689907628801febf81cbb9bec"
+  },
+  "voice_message_loader_gunner_stunned_v3.wav": {
+    "bytes": 98924,
+    "sha256": "8bf6dd443ceeb54dc0ecc17e87347f474f2825760339a453c300e30829772a23"
+  },
+  "voice_message_loader_gunner_unconscious_v1.wav": {
+    "bytes": 85004,
+    "sha256": "7860b2f7b26426ccbb11d31fed168226bb7dfbce258c4193dc020e3a5e546903"
+  },
+  "voice_message_loader_gunner_unconscious_v2.wav": {
+    "bytes": 95852,
+    "sha256": "13f44d3ea40a38c2d311b610c71314d9c8cd29663074c74e24dfc248410634b6"
+  },
+  "voice_message_loader_gunner_unconscious_v3.wav": {
+    "bytes": 121868,
+    "sha256": "eae1b46a6aedb4c31f7773acd6c182cda7d15f1a199a4dc288710ab686a7e060"
+  },
+  "voice_message_loader_load_AP_v1.wav": {
+    "bytes": 120966,
+    "sha256": "5df258fcbddc58a696de238947681c080bbd683b9279002f3b1b511b05ac9aff"
+  },
+  "voice_message_loader_load_AP_v2.wav": {
+    "bytes": 112146,
+    "sha256": "59eb29a1499fe8227c34cd792b055227e97f7f552a5fa833fd841405033bb6e7"
+  },
+  "voice_message_loader_load_AP_v3.wav": {
+    "bytes": 87626,
+    "sha256": "94d4342786b8fcf96d7f14b648387e76c5b724348469ec663680c841fecbae12"
+  },
+  "voice_message_loader_load_APCR_v1.wav": {
+    "bytes": 175916,
+    "sha256": "3fb37415646e4355363a7697227e2f647ae0c9bfa930a36ac3198f7574bd15bb"
+  },
+  "voice_message_loader_load_APCR_v2.wav": {
+    "bytes": 149996,
+    "sha256": "13a6f333abec026e035b0e09e5497cb0285f5ea5cdb9c51d42165dc01ff19438"
+  },
+  "voice_message_loader_load_APCR_v3.wav": {
+    "bytes": 131660,
+    "sha256": "9b87bf27dd2fbabcc0f7247d11f671ed4b84cefa25c000da1c6397824727dcec"
+  },
+  "voice_message_loader_load_canister_v1.wav": {
+    "bytes": 116204,
+    "sha256": "e3b0fa10d419074d978b3954f93b0921f251c687a6f44467e37c9d54ed8c6656"
+  },
+  "voice_message_loader_load_canister_v2.wav": {
+    "bytes": 104876,
+    "sha256": "af303eb6c4d7dfdc6943d39eb408545fa244e80c9608b3cccf2913274164351a"
+  },
+  "voice_message_loader_load_canister_v3.wav": {
+    "bytes": 81164,
+    "sha256": "a107f52fa1f56bd1955bf2a2888de3a47e65e60716c4b4277d6315f87d557aac"
+  },
+  "voice_message_loader_load_dart_v1.wav": {
+    "bytes": 139052,
+    "sha256": "49dbb74f6852b99bd41da35000ead1e0fecb416def9d64e975397a1de3ccc38f"
+  },
+  "voice_message_loader_load_dart_v2.wav": {
+    "bytes": 121580,
+    "sha256": "e23e99f8e5b1257b0fcf0c0267cfe532d67f5756a5781c175e44a3396c6527f8"
+  },
+  "voice_message_loader_load_dart_v3.wav": {
+    "bytes": 126956,
+    "sha256": "08199f7f24ded3a26a8a2e1637233fde4c5e997a36054276a1784b79a93ca56e"
+  },
+  "voice_message_loader_load_flares_v1.wav": {
+    "bytes": 96270,
+    "sha256": "9d8f6bcf659dea6b6ba54e15b51a0467187c7821bf3f7fdfdda21adaf91e8cc6"
+  },
+  "voice_message_loader_load_flares_v2.wav": {
+    "bytes": 126610,
+    "sha256": "b65c56131fe3d1fed73dfb6b985b2448b2d81f65c98385e2ba43a8b55ab0a006"
+  },
+  "voice_message_loader_load_flares_v3.wav": {
+    "bytes": 118320,
+    "sha256": "6fd16783920199d8ab757fe373782f0592738e80296f1495eb7ad24284ebb872"
+  },
+  "voice_message_loader_load_frag_v1.wav": {
+    "bytes": 143544,
+    "sha256": "6cad026e353d229c9430bc9b4ddedf703b9084c469f792ebdfb4a84608505d92"
+  },
+  "voice_message_loader_load_frag_v2.wav": {
+    "bytes": 123876,
+    "sha256": "26daf94639011e6b1d957d9a4577a27dee2b55a65fd18699b8a55bdd2b9d1196"
+  },
+  "voice_message_loader_load_frag_v3.wav": {
+    "bytes": 142988,
+    "sha256": "80eb7e2475b6e1f6d97c759b3731c5c0af050beab59cab43408ed51cf0d52aa0"
+  },
+  "voice_message_loader_load_HE_v1.wav": {
+    "bytes": 116996,
+    "sha256": "7da285f8e41723d3ac94ca4dd584a170835cba348b2167cc96a33b4c2e04d2e5"
+  },
+  "voice_message_loader_load_HE_v2.wav": {
+    "bytes": 113116,
+    "sha256": "440d48d0b4f095d4e9f2d0126b1bfbf5ce94166bb8c59804b063994bd2abdc04"
+  },
+  "voice_message_loader_load_HE_v3.wav": {
+    "bytes": 81010,
+    "sha256": "271b6f10a289cca75a0bb6c26f744f3242094f1a308632a1caa88ed9f653d629"
+  },
+  "voice_message_loader_load_HEAT_v1.wav": {
+    "bytes": 113910,
+    "sha256": "671c1a2679af85bcf42f662a2b6b86e7665e8053b84fb47bcf938b88b6f2f5e1"
+  },
+  "voice_message_loader_load_HEAT_v2.wav": {
+    "bytes": 108794,
+    "sha256": "5183fcfb18ea3d02246a408ecfe35cf0899fa5d79ff7105f5b7a4685cd9d4614"
+  },
+  "voice_message_loader_load_HEAT_v3.wav": {
+    "bytes": 83216,
+    "sha256": "6882796934c9c2bd5bc5776d832fe1d50e089aa78b421c44f1789f1dde65c78c"
+  },
+  "voice_message_loader_load_HESH_v1.wav": {
+    "bytes": 120612,
+    "sha256": "e5192b258524addccce10004ca4f54cd58cbdbceed245f380e0810a0023fc103"
+  },
+  "voice_message_loader_load_HESH_v2.wav": {
+    "bytes": 156510,
+    "sha256": "ecd7ea363af4da994ec62cc2149a987c0de0566c7372940e0c3d3bced737facb"
+  },
+  "voice_message_loader_load_HESH_v3.wav": {
+    "bytes": 82952,
+    "sha256": "b624d2db993e0af39a84c762648a1097f7fc9c1c5847fbdb46bf9a5dab10a5ab"
+  },
+  "voice_message_loader_load_missile_v1.wav": {
+    "bytes": 159156,
+    "sha256": "a3dd2d6fb2c6c8b842a39926774ca11d980045c594c491903291564b49bac256"
+  },
+  "voice_message_loader_load_missile_v2.wav": {
+    "bytes": 105002,
+    "sha256": "ce33d8da5b9512ddb7a766da844176cb9c26fba6424f8bae9fc036c8e37fefa9"
+  },
+  "voice_message_loader_load_missile_v3.wav": {
+    "bytes": 99268,
+    "sha256": "53c4f6be1a6a199d100a649f14e08ec83b86cb20eebfcc198e47fb16204ce78e"
+  },
+  "voice_message_loader_load_sabot_v1.wav": {
+    "bytes": 122994,
+    "sha256": "a77ebcf9a05ccc73772c48bac54c4f77b53286dd5208b0abd743cccdcbf8bb94"
+  },
+  "voice_message_loader_load_sabot_v2.wav": {
+    "bytes": 115586,
+    "sha256": "b0079d774248393c442a509ca2d67d3f5f9713ab43a33eef35fef57135599aa1"
+  },
+  "voice_message_loader_load_sabot_v3.wav": {
+    "bytes": 87626,
+    "sha256": "8f7215464db02161c1fece7638b3814a337864801eaa0a347f08b86e76bb0023"
+  },
+  "voice_message_loader_load_shrapnel_v1.wav": {
+    "bytes": 134828,
+    "sha256": "954ccce214bc9a92ffa257c3b70904fc7e01c9281f41976f207f3c8cbeb0cf5b"
+  },
+  "voice_message_loader_load_shrapnel_v2.wav": {
+    "bytes": 122924,
+    "sha256": "2f569fdf878f7fac0c9be046ee802a9cfa311f558f353e308117f09e827e0b60"
+  },
+  "voice_message_loader_load_shrapnel_v3.wav": {
+    "bytes": 110732,
+    "sha256": "90493d3548f7f9f8ee232b9bb94618e703eacb4d57be96f3891b7a686035c1de"
+  },
+  "voice_message_loader_load_smoke_v1.wav": {
+    "bytes": 123612,
+    "sha256": "d8072c503e4da846ab4ff4575495f8ed1ff4e1963c2977e5847a4e20da74ba64"
+  },
+  "voice_message_loader_load_smoke_v2.wav": {
+    "bytes": 108088,
+    "sha256": "a29f19d0d3f92d5fbcd6f602353395da59e5ee8bd22b5989b9bf3f1dc74f6fc1"
+  },
+  "voice_message_loader_load_smoke_v3.wav": {
+    "bytes": 88596,
+    "sha256": "66dffbdfca00550400d7121eabd2e470d360799969928df78983578e2504804d"
+  },
+  "voice_message_loader_mg_ready_v1.wav": {
+    "bytes": 95034,
+    "sha256": "7e7ca88997799cfd586810bf305b7244d7012e9a4adf48399a78960b048b7342"
+  },
+  "voice_message_loader_mg_ready_v2.wav": {
+    "bytes": 119468,
+    "sha256": "fc68e299efc290847a54199b54e965ca7ae36ccf64cdc81b1bb31ed7c370c22f"
+  },
+  "voice_message_loader_mg_ready_v3.wav": {
+    "bytes": 103326,
+    "sha256": "5883700d06b96901371b94e65f66efa00d019f108b76964e0ec26811a0b8e345"
+  },
+  "voice_message_loader_taking_command_v1.wav": {
+    "bytes": 246092,
+    "sha256": "4c0901d5781228a43245024aa13637a7c289eb0448a23af3451720575fdc1505"
+  },
+  "voice_message_loader_taking_command_v2.wav": {
+    "bytes": 262700,
+    "sha256": "a60224e3082a7b5b4bf0045bb1bfdea79fb6b67352253343db06d2eb349692ba"
+  },
+  "voice_message_loader_taking_command_v3.wav": {
+    "bytes": 278540,
+    "sha256": "801cb7603eda93199a7d19472d37032b99822a95b8c7348dbd6e707aab608e7e"
+  },
+  "voice_message_loader_weve_been_hit_v1.wav": {
+    "bytes": 116012,
+    "sha256": "90c12c1765388361f78dae527ef30e5b0b2d7aa9a98628538c8d504779d016e0"
+  },
+  "voice_message_loader_weve_been_hit_v2.wav": {
+    "bytes": 77218,
+    "sha256": "4b22a9e4a549332cd0a6f56a1c0bf50468080524f2d444b75b51ddd206688737"
+  },
+  "voice_message_loader_weve_been_hit_v3.wav": {
+    "bytes": 111176,
+    "sha256": "eb311af1983c8deb6c7d010b6fbdee528f0d7661999baf0bddc492f178e47278"
+  }
+}

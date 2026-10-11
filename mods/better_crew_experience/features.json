@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "crew": {
+    "mode": "drop-while-speaking",
+    "events": {
+      "0": [
+        "voice_message_artillery_acknowledged_v1.wav"
+      ],
+      "1": [
+        "voice_message_commander_target.wav"
+      ],
+      "2": [
+        "voice_message_gunner_fire_v1.wav"
+      ],
+      "3": [
+        "voice_message_commander_target_enemy.wav"
+      ],
+      "4": [
+        "voice_message_gunner_fire_v2.wav"
+      ],
+      "7": [
+        "voice_message_commander_crew_lost_v1.wav"
+      ],
+      "9": [
+        "voice_message_commander_correction_target_destroyed_nice_shot_v1.wav"
+      ],
+      "10": [
+        "voice_message_gunner_fire_v1.wav"
+      ],
+      "11": [
+        "voice_message_gunner_cannon_ready_v1_1.wav"
+      ],
+      "12": [
+        "voice_message_loader_load_AP_v1.wav"
+      ],
+      "13": [
+        "voice_message_loader_load_HE_v1.wav"
+      ],
+      "14": [
+        "voice_message_loader_load_APCR_v1.wav"
+      ],
+      "15": [
+        "voice_message_loader_load_smoke_v1.wav"
+      ],
+      "16": [
+        "voice_message_loader_load_HEAT_v1.wav"
+      ]
+    },
+    "targetPrefix": "voice_message_commander_target.wav",
+    "distancePrefix": "voice_message_commander_target_distance_v1.wav"
+  }
+}

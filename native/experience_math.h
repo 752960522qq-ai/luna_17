@@ -1,29 +1,32 @@
 #pragma once
+static int bte_ground_sight(int camera_mode,int sight_kind){return camera_mode==0 && sight_kind>=0 && sight_kind<=2;}
 #include <math.h>
 
 // Independent of the Unity adapter. All lengths and speeds use metres/seconds.
 enum { BTE_AP, BTE_HE, BTE_APCR, BTE_WP, BTE_HEAT };
 typedef struct { float effective_penetration, damage; int penetrated; } BteDamage;
 static BteDamage bte_damage(int shell, float penetration, float caliber,
-                            float normal_cosine, float armor, float k, float khe) {
+                            float normal_cosine, float armor, float k, float khe, float filling_grams) {
     BteDamage result = {0};
     if (shell < 0 || shell > 4 || shell == BTE_WP ||
         !isfinite(penetration) || penetration < 0 || !isfinite(caliber) || caliber <= 0 ||
         !isfinite(normal_cosine) || !isfinite(armor) || armor < 0 ||
+        !isfinite(filling_grams) || filling_grams < 0 || filling_grams > 100000 ||
         !isfinite(k) || k <= 0 || !isfinite(khe) || khe <= 0) return result;
     float cosine = fmaxf(0, fminf(normal_cosine, 1));
     float exponent = shell == BTE_APCR ? 1.4f : shell == BTE_HEAT ? .8f : 1.f;
     result.effective_penetration = penetration * powf(cosine, exponent);
     result.penetrated = result.effective_penetration >= armor;
     if (shell == BTE_HE) {
-        result.damage = khe * powf(.710f/.1f, .6f) * sqrtf(caliber/100.f) *
+        result.damage = khe * powf(filling_grams/100.f, .6f) * sqrtf(caliber/100.f) *
                         (result.penetrated ? 1.f : .15f);
     } else if (result.penetrated) {
         float margin = armor > 0 ? fminf(1.5f, fmaxf(1.f, result.effective_penetration/armor)) : 1.5f;
         float multiplier = shell == BTE_APCR ? .7f : shell == BTE_HEAT ? .8f : 1.f;
         result.damage = k * (caliber/100.f) * (caliber/100.f) * multiplier * margin;
-        // Stock AP with the requested 155 g filling behaves as APHE.
-        if (shell == BTE_AP) result.damage *= 1.f + .25f * sqrtf(.155f/.1f);
+        // AP filling is optional and belongs to this ammunition.
+        if (shell == BTE_AP) result.damage *= 1.f + .25f * sqrtf(filling_grams/100.f);
+        if (shell == BTE_HEAT) result.damage = khe * powf(filling_grams/100.f,.6f) * sqrtf(caliber/100.f) * .8f * margin;
     }
     return result;
 }
@@ -59,4 +62,18 @@ static int bte_intercept(BteVec delta,BteVec target_velocity,float speed,float g
         previous=t;previous_value=value;
     }
     return 0;
+}
+
+// Scripted aircraft can move their Transform without any Rigidbody velocity.
+typedef struct {BteVec position;float time;int valid;} BteMotion;
+static int bte_motion_velocity(BteMotion *sample,BteVec position,float now,BteVec *velocity){
+    if(!sample||!velocity||!isfinite(now)||!isfinite(position.x)||!isfinite(position.y)||!isfinite(position.z))return 0;
+    float dt=now-sample->time;
+    BteVec delta=bte_sub(position,sample->position);
+    int usable=sample->valid && dt>.001f && dt<=.5f;
+    *sample=(BteMotion){position,now,1};
+    if(!usable)return 0;
+    *velocity=bte_scale(delta,1/dt);
+    // Scene changes and teleports must not produce an impossible lead marker.
+    return bte_dot(*velocity,*velocity)<=1000.f*1000.f;
 }

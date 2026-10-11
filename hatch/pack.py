@@ -75,6 +75,8 @@ def compile_project(directory):
  info['vehicle_kind']=kind
  if kind!='tank':info['horizontal_half_angle']=t['gunTraverseHalfAngle']
  if 'magazine' in w:info['magazine']=w['magazine']
+ filling={k:v.get('explosiveMassGrams',v.get('explosiveMassKg',0)*1000) for k,v in w.get('shells',{}).items() if 'explosiveMassGrams' in v or 'explosiveMassKg' in v}
+ if filling:info['shell_filling_grams']=filling
  return blob,info
 def pack_project(directory,output):
  data,info=compile_project(directory);out=Path(output);out.parent.mkdir(parents=True,exist_ok=True);tmp=out.with_suffix('.tmp')

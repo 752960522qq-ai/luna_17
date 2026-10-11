@@ -107,19 +107,32 @@ static int bte_shell(void *pc,const CustomTank *config,float *speed,float *gravi
     }
     return isfinite(*speed)&&*speed>0&&isfinite(*gravity)&&*gravity>0;
 }
+typedef struct {void *air,*transform;BteMotion motion;} BteAirMotion;
+static BteAirMotion bte_air_motion[128];
+static unsigned bte_air_motion_cursor;
+static int bte_measured_velocity(void *air,void *transform,Vec3 position,float now,Vec3 *velocity){
+    BteAirMotion *sample=0;
+    for(int i=0;i<128;i++)if(bte_air_motion[i].air==air && bte_air_motion[i].transform==transform){sample=&bte_air_motion[i];break;}
+    if(!sample){sample=&bte_air_motion[bte_air_motion_cursor++%128];*sample=(BteAirMotion){air,transform,{0}};}
+    BteVec measured;
+    if(!bte_motion_velocity(&sample->motion,bv(position),now,&measured))return 0;
+    *velocity=uv(measured);return 1;
+}
 static void bte_restore(void){
     if(bte_fov_owned&&unity_exists(bte_camera)&&bte_original_fov>0)bte_set_float(bte_camera,"set_fieldOfView",bte_original_fov);
+    memset(bte_air_motion,0,sizeof(bte_air_motion));bte_air_motion_cursor=0;
     bte_camera=0;bte_owner=0;bte_original_fov=0;bte_mode=0;bte_fov_owned=0;bte_requested_aim_valid=0;
 }
 static void bte_air_lead(void *camera,Vec3 origin,Vec3 forward,float speed,float gravity,float *values){
     // Aiming near a live enemy aircraft selects the closest angular target.
-    // AircraftControl motion is read from its current direction/movingSpd,
-    // so the first visible frame does not need a stale previous position.
+    // Measure Transform motion for scripted flight; Rigidbody is only a
+    // first-sample fallback. Sample all live enemies, even outside the cone.
     void *klass=hatch_class("","AircraftControl"),*type=hatch_type_object(klass);
     void *object=hatch_class("UnityEngine","Object");int error=0;
     bool inactive=false;void *args[]={type,&inactive};
     void *all=type?enemy_invoke(hatch_method(object,"FindObjectsOfType",2,hatch_class("System","Type")),0,args,&error):0;
     int n=all?I(all,0x18):0;if(error||n<0||n>128)return;
+    float now=FN(RVA_GAME_TIME,float (*)(const void *))(0);
     float best=.985f;BteVec aim={0};float flight=0;int found=0;
     for(int i=0;i<n;i++){
         void *air=P(all,0x20+i*8);if(!unity_exists(air))continue;
@@ -129,12 +142,14 @@ static void bte_air_lead(void *camera,Vec3 origin,Vec3 forward,float speed,float
         void *m=method(status,"get_IsMyFriend",0);if(!m||((bool (*)(void *,const void *))P(m,0))(status,m))continue;
         void *tr=enemy_invoke(method(air,"get_transform",0),air,0,&error);if(error||!unity_exists(tr))continue;
         Vec3 p=call_vec(tr,"get_position");
+        Vec3 measured={0};int measured_ok=bte_measured_velocity(air,tr,p,now,&measured);
         BteVec delta=bte_sub(bv(p),bv(origin));float length=sqrtf(bte_dot(delta,delta));if(length<1||length>3000)continue;
         float cosine=bte_dot(bte_scale(delta,1/length),bv(forward));if(cosine<best)continue;
         off=bte_field_offset(air,"isShotDown");if(off>=0 && B(air,off))continue;
         off=bte_field_offset(air,"<IsErasing>k__BackingField");if(off>=0 && B(air,off))continue;
         off=bte_field_offset(air,"rgdbody");void *body=off>=0?P(air,off):0;
-        Vec3 velocity=unity_exists(body)?call_vec(body,"get_linearVelocity"):(Vec3){0};
+        Vec3 velocity=measured_ok?measured:unity_exists(body)?call_vec(body,"get_linearVelocity"):(Vec3){0};
+        if(!measured_ok && !unity_exists(body))continue;
         if(!isfinite(velocity.x)||!isfinite(velocity.y)||!isfinite(velocity.z))continue;
         BteVec candidate;float t;
         if(bte_intercept(delta,bv(velocity),speed,gravity,120,&candidate,&t)){
@@ -145,7 +160,7 @@ static void bte_air_lead(void *camera,Vec3 origin,Vec3 forward,float speed,float
 }
 static void experience_camera_prepare(void *control){
     void *ui=unity_exists(control)?P(control,0xe8):0;
-    if(bte_camera && (!unity_exists(ui)||I(control,0x38)!=0||I(ui,0x2c)>1||state!=3||bte_owner!=player_status))bte_restore();
+    if(bte_camera && (!unity_exists(ui)||!bte_ground_sight(I(control,0x38),I(ui,0x2c))||state!=3||bte_owner!=player_status))bte_restore();
 }
 static void experience_turret_target(void *turret){
     if(bte_mode==2 && bte_requested_aim_valid && bte_owner==player_status && P(turret,0x40)==player_status && state==3 && offline_mode())
@@ -163,7 +178,7 @@ static void experience_camera_update(void *control){
     int flags=__atomic_load_n(&experience_flags,__ATOMIC_ACQUIRE);
     void *pc=player_control,*ui=unity_exists(control)?P(control,0xe8):0;
     void *camera=unity_exists(control)?P(control,0x28):0;
-    int valid=flags && state==3 && offline_mode() && unity_exists(pc)&&unity_exists(player_status)&&unity_exists(ui)&&unity_exists(camera)&&I(control,0x38)==0&&I(ui,0x2c)<=1;
+    int valid=flags && state==3 && offline_mode() && unity_exists(pc)&&unity_exists(player_status)&&unity_exists(ui)&&unity_exists(camera)&&bte_ground_sight(I(control,0x38),I(ui,0x2c));
     if(!valid){bte_restore();float empty[BTE_SNAPSHOT_SIZE]={0};bte_publish(empty);return;}
     const CustomTank *config=tank_config(player_status);
     int spg=(flags&4) && config && config->vehicle_kind==HATCH_VEHICLE_SPG;

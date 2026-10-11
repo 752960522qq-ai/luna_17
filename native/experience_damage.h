@@ -5,7 +5,8 @@ static void *(*original_cal_damage)(void *,void *,void *,bool,const void *);
 static int bte_damage_byte(float value){return value<=0?0:value>=255?255:(int)lroundf(value);}
 static void *experience_cal_damage(void *damage,void *info,void *part,bool bomb,const void *mi){
     int flags=__atomic_load_n(&experience_flags,__ATOMIC_ACQUIRE);
-    int enabled=(flags&2) && state==3 && offline_mode();
+    const FillingProfile *filling=info?filling_profile(info):0;
+    int enabled=(flags&2) && state==3 && offline_mode() && filling && filling->known;
     // Stock treats HE as a bomb and skips impact-normal calculation. Reuse
     // its cannon collision path for HE, then replace only the damage result.
     bool classify_bomb=bomb && !(enabled && info && I(info,0x4c)==BTE_HE);
@@ -22,7 +23,10 @@ static void *experience_cal_damage(void *damage,void *info,void *part,bool bomb,
     // raycast normal, not the gun's angle or the vehicle's forward direction.
     int grazing=I(result,0x28);if(grazing<0 || grazing>90)return result;
     float cosine=sinf(grazing*.017453292519943295f);
-    BteDamage value=bte_damage(shell,I(info,0x1c),I(info,0x50),cosine,thickness,experience_k,experience_khe);
+    // Unknown ammunition keeps the game's damage, rather than receiving a
+    // fabricated global explosive charge. Zero filling is a valid config.
+    if(!filling || !filling->known)return result;
+    BteDamage value=bte_damage(shell,I(info,0x1c),I(info,0x50),cosine,thickness,experience_k,experience_khe,filling->grams);
     I(result,0x20)=bte_damage_byte(value.damage);
     // Penetration is a pass/fail gate. Do not turn damage into armor erosion.
     I(result,0x24)=0;

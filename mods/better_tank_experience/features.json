@@ -5,9 +5,631 @@
   "damage": {
     "formula": "two-stage-0.1",
     "K": 20.0,
-    "K_HE": 10.0,
-    "apFillingGrams": 155,
-    "apcrFillingGrams": 0,
-    "heFillingGrams": 710
+    "K_HE": 10.0
+  },
+  "ammunition": {
+    "15cm_sFH18_IT_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "15cm_sFH18_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "52K_85mm_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "8p8cm_Flak18_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "90mm_M1_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Archer_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "BL_5p5inch_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Bofors_40mm_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Brummbar_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Centurion_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Churchill_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Comet_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Cromwell_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Crusader_AA_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Crusader_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Hetzer_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Ho_Ni_III_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Ho_Ni_I_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "ISU_122_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "IS_2m_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "IS_3_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Jagdpanther_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Jagdtiger_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "KV_1C_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "KV_1S_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "KV_2_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "M10_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "M114_155mm_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "M13_40_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "M14_41_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "M15_42_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "M18_Hellcat_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "M19_MGMC_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "M1_57mm_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "M24_Chaffee_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "M26_Pershing_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "M36_Jackson_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "M3_Lee_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "M40_GMC_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "M4A3E8_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "M4A3_105_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "M4A3_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "ML_20_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Marder_II_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Maus_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Ostwind_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "P26_40_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "PaK40_IT_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "PaK40_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Panther_G_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Panzer_38t_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Panzer_III_J_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Panzer_IV_H_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "QF_6_Pdr_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "SU_76M_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "SU_76i_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "SU_85_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Sherman_Firefly_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Short_Barrel_12cm_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "StuG_III_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "T29_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "T34_76_1943_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "T34_76_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "T34_85_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "T44_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Ta_Ha_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Tiger_II_H_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Tiger_II_P_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Tiger_I_E_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Type1_47mm_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Type1_Chi_He_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Type3_Chi_Nu_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Type4_Chi_To_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Type4_Ho_Ro_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Type5_Chi_Ri_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Type88_75mm_AA_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Type96_15cm_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Type97_Chi_Ha_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Valentine_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "ZSU_37_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "ZiS_3_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "da_75_18_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "da_75_34_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "da_75_46_Player": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Grille": {
+      "AP": 0,
+      "HE": 8300,
+      "APCR": 0,
+      "WP": 0,
+      "HEAT": 2400
+    },
+    "T54_1949": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Matilda_III": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "Panzer_II_Ausf_L": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    },
+    "T30": {
+      "AP": null,
+      "HE": null,
+      "APCR": null,
+      "WP": null,
+      "HEAT": null
+    }
   }
 }

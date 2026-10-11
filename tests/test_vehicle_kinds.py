@@ -70,6 +70,19 @@ class Vehicles(unittest.TestCase):
                 package=d/'vehicle.hatch';pack_project(d,package);self.assertEqual(validate(package)['loader_version'],'0.4' if kind=='self-propelled-artillery' else '0.3')
                 subprocess.run([str(self.binder),str(runtime)],check=True,capture_output=True,text=True)
                 if kind!='tank':self.assertEqual(struct.unpack_from('<Ii',blob,len(blob)-8),({'tank-destroyer':1,'towed-gun':2,'self-propelled-artillery':3}[kind],15))
+    def test_each_mod_shell_filling_survives_packaging(self):
+        d=self.base/'filling';docs=fixture(d,'self-propelled-artillery')
+        docs['weapon']['shells']={'AP':{'penetrationMm':0,'explosiveMassGrams':0},'HE':{'penetrationMm':30,'explosiveMassKg':8.3},'APCR':{'penetrationMm':0,'explosiveMassGrams':0},'HEAT':{'penetrationMm':200,'explosiveMassKg':2.4},'WP':{'penetrationMm':0,'explosiveMassGrams':0}}
+        (d/'weapon.json').write_text(json.dumps(docs['weapon']))
+        blob,manifest=compile_project(d)
+        self.assertEqual(manifest['shell_filling_grams'],{'AP':0,'HE':8300,'APCR':0,'HEAT':2400,'WP':0})
+        from tankbuilder.project import generate_runtime_header
+        generate_runtime_header([d],d/'config.h')
+        source=d/'check.c';source.write_text('#include "config.h"\nint main(void){return !(custom_tanks[0].filling_mask==31&&custom_tanks[0].filling_grams[1]==8300&&custom_tanks[0].filling_grams[4]==2400);}')
+        subprocess.run(['gcc',str(source),'-o',str(d/'check')],check=True);subprocess.run([str(d/'check')],check=True)
+        docs['weapon']['shells']['HE']['explosiveMassGrams']='bad'
+        (d/'weapon.json').write_text(json.dumps(docs['weapon']))
+        self.assertFalse(validate_project(d)['valid'])
     def test_towed_gun_rejects_engine_and_tracks(self):
         d=self.base/'bad-gun';docs=fixture(d,'towed-gun');docs['tank']['enginePower']=1
         (d/'tank.json').write_text(json.dumps(docs['tank']))

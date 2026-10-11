@@ -164,10 +164,35 @@ public final class HatchLoader {
                         tank.extract("features.json","features_sha256","features_bytes",runtime);
                         ByteArrayOutputStream bytes=new ByteArrayOutputStream();
                         try(InputStream in=new FileInputStream(runtime)){HatchPackage.copy(in,bytes,65536,null);}
-                        failure=host.loadFeatures(tank.id,bytes.toString("UTF-8"));
+                        JSONObject configuration=new JSONObject(bytes.toString("UTF-8"));
+                        if(configuration.has("voiceDirectory"))throw new IOException("语音路径只能由加载器提供");
+                        if(tank.manifest.has("voices_bytes"))configuration.put("voiceDirectory",tank.extractVoices(activity.getCacheDir()).getAbsolutePath());
+                        failure=host.loadFeatures(tank.id,configuration.toString());
                     } else {
                         tank.extract("runtime.bin","runtime_sha256","runtime_bytes",runtime);
-                        failure=loaded.loadTank(runtime,tank.manifest.toString());
+                        JSONObject configuration=new JSONObject(tank.manifest.toString());
+                        // Legacy .hatch files already include weapon.json. Read that
+                        // source without rewriting or trusting it as executable code.
+                        if(!configuration.has("shell_filling_grams")){
+                            try(java.util.zip.ZipFile archive=new java.util.zip.ZipFile(tank.archive)){
+                                java.util.zip.ZipEntry entry=archive.getEntry("weapon.json");
+                                if(entry!=null){
+                                    ByteArrayOutputStream bytes=new ByteArrayOutputStream();
+                                    try(InputStream in=archive.getInputStream(entry)){HatchPackage.copy(in,bytes,65536,null);}
+                                    JSONObject shells=new JSONObject(bytes.toString("UTF-8")).optJSONObject("shells");
+                                    JSONObject filling=new JSONObject();
+                                    if(shells!=null)for(String shell:new String[]{"AP","HE","APCR","WP","HEAT"}){
+                                        JSONObject ammo=shells.optJSONObject(shell);
+                                        if(ammo!=null){
+                                            if(ammo.has("explosiveMassGrams"))filling.put(shell,ammo.getDouble("explosiveMassGrams"));
+                                            else if(ammo.has("explosiveMassKg"))filling.put(shell,ammo.getDouble("explosiveMassKg")*1000);
+                                        }
+                                    }
+                                    if(filling.length()>0)configuration.put("shell_filling_grams",filling);
+                                }
+                            }
+                        }
+                        failure=loaded.loadTank(runtime,configuration.toString());
                     }
                     if (failure == null || !failure.isEmpty()) throw new IOException(failure == null ? "加载失败" : failure);
                     loadedTanks.add(tank.id); successful.add(tank.id);

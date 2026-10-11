@@ -47,6 +47,14 @@ def document_errors(doc):
         for k,v in ammo.items():
             if k not in ['AP','APCR','HE','HEAT','WP'] or type(v)!=int or not 0<=v<=1000:errors.append('弹种或备弹量错误')
     shells=w.get('shells',{})
+    if isinstance(shells,dict):
+        for shell in shells.values():
+            if isinstance(shell,dict) and 'explosiveMassGrams' in shell:
+                num(shell,'explosiveMassGrams',0,100000)
+            if isinstance(shell,dict) and 'explosiveMassKg' in shell:
+                num(shell,'explosiveMassKg',0,100)
+            if isinstance(shell,dict) and 'explosiveMassKg' in shell and 'explosiveMassGrams' in shell:
+                if type(shell['explosiveMassGrams']) in (int,float) and type(shell['explosiveMassKg']) in (int,float) and not math.isclose(shell['explosiveMassGrams'],shell['explosiveMassKg']*1000,rel_tol=1e-6):errors.append('装药量克和千克字段不一致')
     for shell_kind in ['AP','APCR','HEAT']:
         num(shells.get(shell_kind,{}) if isinstance(shells,dict) else {},'penetrationMm',0,2000,True)
     if towed and any(t.get(k)!=0 for k in ('maxForwardSpeed','maxReverseSpeed','enginePower')):errors.append('牵引火炮无自身动力，速度及发动机功率必须为 0')
@@ -257,6 +265,12 @@ def generate_runtime_header(directories,destination):
         values=[m['id'],round(w['shells']['AP']['penetrationMm']),round(w['caliber']),round(w['muzzleVelocity']),math.ceil(w['reload']),w['reload']-math.ceil(w['reload']),round(t['enginePower']),round(t['maxForwardSpeed']),t['maxReverseSpeed']/3.6,round(t['turretRotation']),t['weightTonnes'],round(t['gunElevation']),round(abs(t['gunDepression'])),t['crew'],m['tier'],[a['body'][x] for x in ['front','side','side','rear']],[a['turret'][x] for x in ['front','side','side','rear']],[w['ammo'].get(x,0) for x in ['AP','HE','APCR','WP','HEAT']],w['machineGun']['ammo'],[w['shells'].get(x,{}).get('penetrationMm',0) for x in ['AP','HE','APCR','WP','HEAT']],len(wheels),sus['travel'],sus['restCompression'],sus['springPerWheel'],sus['damperPerWheel'],sum(x['radius'] for x in wheels)/len(wheels),t['dimensionsMeters']['length']*.62]
         magazine=w.get('magazine',{})
         values.extend([magazine.get('capacity',0),magazine.get('shotInterval',0),magazine.get('reloadTime',0),1 if w.get('ballistics')=='stock-t34-85' else 0,t['turretRotation'],{'tank':0,'tank-destroyer':1,'towed-gun':2,'self-propelled-artillery':3}[t.get('vehicleKind','tank')],t.get('gunTraverseHalfAngle',0) if t.get('vehicleKind','tank')!='tank' else 0])
+        filling=[];mask=0
+        for i,kind in enumerate(['AP','HE','APCR','WP','HEAT']):
+            shell=w['shells'].get(kind,{})
+            if 'explosiveMassGrams' in shell or 'explosiveMassKg' in shell:mask|=1<<i
+            filling.append(shell.get('explosiveMassGrams',shell.get('explosiveMassKg',0)*1000))
+        values.extend([filling,mask])
         def c(v):
             if isinstance(v,str):return json.dumps(v)
             if isinstance(v,list):return '{'+','.join(map(c,v))+'}'
@@ -264,7 +278,7 @@ def generate_runtime_header(directories,destination):
         configs.append('{'+','.join(map(c,values))+'}')
     text='''#pragma once
 // Generated from validated project parameters. Never reuse with other resources.
-typedef struct { const char *id; int penetration,caliber,speed,reload; float reload_offset; int power,max_speed; float reverse_speed; int turret_speed; float weight; int elevation,depression,crew,tier; int body_armor[4],turret_armor[4],ammo[5],mg_ammo,shell_penetration[5],wheel_count; float travel,rest,spring,damper,radius,track_length; int magazine_capacity; float shot_interval,magazine_reload; int ballistics_profile; float turret_speed_exact; int vehicle_kind,traverse_half_angle; } CustomTank;
+typedef struct { const char *id; int penetration,caliber,speed,reload; float reload_offset; int power,max_speed; float reverse_speed; int turret_speed; float weight; int elevation,depression,crew,tier; int body_armor[4],turret_armor[4],ammo[5],mg_ammo,shell_penetration[5],wheel_count; float travel,rest,spring,damper,radius,track_length; int magazine_capacity; float shot_interval,magazine_reload; int ballistics_profile; float turret_speed_exact; int vehicle_kind,traverse_half_angle; float filling_grams[5]; unsigned filling_mask; } CustomTank;
 '''+('static const CustomTank custom_tanks[]={'+','.join(configs)+'};\n' if configs else 'static const CustomTank custom_tanks[1]={{0}};\n')+f'#define CUSTOM_TANK_COUNT {len(configs)}\n'
     Path(destination).write_text(text,encoding='utf-8')
     return hashlib.sha256(text.encode()).hexdigest()

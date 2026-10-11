@@ -49,6 +49,16 @@ final class HatchPackage {
         }
         if (type.equals("gameplay") && (format != 2 || doc.getInt("api_version") != 1 || id.equals("tankinvincible3000")))
             throw new IOException("玩法模组接口不兼容");
+        if(doc.has("shell_filling_grams")){
+            JSONObject filling=doc.getJSONObject("shell_filling_grams");
+            if(filling.length()<1||filling.length()>5)throw new IOException("装药字段数无效");
+            Set<String> shells=new HashSet<>(Arrays.asList("AP","HE","APCR","WP","HEAT"));
+            Iterator<String> keys=filling.keys();while(keys.hasNext()){
+                String shell=keys.next();Object raw=filling.get(shell);
+                if(!shells.contains(shell)||!(raw instanceof Number))throw new IOException("装药弹种或数值无效");
+                double value=((Number)raw).doubleValue();if(!Double.isFinite(value)||value<0||value>100000)throw new IOException("装药量超限");
+            }
+        }
         JSONObject magazine = doc.optJSONObject("magazine");
         if (magazine != null) {
             double rawCapacity = magazine.getDouble("capacity");
@@ -89,6 +99,7 @@ final class HatchPackage {
             }
             else if (pack.type.equals("gameplay")) {
                 pack.verify(zip, "features.json", "features_sha256", "features_bytes", null);
+                if(pack.manifest.has("voices_bytes"))pack.verify(zip,"voices.zip","voices_sha256","voices_bytes",null);
             }
             else {
                 pack.verify(zip, "module.dex", "dex_sha256", "dex_bytes", null);
@@ -100,6 +111,40 @@ final class HatchPackage {
     File extract(String entry, String hash, String size, File output) throws Exception {
         try (ZipFile zip = new ZipFile(archive)) { verify(zip, entry, hash, size, output); }
         return output;
+    }
+    File extractVoices(File cache) throws Exception {
+        String hash=manifest.getString("voices_sha256");
+        if(!hash.matches("[a-f0-9]{64}"))throw new IOException("语音摘要无效");
+        File directory=new File(cache,"crew-"+hash);
+        File ready=new File(directory,"ready");
+        if(ready.isFile())return directory;
+        if(!directory.isDirectory()&&!directory.mkdir())throw new IOException("无法创建语音目录");
+        File payload=File.createTempFile("crew-",".zip",cache);
+        Set<String> names=new HashSet<>();long total=0;
+        try{
+            extract("voices.zip","voices_sha256","voices_bytes",payload);
+            try(ZipFile voices=new ZipFile(payload)){
+                Enumeration<? extends ZipEntry> entries=voices.entries();
+                while(entries.hasMoreElements()){
+                    ZipEntry entry=entries.nextElement();String name=entry.getName();
+                    if(names.size()>=1024||entry.isDirectory()||!name.matches("[A-Za-z0-9_.-]{1,160}\\.wav")||name.contains("..")||!names.add(name)||entry.getSize()<44||entry.getSize()>5*1024*1024)throw new IOException("语音文件结构无效");
+                    total+=entry.getSize();if(total>MAX_BYTES)throw new IOException("语音解压大小超限");
+                    File clip=new File(directory,name);
+                    try(InputStream in=voices.getInputStream(entry);OutputStream out=new FileOutputStream(clip)){
+                        if(copy(in,out,entry.getSize(),null)!=entry.getSize())throw new IOException("语音长度不匹配");
+                    }
+                    try(DataInputStream in=new DataInputStream(new FileInputStream(clip))){
+                        byte[] header=new byte[12];in.readFully(header);
+                        if(header[0]!='R'||header[1]!='I'||header[2]!='F'||header[3]!='F'||header[8]!='W'||header[9]!='A'||header[10]!='V'||header[11]!='E')throw new IOException("语音不是WAV");
+                    }
+                }
+            }
+            if(names.isEmpty())throw new IOException("语音包为空");
+            try(OutputStream out=new FileOutputStream(ready)){out.write(1);}
+            return directory;
+        }catch(Exception failure){
+            for(String name:names)new File(directory,name).delete();ready.delete();directory.delete();throw failure;
+        }finally{payload.delete();}
     }
     private void verify(ZipFile zip, String entryName, String hashKey, String sizeKey, File output) throws Exception {
         ZipEntry entry = zip.getEntry(entryName); if (entry == null) throw new IOException("缺少 " + entryName);

@@ -49,11 +49,34 @@ static void status_start(void *s,const void *mi) {
     I(s,0x1cc)=c->ammo[2];I(s,0x1d0)=c->ammo[3];I(s,0x1d4)=c->ammo[4];
     apply_custom_stats(s);
 }
+#include "ammunition_config.h"
+typedef struct {void *info;float grams;int known;} FillingProfile;
+static FillingProfile filling_profiles[512];
+static unsigned filling_cursor;
+static const FillingProfile *filling_profile(void *info){
+    for(unsigned i=0;i<512;i++)if(filling_profiles[i].info==info)return &filling_profiles[i];return 0;
+}
+static void record_filling(void *info,const CustomTank *config,int shell){
+    if(!info)return;
+    FillingProfile *slot=0;
+    for(unsigned i=0;i<512;i++)if(filling_profiles[i].info==info){slot=&filling_profiles[i];break;}
+    if(!slot)slot=&filling_profiles[filling_cursor++%512];
+    int known=config && shell>=0 && shell<5 && (config->filling_mask&(1u<<shell));
+    *slot=(FillingProfile){info,known?config->filling_grams[shell]:0,known};
+}
 static void *(*original_attack_info)(void *,int,int,const void *);
 static void *attack_info(void *launcher,int shell,int flag,const void *mi) {
     void *info=original_attack_info(launcher,shell,flag,mi);
     record_shell_profile(info,0);
     const CustomTank *c=tank_config(P(launcher,0x38));
+    record_filling(info,B(launcher,0xa0)?0:c,shell);
+    if(info && !B(launcher,0xa0) && shell>=0 && shell<5){
+        const AmmunitionConfig *override=ammunition_config(launcher,P(launcher,0x38));
+        if(override && (override->mask&(1u<<shell))){
+            FillingProfile *entry=(FillingProfile *)filling_profile(info);
+            if(entry){entry->grams=override->grams[shell];entry->known=1;}
+        }
+    }
     if(info && c && !B(launcher,0xa0)){
         if(shell>=0 && shell<5 && c->shell_penetration[shell]>0)I(info,0x1c)=c->shell_penetration[shell];
         // Keep the original ammunition speed multiplier (APCR/HE/HEAT).

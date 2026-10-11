@@ -18,6 +18,7 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--ndk',type=Path,required=True)
     parser.add_argument('--android-jar',type=Path,required=True)
+    parser.add_argument('--voice-archive',type=Path,help='Original uploaded Chinese WAV ZIP; builds Better Crew Experience')
     parser.add_argument('--r8',type=Path,required=True)
     parser.add_argument('--work-dir',type=Path,default=ROOT/'build/mods')
     parser.add_argument('--output',type=Path,default=ROOT/'dist/mods')
@@ -47,6 +48,7 @@ def main():
     (out/'hatch-loader-0.4.dex').write_bytes((loader_dex/'classes.dex').read_bytes())
     pack_module(dex/'classes.dex',library,out/'tankinvincible3000.hatch')
     pack_features(ROOT/'mods/better_tank_experience',out/'better_tank_experience-0.1.hatch')
-    print('Loader DEX and two .hatch packages built:',out)
+    if args.voice_archive:pack_features(ROOT/'mods/better_crew_experience',out/'better_crew_experience-0.1.hatch',args.voice_archive)
+    print('Loader DEX and .hatch packages built:',out)
 
 if __name__=='__main__':main()

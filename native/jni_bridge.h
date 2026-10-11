@@ -101,3 +101,47 @@ JNIEXPORT jboolean JNICALL Java_com_luna17_aot_NativeBridge_configureMagazine(JN
     (*env)->ReleaseStringUTFChars(env,id,name);
     return JNI_TRUE;
 }
+
+JNIEXPORT jboolean JNICALL Java_com_luna17_aot_NativeBridge_configureFilling(JNIEnv *env,jclass cls,jstring id,jfloatArray grams,jint mask){
+    (void)cls;
+    if(!id || !grams || mask<1 || mask>31 || state==3 || (*env)->GetArrayLength(env,grams)!=5)return JNI_FALSE;
+    float values[5];(*env)->GetFloatArrayRegion(env,grams,0,5,values);
+    for(int i=0;i<5;i++)if(!isfinite(values[i]) || values[i]<0 || values[i]>100000)return JNI_FALSE;
+    const char *name=(*env)->GetStringUTFChars(env,id,0);if(!name)return JNI_FALSE;
+    if(!name[0] || strlen(name)>=sizeof(staged_filling.id) || hatch_find_config(name)){
+        (*env)->ReleaseStringUTFChars(env,id,name);return JNI_FALSE;
+    }
+    snprintf(staged_filling.id,sizeof(staged_filling.id),"%s",name);
+    (*env)->ReleaseStringUTFChars(env,id,name);
+    memcpy(staged_filling.grams,values,sizeof(values));staged_filling.mask=mask;return JNI_TRUE;
+}
+
+JNIEXPORT jboolean JNICALL Java_com_luna17_aot_NativeBridge_configureAmmunition(JNIEnv *env,jclass cls,jstring id,jfloatArray grams,jint mask){
+    (void)cls;if(!id||!grams||state==3||mask<0||mask>31||(*env)->GetArrayLength(env,grams)!=5)return JNI_FALSE;
+    float values[5];(*env)->GetFloatArrayRegion(env,grams,0,5,values);
+    for(int i=0;i<5;i++)if(!isfinite(values[i])||values[i]<0||values[i]>100000)return JNI_FALSE;
+    const char *name=(*env)->GetStringUTFChars(env,id,0);if(!name)return JNI_FALSE;
+    unsigned at=0;for(;at<ammunition_count;at++)if(!strcmp(ammunition_configs[at].id,name))break;
+    int ok=name[0]&&strlen(name)<sizeof(ammunition_configs[0].id)&&at<512;
+    if(ok){snprintf(ammunition_configs[at].id,sizeof(ammunition_configs[at].id),"%s",name);memcpy(ammunition_configs[at].grams,values,sizeof(values));ammunition_configs[at].mask=mask;if(at==ammunition_count)ammunition_count++;}
+    (*env)->ReleaseStringUTFChars(env,id,name);return ok?JNI_TRUE:JNI_FALSE;
+}
+
+JNIEXPORT jboolean JNICALL Java_com_luna17_aot_NativeBridge_configureCrew(JNIEnv *env,jclass cls,jboolean enabled,jint mask){
+    (void)env;(void)cls;if(state==3||mask<0||mask>131071)return JNI_FALSE;
+    crew_event_mask=(unsigned)mask;
+    __atomic_store_n(&crew_enabled,enabled!=0,__ATOMIC_RELEASE);return JNI_TRUE;
+}
+JNIEXPORT jintArray JNICALL Java_com_luna17_aot_NativeBridge_crewEvent(JNIEnv *env,jclass cls){
+    (void)cls;if(!crew_gate_take())return 0;
+    jintArray out=(*env)->NewIntArray(env,4);
+    if(out)(*env)->SetIntArrayRegion(env,out,0,4,crew_event);else crew_gate_finish();
+    return out;
+}
+JNIEXPORT void JNICALL Java_com_luna17_aot_NativeBridge_crewFinished(JNIEnv *env,jclass cls){
+    (void)env;(void)cls;crew_gate_finish();
+}
+
+JNIEXPORT void JNICALL Java_com_luna17_aot_NativeBridge_clearTankConfiguration(JNIEnv *env,jclass cls){
+    (void)env;(void)cls;memset(&staged_filling,0,sizeof(staged_filling));memset(&staged_magazine,0,sizeof(staged_magazine));
+}

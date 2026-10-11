@@ -50,6 +50,7 @@ static int offline_mode(void);
 static __attribute__((noinline)) void rebuild_player_ui(void *,void *,void *);
 static int camera_binding_ready(void *);
 static void experience_turret_target(void *);
+static void continuous_fire_update(void *);
 static int player_vehicle_nation=-1;
 static void *vehicle_nation_owner;
 static volatile int ready, state, god, ammo, pending=-1, switch_result;
@@ -131,15 +132,17 @@ static void game_update(void *self,const void *mi) {
     }
     if(ammo && player_status) refill(player_status);
 }
+static void crew_player_update(void *pc);
 static void player_update(void *self,const void *mi) {
     if(ready!=1) {original_player_update(self,mi);return;}
     void *s=P(self,FIELD_PLAYERCONTROL_USTATUS);
     if(state==3 && s && s==player_status) {
         player_control=self;
         if(ammo) refill(s);
+        continuous_fire_update(self);
     }
     original_player_update(self,mi);
-    if(state==3 && s==player_status && ammo) refill(s);
+    if(state==3 && s==player_status){if(ammo) refill(s);crew_player_update(self);}
 }
 
 #include "hook_installer.h"
@@ -156,10 +159,13 @@ static bool environment_check(void *self,const void *mi) {
     return true;
 }
 #include "offline_launch.h"
+static void crew_trigger(int event);
 #include "imported_tanks.h"
 #include "experience_damage.h"
 #include "experience_runtime.h"
 #include "view_runtime.h"
+#include "continuous_fire.h"
+#include "crew_voice.h"
 
 static void *worker(void *unused) {
     (void)unused;
@@ -185,7 +191,7 @@ static void *worker(void *unused) {
         ready=-1;state=-1;return 0;
     }
     const struct { uintptr_t rva; uint32_t first; } fingerprints[]={
-        {RVA_195D1D4,0xd10143ff},{RVA_1978CF0,0xd10243ff},
+        {0x191d4d0,0xf81d0ffe},{0x191d2bc,0xf81f0ffe},{RVA_195D1D4,0xd10143ff},{RVA_1978CF0,0xd10243ff},
         {RVA_197AA98,0xd10303ff},{RVA_197B638,0xfc1e0fe8},
         {RVA_1984348,0xa9be57fe},{RVA_1990828,0xd10183ff},
         {RVA_TURRET_TARGET_DIR,0xd10143ff},{RVA_CAL_DAMAGE,0xd10403ff},{RVA_LAUNCHER_FIRE,0xd10283ff},{RVA_SHELL_FIXED_UPDATE,0xd10443ff}
@@ -223,6 +229,8 @@ static void *worker(void *unused) {
     ok=ok && install(RVA_CAMERA_LATE_UPDATE,camera_late_update,(void **)&original_camera_late_update);
     ok=ok && install(RVA_TURRET_TARGET_DIR,experience_turret_target_dir,(void **)&original_turret_target_dir);
     ok=ok && install(RVA_CAL_DAMAGE,experience_cal_damage,(void **)&original_cal_damage);
+    ok=ok && install(0x191d4d0,crew_radio_voice,(void **)&original_radio_voice);
+    ok=ok && install(0x191d2bc,crew_radio_reply,(void **)&original_radio_reply);
     ok=ok && install(RVA_UI_SIGHT,sight_type,(void **)&original_sight_type);
     if(!ok && !rollback_hooks()) {
         size_t used=strlen(startup_error);

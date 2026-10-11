@@ -1,4 +1,5 @@
 """Shared .hatch validation and packaging primitives for build tools."""
+import io
 import hashlib
 import json
 import math
@@ -37,6 +38,7 @@ def validate(path):
             if not 1 <= len(doc['capabilities']) <= 32 or any(not isinstance(c,str) or not re.fullmatch('[a-z0-9-]{1,64}',c) for c in doc['capabilities']) or not 0 < doc['features_bytes'] <= 65536:
                 raise ValueError('Invalid gameplay capabilities or size')
             payloads = [('features.json','features')]
+            if 'voices_bytes' in doc:payloads.append(('voices.zip','voices'))
         elif kind == 'tank' and doc['id'] != CORE_ID:
             payloads = [('runtime.bin', 'runtime')]
         else:
@@ -45,6 +47,14 @@ def validate(path):
             content = archive.read(entry)
             if len(content) != doc[prefix + '_bytes'] or hashlib.sha256(content).hexdigest() != doc[prefix + '_sha256']:
                 raise ValueError(entry + ' checksum mismatch')
+        if kind == 'gameplay' and 'voices_bytes' in doc:
+            with zipfile.ZipFile(io.BytesIO(archive.read('voices.zip'))) as voices:
+                clips=voices.infolist()
+                if not 1<=len(clips)<=1024 or sum(c.file_size for c in clips)>MAX_BYTES or len({c.filename for c in clips})!=len(clips):raise ValueError('Invalid voice archive size or duplicates')
+                for clip in clips:
+                    if clip.is_dir() or not re.fullmatch(r'[A-Za-z0-9_.-]{1,160}\.wav',clip.filename) or '..' in clip.filename or not 44<=clip.file_size<=5*1024*1024:raise ValueError('Invalid voice clip')
+                    data=voices.read(clip)
+                    if data[:4]!=b'RIFF' or data[8:12]!=b'WAVE':raise ValueError('Voice clip is not WAV')
         if kind == 'tank':
             content = archive.read('runtime.bin')
             magic, version, size, nodes, images = struct.unpack_from('<8sIIII', content)
@@ -53,6 +63,9 @@ def validate(path):
         for name, version in doc.get('requires', {}).items():
             if not re.fullmatch('[A-Za-z0-9_-]{1,48}', name) or not re.fullmatch(r'[0-9]+(?:\.[0-9]+){0,3}',version):
                 raise ValueError('Unsupported dependency: ' + name)
+        if 'shell_filling_grams' in doc:
+            filling=doc['shell_filling_grams']
+            if not isinstance(filling,dict) or not filling or set(filling)-{'AP','HE','APCR','WP','HEAT'} or any(type(v) not in (int,float) or not math.isfinite(v) or not 0<=v<=100000 for v in filling.values()):raise ValueError('Invalid per-shell explosive filling')
         if 'magazine' in doc:
             mag = doc['magazine']; cap, interval, reload = mag['capacity'], mag['shotInterval'], mag['reloadTime']
             if type(cap) is not int or not 2 <= cap <= 200 or type(interval) not in (int,float) or type(reload) not in (int,float) or not math.isfinite(interval) or not .03 <= interval <= 60 or not math.isfinite(reload) or not interval <= reload <= 300:

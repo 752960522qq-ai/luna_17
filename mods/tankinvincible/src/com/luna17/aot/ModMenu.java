@@ -253,6 +253,8 @@ final class ModMenu {
                         case -6: result.setText("对局状态改变，已取消替换。"); break;
                         case -20: result.setText("Hatch 加载失败："+NativeBridge.hatchError()); break;
                         case -21: result.setText("未找到对应的原版载具模板。"); break;
+                        case -9: result.setText("新车炮镜绑定失败，已保留原坦克。"); break;
+                        case -10: result.setText("新车碰撞交接失败，已保留原坦克。"); break;
                         case -7: result.setText("新车武器初始化超时，已保留原坦克。"); break;
                         default: result.setText("替换失败（"+r+"）。");
                     }
