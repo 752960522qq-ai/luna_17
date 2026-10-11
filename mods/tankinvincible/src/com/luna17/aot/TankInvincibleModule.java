@@ -60,7 +60,7 @@ public final class TankInvincibleModule implements HatchModule, HatchFeatureHost
             if(crew!=null)return "成员语音能力已被占用";
             if(!doc.has("voiceDirectory"))return "成员语音资源或配置字段无效";
             CrewVoicePlayer candidate=new CrewVoicePlayer(new File(doc.getString("voiceDirectory")),voice);
-            int mask=(1<<1);
+            int mask=1<<voice.optInt("lockEvent",1);
             java.util.Iterator<String> events=voice.getJSONObject("events").keys();
             while(events.hasNext())mask|=1<<Integer.parseInt(events.next());
             if(!NativeBridge.configureCrew(true,mask))return "请在进入战斗前加载成员体验";

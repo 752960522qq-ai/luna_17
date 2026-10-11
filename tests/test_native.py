@@ -88,6 +88,8 @@ class Machine:
                     self.qwrite(LIB+relocation['r_offset'],value)
         self.u.hook_add(UC_HOOK_CODE,self.on_code)
         self.global_q('base',GAME)
+        # Metadata lookup is initialized by startup; isolated tests may return no method.
+        self.global_q('class_method',self.stub(lambda:0))
         self.at(GAME+0x18d4704,lambda:0x1a2b3c4d)
         self.at(GAME+0x18d4328,lambda:0x5a)
         self.at(GAME+0x19084e0,lambda:1)

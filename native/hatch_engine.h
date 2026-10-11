@@ -118,7 +118,33 @@ static int hatch_apply_tank(HatchTank *t, void *go, void *pc, void *status) {
     void *renderer = hatch_component(hatch_objects[i], meshrendererklass);
     void *ma[] = {source_material};
     void *mat = hatch_new(materialklass, 1, ma, materialklass);
+    // Stock Mobile/Bumped Specular ignores _Color and treats JPEG alpha=1
+    // as full gloss. Standard is retained in resources and supports glTF tint.
+    void *shader_args[] = {ha_string("Standard")};
+    void *shader = hatch_call_class(hatch_class("UnityEngine", "Shader"), 0, "Find", 1, shader_args, stringklass);
+    if (!unity_exists(shader)) {
+      void *fallback[] = {ha_string("Legacy Shaders/Diffuse")};
+      shader=hatch_call_class(hatch_class("UnityEngine", "Shader"),0,"Find",1,fallback,stringklass);
+    }
+    if (!unity_exists(shader)) return hatch_fail("Supported model shader unavailable");
+    hatch_set(mat, "set_shader", shader);
     hatch_set(mat, "set_color", (void *)n->factor);
+    const char *reset_maps[] = {"_MetallicGlossMap", "_SpecGlossMap", "_EmissionMap", "_OcclusionMap", "_DetailAlbedoMap", "_DetailNormalMap"};
+    for (int map=0;map<6;map++) {
+      void *args[] = {ha_string(reset_maps[map]), 0};
+      hatch_call_class(materialklass, mat, "SetTexture", 2, args, stringklass);
+    }
+    const char *float_names[] = {"_Metallic", "_Glossiness", "_SpecularHighlights", "_GlossyReflections"};
+    float float_values[] = {0, .25f, 0, 0};
+    for (int property=0;property<4;property++) {
+      void *args[] = {ha_string(float_names[property]), &float_values[property]};
+      hatch_call_class(materialklass, mat, "SetFloat", 2, args, stringklass);
+    }
+    const char *keywords[] = {"_METALLICGLOSSMAP", "_SPECGLOSSMAP", "_EMISSION", "_DETAIL_MULX2", "_NORMALMAP"};
+    for (int keyword=0;keyword<5;keyword++) {
+      void *args[] = {ha_string(keywords[keyword])};
+      hatch_call_class(materialklass, mat, "DisableKeyword", 1, args, stringklass);
+    }
     hatch_set(mat, "set_mainTexture", n->color >= 0 ? hatch_texture_objects[n->color] : 0);
     void *property_args[] = {ha_string("_MainTex")};
     void *property_value = hatch_call_class(hatch_class("UnityEngine","Shader"), 0, "PropertyToID", 1, property_args, 0);
@@ -133,6 +159,10 @@ static int hatch_apply_tank(HatchTank *t, void *go, void *pc, void *status) {
     if (n->normal >= 0) {
       void *ta[] = {ha_string("_BumpMap"), hatch_texture_objects[n->normal]};
       hatch_call_class(materialklass, mat, "SetTexture", 2, ta, stringklass);
+    }
+    if (n->normal >= 0) {
+      void *args[] = {ha_string("_NORMALMAP")};
+      hatch_call_class(materialklass, mat, "EnableKeyword", 1, args, stringklass);
     }
     hatch_set(renderer, "set_sharedMaterial", mat);
   }

@@ -52,7 +52,13 @@ def compile_project(directory):
    if len(v)>65535 or len(idx)>600000:raise ValueError('单网格超过加载器容量；请拆分为不超过 65535 顶点的网格')
    v[:,2]*=-1;normal[:,2]*=-1;idx=idx.reshape(-1,3)[:,[0,2,1]].reshape(-1)
    from pygltflib import Node
-   records.append(rec(i,0,Node(name=f'mesh_{i}_{pi}'),np.column_stack([v,normal,uv]),idx,g.materials[p.material] if p.material is not None else None))
+   material=g.materials[p.material] if p.material is not None else None
+   records.append(rec(i,0,Node(name=f'mesh_{i}_{pi}'),np.column_stack([v,normal,uv]),idx,material))
+   # Unity's retained Standard shader culls backs. Preserve glTF doubleSided
+   # using an explicit reverse surface, without exceeding UInt16 vertices.
+   if material is not None and material.doubleSided and not (flags[i]&64):
+    back=idx.reshape(-1,3)[:,[0,2,1]].reshape(-1)
+    records.append(rec(i,0,Node(name=f'mesh_{i}_{pi}_back'),np.column_stack([v,-normal,uv]),back,material))
  images=[]
  for image in g.images:
   bv=g.bufferViews[image.bufferView];b=bytes(model.blob[bv.byteOffset:bv.byteOffset+bv.byteLength])

@@ -90,10 +90,12 @@ static int hatch_bind_weapons(HatchTank *tank, void *pc, void *root, void *gun,
   if (count < 1 || count > 8)
     return hatch_fail("Launcher template missing");
   float muzzle[3] = {0};
-  hatch_model_point(root, recoil, tank->disk.pivots + 3, muzzle);
+  // A pooled projectile must not follow the visual barrel's recoil inward.
+  hatch_model_point(root, gun, tank->disk.pivots + 3, muzzle);
+  muzzle[2] += .15f; // clearance for the stock projectile radius at the muzzle.
   for (int i = 0; i < count; ++i) {
     void *launcher = P(launchers, 0x20 + i * 8);
-    hatch_parent(hatch_weapon_mount(launcher), recoil, muzzle, identity, one);
+    hatch_parent(hatch_weapon_mount(launcher), gun, muzzle, identity, one);
     hatch_field(launcher, "barrelTrf", recoil);
     void *spawn = hatch_weapon_mount(launcher);
     for (int k=0;k<2;k++) {

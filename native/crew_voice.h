@@ -6,20 +6,31 @@ static volatile int crew_enabled;
 static unsigned crew_event_mask;
 static void (*original_radio_voice)(void *,int,const void *);
 static UpdateFn original_radio_reply;
-typedef struct {void *info,*target;unsigned long finished;int hit,reported;} CrewShot;
+typedef struct {void *info,*target;unsigned long finished;int hit,reported,has_target;BteVec target_pos,origin,forward,right,closest;float closest_error;} CrewShot;
 static CrewShot crew_shots[128];static unsigned crew_shot_cursor;
 static void *crew_battle,*crew_target_owner,*crew_shell_owner;
 static int crew_last_shell=-1,crew_last_kills;
 static unsigned long crew_scan_time,crew_contact_time;
 static void *crew_contact;
+static Vec3 crew_contact_pos;
+static unsigned long crew_contact_lost;
 static int crew_active(void){return __atomic_load_n(&crew_enabled,__ATOMIC_ACQUIRE)&&state==3&&offline_mode();}
 static CrewShot *crew_shot(void *info){if(!info)return 0;for(int i=0;i<128;i++)if(crew_shots[i].info==info)return crew_shots+i;return 0;}
 static void crew_record_shot(void *info,void *status,int secondary){
  if(!crew_active()||status!=player_status||secondary||!info)return;
- CrewShot *s=crew_shot(info);if(!s)s=crew_shots+crew_shot_cursor++%128;*s=(CrewShot){.info=info};
+ CrewShot *s=crew_shot(info);if(!s)s=crew_shots+crew_shot_cursor++%128;*s=(CrewShot){.info=info,.closest_error=INFINITY};
+ if(unity_exists(crew_contact)){
+  void *pc=player_control,*root=unity_exists(pc)?P(pc,0x20):0;
+  if(unity_exists(root)){
+   s->has_target=1;s->target_pos=bv(crew_contact_pos);s->origin=bv(call_vec(root,"get_position"));
+   BteVec direction=bte_sub(s->target_pos,s->origin);float length=sqrtf(bte_dot(direction,direction));
+   if(length>1){s->forward=bte_scale(direction,1/length);s->right=(BteVec){s->forward.z,0,-s->forward.x};}
+   else s->has_target=0;
+  }
+ }
 }
 static void crew_trigger(int event){
- if(!crew_active()||event<0||event>16||!(crew_event_mask&(1u<<event))||!crew_gate_begin())return;
+ if(!crew_active()||event<0||event>17||!(crew_event_mask&(1u<<event))||!crew_gate_begin())return;
  memset(crew_event,0,sizeof(crew_event));crew_event[0]=event;crew_gate_publish();
 }
 static void crew_radio_voice(void *self,int event,const void *mi){
@@ -39,13 +50,22 @@ static void crew_damage_result(void *damage,void *info,void *result){
  if(!s->reported){s->reported=1;crew_trigger(I(result,0x20)<10?7:3);}
 }
 static void crew_observe_shell(void *shell,int initialized){
- if(!crew_active()||!initialized||B(shell,0x9c))return;
+ if(!crew_active()||!initialized)return;
+ CrewShot *sample=crew_shot(P(shell,0x90));
+ if(sample&&sample->has_target){
+  BteVec pos=bv(call_vec(P(shell,0x20),"get_position"));
+  BteVec delta=bte_sub(pos,sample->target_pos);float depth=fabsf(bte_dot(delta,sample->forward));
+  if(depth<sample->closest_error){sample->closest_error=depth;sample->closest=pos;}
+ }
+ if(B(shell,0x9c))return;
  CrewShot *s=crew_shot(P(shell,0x90));if(s&&!s->finished)s->finished=now_ms()+300;
 }
 static UpdateFn original_crew_shell_reset;
 static void crew_shell_reset(void *shell,const void *mi){
  CrewShot *s=crew_shot(P(shell,0x90));
- if(crew_active()&&s&&!s->finished)s->finished=now_ms()+300;
+ if(crew_active()&&s&&!s->finished){
+  crew_observe_shell(shell,1);s->finished=now_ms()+300;
+ }
  original_crew_shell_reset(shell,mi);
 }
 static void crew_battle_update(void *game,int previous){
@@ -80,26 +100,41 @@ static void crew_acquire_target(void *pc,unsigned long now){
    float cosine=bte_dot(aim,bte_scale(delta,1/d));if(cosine<best)continue;
    EnemyHit hit={0};if(bte_cast(origin,p,&hit)&&hit.distance<d-3)continue;
    best=cosine;chosen=s;pos=p;type=kind?2:1;
-   if(!kind){char name[112];utf8_name(P(s,0x68),name,sizeof(name));if(strstr(name,"T34"))type=4;else if(strstr(name,"Tiger"))type=5;else if(strstr(name,"Panther"))type=6;}
+
   }
  }
- if(!chosen){crew_contact=0;return;}
+ if(!chosen){
+  if(!crew_contact_lost)crew_contact_lost=now;
+  if(now-crew_contact_lost>=500)crew_contact=0;
+  return;
+ }
+ crew_contact_lost=0;crew_contact_pos=pos;
  if(chosen==crew_contact)return;
  crew_contact=chosen;
- if(now-crew_contact_time<8000||!(crew_event_mask&(1u<<1))||!crew_gate_begin())return;
+ int event=(crew_event_mask&(1u<<17))?17:1;
+ if(!(crew_event_mask&(1u<<event))||!crew_gate_begin())return;
  crew_contact_time=now;
  Vec3 delta={pos.x-origin.x,pos.y-origin.y,pos.z-origin.z};
  float angle=atan2f(forward.z*delta.x-forward.x*delta.z,forward.x*delta.x+forward.z*delta.z);
  int clock=((int)lroundf(angle*6.f/3.14159265359f)+12)%12;
- crew_event[0]=1;crew_event[1]=type;crew_event[2]=clock?clock:12;crew_event[3]=(int)lroundf(sqrtf(delta.x*delta.x+delta.y*delta.y+delta.z*delta.z));crew_gate_publish();
+ crew_event[0]=event;crew_event[1]=type;crew_event[2]=clock?clock:12;float distance=sqrtf(delta.x*delta.x+delta.y*delta.y+delta.z*delta.z);
+ crew_event[3]=distance<300?((int)distance):(int)lroundf(distance);crew_gate_publish();
 }
 static void crew_player_update(void *pc){
  if(!crew_active())return;unsigned long now=now_ms();
+ if(crew_target_owner!=player_status){crew_target_owner=player_status;crew_contact=0;crew_contact_lost=crew_scan_time=crew_contact_time=0;}
  int offset=bte_field_offset(player_status,"usingShell"),shell=offset>=0?I(player_status,offset):-1;
  if(crew_shell_owner!=player_status){crew_shell_owner=player_status;crew_last_shell=shell;}
  else if(shell!=crew_last_shell){crew_last_shell=shell;if(shell>=0&&shell<5)crew_trigger(12+shell);}
  void *ui=P(pc,0x98);offset=unity_exists(ui)?bte_field_offset(ui,"<KillNum>k__BackingField"):-1;
  if(offset>=0){int kills=I(ui,offset);if(kills>crew_last_kills){crew_last_kills=kills;crew_trigger(6);}}
- for(int i=0;i<128;i++){CrewShot *s=crew_shots+i;if(s->finished&&now>=s->finished){s->finished=0;if(!s->hit&&!s->reported){s->reported=1;crew_trigger(2);}}}
+ for(int i=0;i<128;i++){CrewShot *s=crew_shots+i;if(s->finished&&now>=s->finished){s->finished=0;if(!s->hit&&!s->reported){s->reported=1;
+   int event=2;
+   if(s->has_target&&isfinite(s->closest_error)){
+    BteVec delta=bte_sub(s->closest,s->target_pos);
+    float side=bte_dot(delta,s->right),up=delta.y;
+    event=fabsf(side)>fabsf(up)?(side>0?10:11):(up>0?8:9);
+   }
+   crew_trigger(event);}}}
  crew_acquire_target(pc,now);
 }

@@ -234,6 +234,7 @@ static void *worker(void *unused) {
     ok=ok && install(RVA_TURRET_UPDATE,turret_update,(void **)&original_turret_update);
     ok=ok && install(RVA_LAUNCHER_FIRE,launcher_fire,(void **)&original_launcher_fire);
     ok=ok && install(RVA_SHELL_FIXED_UPDATE,shell_fixed_update,(void **)&original_shell_fixed_update);
+    ok=ok && install(0x1961a34,shell_impact,(void **)&original_shell_impact);
     ok=ok && install(RVA_CAMERA_LATE_UPDATE,camera_late_update,(void **)&original_camera_late_update);
     ok=ok && install(RVA_TURRET_TARGET_DIR,experience_turret_target_dir,(void **)&original_turret_target_dir);
     ok=ok && install(RVA_CAL_DAMAGE,experience_cal_damage,(void **)&original_cal_damage);

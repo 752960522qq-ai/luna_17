@@ -79,7 +79,7 @@ static void *lookup(void *c, const char *name, int n) {
                                          ? "String"
                                          : ((Cls *)c)->name))
                  : !strcmp(name, "LoadImage")  ? cls("Texture2D")
-                 : !strcmp(name, "SetTexture") ? cls("String")
+                 : (!strcmp(name, "SetTexture") || !strcmp(name,"SetFloat") || !strcmp(name,"Find") || !strcmp(name,"DisableKeyword") || !strcmp(name,"EnableKeyword")) ? cls("String")
                                                : cls("Type");
   P(methods[i], 48) = params[i];
   return methods[i];
@@ -245,6 +245,10 @@ static void *invoke(void *m, void *o, void **a, void **ex) {
       assert(uv[i*2+1]==(fixture_tank->config.uv_unity?node->vertices[i*8+7]:1.f-node->vertices[i*8+7]));
     }
   }
+  if(!strcmp(name,"Find")){assert(!strcmp(a[0],"Standard"));return obj(cls("Shader"),"Standard");}
+  if(!strcmp(name,"set_shader"))P(o,0x210)=a[0];
+  if(!strcmp(name,"set_color"))memcpy((char *)o+0x230,a[0],16);
+  if(!strcmp(name,"SetFloat")){if(!strcmp(a[0],"_Glossiness"))assert(*(float *)a[1]==.25f);else assert(*(float *)a[1]==0);}
   if(!strcmp(name,"set_mainTexture"))P(o,0x200)=a[0];
   if(!strcmp(name,"SetTexture")&&!strcmp(a[0],"_BumpMap"))P(o,0x208)=a[1];
   if(!strcmp(name,"set_sharedMaterial"))P(o,0x220)=a[0];
@@ -338,6 +342,10 @@ static void setup(void) {
   lookup(cls("GameObject"), "AddComponent", 1);
   lookup(cls("ImageConversion"), "LoadImage", 2);
   lookup(cls("Material"), "SetTexture", 2);
+  lookup(cls("Material"), "SetFloat", 2);
+  lookup(cls("Material"), "DisableKeyword", 1);
+  lookup(cls("Material"), "EnableKeyword", 1);
+  lookup(cls("Shader"), "Find", 1);
   root = obj(cls("GameObject"), "T34_85_Player");
   body = obj(cls("BodyMove"), "body");
   tm = obj(cls("TurretMove"), "turret");
@@ -377,6 +385,8 @@ int main(int argc, char **argv) {
   for(unsigned i=0;i<tank.node_count;i++)if(tank.nodes[i].disk->vertices){
     Obj *go=hatch_objects[i];void *mat=0;for(int j=0;j<go->count;j++)if(!strcmp(((Cls *)P(go->components[j],0))->name,"MeshRenderer"))mat=P(go->components[j],0x220);
     assert(mat);const HatchDiskNode *n=tank.nodes[i].disk;
+    assert(P(mat,0x210));
+    assert(!memcmp((char *)mat+0x230,n->factor,16));
     assert(P(mat,0x200)==(n->color<0?0:hatch_texture_objects[n->color]));
     assert(P(mat,0x208)==(n->normal<0?0:hatch_texture_objects[n->normal]));
   }

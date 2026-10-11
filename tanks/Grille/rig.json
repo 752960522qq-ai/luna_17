@@ -354,7 +354,8 @@
     "supportBottomMeters": 0,
     "trackAnimation": "Hatch 0.4 V scrolling; individual links are rigid, no real chain animation",
     "height": "Declared 2.47m; original antenna preserved; rendered total height includes antenna",
-    "damage": "explosiveMassKg stored for future per-vehicle support; existing BTE0.1 uses fixed HE 0.710kg",
-    "hullTraverse": "medium metadata; runtime has no independent hull traverse field"
+    "damage": "Per-shell filling: HE 8300g, HEAT 2400g; BTE uses per-vehicle configuration",
+    "hullTraverse": "medium metadata; runtime has no independent hull traverse field",
+    "muzzle": "Runtime launcher uses stable Gun mount, 0.15m forward clearance; visual Barrel_Recoil still animates independently"
   }
 }

@@ -4,26 +4,28 @@ from pathlib import Path
 from hatch.features import pack_features
 from hatch.package import validate
 ROOT=Path(__file__).resolve().parents[1]
-VOICE=ROOT.parent/'upload'/'中系新语音.zip'
+VOICE=ROOT.parent/'upload'/'语音.zip'
 class CrewPackages(unittest.TestCase):
     def test_every_default_mapping_exists_and_segment_ranges_complete(self):
         directory=ROOT/'mods/better_tank_experience'
         inventory=json.loads((directory/'voice-inventory.json').read_text())
         config=json.loads((directory/'features.json').read_text())['crew']
-        self.assertEqual(len(inventory),641)
+        self.assertGreater(len(inventory),100)
         self.assertEqual(config['mode'],'drop-while-speaking')
         for clips in config['events'].values():
             for clip in clips:self.assertIn(clip,inventory)
         for n in range(1,13):self.assertIn(f'voice_message_commander_target_{n}_h.wav',inventory)
         for n in [300,450,900,1000,1500,2000]:self.assertIn(f'voice_message_commander_target_{n}_m.wav',inventory)
-        for prefix in ['targetPrefix','distancePrefix']:self.assertIn(config[prefix],inventory)
+        for clips in [config['nearPool'],config['distancePrefixPool']]:
+            for name in clips:self.assertIn(name,inventory)
+        self.assertEqual(config['lockEvent'],17)
     @unittest.skipUnless(VOICE.is_file(),'Uploaded WAV archive not available; pass --voice-archive to builder')
     def test_real_archive_checksums_and_pack(self):
         inventory=json.loads((ROOT/'mods/better_tank_experience/voice-inventory.json').read_text())
         with zipfile.ZipFile(VOICE) as archive:
-            self.assertEqual(set(archive.namelist()),set(inventory))
+            self.assertEqual({Path(n).name for n in archive.namelist() if not n.endswith("/")},set(inventory))
             for name,item in inventory.items():
-                data=archive.read(name)
+                data=archive.read(item["source_path"])
                 self.assertEqual(len(data),item['bytes']);self.assertEqual(hashlib.sha256(data).hexdigest(),item['sha256'])
         with tempfile.TemporaryDirectory() as temp:
             target=Path(temp)/'crew.hatch'

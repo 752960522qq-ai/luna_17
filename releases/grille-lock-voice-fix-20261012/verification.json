@@ -1,0 +1,33 @@
+{
+  "apk_built": false,
+  "android_device_test": false,
+  "voice_source_sha256": "bbb5135b6f4fea59966729e7e621a413e92e1cd8a319377299f7af5d8bfd53e4",
+  "voice_clips": 106,
+  "grille_original_sha256": "8605d98508f1cfde6f338dac1e933373e25e8547f9f364b4791d2af4ed9c65f3",
+  "compiler_grille_nodes": 140,
+  "compiler_grille_textures": 6,
+  "compiler_grille_meshes": 106,
+  "retained_unity_apis_checked": 55,
+  "checks": [
+    "original model source fingerprint and all 15 diffuse material mappings",
+    "all 5 original image streams byte-identical",
+    "compiled reverse surfaces preserve UV and tint",
+    "production model binder including shader/tint and muzzle pool parents",
+    "all own collider regions skipped; enemy and terrain still impact",
+    "original 5x scope selector and 2.5x flat sight",
+    "one/two-finger pan, pinch, pointer identity and cancel",
+    "native semantic lock tank/aircraft, body clock and busy drop",
+    "JVM multipart voice, 299/300m threshold, random-pool single clip",
+    "full Java sources compiled against Android API 35",
+    "ARM64 module cross-compiled for emulator verification only (musl, not Android delivery)",
+    "ARM64 physical shell initialization and original stock speed multiply/gravity step",
+    "six real class-loader/JNI cases",
+    "six Hatch package-format cases"
+  ],
+  "limitations": [
+    "No real Android battle/GPU/touch-dispatch execution performed.",
+    "Distance clips cover 300-2000m, use nearest supplied number; beyond 2000m no fabricated number is spoken.",
+    "No nonpenetration voice pool was supplied; event 7 remains detectable but silent, replacing the previous misleading hit fallback.",
+    "The six clips in the commander-role folder remain available as resources, with no invented role-specific trigger."
+  ]
+}

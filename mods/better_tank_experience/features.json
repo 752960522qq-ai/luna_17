@@ -634,48 +634,124 @@
   },
   "crew": {
     "mode": "drop-while-speaking",
+    "selection": "random-pool",
     "events": {
       "0": [
-        "voice_message_gunner_battle_ready_v1.wav"
-      ],
-      "1": [
-        "voice_message_commander_target.wav"
-      ],
-      "2": [
-        "voice_message_driver_correction_undershoot_v1.wav"
+        "voice_message_chief_battle_start_v1_1.wav",
+        "voice_message_chief_battle_start_v1_2.wav",
+        "voice_message_chief_battle_start_v1_3.wav",
+        "voice_message_chief_battle_start_v2_1.wav",
+        "voice_message_chief_battle_start_v2_2.wav",
+        "voice_message_chief_battle_start_v2_3.wav",
+        "voice_message_chief_battle_start_v3_1.wav",
+        "voice_message_chief_battle_start_v3_2.wav",
+        "voice_message_chief_battle_start_v3_3.wav"
       ],
       "3": [
-        "voice_message_driver_correction_bracketed_v1.wav"
+        "voice_message_driver_correction_hit_v1.wav",
+        "voice_message_driver_correction_hit_v2.wav",
+        "voice_message_driver_correction_hit_v3.wav",
+        "voice_message_driver_correction_hit_v4.wav",
+        "voice_message_driver_correction_hit_v5.wav",
+        "voice_message_driver_correction_hit_v6.wav"
       ],
       "4": [
-        "voice_message_driver_weve_been_hit_v1.wav"
+        "voice_message_loader_weve_been_hit_v1.wav",
+        "voice_message_loader_weve_been_hit_v2.wav",
+        "voice_message_loader_weve_been_hit_v3.wav"
       ],
       "5": [
-        "voice_message_chief_battle_win_v1.wav"
+        "voice_message_chief_battle_win_v1.wav",
+        "voice_message_chief_battle_win_v2.wav",
+        "voice_message_chief_battle_win_v3.wav",
+        "voice_message_chief_battle_win_v4.wav"
       ],
       "6": [
-        "voice_message_driver_correction_target_hit_v4.wav"
+        "voice_message_driver_correction_target_hit_v4.wav",
+        "voice_message_driver_correction_target_hit_v5.wav",
+        "voice_message_driver_correction_target_hit_v6.wav"
       ],
-      "7": [
-        "voice_message_driver_correction_target_hit_v1.wav"
+      "8": [
+        "voice_message_driver_correction_retreat_v1.wav",
+        "voice_message_driver_correction_retreat_v2.wav",
+        "voice_message_driver_correction_retreat_v3.wav"
+      ],
+      "9": [
+        "voice_message_driver_correction_undershoot_v1.wav",
+        "voice_message_driver_correction_undershoot_v2.wav",
+        "voice_message_driver_correction_undershoot_v3.wav"
+      ],
+      "10": [
+        "voice_message_driver_correction_left_v1.wav",
+        "voice_message_driver_correction_left_v2.wav",
+        "voice_message_driver_correction_left_v3.wav"
+      ],
+      "11": [
+        "voice_message_driver_correction_right_v1.wav",
+        "voice_message_driver_correction_right_v2.wav",
+        "voice_message_driver_correction_right_v3.wav"
       ],
       "12": [
-        "voice_message_loader_load_AP_v1.wav"
+        "voice_message_commander_load_AP_v1.wav",
+        "voice_message_commander_load_AP_v2.wav",
+        "voice_message_commander_load_AP_v3.wav"
       ],
       "13": [
-        "voice_message_loader_load_HE_v1.wav"
+        "voice_message_commander_load_HE_v1.wav",
+        "voice_message_commander_load_HE_v2.wav",
+        "voice_message_commander_load_HE_v3.wav"
       ],
       "14": [
-        "voice_message_loader_load_APCR_v1.wav"
+        "voice_message_commander_load_APCR_v1.wav",
+        "voice_message_commander_load_APCR_v2.wav",
+        "voice_message_commander_load_APCR_v3.wav"
       ],
       "15": [
-        "voice_message_loader_load_smoke_v1.wav"
+        "voice_message_commander_load_smoke_v1.wav",
+        "voice_message_commander_load_smoke_v2.wav",
+        "voice_message_commander_load_smoke_v3.wav"
       ],
       "16": [
-        "voice_message_loader_load_HEAT_v1.wav"
+        "voice_message_commander_load_HEAT_v1.wav",
+        "voice_message_commander_load_HEAT_v2.wav",
+        "voice_message_commander_load_HEAT_v3.wav"
       ]
     },
-    "targetPrefix": "voice_message_commander_target.wav",
-    "distancePrefix": "voice_message_commander_target_distance_v1.wav"
+    "eventNames": {
+      "0": "战斗开始",
+      "3": "打穿",
+      "4": "被打中",
+      "5": "胜利",
+      "6": "击毁目标",
+      "8": "打到目标上方",
+      "9": "打到目标下方",
+      "10": "打到目标右边",
+      "11": "打到目标左边",
+      "12": "AP",
+      "13": "HE",
+      "14": "APCR",
+      "15": "smoke",
+      "16": "HEAT",
+      "17": "锁定该敌人",
+      "7": "未击穿（伤害小于10；当前上传无对应语音池）"
+    },
+    "lockEvent": 17,
+    "targetTypes": {
+      "tank": "voice_message_commander_target_tank.wav",
+      "aircraft": "voice_message_commander_target_aircraft.wav"
+    },
+    "distancePrefixPool": [
+      "voice_message_commander_target_distance_v1.wav",
+      "voice_message_commander_target_distance_v2.wav",
+      "voice_message_commander_target_distance_v3.wav"
+    ],
+    "nearPool": [
+      "voice_message_commander_target_near_v1_1.wav",
+      "voice_message_commander_target_near_v1_2.wav",
+      "voice_message_commander_target_near_v1_3.wav",
+      "voice_message_commander_target_near_v2_1.wav",
+      "voice_message_commander_target_near_v2_2.wav",
+      "voice_message_commander_target_near_v2_3.wav"
+    ]
   }
 }

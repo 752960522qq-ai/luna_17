@@ -28,13 +28,13 @@ def audit(library,decoded):
  'GameObject':(0x17ca,[('.ctor',1),('get_transform',0),('GetComponentsInternal',6),('GetComponentInChildren',2),('AddComponent',1)]),
  'Texture2D':(0x1755,[('.ctor',2)]),
  'Mesh':(0x1752,[('.ctor',0),('set_vertices',1),('set_normals',1),('set_uv',1),('set_triangles',1),('RecalculateBounds',0)]),
- 'Material':(0x1724,[('.ctor',1),('set_color',1),('set_mainTexture',1),('SetTexture',2),('SetTextureOffsetImpl',2),('SetTextureScaleImpl',2)]),
+ 'Material':(0x1724,[('.ctor',1),('set_shader',1),('SetFloat',2),('DisableKeyword',1),('EnableKeyword',1),('set_color',1),('set_mainTexture',1),('SetTexture',2),('SetTextureOffsetImpl',2),('SetTextureScaleImpl',2)]),
  'Renderer':(0x1721,[('get_sharedMaterial',0),('set_sharedMaterial',1),('set_enabled',1)]),
  'MeshFilter':(0x172e,[('set_sharedMesh',1)]),
  'Component':(0x17bc,[('get_transform',0),('get_gameObject',0)]),
  'Transform':(0x1812,[('get_parent',0),('IsChildOf',1),('set_parent',1),('set_localPosition',1),('set_localRotation',1),('set_localScale',1),('TransformPoint',1),('InverseTransformPoint',1)]),
  'LODGroup':(0x1750,[('SetLODs',1)]),
- 'Shader':(0x1723,[('PropertyToID',1)]),
+ 'Shader':(0x1723,[('PropertyToID',1),('Find',1)]),
  'Object':(0x17eb,[('set_name',1),('get_name',0),('FindObjectsOfType',2)])}
  physics={'BoxCollider':(0x289e,[('set_size',1),('set_center',1)]),'Rigidbody':(0x28b7,[('set_mass',1),('get_linearVelocity',0)]),'Physics':(0x28a5,[('Raycast',6)]),'RaycastHit':(0x28b6,[('get_collider',0)])}
  result=[]

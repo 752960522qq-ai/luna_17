@@ -158,6 +158,7 @@ static void bte_air_lead(void *camera,Vec3 origin,Vec3 forward,float speed,float
     }
     if(found && bte_project(camera,uv(bte_add(bv(origin),aim)),values+5)){values[4]=1;values[7]=flight;}
 }
+#include "artillery_scope.h"
 static void experience_camera_prepare(void *control){
     void *ui=unity_exists(control)?P(control,0xe8):0;
     if(bte_camera && (!unity_exists(ui)||!bte_ground_sight(I(control,0x38),I(ui,0x2c))||state!=3||bte_owner!=player_status))bte_restore();
@@ -184,16 +185,28 @@ static void experience_camera_update(void *control){
     int spg=(flags&4) && config && config->vehicle_kind==HATCH_VEHICLE_SPG;
     if(bte_owner!=player_status||bte_camera!=camera){bte_restore();bte_owner=player_status;bte_camera=camera;bte_original_fov=bte_float(camera,"get_fieldOfView");bte_last_prediction=0;}
     bte_lock(&bte_command_lock);
-    int cycle=bte_next_mode;bte_next_mode=0;
-    float dx=bte_pan_x,dy=bte_pan_y,zoom=bte_zoom,tilt=bte_tilt;
+    bte_next_mode=0; // Original scope button owns mode selection.
+    float dx=bte_pan_x,dy=bte_pan_y,zoom=bte_zoom;
     bte_pan_x=bte_pan_y=bte_zoom=bte_tilt=0;bte_unlock(&bte_command_lock);
-    if(!spg)bte_mode=0;
-    if(spg&&cycle){bte_mode=(bte_mode+cycle)%3;bte_center=call_vec(P(pc,0x50),"get_TargetPos");if(!isfinite(bte_center.x)||!isfinite(bte_center.y)||!isfinite(bte_center.z))bte_center=call_vec(P(pc,0x20),"get_position");}
-    if(spg&&bte_mode==1 && bte_original_fov>0){
-        bte_set_float(camera,"set_fieldOfView",2*atanf(tanf(bte_original_fov*.00872664626f)/2.5f)*57.2957795f);bte_fov_owned=1;
-    } else if(bte_fov_owned){
-        bte_set_float(camera,"set_fieldOfView",bte_original_fov);bte_fov_owned=0;
+    int next=bte_scope_mode(control,ui,spg);
+    if(next!=bte_mode){
+        if(bte_fov_owned){
+            // Stock ChangeCameraZoom may already have applied the next scope.
+            void *change=method(control,"ChangeCameraZoom",1);bool scoped=B(control,0x78);
+            void *args[]={&scoped};int error=0;
+            if(change)enemy_invoke(change,control,args,&error);
+            else bte_set_float(camera,"set_fieldOfView",bte_original_fov);
+            bte_fov_owned=0;
+        }
+        bte_mode=next;bte_requested_aim_valid=0;bte_last_prediction=0;
+        if(next==2){
+            bte_original_fov=bte_float(camera,"get_fieldOfView");
+            bte_center=call_vec(P(pc,0x50),"get_TargetPos");
+            if(!isfinite(bte_center.x)||!isfinite(bte_center.y)||!isfinite(bte_center.z))bte_center=call_vec(P(pc,0x20),"get_position");
+            bte_height=180;bte_pitch=65;
+        }
     }
+    if(next==2){bte_set_float(camera,"set_fieldOfView",60.f);bte_fov_owned=1;}
     void *launchers=P(pc,0x58);void *mount=P(pc,0x30);
     if(launchers && I(launchers,0x18)>=1 && I(launchers,0x18)<=8){
         void *launcher=P(launchers,0x20);int error=0;
@@ -206,8 +219,11 @@ static void experience_camera_update(void *control){
     float speed=bte_cached_speed,gravity=bte_cached_gravity;int shell_ok=bte_cached_shell_ok;
     if(spg && bte_mode==2){
         bte_height=bte_limit(bte_height*expf(zoom),30,800);
-        bte_pitch=bte_limit(bte_pitch+tilt,25,85);
-        bte_center.x-=dx*bte_height;bte_center.z+=dy*bte_height;
+        int error=0;void *screen=hatch_class("UnityEngine","Screen");
+        void *w=enemy_invoke(class_method(screen,"get_width",0),0,0,&error),*h=enemy_invoke(class_method(screen,"get_height",0),0,0,&error);
+        float aspect=w&&h&&I(h,0x10)>0?(float)I(w,0x10)/I(h,0x10):1;
+        float span=2*bte_height*tanf(30.f*.01745329252f);
+        bte_center.x-=dx*span*aspect;bte_center.z+=dy*span/sinf(bte_pitch*.01745329252f);
         Vec3 root=call_vec(P(pc,0x20),"get_position");BteVec delta=bte_sub(bv(bte_center),bv(root));delta.y=0;
         float dist=sqrtf(bte_dot(delta,delta));if(dist>3000){BteVec d=bte_scale(delta,3000/dist);bte_center.x=root.x+d.x;bte_center.z=root.z+d.z;}
         EnemyHit ground={0};Vec3 high=bte_center,low=bte_center;high.y=root.y+1000;low.y=root.y-1000;

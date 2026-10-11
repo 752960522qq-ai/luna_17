@@ -10,7 +10,7 @@ ROOT=Path(__file__).resolve().parents[1]
 class Features(unittest.TestCase):
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory();self.path=Path(self.temp.name)/'feature.hatch'
-        pack_features(ROOT/'mods/better_tank_experience',self.path,ROOT.parent/'upload/中系新语音.zip')
+        pack_features(ROOT/'mods/better_tank_experience',self.path,ROOT.parent/'upload/语音.zip')
     def tearDown(self):self.temp.cleanup()
     def test_standalone_data_package(self):
         doc=validate(self.path);self.assertEqual(doc['type'],'gameplay');self.assertEqual(doc['version'],'0.1')

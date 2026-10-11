@@ -128,7 +128,7 @@ JNIEXPORT jboolean JNICALL Java_com_luna17_aot_NativeBridge_configureAmmunition(
 }
 
 JNIEXPORT jboolean JNICALL Java_com_luna17_aot_NativeBridge_configureCrew(JNIEnv *env,jclass cls,jboolean enabled,jint mask){
-    (void)env;(void)cls;if(state==3||mask<0||mask>131071)return JNI_FALSE;
+    (void)env;(void)cls;if(state==3||mask<0||mask>262143)return JNI_FALSE;
     crew_event_mask=(unsigned)mask;
     __atomic_store_n(&crew_enabled,enabled!=0,__ATOMIC_RELEASE);return JNI_TRUE;
 }
