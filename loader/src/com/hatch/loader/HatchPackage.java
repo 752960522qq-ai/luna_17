@@ -59,6 +59,7 @@ final class HatchPackage {
                 double value=((Number)raw).doubleValue();if(!Double.isFinite(value)||value<0||value>100000)throw new IOException("装药量超限");
             }
         }
+        if(doc.has("continuous_fire") && !(doc.get("continuous_fire") instanceof Boolean))throw new IOException("连发开关需要布尔值");
         JSONObject magazine = doc.optJSONObject("magazine");
         if (magazine != null) {
             double rawCapacity = magazine.getDouble("capacity");

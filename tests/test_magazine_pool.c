@@ -40,7 +40,7 @@ int main(void){
  assert(magazine_reserve_shell(launcher,0)&&clones==0);
  launcher_fire(launcher,0,0,0);launcher_fire(launcher,0,0,0);
  assert(fires==2&&I(shot1,16)&&I(shot2,16));
- launcher_fire(launcher,0,0,0);assert(fires==3&&clones==1&&voices==3);assert(I(P(launcher,0x78),24)==3);assert(I(shot1,16)&&I(shot2,16));
+ launcher_fire(launcher,0,0,0);assert(fires==3&&clones==1&&voices==0);assert(I(P(launcher,0x78),24)==3);assert(I(shot1,16)&&I(shot2,16));
  allocation_fail=1;assert(!magazine_reserve_shell(launcher,0));assert(I(P(launcher,0x78),24)==3);assert(I(shot1,16)&&I(shot2,16));
  puts("Magazine pool: original fire always receives a free object; active shots preserved; growth failure leaves pool intact");
 }

@@ -51,6 +51,11 @@ static __attribute__((noinline)) void rebuild_player_ui(void *,void *,void *);
 static int camera_binding_ready(void *);
 static void experience_turret_target(void *);
 static void continuous_fire_update(void *);
+static void crew_trigger(int);
+static void crew_battle_update(void *,int);
+static void crew_record_shot(void *,void *,int);
+static void crew_observe_shell(void *,int);
+static void crew_damage_result(void *,void *,void *);
 static int player_vehicle_nation=-1;
 static void *vehicle_nation_owner;
 static volatile int ready, state, god, ammo, pending=-1, switch_result;
@@ -77,6 +82,7 @@ static unsigned long now_ms(void) {
 
 #include "hatch_data.h"
 static void utf8_name(void *,char *,size_t);
+static Vec3 call_vec(void *,const char *);
 #include "hatch_engine.h"
 void apply_custom_stats(void *);
 static void *player_tag(void) {
@@ -110,8 +116,10 @@ static void utf8_name(void *text,char *out,size_t capacity) {
 #include "enemy_spawn.h"
 
 static void game_update(void *self,const void *mi) {
+    int previous_state=state;
     original_game_update(self,mi);
     if(ready!=1)return;
+    crew_battle_update(self,previous_state);
     __atomic_store_n(&last_update_ms,now_ms(),__ATOMIC_RELEASE);
     void *parameters=FN(RVA_1931CFC,void *(*)(const void *))(0);
     if(!parameters) {state=2;cancel_enemy_request();return;}
@@ -231,6 +239,7 @@ static void *worker(void *unused) {
     ok=ok && install(RVA_CAL_DAMAGE,experience_cal_damage,(void **)&original_cal_damage);
     ok=ok && install(0x191d4d0,crew_radio_voice,(void **)&original_radio_voice);
     ok=ok && install(0x191d2bc,crew_radio_reply,(void **)&original_radio_reply);
+    ok=ok && install(0x1960554,crew_shell_reset,(void **)&original_crew_shell_reset);
     ok=ok && install(RVA_UI_SIGHT,sight_type,(void **)&original_sight_type);
     if(!ok && !rollback_hooks()) {
         size_t used=strlen(startup_error);

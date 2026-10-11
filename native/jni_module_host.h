@@ -25,6 +25,7 @@ JNIEXPORT jboolean JNICALL Java_com_hatch_loader_NativeHost_bind(JNIEnv *env,jcl
         NATIVE(crewEvent,"()[I"),
         NATIVE(crewFinished,"()V"),
         NATIVE(configureMagazine,"(Ljava/lang/String;IFF)Z"),
+        NATIVE(configureContinuousFire,"(Ljava/lang/String;ZZ)Z"),
         NATIVE(configureExperience,"(IFF)Z"),
         NATIVE(experienceSnapshot,"()[F"),
         NATIVE(experienceInput,"(IFFFF)V")

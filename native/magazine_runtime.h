@@ -60,7 +60,7 @@ static void launcher_fire(void *launcher,int shell,int flag,const void *mi) {
     void *saved_launcher=firing_launcher,*saved_info=firing_info;
     firing_launcher=!B(launcher,0xa0)?launcher:0;firing_info=0;
     original_launcher_fire(launcher,shell,flag,mi);
-    if(firing_info && status==player_status)crew_trigger(10);
+    // Speech comes from actual outcomes, not every shot.
     if(tracked && firing_info){
         float now=FN(RVA_GAME_TIME,float (*)(const void *))(0);
         MagazineState *state=magazine_for(status,config,now);

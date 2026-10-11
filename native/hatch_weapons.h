@@ -95,6 +95,18 @@ static int hatch_bind_weapons(HatchTank *tank, void *pc, void *root, void *gun,
     void *launcher = P(launchers, 0x20 + i * 8);
     hatch_parent(hatch_weapon_mount(launcher), recoil, muzzle, identity, one);
     hatch_field(launcher, "barrelTrf", recoil);
+    void *spawn = hatch_weapon_mount(launcher);
+    for (int k=0;k<2;k++) {
+      void *pool=P(launcher,k?0x80:0x78);int size=pool?I(pool,0x18):0;
+      if(size<0 || size>256)return hatch_fail("Invalid shell pool");
+      for(int j=0;j<size;j++){
+        void *shot=P(pool,0x20+j*8);
+        void *component=hatch_get_child_component(shot,"","ShellMove");
+        if(!component)return hatch_fail("Shell pool component missing");
+        managed_store(component,0x28,spawn);
+        hatch_parent(hatch_weapon_mount(component),spawn,zero,identity,one);
+      }
+    }
   }
 
   void *mg = P(pc, HATCH_PC_MACHINE_GUN);

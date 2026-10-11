@@ -1,0 +1,10 @@
+{
+  "format": 1,
+  "id": "Grille",
+  "displayName": "Grille 蟋蟀自行火炮",
+  "country": "Germany",
+  "tier": 4,
+  "basePrefab": "SU_85_Player",
+  "role": "player",
+  "adapter": "aot-5.1.0-arm64-v1"
+}

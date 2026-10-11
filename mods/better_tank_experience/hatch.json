@@ -9,6 +9,13 @@
   "id": "better_tank_experience",
   "name": "更好的坦克体验0.1",
   "version": "0.1",
-  "requires": {"tankinvincible3000": "1.0"},
-  "capabilities": ["ballistic-preview-v1", "damage-formula-v1", "artillery-sight-v1"]
+  "requires": {
+    "tankinvincible3000": "1.0"
+  },
+  "capabilities": [
+    "ballistic-preview-v1",
+    "damage-formula-v1",
+    "artillery-sight-v1",
+    "crew-voice-v1"
+  ]
 }

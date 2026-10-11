@@ -34,6 +34,7 @@ def document_errors(doc):
     for k,lo,hi,integer in [('crew',1,20,True),('maxForwardSpeed',0 if towed else 1,150,True),('maxReverseSpeed',0,80,False),('enginePower',0 if towed else 1,3000,True),('weightTonnes',1,200,False),('gunElevation',0,80,True),('gunDepression',-30,0,True),('turretRotation',1,90,False)]:num(t,k,lo,hi,integer)
     for k,lo,hi,integer in [('caliber',1,300,True),('reload',1,120,False),('muzzleVelocity',1,2500,True)]:num(w,k,lo,hi,integer)
     if w.get('ballistics','physical') not in ('physical','stock-t34-85'):errors.append('不支持的弹道配置')
+    if 'continuousFire' in w and not isinstance(w['continuousFire'],bool):errors.append('continuousFire 需要布尔值')
     magazine=w.get('magazine')
     if magazine is not None:
         if not isinstance(magazine,dict):errors.append('magazine 需要对象')
@@ -164,6 +165,7 @@ def create_project(output,template='T54_1949',ident=None):
         doc=read_documents(out)
         if ident:doc['manifest']['id']=ident;doc['manifest']['displayName']=ident
         doc['rig'].setdefault('colliders',default_colliders(doc['tank']))
+        doc['weapon'].setdefault('continuousFire',False)
         # Inputs carry their original sample parameters; no historical-data claims.
         save_documents(out,doc);return validate_project(out)
     except Exception:
@@ -270,7 +272,7 @@ def generate_runtime_header(directories,destination):
             shell=w['shells'].get(kind,{})
             if 'explosiveMassGrams' in shell or 'explosiveMassKg' in shell:mask|=1<<i
             filling.append(shell.get('explosiveMassGrams',shell.get('explosiveMassKg',0)*1000))
-        values.extend([filling,mask])
+        values.extend([filling,mask,int(w.get("continuousFire",False)),0])
         def c(v):
             if isinstance(v,str):return json.dumps(v)
             if isinstance(v,list):return '{'+','.join(map(c,v))+'}'
@@ -278,7 +280,7 @@ def generate_runtime_header(directories,destination):
         configs.append('{'+','.join(map(c,values))+'}')
     text='''#pragma once
 // Generated from validated project parameters. Never reuse with other resources.
-typedef struct { const char *id; int penetration,caliber,speed,reload; float reload_offset; int power,max_speed; float reverse_speed; int turret_speed; float weight; int elevation,depression,crew,tier; int body_armor[4],turret_armor[4],ammo[5],mg_ammo,shell_penetration[5],wheel_count; float travel,rest,spring,damper,radius,track_length; int magazine_capacity; float shot_interval,magazine_reload; int ballistics_profile; float turret_speed_exact; int vehicle_kind,traverse_half_angle; float filling_grams[5]; unsigned filling_mask; } CustomTank;
+typedef struct { const char *id; int penetration,caliber,speed,reload; float reload_offset; int power,max_speed; float reverse_speed; int turret_speed; float weight; int elevation,depression,crew,tier; int body_armor[4],turret_armor[4],ammo[5],mg_ammo,shell_penetration[5],wheel_count; float travel,rest,spring,damper,radius,track_length; int magazine_capacity; float shot_interval,magazine_reload; int ballistics_profile; float turret_speed_exact; int vehicle_kind,traverse_half_angle; float filling_grams[5]; unsigned filling_mask; int continuous_fire, uv_unity; } CustomTank;
 '''+('static const CustomTank custom_tanks[]={'+','.join(configs)+'};\n' if configs else 'static const CustomTank custom_tanks[1]={{0}};\n')+f'#define CUSTOM_TANK_COUNT {len(configs)}\n'
     Path(destination).write_text(text,encoding='utf-8')
     return hashlib.sha256(text.encode()).hexdigest()

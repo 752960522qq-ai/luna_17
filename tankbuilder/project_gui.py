@@ -8,11 +8,12 @@ from .project import (create_project,read_documents,save_documents,validate_proj
 
 def mount(parent):
     top=ttk.Frame(parent,padding=12);top.pack(fill='both',expand=True)
+    continuous=tk.BooleanVar(value=False)
     project=tk.StringVar();state=tk.StringVar(value='打开项目，或从 T54 模板创建新项目。模板参数可编辑。')
     row=ttk.Frame(top);row.pack(fill='x');ttk.Entry(row,textvariable=project).pack(side='left',fill='x',expand=True)
     text=tk.Text(top,height=18,wrap='none');text.pack(fill='both',expand=True,pady=12)
     def load():
-        docs=read_documents(project.get());text.delete('1.0','end');text.insert('1.0',json.dumps(docs,ensure_ascii=False,indent=2));state.set('编辑名称、国家、数值与绑定后保存；贴图按材质名称替换。')
+        docs=read_documents(project.get());continuous.set(docs['weapon'].get('continuousFire',False));text.delete('1.0','end');text.insert('1.0',json.dumps(docs,ensure_ascii=False,indent=2));state.set('编辑名称、国家、数值与绑定后保存；贴图按材质名称替换。')
     def action(fn):
         try:fn()
         except Exception as e:messagebox.showerror('未完成',str(e))
@@ -29,7 +30,7 @@ def mount(parent):
     ttk.Button(row,text='打开项目',command=lambda:action(open_project)).pack(side='left',padx=6)
     ttk.Button(row,text='新建坦克',command=lambda:action(new_project)).pack(side='left')
     def save():
-        docs=json.loads(text.get('1.0','end'));save_documents(project.get(),docs)
+        docs=json.loads(text.get('1.0','end'));docs['weapon']['continuousFire']=continuous.get();save_documents(project.get(),docs)
         result=validate_project(project.get());state.set('检查通过' if result['valid'] else '\n'.join(result['errors']))
         return result
     def model():
@@ -53,6 +54,7 @@ def mount(parent):
         if file:state.set(json.dumps(pack_project(project.get(),file),ensure_ascii=False))
     def artillery():
         result=apply_artillery_preset(project.get());load();state.set('自行火炮预设已应用；需要更好的坦克体验0.1提供两级镜' if result['valid'] else '\n'.join(result['errors']))
+    ttk.Checkbutton(top,text='主炮允许按住连发（保留装填与弹匣间隔）',variable=continuous).pack(anchor='w')
     buttons=ttk.Frame(top);buttons.pack(fill='x')
     for label,fn in [('保存并检查',save),('导入模型与绑定',model),('自行火炮预设',artillery),('缩略图',thumbnail),('颜色贴图',texture),('法线贴图',lambda:texture('normal')),('导出 Tank Pack',export)]:ttk.Button(buttons,text=label,command=lambda f=fn:action(f)).pack(side='left',padx=(0,8))
     ttk.Label(top,textvariable=state,wraplength=780).pack(anchor='w',pady=10)

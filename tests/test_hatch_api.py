@@ -28,7 +28,7 @@ def audit(library,decoded):
  'GameObject':(0x17ca,[('.ctor',1),('get_transform',0),('GetComponentsInternal',6),('GetComponentInChildren',2),('AddComponent',1)]),
  'Texture2D':(0x1755,[('.ctor',2)]),
  'Mesh':(0x1752,[('.ctor',0),('set_vertices',1),('set_normals',1),('set_uv',1),('set_triangles',1),('RecalculateBounds',0)]),
- 'Material':(0x1724,[('.ctor',1),('set_color',1),('set_mainTexture',1),('SetTexture',2),('SetTextureOffsetImpl',2)]),
+ 'Material':(0x1724,[('.ctor',1),('set_color',1),('set_mainTexture',1),('SetTexture',2),('SetTextureOffsetImpl',2),('SetTextureScaleImpl',2)]),
  'Renderer':(0x1721,[('get_sharedMaterial',0),('set_sharedMaterial',1),('set_enabled',1)]),
  'MeshFilter':(0x172e,[('set_sharedMesh',1)]),
  'Component':(0x17bc,[('get_transform',0),('get_gameObject',0)]),

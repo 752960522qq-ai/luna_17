@@ -68,7 +68,10 @@ def repack_loader(source, dex, output, profile_path, packages, unity_data=None):
             for path, doc in zip(packages, docs):
                 content = Path(path).read_bytes()
                 write_entry(out, 'assets/Hatch/mods/'+doc['id']+'.hatch', content, zipfile.ZIP_STORED)
-                catalog.append({'id':doc['id'],'name':doc['name'],'sha256':hashlib.sha256(content).hexdigest(),'size':len(content)})
+                old=json.loads((Path(__file__).resolve().parents[1]/'profiles/builtin-migrations.json').read_text())
+                previous=old.get(doc['id'],[])
+                if existing_catalog:previous+= [item['sha256'] for item in existing_catalog['mods'] if item['id']==doc['id']]
+                catalog.append({'id':doc['id'],'name':doc['name'],'sha256':hashlib.sha256(content).hexdigest(),'size':len(content),'supersedes_sha256':sorted(set(previous))})
             write_entry(out,'assets/Hatch/catalog.json',json.dumps({'format':2,'loader_version':'0.4','mods':catalog},ensure_ascii=False,indent=2).encode())
             write_entry(out,'assets/Hatch/RESOURCE_USAGE.txt',(Path(__file__).resolve().parents[1]/'loader/assets/RESOURCE_USAGE.txt').read_bytes())
     return Path(output)

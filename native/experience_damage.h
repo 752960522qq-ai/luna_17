@@ -3,7 +3,7 @@
 static void *(*original_cal_damage)(void *,void *,void *,bool,const void *);
 // SetDamage consumes byte-sized damage values; cap rather than wrap at 256.
 static int bte_damage_byte(float value){return value<=0?0:value>=255?255:(int)lroundf(value);}
-static void *experience_cal_damage(void *damage,void *info,void *part,bool bomb,const void *mi){
+static void *experience_compute_damage(void *damage,void *info,void *part,bool bomb,const void *mi){
     int flags=__atomic_load_n(&experience_flags,__ATOMIC_ACQUIRE);
     const FillingProfile *filling=info?filling_profile(info):0;
     int enabled=(flags&2) && state==3 && offline_mode() && filling && filling->known;
@@ -32,4 +32,9 @@ static void *experience_cal_damage(void *damage,void *info,void *part,bool bomb,
     I(result,0x24)=0;
     if(!value.penetrated)I(result,0x2c)=0;
     return result;
+}
+
+static void *experience_cal_damage(void *damage,void *info,void *part,bool bomb,const void *mi){
+ void *result=experience_compute_damage(damage,info,part,bomb,mi);
+ crew_damage_result(damage,info,result);return result;
 }

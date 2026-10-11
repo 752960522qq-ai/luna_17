@@ -81,6 +81,7 @@ public final class HatchLoader {
         } finally { temp.delete(); }
     }
     private static HatchPackage installCore(Activity activity, File mods) throws Exception {
+        seed(activity,mods,new StringBuilder());
         File target=new File(mods,"tankinvincible3000.hatch");
         if (target.isFile()) {
             HatchPackage external=HatchPackage.inspect(target);
@@ -128,6 +129,9 @@ public final class HatchLoader {
                     else { if (tanks.size() >= 16) throw new IOException("最多加载 16 个内容包"); tanks.add(pack); }
                 } catch (Exception e) { log.append("✗ ").append(file.getName()).append(": ").append(e.getMessage()).append('\n'); }
             }
+            boolean mergedCrew=false;
+            for(HatchPackage p:tanks)if(p.id.equals("better_tank_experience")&&p.manifest.toString().contains("crew-voice-v1"))mergedCrew=true;
+            if(mergedCrew)tanks.removeIf(p->p.id.equals("better_crew_experience"));
             if (!duplicates.isEmpty())throw new IOException("重复模组 ID，已停止加载: "+duplicates);
             if (core == null || module == null) {
                 report="舱盖 0.4 · 空白调试包\n尚未加载坦无敌3000。原版游戏可正常启动。\n\n已发现 " + tanks.size() + " 个坦克包；导入坦无敌3000 1.0 前置并完全退出重启后，才能加载坦克模组。\n\n" + log;
@@ -206,24 +210,38 @@ public final class HatchLoader {
             MAIN.post(() -> { if (session == generation && !activity.isFinishing()) show(activity); });
         }
     }
+    private static String digest(File file) throws Exception {
+        java.security.MessageDigest hash=java.security.MessageDigest.getInstance("SHA-256");
+        try(InputStream in=new FileInputStream(file)){byte[] chunk=new byte[65536];int n;while((n=in.read(chunk))!=-1)hash.update(chunk,0,n);}
+        StringBuilder hex=new StringBuilder();for(byte v:hash.digest())hex.append(String.format(java.util.Locale.ROOT,"%02x",v&255));return hex.toString();
+    }
     private static void seed(Activity activity, File mods, StringBuilder log) throws Exception {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        try (InputStream in = activity.getAssets().open("Hatch/catalog.json")) { HatchPackage.copy(in,bytes,16384,null); }
-        JSONArray catalog = new JSONObject(bytes.toString("UTF-8")).getJSONArray("mods");
-        Set<String> present = new HashSet<>(); File[] files = mods.listFiles((d,n) -> n.endsWith(".hatch"));
-        if (files != null) for (File file : files) try { present.add(HatchPackage.inspect(file).id); } catch (Exception ignored) {}
-        SharedPreferences prefs = activity.getSharedPreferences("Hatch-builtin-seeds-02",0);
-        for (int i=0;i<catalog.length();i++) {
-            JSONObject item = catalog.getJSONObject(i); String id = item.getString("id");
-            if (!id.matches("[A-Za-z0-9_-]{1,48}")) throw new IOException("内置 ID 非法");
-            if (present.contains(id) || prefs.getBoolean(id,false)) continue;
-            File temp = File.createTempFile("seed-",".tmp",mods);
-            try {
-                try (InputStream in=activity.getAssets().open("Hatch/mods/"+id+".hatch"); OutputStream out=new FileOutputStream(temp)) { HatchPackage.copy(in,out,HatchPackage.MAX_BYTES,null); }
-                HatchPackage pack = HatchPackage.inspect(temp); if (!id.equals(pack.id)) throw new IOException("内置 ID 不一致");
-                if (!temp.renameTo(new File(mods,id+".hatch"))) throw new IOException("无法释放内置模组");
-                prefs.edit().putBoolean(id,true).commit(); present.add(id);
-            } finally { temp.delete(); }
+        ByteArrayOutputStream bytes=new ByteArrayOutputStream();
+        try(InputStream in=activity.getAssets().open("Hatch/catalog.json")){HatchPackage.copy(in,bytes,65536,null);}
+        JSONArray catalog=new JSONObject(bytes.toString("UTF-8")).getJSONArray("mods");
+        Map<String,File> present=new HashMap<>();File[] files=mods.listFiles((d,n)->n.endsWith(".hatch"));
+        if(files!=null)for(File file:files)try{present.put(HatchPackage.inspect(file).id,file);}catch(Exception ignored){}
+        SharedPreferences prefs=activity.getSharedPreferences("Hatch-builtin-seeds-02",0);
+        for(int i=0;i<catalog.length();i++){
+            JSONObject item=catalog.getJSONObject(i);String id=item.getString("id"),desired=item.getString("sha256");
+            if(!id.matches("[A-Za-z0-9_-]{1,48}"))throw new IOException("内置 ID 非法");
+            File existing=present.get(id);
+            if(existing!=null){
+                String current=digest(existing);if(current.equals(desired))continue;
+                boolean managed=current.equals(prefs.getString(id+".sha256",""));
+                JSONArray old=item.optJSONArray("supersedes_sha256");
+                if(old!=null)for(int j=0;j<old.length();j++)managed|=current.equals(old.getString(j));
+                if(!managed){log.append("保留自定义包: ").append(id).append('\n');continue;}
+            }
+            File temp=File.createTempFile("seed-",".tmp",mods);
+            try{
+                try(InputStream in=activity.getAssets().open("Hatch/mods/"+id+".hatch");OutputStream out=new FileOutputStream(temp)){HatchPackage.copy(in,out,HatchPackage.MAX_BYTES,null);}
+                HatchPackage pack=HatchPackage.inspect(temp);
+                if(!id.equals(pack.id)||!desired.equals(digest(temp)))throw new IOException("内置包校验失败");
+                File target=existing!=null?existing:new File(mods,id+".hatch");
+                if(!temp.renameTo(target))throw new IOException("无法更新内置模组");
+                prefs.edit().putBoolean(id,true).putString(id+".sha256",desired).commit();present.put(id,target);
+            }finally{temp.delete();}
         }
     }
     public static void show(Activity activity) {

@@ -1,0 +1,42 @@
+{
+  "name": "15 cm sIG 33/1",
+  "caliber": 150,
+  "reload": 12.5,
+  "muzzleVelocity": 280,
+  "ballistics": "physical",
+  "ammo": {
+    "AP": 0,
+    "APCR": 0,
+    "HE": 15,
+    "HEAT": 3,
+    "WP": 2
+  },
+  "shells": {
+    "AP": {
+      "penetrationMm": 0,
+      "explosiveMassKg": 0
+    },
+    "APCR": {
+      "penetrationMm": 0,
+      "explosiveMassKg": 0
+    },
+    "HE": {
+      "penetrationMm": 30,
+      "explosiveMassKg": 8.3
+    },
+    "HEAT": {
+      "penetrationMm": 200,
+      "explosiveMassKg": 2.4
+    },
+    "WP": {
+      "penetrationMm": 0,
+      "explosiveMassKg": 0
+    }
+  },
+  "machineGun": {
+    "name": "无",
+    "position": "none",
+    "ammo": 0
+  },
+  "continuousFire": false
+}

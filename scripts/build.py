@@ -33,6 +33,8 @@ def main():
     p.add_argument('--unity-data',type=Path,help='Derived Unity bundle with matching asset_report.json')
     p.add_argument('--profile',type=Path,default=ROOT/'profiles/attack-on-tank-5.1.0.json')
     p.add_argument('--keystore',type=Path)
+    p.add_argument('--signing-key',type=Path,help='Existing PKCS8 DER private key; requires --signing-cert')
+    p.add_argument('--signing-cert',type=Path,help='Existing X.509 DER signing certificate')
     p.add_argument('--password-file',type=Path)
     p.add_argument('--alias',default='luna17')
     p.add_argument('--work-dir',type=Path,default=ROOT/'build')
@@ -83,22 +85,28 @@ def main():
     repack_loader(args.apks,dex/'classes.dex',unsigned,args.profile,[prerequisite,*args.hatch],args.unity_data)
     aligned=work/'aligned.apk'
     run(args.zipalign,'-f','-P','16','4',unsigned,aligned)
-    keystore=args.keystore;password=args.password_file
-    if not keystore:
-        if password:raise SystemExit('--password-file requires --keystore')
-        signing=work/'signing';signing.mkdir(exist_ok=True)
-        keystore=signing/'development.jks';password=signing/'password.txt'
-        if not keystore.exists():
-            password.write_text(secrets.token_urlsafe(32)+'\n');os.chmod(password,0o600)
-            run(keytool,'-genkeypair','-keystore',keystore,'-alias',args.alias,
-                '-storepass:file',password,'-keypass:file',password,'-keyalg','RSA',
-                '-keysize','3072','-sigalg','SHA256withRSA','-validity','3650',
-                '-dname','CN=luna_17 Development, OU=Offline Mod, O=luna_17')
-    if not password or not password.is_file():raise SystemExit('A signing password file is required')
-    run(java,'-jar',args.apksigner,'sign','--ks',keystore,'--ks-key-alias',args.alias,
-        '--ks-pass',f'file:{password}','--v1-signing-enabled','false',
-        '--v2-signing-enabled','true','--v3-signing-enabled','true','--min-sdk-version','28',
-        '--out',args.output,aligned)
+    if args.signing_key or args.signing_cert:
+        if args.keystore or args.password_file or not args.signing_key or not args.signing_cert:raise SystemExit('Use signing key/cert together, or keystore/password')
+        run(java,'-jar',args.apksigner,'sign','--key',args.signing_key,'--cert',args.signing_cert,
+            '--v1-signing-enabled','false','--v2-signing-enabled','true','--v3-signing-enabled','true',
+            '--min-sdk-version','28','--out',args.output,aligned)
+    else:
+        keystore=args.keystore;password=args.password_file
+        if not keystore:
+            if password:raise SystemExit('--password-file requires --keystore')
+            signing=work/'signing';signing.mkdir(exist_ok=True)
+            keystore=signing/'development.jks';password=signing/'password.txt'
+            if not keystore.exists():
+                password.write_text(secrets.token_urlsafe(32)+'\n');os.chmod(password,0o600)
+                run(keytool,'-genkeypair','-keystore',keystore,'-alias',args.alias,
+                    '-storepass:file',password,'-keypass:file',password,'-keyalg','RSA',
+                    '-keysize','3072','-sigalg','SHA256withRSA','-validity','3650',
+                    '-dname','CN=luna_17 Development, OU=Offline Mod, O=luna_17')
+        if not password or not password.is_file():raise SystemExit('A signing password file is required')
+        run(java,'-jar',args.apksigner,'sign','--ks',keystore,'--ks-key-alias',args.alias,
+            '--ks-pass',f'file:{password}','--v1-signing-enabled','false',
+            '--v2-signing-enabled','true','--v3-signing-enabled','true','--min-sdk-version','28',
+            '--out',args.output,aligned)
     run(java,'-jar',args.apksigner,'verify','--verbose',args.output)
     run(args.zipalign,'-c','-P','16','4',args.output)
     print(args.output)

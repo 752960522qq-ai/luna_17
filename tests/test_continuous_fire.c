@@ -42,7 +42,7 @@ static void touch(int index,float x,float y,int phase){
     F(touches[index],0x14)=x;F(touches[index],0x18)=y;I(touches[index],0x10+36)=phase;
 }
 int main(void){
-    config.magazine_capacity=10;P(pc,0x98)=ui;P(ui,0x2f8)=camera;P(ui,0x100)=buttons;
+    config.magazine_capacity=10;config.continuous_fire=1;P(pc,0x98)=ui;P(ui,0x2f8)=camera;P(ui,0x100)=buttons;
     I(buttons,0x18)=1;P(buttons,0x20)=button;B(active_box,0x10)=1;
     I(count_box,0x10)=2;touch(0,20,20,2);touch(1,150,150,0);
     continuous_fire_update(pc);assert(fire_calls==1);
@@ -54,6 +54,7 @@ int main(void){
     offline=0;continuous_fire_update(pc);assert(fire_calls==2);offline=1;
     I(camera,0x38)=1;continuous_fire_update(pc);assert(fire_calls==2);I(camera,0x38)=0;
     B(active_box,0x10)=0;continuous_fire_update(pc);assert(fire_calls==2);B(active_box,0x10)=1;
-    config.magazine_capacity=0;continuous_fire_update(pc);assert(fire_calls==2);
+    config.continuous_fire=0;continuous_fire_update(pc);assert(fire_calls==2);
+    config.magazine_capacity=0;config.continuous_fire=1;continuous_fire_update(pc);assert(fire_calls==3);
     puts("Continuous fire: two fingers, hold/release/cancel, drag out, menus, offline scope, aircraft and stock tanks passed");
 }

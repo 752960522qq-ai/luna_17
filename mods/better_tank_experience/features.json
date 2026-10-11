@@ -631,5 +631,51 @@
       "WP": null,
       "HEAT": null
     }
+  },
+  "crew": {
+    "mode": "drop-while-speaking",
+    "events": {
+      "0": [
+        "voice_message_gunner_battle_ready_v1.wav"
+      ],
+      "1": [
+        "voice_message_commander_target.wav"
+      ],
+      "2": [
+        "voice_message_driver_correction_undershoot_v1.wav"
+      ],
+      "3": [
+        "voice_message_driver_correction_bracketed_v1.wav"
+      ],
+      "4": [
+        "voice_message_driver_weve_been_hit_v1.wav"
+      ],
+      "5": [
+        "voice_message_chief_battle_win_v1.wav"
+      ],
+      "6": [
+        "voice_message_driver_correction_target_hit_v4.wav"
+      ],
+      "7": [
+        "voice_message_driver_correction_target_hit_v1.wav"
+      ],
+      "12": [
+        "voice_message_loader_load_AP_v1.wav"
+      ],
+      "13": [
+        "voice_message_loader_load_HE_v1.wav"
+      ],
+      "14": [
+        "voice_message_loader_load_APCR_v1.wav"
+      ],
+      "15": [
+        "voice_message_loader_load_smoke_v1.wav"
+      ],
+      "16": [
+        "voice_message_loader_load_HEAT_v1.wav"
+      ]
+    },
+    "targetPrefix": "voice_message_commander_target.wav",
+    "distancePrefix": "voice_message_commander_target_distance_v1.wav"
   }
 }

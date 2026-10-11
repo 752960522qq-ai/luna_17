@@ -56,6 +56,7 @@ def validate(path):
                     data=voices.read(clip)
                     if data[:4]!=b'RIFF' or data[8:12]!=b'WAVE':raise ValueError('Voice clip is not WAV')
         if kind == 'tank':
+            if 'continuous_fire' in doc and type(doc['continuous_fire']) is not bool:raise ValueError('continuous_fire must be a boolean')
             content = archive.read('runtime.bin')
             magic, version, size, nodes, images = struct.unpack_from('<8sIIII', content)
             if magic != b'HATCH01\0' or version != 1 or size != len(content) or not 4 <= nodes <= 2048 or images > 128 or content[24:88].split(b'\0')[0].decode('ascii') != doc['id']:

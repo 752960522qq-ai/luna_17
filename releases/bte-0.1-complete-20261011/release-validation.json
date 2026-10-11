@@ -1,0 +1,28 @@
+{
+  "scope": "local automated validation; no Android GPU/physical-device run",
+  "tests": {
+    "c_harnesses": 7,
+    "java_python_cases": 31,
+    "retained_Unity_APIs": 50,
+    "production_runtime_bindings": [
+      "Grille:89 nodes/6 textures/55 meshes",
+      "Panzer II:88 nodes/7 textures/36 meshes",
+      "T30:94 nodes/10 textures/44 meshes"
+    ]
+  },
+  "verified": [
+    "new shell pool muzzle parents",
+    "new wheel rest centers",
+    "UV conversion and legacy converted UV compatibility",
+    "missing texture inheritance cleared",
+    "damage threshold 9 vs 10",
+    "busy voice events permanently discarded",
+    "multipart target/type/clock/distance playback lock",
+    "magazine free projectile reservation",
+    "continuous fire enable/disable and release",
+    "JNI registration with two real class loaders",
+    "all 9 embedded packages SHA256 validated",
+    "same signing certificate as previous delivered APK",
+    "APK zipalignment"
+  ]
+}

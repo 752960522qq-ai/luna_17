@@ -40,6 +40,7 @@ final class NativeBridge {
     static native String hatchError();
     static native boolean configureAmmunition(String id, float[] grams, int mask);
     static native boolean configureFilling(String id, float[] grams, int mask);
+    static native boolean configureContinuousFire(String id, boolean enabled, boolean unityUv);
     static native boolean configureMagazine(String id, int capacity, float interval, float reload);
 }
 

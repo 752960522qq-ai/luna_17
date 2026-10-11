@@ -34,6 +34,7 @@ static Cls classes[64];
 static int class_count;
 static Obj *body, *tm, *root, *material, *boxes[3];
 static int textures, meshes, renderers, load_calls, fail_ctor, fail_decode;
+static HatchTank *fixture_tank;static unsigned fixture_mesh;static Obj *ap_shell,*he_shell;
 static Obj *all_objects[8192];
 static int object_count;
 static unsigned char methods[128][96];
@@ -110,6 +111,7 @@ static void *invoke(void *m, void *o, void **a, void **ex) {
   int count = B(m, 82);
   Obj *v = o;
   if (!strcmp(name, ".ctor")) {
+    if(!strcmp(((Cls *)P(o,0))->name,"Material")){P(o,0x200)=P(a[0],0x200);P(o,0x208)=P(a[0],0x208);}
     if (!strcmp(((Cls *)P(o, 0))->name, "Texture2D") && fail_ctor) {
       *ex = classes;
       return 0;
@@ -118,6 +120,8 @@ static void *invoke(void *m, void *o, void **a, void **ex) {
       snprintf(v->name, 96, "%s", (char *)a[0]);
     return 0;
   }
+  if (!strcmp(name, "get_localPosition")) {return calloc(1,32);}
+  if (!strcmp(name, "PropertyToID")) {return calloc(1,24);}
   if (!strcmp(name, "LoadImage")) {
     assert(count == 2);
     assert(I(a[1], 24) > 8);
@@ -182,6 +186,7 @@ static void *invoke(void *m, void *o, void **a, void **ex) {
   }
   if (!strcmp(name, "GetComponentInChildren")) {
     const char *type = ((Cls *)a[0])->name;
+    for(int i=0;i<v->count;i++)if(!strcmp(((Cls *)P(v->components[i],0))->name,type))return v->components[i];
     return !strcmp(type, "TurretMove") ? tm
            : !strcmp(type, "BodyMove") ? body
                                        : obj(a[0], "component");
@@ -230,6 +235,19 @@ static void *invoke(void *m, void *o, void **a, void **ex) {
     memcpy((char *)out + 16, a[0], 12);
     return out;
   }
+  if (!strcmp(name,"set_uv")){
+    while(fixture_mesh<fixture_tank->node_count&&!fixture_tank->nodes[fixture_mesh].disk->vertices)fixture_mesh++;
+    const HatchNode *node=fixture_tank->nodes+fixture_mesh++;
+    assert(I(a[0],24)==node->disk->vertices);
+    float *uv=(float *)((char *)a[0]+32);
+    for(unsigned i=0;i<node->disk->vertices;i++){
+      assert(uv[i*2]==node->vertices[i*8+6]);
+      assert(uv[i*2+1]==(fixture_tank->config.uv_unity?node->vertices[i*8+7]:1.f-node->vertices[i*8+7]));
+    }
+  }
+  if(!strcmp(name,"set_mainTexture"))P(o,0x200)=a[0];
+  if(!strcmp(name,"SetTexture")&&!strcmp(a[0],"_BumpMap"))P(o,0x208)=a[1];
+  if(!strcmp(name,"set_sharedMaterial"))P(o,0x220)=a[0];
   if (!strcmp(name, "set_vertices"))
     meshes++;
   // Setters intentionally have no Unity rendering implementation in this
@@ -281,8 +299,11 @@ static void fixture_weapons(Obj *pc) {
   void *ls = array(cls("Launcher"), 1);
   P(ls, 32) = launcher;
   P(pc, 0x58) = ls;
-  ap_renderer = fixture_component(fixture_go("Shell AP", fire), "MeshRenderer");
-  he_renderer = fixture_component(fixture_go("Shell HE", fire), "MeshRenderer");
+  Obj *ap=fixture_go("Shell AP",fire),*he=fixture_go("Shell HE",fire);
+  ap_renderer=fixture_component(ap,"MeshRenderer");he_renderer=fixture_component(he,"MeshRenderer");
+  ap_shell=fixture_component(ap,"ShellMove");he_shell=fixture_component(he,"ShellMove");
+  void *ap_pool=array(cls("GameObject"),1),*he_pool=array(cls("GameObject"),1);
+  P(ap_pool,32)=ap;P(he_pool,32)=he;P(launcher,0x78)=ap_pool;P(launcher,0x80)=he_pool;
   mg_mount = fixture_go("MG Effects Point", gun);
   fixture_component(mg_mount, "AudioSource");
   Obj *effect = fixture_go("Machine Gun Effect", mg_mount);
@@ -320,7 +341,7 @@ static void setup(void) {
   root = obj(cls("GameObject"), "T34_85_Player");
   body = obj(cls("BodyMove"), "body");
   tm = obj(cls("TurretMove"), "turret");
-  material = obj(cls("Material"), "template material");
+  material = obj(cls("Material"), "template material");P(material,0x200)=(void *)0xbad;P(material,0x208)=(void *)0xbad;fixture_mesh=0;
   for (int i = 0; i < 3; i++) {
     boxes[i] = obj(cls("BoxCollider"), "box");
     boxes[i]->owner =
@@ -328,7 +349,7 @@ static void setup(void) {
   }
 }
 int main(int argc, char **argv) {
-  assert(argc == 2);
+  assert(argc == 2 || argc==3);
   FILE *f = fopen(argv[1], "rb");
   assert(f);
   fseek(f, 0, SEEK_END);
@@ -338,7 +359,7 @@ int main(int argc, char **argv) {
   assert(fread(blob, 1, size, f) == size);
   fclose(f);
   HatchTank tank;
-  assert(hatch_parse(&tank, blob, size));
+  assert(hatch_parse(&tank, blob, size));fixture_tank=&tank;tank.config.uv_unity=argc==3;
   setup();
   Obj *pc = obj(cls("PlayerControl"), "pc"),
       *status = obj(cls("UnitStatus"), "status");
@@ -350,6 +371,16 @@ int main(int argc, char **argv) {
   assert(textures == tank.image_count && load_calls == tank.image_count);
   assert(meshes > 0 && meshes == renderers);
   assert(P(pc, 0x28) && P(pc, 0x30));
+  assert(P(ap_shell,0x28)==launcher->owner->transform&&P(he_shell,0x28)==launcher->owner->transform);
+  assert(P(ap_shell->owner->transform,0x70)==launcher->owner->transform);
+  assert(I(P(body,0x90),24)==tank.config.wheel_count);
+  for(unsigned i=0;i<tank.node_count;i++)if(tank.nodes[i].disk->vertices){
+    Obj *go=hatch_objects[i];void *mat=0;for(int j=0;j<go->count;j++)if(!strcmp(((Cls *)P(go->components[j],0))->name,"MeshRenderer"))mat=P(go->components[j],0x220);
+    assert(mat);const HatchDiskNode *n=tank.nodes[i].disk;
+    assert(P(mat,0x200)==(n->color<0?0:hatch_texture_objects[n->color]));
+    assert(P(mat,0x208)==(n->normal<0?0:hatch_texture_objects[n->normal]));
+  }
+  puts("UV convention, absent texture clearing, shell pool muzzle parents and new suspension centers verified");
   assert(I(P(body, 0x410), 24) == tank.config.wheel_count &&
          I(P(body, 0x418), 24) == tank.config.wheel_count &&
          I(P(body, 0x430), 24) == (tank.config.vehicle_kind == HATCH_VEHICLE_TOWED ? 0 : 2));

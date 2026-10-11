@@ -1,0 +1,13 @@
+{
+  "body": {
+    "front": 50,
+    "side": 15,
+    "rear": 15
+  },
+  "turret": {
+    "front": 10,
+    "side": 10,
+    "rear": 1
+  },
+  "unit": "mm"
+}

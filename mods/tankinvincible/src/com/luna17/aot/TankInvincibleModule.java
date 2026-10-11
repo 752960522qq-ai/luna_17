@@ -38,6 +38,7 @@ public final class TankInvincibleModule implements HatchModule, HatchFeatureHost
             if(mask!=0 && !NativeBridge.configureFilling(doc.getString("id"),grams,mask))return "装药配置无效";
         }
         JSONObject magazine = doc.optJSONObject("magazine");
+        if(!NativeBridge.configureContinuousFire(doc.getString("id"),doc.optBoolean("continuous_fire",magazine!=null),doc.optString("texture_uv_convention", "").contains("converted")))return "连发开关无效";
         if (magazine != null && !NativeBridge.configureMagazine(doc.getString("id"),
                 magazine.getInt("capacity"), (float)magazine.getDouble("shotInterval"),
                 (float)magazine.getDouble("reloadTime")))
@@ -57,13 +58,14 @@ public final class TankInvincibleModule implements HatchModule, HatchFeatureHost
         JSONObject voice=doc.optJSONObject("crew");
         if(voice!=null){
             if(crew!=null)return "成员语音能力已被占用";
-            if(doc.length()!=3||!doc.has("voiceDirectory"))return "成员语音资源或配置字段无效";
+            if(!doc.has("voiceDirectory"))return "成员语音资源或配置字段无效";
             CrewVoicePlayer candidate=new CrewVoicePlayer(new File(doc.getString("voiceDirectory")),voice);
-            int mask=(1<<1)|(1<<3);
+            int mask=(1<<1);
             java.util.Iterator<String> events=voice.getJSONObject("events").keys();
             while(events.hasNext())mask|=1<<Integer.parseInt(events.next());
             if(!NativeBridge.configureCrew(true,mask))return "请在进入战斗前加载成员体验";
-            crew=candidate;if(menu!=null)crew.start();return "";
+            crew=candidate;if(menu!=null)crew.start();
+            if(!doc.has("aim")&&!doc.has("damage")&&!doc.has("artillery"))return "";
         }
         int flags=0;
         if(doc.optBoolean("aim",false))flags|=1;

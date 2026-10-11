@@ -1,0 +1,17 @@
+{
+  "file": "Attack-on-Tank-Hatch-0.4-BTE0.1-Complete.apk",
+  "size_bytes": 378355332,
+  "sha256": "e1ce7d695698e8ff6ddb96e9b58f919d9191212240f436a4262c291faa24628a",
+  "builtin_ids": [
+    "tankinvincible3000",
+    "T54_1949",
+    "Matilda_III",
+    "Panzer_II_Ausf_L",
+    "T44_100",
+    "T30",
+    "SU_152",
+    "Grille",
+    "better_tank_experience"
+  ],
+  "signing_certificate_sha256": "734e17a0550eb23e3e5975dc90a7932eb513ee0e62ad4804b436cacd5f15413e"
+}

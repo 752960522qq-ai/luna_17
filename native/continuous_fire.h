@@ -5,7 +5,7 @@
 static void continuous_fire_update(void *pc){
     const CustomTank *config=tank_config(player_status);
     void *ui=P(pc,0x98),*camera=unity_exists(ui)?P(ui,0x2f8):0;
-    if(!config || config->magazine_capacity<2 || state!=3 || !offline_mode() ||
+    if(!config || !config->continuous_fire || state!=3 || !offline_mode() ||
        !unity_exists(ui) || !unity_exists(camera) || I(camera,0x38)!=0 ||
        I(ui,0x2c)>1 || B(player_status,0x206))return;
     int menu=bte_field_offset(ui,"isMenuPopUp");

@@ -10,13 +10,13 @@ ROOT=Path(__file__).resolve().parents[1]
 class Features(unittest.TestCase):
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory();self.path=Path(self.temp.name)/'feature.hatch'
-        pack_features(ROOT/'mods/better_tank_experience',self.path)
+        pack_features(ROOT/'mods/better_tank_experience',self.path,ROOT.parent/'upload/中系新语音.zip')
     def tearDown(self):self.temp.cleanup()
     def test_standalone_data_package(self):
         doc=validate(self.path);self.assertEqual(doc['type'],'gameplay');self.assertEqual(doc['version'],'0.1')
         with zipfile.ZipFile(self.path) as archive:
             payload=json.loads(archive.read('features.json'));self.assertNotIn('heFillingGrams',payload['damage']);self.assertNotIn('apFillingGrams',payload['damage'])
-            self.assertEqual(set(archive.namelist()),{'hatch.json','features.json'})
+            self.assertEqual(set(archive.namelist()),{'hatch.json','features.json','voices.zip'})
     def test_ammunition_is_separate_for_every_vehicle_and_shell(self):
         with zipfile.ZipFile(self.path) as archive:ammo=json.loads(archive.read('features.json'))['ammunition']
         self.assertEqual(len([key for key in ammo if key.endswith('_Player')]),84)

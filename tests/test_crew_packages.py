@@ -7,7 +7,7 @@ ROOT=Path(__file__).resolve().parents[1]
 VOICE=ROOT.parent/'upload'/'中系新语音.zip'
 class CrewPackages(unittest.TestCase):
     def test_every_default_mapping_exists_and_segment_ranges_complete(self):
-        directory=ROOT/'mods/better_crew_experience'
+        directory=ROOT/'mods/better_tank_experience'
         inventory=json.loads((directory/'voice-inventory.json').read_text())
         config=json.loads((directory/'features.json').read_text())['crew']
         self.assertEqual(len(inventory),641)
@@ -19,7 +19,7 @@ class CrewPackages(unittest.TestCase):
         for prefix in ['targetPrefix','distancePrefix']:self.assertIn(config[prefix],inventory)
     @unittest.skipUnless(VOICE.is_file(),'Uploaded WAV archive not available; pass --voice-archive to builder')
     def test_real_archive_checksums_and_pack(self):
-        inventory=json.loads((ROOT/'mods/better_crew_experience/voice-inventory.json').read_text())
+        inventory=json.loads((ROOT/'mods/better_tank_experience/voice-inventory.json').read_text())
         with zipfile.ZipFile(VOICE) as archive:
             self.assertEqual(set(archive.namelist()),set(inventory))
             for name,item in inventory.items():
@@ -27,14 +27,14 @@ class CrewPackages(unittest.TestCase):
                 self.assertEqual(len(data),item['bytes']);self.assertEqual(hashlib.sha256(data).hexdigest(),item['sha256'])
         with tempfile.TemporaryDirectory() as temp:
             target=Path(temp)/'crew.hatch'
-            pack_features(ROOT/'mods/better_crew_experience',target,VOICE)
+            pack_features(ROOT/'mods/better_tank_experience',target,VOICE)
             doc=validate(target);self.assertIn('crew-voice-v1',doc['capabilities'])
             with zipfile.ZipFile(target) as archive:
                 self.assertEqual(set(archive.namelist()),{'hatch.json','features.json','voices.zip'})
     def test_embedded_voice_path_traversal_and_false_wav_rejected(self):
         with tempfile.TemporaryDirectory() as temp:
             source=Path(temp)/'extension';source.mkdir()
-            base=json.loads((ROOT/'mods/better_crew_experience/hatch.json').read_text())
+            base=json.loads((ROOT/'mods/better_tank_experience/hatch.json').read_text())
             for name,data in [('../escape.wav',b'RIFF'+bytes(4)+b'WAVE'+bytes(32)),('clip.wav',bytes(44))]:
                 nested=io.BytesIO()
                 with zipfile.ZipFile(nested,'w') as archive:archive.writestr(name,data)

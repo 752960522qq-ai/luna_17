@@ -143,5 +143,12 @@ JNIEXPORT void JNICALL Java_com_luna17_aot_NativeBridge_crewFinished(JNIEnv *env
 }
 
 JNIEXPORT void JNICALL Java_com_luna17_aot_NativeBridge_clearTankConfiguration(JNIEnv *env,jclass cls){
-    (void)env;(void)cls;memset(&staged_filling,0,sizeof(staged_filling));memset(&staged_magazine,0,sizeof(staged_magazine));
+    (void)env;(void)cls;memset(&staged_filling,0,sizeof(staged_filling));memset(&staged_magazine,0,sizeof(staged_magazine));memset(&staged_fire,0,sizeof(staged_fire));
+}
+
+JNIEXPORT jboolean JNICALL Java_com_luna17_aot_NativeBridge_configureContinuousFire(JNIEnv *env,jclass cls,jstring id,jboolean enabled,jboolean unity_uv){
+ (void)cls;if(!id)return JNI_FALSE;const char *name=(*env)->GetStringUTFChars(env,id,0);if(!name)return JNI_FALSE;
+ int valid=strlen(name)<sizeof(staged_fire.id) && !hatch_find_config(name);
+ if(valid){snprintf(staged_fire.id,sizeof(staged_fire.id),"%s",name);staged_fire.enabled=enabled?1:0;staged_fire.uv_unity=unity_uv?1:0;staged_fire.configured=1;}
+ (*env)->ReleaseStringUTFChars(env,id,name);return valid?JNI_TRUE:JNI_FALSE;
 }

@@ -36,6 +36,14 @@ static int hatch_bind_controls(HatchTank *t, void *go, void *pc, void *status,
       }
   hatch_field(body, "largeWheelLodTrfs", wheels);
   hatch_field(body, "susWheelTrfs", susp);
+  void *centers = ha_array(hatch_class("UnityEngine", "Vector3"), t->config.wheel_count);
+  if (!centers) return hatch_fail("Suspension centers allocation failed");
+  for (int i=0;i<t->config.wheel_count;i++) {
+    void *local = hatch_call(P(susp, 0x20+i*8), "get_localPosition", 0, 0);
+    if(!local)return hatch_fail("Suspension local position missing");
+    memcpy((uint8_t *)centers+0x20+i*12, (uint8_t *)local+0x10, 12);
+  }
+  managed_store(body, 0x90, centers);
   void *empty = ha_array(transformklass, 0);
   hatch_field(body, "partsTransforms", empty);
   hatch_field(body, "smallWheelLodTrfs", empty);

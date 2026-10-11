@@ -87,7 +87,7 @@ static void *attack_info(void *launcher,int shell,int flag,const void *mi) {
             record_shell_profile(info,F(info,0x18));
         managed_store(info,0x20,P(P(launcher,0x38),0x260));
     }
-    if(launcher==firing_launcher && info)firing_info=info;
+    if(launcher==firing_launcher && info){firing_info=info;crew_record_shot(info,P(launcher,0x38),B(launcher,0xa0));}
     return info;
 }
 static UpdateFn original_turret_update;

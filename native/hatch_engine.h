@@ -95,7 +95,8 @@ static int hatch_apply_tank(HatchTank *t, void *go, void *pc, void *status) {
     for (uint32_t j = 0; j < n->vertices; j++) {
       memcpy(positions + j * 3, v + j * 8, 12);
       memcpy(normals + j * 3, v + j * 8 + 3, 12);
-      memcpy(uv + j * 2, v + j * 8 + 6, 8);
+      uv[j * 2] = v[j * 8 + 6];
+      uv[j * 2 + 1] = t->config.uv_unity ? v[j * 8 + 7] : 1.f - v[j * 8 + 7]; // glTF top-left to Unity bottom-left.
     }
     // The shipped game strips set_indexFormat; validated meshes fit UInt16.
     void *mesh = hatch_new(meshklass, 0, 0, 0);
@@ -118,8 +119,17 @@ static int hatch_apply_tank(HatchTank *t, void *go, void *pc, void *status) {
     void *ma[] = {source_material};
     void *mat = hatch_new(materialklass, 1, ma, materialklass);
     hatch_set(mat, "set_color", (void *)n->factor);
-    if (n->color >= 0)
-      hatch_set(mat, "set_mainTexture", hatch_texture_objects[n->color]);
+    hatch_set(mat, "set_mainTexture", n->color >= 0 ? hatch_texture_objects[n->color] : 0);
+    void *property_args[] = {ha_string("_MainTex")};
+    void *property_value = hatch_call_class(hatch_class("UnityEngine","Shader"), 0, "PropertyToID", 1, property_args, 0);
+    if(property_value){
+      int property=I(property_value,0x10);float offset[2]={0,0},scale[2]={1,1};
+      void *offset_args[]={&property,offset}, *scale_args[]={&property,scale};
+      hatch_call_class(materialklass,mat,"SetTextureOffsetImpl",2,offset_args,0);
+      if(class_method(materialklass,"SetTextureScaleImpl",2))hatch_call_class(materialklass,mat,"SetTextureScaleImpl",2,scale_args,0);
+    }
+    void *clear_normal[] = {ha_string("_BumpMap"), 0};
+    hatch_call_class(materialklass, mat, "SetTexture", 2, clear_normal, stringklass);
     if (n->normal >= 0) {
       void *ta[] = {ha_string("_BumpMap"), hatch_texture_objects[n->normal]};
       hatch_call_class(materialklass, mat, "SetTexture", 2, ta, stringklass);

@@ -52,7 +52,7 @@ final class CrewVoicePlayer {
     private List<String> compose(int[] event) throws Exception {
         List<String> result=new ArrayList<>();
         if(event.length!=4)return result;
-        if(event[0]==1||event[0]==3){
+        if(event[0]==1){
             result.add(configuration.getString("targetPrefix"));
             String[] types={"enemy","tank","aircraft","vehicle","t34","tiger","panther"};
             int type=Math.max(0,Math.min(types.length-1,event[1]));

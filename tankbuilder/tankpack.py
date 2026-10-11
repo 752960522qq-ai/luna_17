@@ -19,11 +19,13 @@ def validate_documents(documents):
     for section in ('tank','weapon','armor'):
         value=documents.get(section)
         if not isinstance(value,dict) or not value:errors.append('缺少 '+section+' 参数');continue
-        def walk(obj):
+        def walk(obj,key=None):
             if isinstance(obj,dict):
-                for v in obj.values():walk(v)
+                for k,v in obj.items():walk(v,k)
             elif isinstance(obj,list):
-                for v in obj:walk(v)
+                for v in obj:walk(v,key)
+            elif isinstance(obj,bool) and section=="weapon" and key=="continuousFire":
+                pass
             elif isinstance(obj,(int,float)) and (isinstance(obj,bool) or not math.isfinite(obj)):
                 errors.append(section+' 包含无效数值')
         walk(value)

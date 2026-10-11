@@ -22,7 +22,8 @@ static const ShellProfile *shell_profile(void *info) {
 static void shell_fixed_update(void *shell,const void *mi) {
     void *info=P(shell,0x90);
     const ShellProfile *profile=shell_profile(info);
-    if(!profile){original_shell_fixed_update(shell,mi);return;}
+    int initialized=B(shell,0x9c);
+    if(!profile){original_shell_fixed_update(shell,mi);crew_observe_shell(shell,initialized);return;}
     float speed=F(info,0x18),gravity=F(shell,0x7c);
     if(!B(shell,0x9c))F(info,0x18)=profile->speed/STOCK_SHELL_SPEED_SCALE;
     F(shell,0x7c)=HATCH_SHELL_GRAVITY;
@@ -31,5 +32,6 @@ static void shell_fixed_update(void *shell,const void *mi) {
     // Shell pools may later serve stock-template shots. Do not leave physical
     // gravity on their shared component between updates or vehicle switches.
     F(shell,0x7c)=gravity;
+    crew_observe_shell(shell,initialized);
 }
 

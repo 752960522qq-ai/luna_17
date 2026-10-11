@@ -74,6 +74,7 @@ def compile_project(directory):
  if options:info['runtime_options']=dict(version=2 if kind!='tank' else 1,ballistics=w.get('ballistics','physical'),turret_speed=t['turretRotation'])
  info['vehicle_kind']=kind
  if kind!='tank':info['horizontal_half_angle']=t['gunTraverseHalfAngle']
+ info['continuous_fire']=w.get('continuousFire',False)
  if 'magazine' in w:info['magazine']=w['magazine']
  filling={k:v.get('explosiveMassGrams',v.get('explosiveMassKg',0)*1000) for k,v in w.get('shells',{}).items() if 'explosiveMassGrams' in v or 'explosiveMassKg' in v}
  if filling:info['shell_filling_grams']=filling
