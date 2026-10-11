@@ -1,0 +1,443 @@
+{
+  "packages": [
+    {
+      "filename": "T30.hatch",
+      "bytes": 8725815,
+      "sha256": "3ad6ff10d475e1302da5dfdd2d6ef790ab17f0b2917d1518e8690c12788ffedd",
+      "parts": [
+        {
+          "path": "releases/texture-fix-20261011/T30.hatch.part000",
+          "size": 262144,
+          "sha": "0efb44fc448966b0472b922b608c0dc0733b9df6"
+        },
+        {
+          "path": "releases/texture-fix-20261011/T30.hatch.part001",
+          "size": 262144,
+          "sha": "746fa2526b00b9609cd83821ebf62e6963619ec7"
+        },
+        {
+          "path": "releases/texture-fix-20261011/T30.hatch.part002",
+          "size": 262144,
+          "sha": "335bc188d6f9f8d8c71577147e6553a5ce518e73"
+        },
+        {
+          "path": "releases/texture-fix-20261011/T30.hatch.part003",
+          "size": 262144,
+          "sha": "105413b1f98ae6f1e3a47cbfadf6df95d6811fd9"
+        },
+        {
+          "path": "releases/texture-fix-20261011/T30.hatch.part004",
+          "size": 262144,
+          "sha": "22704fe5b9ca68910240e60f921c8bd608f74248"
+        },
+        {
+          "path": "releases/texture-fix-20261011/T30.hatch.part005",
+          "size": 262144,
+          "sha": "bab76b9b387a830c1df84c28b0a96c2633ff7d6a"
+        },
+        {
+          "path": "releases/texture-fix-20261011/T30.hatch.part006",
+          "size": 262144,
+          "sha": "dbb349c14a0c8ccfd1a0c5b29a0bc3baed5eb347"
+        },
+        {
+          "path": "releases/texture-fix-20261011/T30.hatch.part007",
+          "size": 262144,
+          "sha": "2878e2e4fb752b5eb98c28e89edd49fe9872e941"
+        },
+        {
+          "path": "releases/texture-fix-20261011/T30.hatch.part008",
+          "size": 262144,
+          "sha": "fb815898b8e650713afd63f862d9c580079621c5"
+        },
+        {
+          "path": "releases/texture-fix-20261011/T30.hatch.part009",
+          "size": 262144,
+          "sha": "ccb7203d74c9e8569308fa8a95cf973a18ad7850"
+        },
+        {
+          "path": "releases/texture-fix-20261011/T30.hatch.part010",
+          "size": 262144,
+          "sha": "310f5b82dd62294d25039704be0684d7c79a3f86"
+        },
+        {
+          "path": "releases/texture-fix-20261011/T30.hatch.part011",
+          "size": 262144,
+          "sha": "1341cb2a7e2b6c500069bb38faba0882bc5a36cb"
+        },
+        {
+          "path": "releases/texture-fix-20261011/T30.hatch.part012",
+          "size": 262144,
+          "sha": "d7934400514d64e80f684a483381f337165d5fac"
+        },
+        {
+          "path": "releases/texture-fix-20261011/T30.hatch.part013",
+          "size": 262144,
+          "sha": "c8aac2cc0fc37c6619dd1b99b91759fbc67193ef"
+        },
+        {
+          "path": "releases/texture-fix-20261011/T30.hatch.part014",
+          "size": 262144,
+          "sha": "f163bd9a90352b03f73e7a1e5331e8a680f949ef"
+        },
+        {
+          "path": "releases/texture-fix-20261011/T30.hatch.part015",
+          "size": 262144,
+          "sha": "d88e59bc3f99ad1a24ff58429d68b9aa477955cf"
+        },
+        {
+          "path": "releases/texture-fix-20261011/T30.hatch.part016",
+          "size": 262144,
+          "sha": "19a04418fda1fdc882e02d339db57c013e71a531"
+        },
+        {
+          "path": "releases/texture-fix-20261011/T30.hatch.part017",
+          "size": 262144,
+          "sha": "0b58314efe715118e13703a9b7d4665efec864ff"
+        },
+        {
+          "path": "releases/texture-fix-20261011/T30.hatch.part018",
+          "size": 262144,
+          "sha": "5fb3b97cc2b1260d1d726c92b7bd6b0f7c43bbbd"
+        },
+        {
+          "path": "releases/texture-fix-20261011/T30.hatch.part019",
+          "size": 262144,
+          "sha": "c907d8034b3b3b0a329975cb1ce5f4e691e4b027"
+        },
+        {
+          "path": "releases/texture-fix-20261011/T30.hatch.part020",
+          "size": 262144,
+          "sha": "fedd570e6a07cd8ad28f1b6a9f5f8f5e04b4d5f1"
+        },
+        {
+          "path": "releases/texture-fix-20261011/T30.hatch.part021",
+          "size": 262144,
+          "sha": "d7b627fa46bc1e66b7ac41ae61a9018451281be0"
+        },
+        {
+          "path": "releases/texture-fix-20261011/T30.hatch.part022",
+          "size": 262144,
+          "sha": "f8757db91e34840ab72dcab7236684c8efabb87d"
+        },
+        {
+          "path": "releases/texture-fix-20261011/T30.hatch.part023",
+          "size": 262144,
+          "sha": "1cf2c9daf0dd14d658a750c546621472f9f3ae29"
+        },
+        {
+          "path": "releases/texture-fix-20261011/T30.hatch.part024",
+          "size": 262144,
+          "sha": "8e60eaeb252b8b527557e8ea96c836519354af3e"
+        },
+        {
+          "path": "releases/texture-fix-20261011/T30.hatch.part025",
+          "size": 262144,
+          "sha": "0d42784048b79dadcb1661605af1ec645d15c2e8"
+        },
+        {
+          "path": "releases/texture-fix-20261011/T30.hatch.part026",
+          "size": 262144,
+          "sha": "73a53bd7062569760f4ffa165f817d80275eb3fc"
+        },
+        {
+          "path": "releases/texture-fix-20261011/T30.hatch.part027",
+          "size": 262144,
+          "sha": "b9d254cc95807b9224effdd6e364a5ca7dc1bf2a"
+        },
+        {
+          "path": "releases/texture-fix-20261011/T30.hatch.part028",
+          "size": 262144,
+          "sha": "502c908db6cca3c3efd429799b1ea74662515069"
+        },
+        {
+          "path": "releases/texture-fix-20261011/T30.hatch.part029",
+          "size": 262144,
+          "sha": "063a11e8cc4f20ec6520999fc65ee04eb1d5c795"
+        },
+        {
+          "path": "releases/texture-fix-20261011/T30.hatch.part030",
+          "size": 262144,
+          "sha": "b20020d30acf3d72ee6ac6685f031a864ee9f052"
+        },
+        {
+          "path": "releases/texture-fix-20261011/T30.hatch.part031",
+          "size": 262144,
+          "sha": "fcf413acf57e04f64a364d6bdc1b28720e2f774f"
+        },
+        {
+          "path": "releases/texture-fix-20261011/T30.hatch.part032",
+          "size": 262144,
+          "sha": "c4060e12fa5d625ceef309abf2838e3287c95c6d"
+        },
+        {
+          "path": "releases/texture-fix-20261011/T30.hatch.part033",
+          "size": 75063,
+          "sha": "912a2ecd073ab4967f0fe66e98a82e18d6355d3b"
+        }
+      ]
+    },
+    {
+      "filename": "Panzer_II_Ausf_L.hatch",
+      "bytes": 13195580,
+      "sha256": "d4e36e6b60f9d027d2af3c60a933963800e70a73e954b5468d62c826ab5b98f9",
+      "parts": [
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part000",
+          "size": 262144,
+          "sha": "81828d6cfa707d1fce09254eb7a445f4ed9805a5"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part001",
+          "size": 262144,
+          "sha": "878227649e1fe3419e98335498b358f17b98263a"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part002",
+          "size": 262144,
+          "sha": "cecbe7a01e59b03696e6c9b73c805ba35a926fbb"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part003",
+          "size": 262144,
+          "sha": "f1042843aa59f93c2ac2a784b6b04b31b21f4306"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part004",
+          "size": 262144,
+          "sha": "92b90bb577457c8bf6b70d8259ae25468be21ba5"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part005",
+          "size": 262144,
+          "sha": "3eb89d27e805df24063a1fcea89411192acd4a43"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part006",
+          "size": 262144,
+          "sha": "c3e6bd008be5fa291c7abb83ed0dcdac0b95a743"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part007",
+          "size": 262144,
+          "sha": "a2522080999fa99686de8995a0f89c513064e8f8"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part008",
+          "size": 262144,
+          "sha": "07806004577323f94c3c4b1c6bc91842c1f2f0fd"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part009",
+          "size": 262144,
+          "sha": "ba039751e40b40b4deba5e93c4f00f4274205beb"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part010",
+          "size": 262144,
+          "sha": "deb8a598fd1a2b1876631807e788d832953dfc04"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part011",
+          "size": 262144,
+          "sha": "f0cbb285f86d1efa4d9a55c949461064fb16d63a"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part012",
+          "size": 262144,
+          "sha": "0797a752a4e7e1a7face6be59575eac0af3afc8d"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part013",
+          "size": 262144,
+          "sha": "a248cd8beaf1d8554210fe0db4bb121720f1c0de"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part014",
+          "size": 262144,
+          "sha": "f61e934ef2a0b803e3e8dc9431b89487ff2bfd6b"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part015",
+          "size": 262144,
+          "sha": "e99a4f5119cdd6d16783f24a3c8aebc15770aade"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part016",
+          "size": 262144,
+          "sha": "1a6df5e72b5002b98740e64289cc909873e05505"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part017",
+          "size": 262144,
+          "sha": "3b86454c77c1154c865815eed395db34d1e44a0a"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part018",
+          "size": 262144,
+          "sha": "1c78ec3b213cb9febf2850cd36ac0d18f0935ef2"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part019",
+          "size": 262144,
+          "sha": "abab63e4607b1868fbd6df7c72f4e7954ae384a7"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part020",
+          "size": 262144,
+          "sha": "42176952052805e74d6c959bb465c4c3971edad2"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part021",
+          "size": 262144,
+          "sha": "d0a2eb8cef1b0b4c73f5d6b27bf02994999be095"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part022",
+          "size": 262144,
+          "sha": "345b41d88e2b4324d0a718f435191a0fee46f9cf"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part023",
+          "size": 262144,
+          "sha": "aa8ea51ec9fb3a69cfe1cb39abb6bee58de016cb"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part024",
+          "size": 262144,
+          "sha": "accd22feffc63ec1cc62445edfb7471be155760e"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part025",
+          "size": 262144,
+          "sha": "081a7375779aa6efe1928bc2e5954366ea36ff9a"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part026",
+          "size": 262144,
+          "sha": "7e0e27a6c2cf8a354b23f3c71392562999ae3e89"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part027",
+          "size": 262144,
+          "sha": "a22e6fa8072a8e247137ad3432dc98101503efc9"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part028",
+          "size": 262144,
+          "sha": "b8ae46d74ffeefd5ebd04c19b7f39e483dfacc4f"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part029",
+          "size": 262144,
+          "sha": "039ffc1e18ac4fb23492f1b8f76fba127dbc3fe8"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part030",
+          "size": 262144,
+          "sha": "eac9241612f3c73a7643b82b8d03bf6e37887f21"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part031",
+          "size": 262144,
+          "sha": "a15082f488c38a1fce241c44e0fa03bba42ebd88"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part032",
+          "size": 262144,
+          "sha": "6c5d2289160bb2c5c1ed5e973bb7097104931c10"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part033",
+          "size": 262144,
+          "sha": "4ff04c10032d5ebc71020957c64ac8f6e7a57706"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part034",
+          "size": 262144,
+          "sha": "75cd691b58db2dbd6d28b9fe8d9dbeb860db0a1a"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part035",
+          "size": 262144,
+          "sha": "a73ad3ec8ba50fa22248e8d4885b6a4e9701a71c"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part036",
+          "size": 262144,
+          "sha": "3a472d1804d5df9894bf3775002d51835b394660"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part037",
+          "size": 262144,
+          "sha": "653e94e4f6fb9b56193c169d965f8a826e2bdb42"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part038",
+          "size": 262144,
+          "sha": "71c39c9a2d2809d8e88da1586342a118125d490d"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part039",
+          "size": 262144,
+          "sha": "7643f1e118d3fc11ea76708763af10d2921ed014"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part040",
+          "size": 262144,
+          "sha": "f1e23f7c6ae1be6497d778f6f71a5b0df3c2b222"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part041",
+          "size": 262144,
+          "sha": "82811e8c0a73c8327b85c8d0678842630bbc7e52"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part042",
+          "size": 262144,
+          "sha": "ca6f95121e72401362b25c7f67562ae4ba36303e"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part043",
+          "size": 262144,
+          "sha": "21708a3a5842137856c578ac02ff283ca4b8dfd3"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part044",
+          "size": 262144,
+          "sha": "35e347b7b765e832a7118e52c37190857c4dfcca"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part045",
+          "size": 262144,
+          "sha": "bf82d1642b9f4f76bc6612312ffc0dffe82ffff2"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part046",
+          "size": 262144,
+          "sha": "ba03912a28a9a6abc82125d2170b50d895f79065"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part047",
+          "size": 262144,
+          "sha": "9fcbbdb825d9dda26af95cb0ca3cf244589b3238"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part048",
+          "size": 262144,
+          "sha": "f432cb2bde5cd779a300d4244d22b47926cb2119"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part049",
+          "size": 262144,
+          "sha": "5e9ef8fb7839079949db0c9a4b3c738db8797841"
+        },
+        {
+          "path": "releases/texture-fix-20261011/Panzer_II_Ausf_L.hatch.part050",
+          "size": 88380,
+          "sha": "8901469395c2357f4f014a7e5ac1e4bfb3fa5594"
+        }
+      ]
+    }
+  ]
+}

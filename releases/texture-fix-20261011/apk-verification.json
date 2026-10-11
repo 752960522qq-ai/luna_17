@@ -1,0 +1,66 @@
+{
+  "base_sha256": "821003b658941caaebbf8863bac5fdba26a808314c1cd1587156f450a7ef886e",
+  "apk_sha256": "933c6db778cb7922712d717b1b6d230283d43c7b96b816781577d753d4d5242f",
+  "apk_bytes": 303464680,
+  "changed_entries": [
+    "assets/Hatch/mods/Panzer_II_Ausf_L.hatch",
+    "assets/Hatch/mods/T30.hatch",
+    "assets/Hatch/catalog.json"
+  ],
+  "catalog": {
+    "format": 2,
+    "loader_version": "0.3",
+    "mods": [
+      {
+        "id": "tankinvincible3000",
+        "name": "坦无敌3000",
+        "sha256": "db1bae39a22ef67321de8191b70a62d64a3537c4598749213a007710d156ec19",
+        "size": 46327
+      },
+      {
+        "id": "T54_1949",
+        "name": "T‑54 (1949)",
+        "sha256": "642186e82836df6a428000b4ce3607d040df5141079968fca896b0560bd8999f",
+        "size": 35561421
+      },
+      {
+        "id": "Matilda_III",
+        "name": "Matilda III",
+        "sha256": "d07d3feb4616d112359dab4f411d9cc8f4508a42ea8943ee75230b9f59de3115",
+        "size": 27990380
+      },
+      {
+        "id": "Panzer_II_Ausf_L",
+        "name": "Panzer II Ausf.L",
+        "sha256": "d4e36e6b60f9d027d2af3c60a933963800e70a73e954b5468d62c826ab5b98f9",
+        "size": 13195580
+      },
+      {
+        "id": "T44_100",
+        "name": "T-44-100",
+        "sha256": "4f1eb2f15013d50f6c83194225f689d3e0f51b2a7e6c4ee2c213714c44ea2894",
+        "size": 21152336
+      },
+      {
+        "id": "T30",
+        "name": "T30",
+        "sha256": "3ad6ff10d475e1302da5dfdd2d6ef790ab17f0b2917d1518e8690c12788ffedd",
+        "size": 8725815
+      },
+      {
+        "id": "SU_152",
+        "name": "SU-152",
+        "sha256": "45b099b25804d5330c2926a81d56f01b88af1084f97bbcdf83259b68df8390b4",
+        "size": 21881473
+      }
+    ]
+  },
+  "signature_scheme": "v2 RSA PKCS1 SHA256",
+  "certificate_sha256": "734e17a0550eb23e3e5975dc90a7932eb513ee0e62ad4804b436cacd5f15413e",
+  "signing_key_changed": true,
+  "zip_crc_check": "passed",
+  "unchanged_entries_byte_comparison": "passed",
+  "elf_zip_alignment": "16384 bytes",
+  "signature_and_content_digest": "passed",
+  "android_device_test": "not performed"
+}
