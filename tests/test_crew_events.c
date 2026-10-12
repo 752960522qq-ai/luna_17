@@ -42,6 +42,13 @@ static void *enemy_invoke(void *m,void *p,void **args,int *error){
 static void utf8_name(void *p,char *s,size_t n){(void)p;if(n)s[0]=0;}
 static BteVec bv(Vec3 p){return (BteVec){p.x,p.y,p.z};}
 static int bte_cast(Vec3 a,Vec3 b,EnemyHit *h){(void)a;(void)b;(void)h;return 0;}
+static void *firing_info;
+static int bte_mode=2,bte_target_valid=1;static void *bte_camera;static Vec3 bte_target_world;
+static Vec3 uv(BteVec p){return (Vec3){p.x,p.y,p.z};}
+static void *hatch_call(void *p,const char *n,int c,void **args){(void)n;(void)c;(void)args;return p;}
+static int bte_hit_belongs_to(EnemyHit *h,void *r){(void)h;(void)r;return 0;}
+static void bte_lock(volatile int *p){while(__atomic_exchange_n(p,1,__ATOMIC_ACQUIRE)){} }
+static void bte_unlock(volatile int *p){__atomic_store_n(p,0,__ATOMIC_RELEASE);}
 #include "../native/crew_voice.h"
 static void radio(void *p,int event,const void *m){(void)p;(void)event;(void)m;stock_calls++;}
 static void reset(void *p,const void *m){(void)m;B(p,0x9c)=0;}
@@ -55,8 +62,8 @@ int main(void){
  crew_record_shot(info,player,0);I(result,0x20)=10;crew_damage_result(damage,info,result);event_is(3);
  crew_damage_result(damage,info,result);assert(!crew_gate_take());
  crew_record_shot(info2,player,0);I(result,0x20)=9;crew_damage_result(damage,info2,result);event_is(7);
- // Outcomes during speech are discarded permanently, including misses.
- crew_trigger(4);crew_record_shot(info,player,0);crew_damage_result(damage,info,result);event_is(4);crew_damage_result(damage,info,result);assert(!crew_gate_take());
+ // Outcomes arriving during speech remain queued.
+ crew_trigger(4);crew_record_shot(info,player,0);crew_damage_result(damage,info,result);event_is(4);event_is(7);crew_damage_result(damage,info,result);assert(!crew_gate_take());
  crew_record_shot(info,player,0);P(shell,0x90)=info;B(shell,0x9c)=1;crew_shell_reset(shell,0);clock_time+=301;crew_player_update(pc);event_is(2);
  P(damage,0x38)=player;crew_damage_result(damage,info,result);event_is(4);
  I(ui,0x100)=1;crew_player_update(pc);event_is(6);crew_player_update(pc);assert(!crew_gate_take());
@@ -65,20 +72,23 @@ int main(void){
  state=2;B(player,0x206)=1;B(game,0x10c)=0;crew_battle_update(game,2);assert(state==2&&!crew_gate_take());
  state=3;B(player,0x206)=0;scanning=1;P(pc,0x20)=root_tr;P(pc,0x50)=turret;
  P(enemy,0x280)=enemy_tr;P(enemy_air,0x280)=air_tr;
- *(Vec3 *)(enemy_tr+0x100)=(Vec3){100,0,0};*(Vec3 *)(turret+0x200)=(Vec3){100,1,0};
+ *(Vec3 *)(enemy_tr+0x100)=(Vec3){100,0,0};*(Vec3 *)(turret+0x200)=(Vec3){100,1,0};bte_target_world=(Vec3){100,1,0};
  I(enemy_list,0x18)=1;P(enemy_list,0x20)=enemy;I(air_list,0x18)=0;
  crew_contact=0;clock_time+=1000;crew_acquire_target(pc,clock_time);assert(crew_gate_take());assert(crew_event[0]==17&&crew_event[1]==1&&crew_event[2]==3&&crew_event[3]==100);crew_gate_finish();
  clock_time+=300;crew_acquire_target(pc,clock_time);assert(!crew_gate_take());
  I(enemy_list,0x18)=0;I(air_list,0x18)=1;P(air_list,0x20)=enemy_air;
- *(Vec3 *)(air_tr+0x100)=(Vec3){0,1,450};*(Vec3 *)(turret+0x200)=(Vec3){0,1,450};
+ *(Vec3 *)(air_tr+0x100)=(Vec3){0,1,450};*(Vec3 *)(turret+0x200)=(Vec3){0,1,450};bte_target_world=(Vec3){0,1,450};
  clock_time+=300;crew_acquire_target(pc,clock_time);assert(crew_gate_take());assert(crew_event[0]==17&&crew_event[1]==2&&crew_event[2]==12&&crew_event[3]==450);crew_gate_finish();
- // Busy contact is consumed, not delayed until the voice gate releases.
- crew_trigger(4);I(air_list,0x18)=0;I(enemy_list,0x18)=1;*(Vec3 *)(turret+0x200)=(Vec3){100,1,0};
- clock_time+=300;crew_acquire_target(pc,clock_time);event_is(4);clock_time+=300;crew_acquire_target(pc,clock_time);assert(!crew_gate_take());
+ // Acquisition notice publishes immediately while speech waits in FIFO.
+ crew_trigger(4);I(air_list,0x18)=0;I(enemy_list,0x18)=1;*(Vec3 *)(turret+0x200)=(Vec3){100,1,0};bte_target_world=(Vec3){100,1,0};
+ clock_time+=300;crew_acquire_target(pc,clock_time);event_is(4);event_is(17);clock_time+=300;crew_acquire_target(pc,clock_time);assert(!crew_gate_take());
+ assert(crew_notice[1]==1&&crew_notice[2]==3&&crew_notice[4]==1);
+ firing_info=info;crew_record_shot(info,player,0);crew_record_shot(info2,player,0);assert(crew_shot(info)==crew_shot(info2));
+ P(damage,0x38)=enemy;I(result,0x20)=10;crew_damage_result(damage,info2,result);event_is(3);crew_projectile_impact_observed(info);clock_time+=301;crew_player_update(pc);assert(!crew_gate_take());firing_info=0;
  // Directional outcomes use the nearest sampled approach to the locked target.
  crew_record_shot(info,player,0);CrewShot *shot=crew_shot(info);assert(shot->has_target);shot->closest=(BteVec){100,4,0};shot->closest_error=0;shot->finished=clock_time+1;
  clock_time+=10;crew_player_update(pc);event_is(8);
  scanning=0;
  offline=0;crew_radio_voice(0,10,0);assert(stock_calls==1);
- puts("Crew events: ready once, stock IDs suppressed, damage threshold 9/10, hit, kill, shell change, victory, delayed miss, busy drop, destroyed guard");
+ puts("Crew events: ready once, stock IDs suppressed, damage threshold 9/10, hit, kill, shell change, victory, delayed miss, busy queue, destroyed guard");
 }

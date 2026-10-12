@@ -1,0 +1,11 @@
+{
+  "format": 1,
+  "id": "SU_152",
+  "displayName": "SU-152",
+  "country": "USSR",
+  "tier": 3,
+  "basePrefab": "SU_85_Player",
+  "role": "player",
+  "adapter": "aot-5.1.0-arm64-v1",
+  "source": "https://sketchfab.com/3d-models/su152-803dbc62a2ec4a0688e692a07324c949"
+}

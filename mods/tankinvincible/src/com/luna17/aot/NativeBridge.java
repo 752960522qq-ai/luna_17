@@ -22,6 +22,9 @@ final class NativeBridge {
     static native boolean configureCrew(boolean enabled, int mask);
     static native int[] crewEvent();
     static native void crewFinished();
+    static native void crewClear();
+    static native int[] crewContactSnapshot();
+    static native void experienceTarget(float x,float y);
     static native boolean configureExperience(int flags,float k,float khe);
     static native float[] experienceSnapshot();
     static native void experienceInput(int cycle,float dx,float dy,float zoom,float tilt);

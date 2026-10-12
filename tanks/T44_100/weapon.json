@@ -1,0 +1,44 @@
+{
+  "name": "100 mm D-10T",
+  "caliber": 100,
+  "reload": 13.0,
+  "muzzleVelocity": 792,
+  "ballistics": "stock-t34-85",
+  "ammo": {
+    "AP": 36,
+    "APCR": 16,
+    "HE": 10,
+    "HEAT": 0
+  },
+  "shells": {
+    "AP": {
+      "name": "BR-412 APHE",
+      "penetrationMm": 218,
+      "explosiveMassGrams": 103
+    },
+    "APCR": {
+      "name": "BR-412P",
+      "penetrationMm": 224,
+      "explosiveMassGrams": 0
+    },
+    "HE": {
+      "name": "OF-412",
+      "penetrationMm": 27,
+      "explosiveMassGrams": 1460
+    },
+    "HEAT": {
+      "penetrationMm": 0,
+      "explosiveMassGrams": 1400
+    },
+    "WP": {
+      "penetrationMm": 0,
+      "explosiveMassGrams": 0
+    }
+  },
+  "machineGun": {
+    "name": "7.62 mm DT",
+    "position": "coaxial",
+    "ammo": 30,
+    "ammoUnit": "game magazines"
+  }
+}

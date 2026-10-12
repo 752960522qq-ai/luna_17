@@ -9,6 +9,7 @@ static const CustomTank *tank_config(void *status) {
     return 0;
 }
 #include "magazine_runtime.h"
+#include "projectile_owner.h"
 #include "ballistics_runtime.h"
 static int is_custom_tank(void *status) { return tank_config(status)!=0; }
 void set_stat(void *status,int offset,int number) {
@@ -68,6 +69,9 @@ static void *(*original_attack_info)(void *,int,int,const void *);
 static void *attack_info(void *launcher,int shell,int flag,const void *mi) {
     void *info=original_attack_info(launcher,shell,flag,mi);
     record_shell_profile(info,0);
+    void *owner=0;
+    if(info&&!B(launcher,0xa0)&&tank_config(P(launcher,0x38))){void *tr=hatch_call(launcher,"get_transform",0,0);owner=tr?hatch_call(tr,"get_root",0,0):0;}
+    record_projectile_owner(info,owner);
     const CustomTank *c=tank_config(P(launcher,0x38));
     record_filling(info,B(launcher,0xa0)?0:c,shell);
     if(info && !B(launcher,0xa0) && shell>=0 && shell<5){
@@ -87,7 +91,7 @@ static void *attack_info(void *launcher,int shell,int flag,const void *mi) {
             record_shell_profile(info,F(info,0x18));
         managed_store(info,0x20,P(P(launcher,0x38),0x260));
     }
-    if(launcher==firing_launcher && info){firing_info=info;crew_record_shot(info,P(launcher,0x38),B(launcher,0xa0));}
+    if(launcher==firing_launcher && info){if(!firing_info)firing_info=info;crew_record_shot(info,P(launcher,0x38),B(launcher,0xa0));}
     return info;
 }
 static UpdateFn original_turret_update;

@@ -1,0 +1,19 @@
+{
+  "type": "tank-destroyer",
+  "vehicleKind": "tank-destroyer",
+  "crew": 5,
+  "maxForwardSpeed": 43,
+  "maxReverseSpeed": 16,
+  "enginePower": 600,
+  "weightTonnes": 45.5,
+  "hullTraverse": "slow",
+  "gunElevation": 20,
+  "gunDepression": -3,
+  "turretRotation": 5.8,
+  "gunTraverseHalfAngle": 6,
+  "dimensionsMeters": {
+    "length": 9.634959101676941,
+    "width": 3.454547166824341,
+    "height": 2.5703093707561493
+  }
+}

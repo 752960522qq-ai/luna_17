@@ -1,6 +1,7 @@
 """Compile a validated tank project into an external runtime package (not an APK)."""
 import argparse,hashlib,json,math,struct,tempfile,zipfile,io
 from pathlib import Path
+from hatch.ammunition import filling_table
 import numpy as np
 from tankbuilder.project import validate_project,read_documents,FILES
 from tankbuilder.modelrig import Model
@@ -16,7 +17,7 @@ def name(s,n):
 def compile_project(directory):
  d=Path(directory);v=validate_project(d)
  if not v['valid']:raise ValueError('; '.join(v['errors']))
- doc=read_documents(d);m,t,w,a,r=[doc[k] for k in ['manifest','tank','weapon','armor','rig']];model=Model(d/'model.glb');g=model.g
+ doc=read_documents(d);m,t,w,a,r=[doc[k] for k in ['manifest','tank','weapon','armor','rig']];filling=filling_table(w,True);model=Model(d/'model.glb');g=model.g
  if any(n.matrix for n in g.nodes):raise ValueError('Hatch 0.1 要求节点使用 TRS 变换，请先将矩阵变换烘焙为 TRS')
  if any(p.mode not in (None,4) for mesh in g.meshes for p in mesh.primitives):raise ValueError('Hatch 0.1 仅支持三角形网格')
  r=dict(r);kind=t.get('vehicleKind','tank')
@@ -82,7 +83,6 @@ def compile_project(directory):
  if kind!='tank':info['horizontal_half_angle']=t['gunTraverseHalfAngle']
  info['continuous_fire']=w.get('continuousFire',False)
  if 'magazine' in w:info['magazine']=w['magazine']
- filling={k:v.get('explosiveMassGrams',v.get('explosiveMassKg',0)*1000) for k,v in w.get('shells',{}).items() if 'explosiveMassGrams' in v or 'explosiveMassKg' in v}
  if filling:info['shell_filling_grams']=filling
  return blob,info
 def pack_project(directory,output):

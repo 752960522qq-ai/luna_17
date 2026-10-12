@@ -18,6 +18,15 @@ JNIEXPORT void JNICALL Java_com_luna17_aot_NativeBridge_experienceInput(JNIEnv *
     bte_pan_x+=bte_limit(dx,-1,1);bte_pan_y+=bte_limit(dy,-1,1);bte_zoom+=bte_limit(zoom,-1,1);bte_tilt+=bte_limit(tilt,-20,20);
     bte_unlock(&bte_command_lock);
 }
+JNIEXPORT void JNICALL Java_com_luna17_aot_NativeBridge_experienceTarget(JNIEnv *env,jclass cls,jfloat x,jfloat y){
+ (void)env;(void)cls;if(!isfinite(x)||!isfinite(y)||x<0||x>1||y<0||y>1)return;
+ bte_lock(&bte_command_lock);bte_target_x=x;bte_target_y=y;bte_target_pending=1;bte_unlock(&bte_command_lock);
+}
+JNIEXPORT void JNICALL Java_com_luna17_aot_NativeBridge_crewClear(JNIEnv *env,jclass cls){(void)env;(void)cls;crew_gate_clear();}
+JNIEXPORT jintArray JNICALL Java_com_luna17_aot_NativeBridge_crewContactSnapshot(JNIEnv *env,jclass cls){
+ (void)cls;int values[5];bte_lock(&crew_notice_lock);memcpy(values,crew_notice,sizeof(values));bte_unlock(&crew_notice_lock);
+ jintArray out=(*env)->NewIntArray(env,5);if(out)(*env)->SetIntArrayRegion(env,out,0,5,values);return out;
+}
 JNIEXPORT void JNICALL Java_com_luna17_aot_NativeBridge_init(JNIEnv *env,jclass cls) {
     (void)env;(void)cls;
     static int started;

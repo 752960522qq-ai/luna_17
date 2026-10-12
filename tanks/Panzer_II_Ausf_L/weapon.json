@@ -1,0 +1,48 @@
+{
+  "name": "2 cm KwK 38 L/65",
+  "caliber": 20,
+  "reload": 4.85,
+  "muzzleVelocity": 830,
+  "magazine": {
+    "capacity": 10,
+    "shotInterval": 0.4,
+    "reloadTime": 4.85
+  },
+  "ammo": {
+    "AP": 200,
+    "APCR": 120,
+    "HE": 0,
+    "HEAT": 0
+  },
+  "shells": {
+    "AP": {
+      "name": "Pzgr.39",
+      "penetrationMm": 37,
+      "explosiveMassGrams": 0
+    },
+    "APCR": {
+      "name": "Pzgr.40",
+      "penetrationMm": 59,
+      "explosiveMassGrams": 0
+    },
+    "HE": {
+      "penetrationMm": 0,
+      "explosiveMassGrams": 10
+    },
+    "HEAT": {
+      "penetrationMm": 0,
+      "explosiveMassGrams": 0
+    },
+    "WP": {
+      "penetrationMm": 0,
+      "count": 0,
+      "explosiveMassGrams": 0
+    }
+  },
+  "machineGun": {
+    "name": "7.92 mm MG34",
+    "position": "coaxial",
+    "ammo": 30
+  },
+  "reloadNote": "reload is full magazine reload; shotInterval is the requested 0.4 s between rounds"
+}

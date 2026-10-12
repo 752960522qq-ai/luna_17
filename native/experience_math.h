@@ -19,7 +19,7 @@ static BteDamage bte_damage(int shell, float penetration, float caliber,
     result.penetrated = result.effective_penetration >= armor;
     if (shell == BTE_HE) {
         result.damage = khe * powf(filling_grams/100.f, .6f) * sqrtf(caliber/100.f) *
-                        (result.penetrated ? 1.f : .15f);
+                        (result.penetrated ? 1.f : .10f);
     } else if (result.penetrated) {
         float margin = armor > 0 ? fminf(1.5f, fmaxf(1.f, result.effective_penetration/armor)) : 1.5f;
         float multiplier = shell == BTE_APCR ? .7f : shell == BTE_HEAT ? .8f : 1.f;

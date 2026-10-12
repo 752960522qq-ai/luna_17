@@ -1,0 +1,17 @@
+{
+  "type": "medium",
+  "crew": 4,
+  "maxForwardSpeed": 59,
+  "maxReverseSpeed": 9,
+  "enginePower": 520,
+  "weightTonnes": 33.5,
+  "hullTraverse": "medium",
+  "gunElevation": 18,
+  "gunDepression": -3,
+  "turretRotation": 17.5,
+  "dimensionsMeters": {
+    "length": 8.04,
+    "width": 3.25,
+    "height": 2.455
+  }
+}

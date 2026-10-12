@@ -1,0 +1,21 @@
+{
+  "base": "56bbda62a625a3d0511372b205e232c01a8f0bbf",
+  "apk_built": false,
+  "device_run": false,
+  "arm64_module_built": false,
+  "unicorn_run": false,
+  "c_regression_programs_passed": 11,
+  "python_jvm_tests_passed": 20,
+  "native_syntax": "passed",
+  "python_compile": "passed",
+  "charge_entries": 91,
+  "stock_vehicles": 84,
+  "bundled_mod_vehicles": 7,
+  "uploaded_voice_wav": 106,
+  "he_nonpenetration_fraction": 0.1,
+  "SU_152_HE_grams": 5860,
+  "Grille_HE_grams": 8300,
+  "HE_callback_entry_fingerprints": "verified against game library",
+  "merged_remote_base": "56bbda62a625a3d0511372b205e232c01a8f0bbf",
+  "T54_model_chunks": "all size and sha256 checks passed"
+}

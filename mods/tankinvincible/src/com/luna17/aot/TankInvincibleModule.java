@@ -79,24 +79,7 @@ public final class TankInvincibleModule implements HatchModule, HatchFeatureHost
         if((flags&claimedFlags)!=0)return "扩展能力冲突: "+featureOwners;
         if(flags==0 || NativeBridge.state()==3 || !Float.isFinite(k)||k<=0||k>1000||!Float.isFinite(khe)||khe<=0||khe>1000)return "玩法配置无效，或战斗已开始；请在进入战斗前加载";
         JSONObject ammo=doc.optJSONObject("ammunition");
-        if(ammo!=null){
-            if(ammo.length()>512)return "装药配置车辆数超限";
-            String[] kinds={"AP","HE","APCR","WP","HEAT"};
-            java.util.Map<String,float[]> values=new java.util.LinkedHashMap<>();
-            java.util.Map<String,Integer> masks=new java.util.LinkedHashMap<>();
-            java.util.Iterator<String> ids=ammo.keys();
-            while(ids.hasNext()){
-                String vehicle=ids.next();if(!vehicle.matches("[A-Za-z0-9_-]{1,111}"))return "装药配置车辆ID无效";
-                JSONObject shells=ammo.getJSONObject(vehicle);float[] grams=new float[5];int mask=0;
-                java.util.Iterator<String> types=shells.keys();while(types.hasNext())if(!java.util.Arrays.asList(kinds).contains(types.next()))return "未知装药弹种";
-                for(int i=0;i<5;i++)if(shells.has(kinds[i])&&!shells.isNull(kinds[i])){
-                    double value=shells.getDouble(kinds[i]);if(!Double.isFinite(value)||value<0||value>100000)return "装药量应为0–100000克或null";
-                    grams[i]=(float)value;mask|=1<<i;
-                }
-                values.put(vehicle,grams);masks.put(vehicle,mask);
-            }
-            for(String vehicle:values.keySet())if(!NativeBridge.configureAmmunition(vehicle,values.get(vehicle),masks.get(vehicle)))return "装药配置加载失败";
-        }
+        String ammunitionError=AmmunitionSettings.apply(ammo);if(!ammunitionError.isEmpty())return ammunitionError;
         if(!NativeBridge.configureExperience(flags|claimedFlags,k,khe))return "玩法配置加载失败";
         for(int bit=1;bit<=4;bit<<=1)if((flags&bit)!=0)featureOwners.put(bit,id);
         claimedFlags|=flags;damageK=k;damageKhe=khe;return "";

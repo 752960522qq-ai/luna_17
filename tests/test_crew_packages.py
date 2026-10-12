@@ -11,7 +11,7 @@ class CrewPackages(unittest.TestCase):
         inventory=json.loads((directory/'voice-inventory.json').read_text())
         config=json.loads((directory/'features.json').read_text())['crew']
         self.assertGreater(len(inventory),100)
-        self.assertEqual(config['mode'],'drop-while-speaking')
+        self.assertEqual(config['mode'],'queue-while-speaking')
         for clips in config['events'].values():
             for clip in clips:self.assertIn(clip,inventory)
         for n in range(1,13):self.assertIn(f'voice_message_commander_target_{n}_h.wav',inventory)

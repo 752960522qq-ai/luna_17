@@ -1,0 +1,10 @@
+{
+  "format": 1,
+  "id": "Panzer_II_Ausf_L",
+  "displayName": "Panzer II Ausf.L",
+  "country": "Germany",
+  "tier": 1,
+  "basePrefab": "T34_85_Player",
+  "role": "player",
+  "adapter": "aot-5.1.0-arm64-v1"
+}

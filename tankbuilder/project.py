@@ -1,6 +1,7 @@
 """Persistent, reusable tank projects. No analysis service is used at build time."""
 import copy, hashlib, io, json, math, os, re, shutil, tempfile, zipfile
 from pathlib import Path
+from hatch.ammunition import filling_table,filling_vector
 from .modelrig import Model
 from PIL import Image
 from pygltflib import BufferView
@@ -47,6 +48,8 @@ def document_errors(doc):
     else:
         for k,v in ammo.items():
             if k not in ['AP','APCR','HE','HEAT','WP'] or type(v)!=int or not 0<=v<=1000:errors.append('弹种或备弹量错误')
+    try:filling_table(w,True)
+    except (ValueError,TypeError,AttributeError) as e:errors.append(str(e))
     shells=w.get('shells',{})
     if isinstance(shells,dict):
         for shell in shells.values():
@@ -267,11 +270,7 @@ def generate_runtime_header(directories,destination):
         values=[m['id'],round(w['shells']['AP']['penetrationMm']),round(w['caliber']),round(w['muzzleVelocity']),math.ceil(w['reload']),w['reload']-math.ceil(w['reload']),round(t['enginePower']),round(t['maxForwardSpeed']),t['maxReverseSpeed']/3.6,round(t['turretRotation']),t['weightTonnes'],round(t['gunElevation']),round(abs(t['gunDepression'])),t['crew'],m['tier'],[a['body'][x] for x in ['front','side','side','rear']],[a['turret'][x] for x in ['front','side','side','rear']],[w['ammo'].get(x,0) for x in ['AP','HE','APCR','WP','HEAT']],w['machineGun']['ammo'],[w['shells'].get(x,{}).get('penetrationMm',0) for x in ['AP','HE','APCR','WP','HEAT']],len(wheels),sus['travel'],sus['restCompression'],sus['springPerWheel'],sus['damperPerWheel'],sum(x['radius'] for x in wheels)/len(wheels),t['dimensionsMeters']['length']*.62]
         magazine=w.get('magazine',{})
         values.extend([magazine.get('capacity',0),magazine.get('shotInterval',0),magazine.get('reloadTime',0),1 if w.get('ballistics')=='stock-t34-85' else 0,t['turretRotation'],{'tank':0,'tank-destroyer':1,'towed-gun':2,'self-propelled-artillery':3}[t.get('vehicleKind','tank')],t.get('gunTraverseHalfAngle',0) if t.get('vehicleKind','tank')!='tank' else 0])
-        filling=[];mask=0
-        for i,kind in enumerate(['AP','HE','APCR','WP','HEAT']):
-            shell=w['shells'].get(kind,{})
-            if 'explosiveMassGrams' in shell or 'explosiveMassKg' in shell:mask|=1<<i
-            filling.append(shell.get('explosiveMassGrams',shell.get('explosiveMassKg',0)*1000))
+        filling,mask=filling_vector(w)
         values.extend([filling,mask,int(w.get("continuousFire",False)),0])
         def c(v):
             if isinstance(v,str):return json.dumps(v)

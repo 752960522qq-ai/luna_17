@@ -30,7 +30,10 @@ JNIEXPORT jstring JNICALL Java_com_luna17_aot_NativeBridge_hatchError(JNIEnv *e,
 JNIEXPORT jboolean JNICALL Java_com_luna17_aot_NativeBridge_configureContinuousFire(JNIEnv *e,jclass c,jstring id,jboolean enabled,jboolean unity_uv){return enabled && unity_uv;}
 JNIEXPORT jboolean JNICALL Java_com_luna17_aot_NativeBridge_configureMagazine(JNIEnv *e,jclass c,jstring id,jint cap,jfloat interval,jfloat reload){return cap>=2;}
 JNIEXPORT jboolean JNICALL Java_com_luna17_aot_NativeBridge_configureExperience(JNIEnv *e,jclass c,jint flags,jfloat k,jfloat khe){return flags==7;}
-JNIEXPORT jfloatArray JNICALL Java_com_luna17_aot_NativeBridge_experienceSnapshot(JNIEnv *e,jclass c){return (*e)->NewFloatArray(e,24);}
+JNIEXPORT jfloatArray JNICALL Java_com_luna17_aot_NativeBridge_experienceSnapshot(JNIEnv *e,jclass c){return (*e)->NewFloatArray(e,28);}
+JNIEXPORT void JNICALL Java_com_luna17_aot_NativeBridge_crewClear(JNIEnv *e,jclass c){}
+JNIEXPORT jintArray JNICALL Java_com_luna17_aot_NativeBridge_crewContactSnapshot(JNIEnv *e,jclass c){return (*e)->NewIntArray(e,5);}
+JNIEXPORT void JNICALL Java_com_luna17_aot_NativeBridge_experienceTarget(JNIEnv *e,jclass c,jfloat x,jfloat y){}
 JNIEXPORT void JNICALL Java_com_luna17_aot_NativeBridge_experienceInput(JNIEnv *e,jclass c,jint cycle,jfloat dx,jfloat dy,jfloat zoom,jfloat tilt){}
 JNIEXPORT void JNICALL Java_com_luna17_aot_NativeBridge_clearTankConfiguration(JNIEnv *e,jclass c){}
 JNIEXPORT jboolean JNICALL Java_com_luna17_aot_NativeBridge_configureFilling(JNIEnv *e,jclass c,jstring id,jfloatArray grams,jint mask){return (*e)->GetArrayLength(e,grams)==5&&mask==31;}
@@ -45,7 +48,7 @@ JAVA={
 'android/app/Activity.java':'package android.app; public class Activity {}',
 'com/luna17/aot/Probe.java':'''package com.luna17.aot;
 public class Probe {public static void start(String path){NativeBridge.start(path);} public static boolean ready(){return NativeBridge.loaded;} public static boolean library(){return NativeBridge.libraryLoaded;} public static String error(){return NativeBridge.error;} public static int value(){return NativeBridge.switchResult();} public static void operations(){
-if(!NativeBridge.toggle(0,true)||NativeBridge.tanks(0).length!=0||!NativeBridge.switchTank(0,0)||NativeBridge.enemyTanks(0).length!=0||!NativeBridge.spawnEnemy(0,0)||NativeBridge.spawnEnemyResult()!=1||!NativeBridge.loadHatch("unused").isEmpty()||!NativeBridge.hatchError().isEmpty()||!NativeBridge.configureMagazine("fixture",2,.1f,1.f)||!NativeBridge.configureExperience(7,20,10)||NativeBridge.experienceSnapshot().length!=24)throw new AssertionError("Native signature mismatch");NativeBridge.experienceInput(1,.1f,.2f,.3f,4);
+if(!NativeBridge.toggle(0,true)||NativeBridge.tanks(0).length!=0||!NativeBridge.switchTank(0,0)||NativeBridge.enemyTanks(0).length!=0||!NativeBridge.spawnEnemy(0,0)||NativeBridge.spawnEnemyResult()!=1||!NativeBridge.loadHatch("unused").isEmpty()||!NativeBridge.hatchError().isEmpty()||!NativeBridge.configureMagazine("fixture",2,.1f,1.f)||!NativeBridge.configureExperience(7,20,10)||NativeBridge.experienceSnapshot().length!=28)throw new AssertionError("Native signature mismatch");NativeBridge.experienceInput(1,.1f,.2f,.3f,4);
 if(!NativeBridge.configureContinuousFire("fixture",true,true))throw new AssertionError("Continuous fire native signature mismatch");
 NativeBridge.clearTankConfiguration();
 if(!NativeBridge.configureFilling("Grille",new float[]{0,8300,0,0,2400},31)||!NativeBridge.configureAmmunition("T34_85_Player",new float[5],0)||!NativeBridge.configureCrew(true,3)||NativeBridge.crewEvent().length!=4)throw new AssertionError("New native signature mismatch");

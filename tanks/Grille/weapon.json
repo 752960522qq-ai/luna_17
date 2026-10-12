@@ -14,23 +14,23 @@
   "shells": {
     "AP": {
       "penetrationMm": 0,
-      "explosiveMassKg": 0
+      "explosiveMassGrams": 0
     },
     "APCR": {
       "penetrationMm": 0,
-      "explosiveMassKg": 0
+      "explosiveMassGrams": 0
     },
     "HE": {
       "penetrationMm": 30,
-      "explosiveMassKg": 8.3
+      "explosiveMassGrams": 8300
     },
     "HEAT": {
       "penetrationMm": 200,
-      "explosiveMassKg": 2.4
+      "explosiveMassGrams": 2400
     },
     "WP": {
       "penetrationMm": 0,
-      "explosiveMassKg": 0
+      "explosiveMassGrams": 0
     }
   },
   "machineGun": {

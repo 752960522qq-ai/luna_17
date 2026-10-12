@@ -5,7 +5,7 @@ HARNESS='''package com.luna17.aot;public class GestureTest {
 static void check(boolean c){if(!c)throw new AssertionError();}
 static void zero(float[] v){check(v[0]==0&&v[1]==0&&v[2]==0);}
 public static void main(String[] args){
-ArtilleryGesture g=new ArtilleryGesture();zero(g.sample(new int[]{4},new float[]{100},new float[]{100},false,1000,500));
+check(ArtilleryGesture.canCapture(.5f,.5f));check(!ArtilleryGesture.canCapture(.9f,.5f));check(!ArtilleryGesture.canCapture(.1f,.8f));check(!ArtilleryGesture.canCapture(.1f,.2f));ArtilleryGesture g=new ArtilleryGesture();zero(g.sample(new int[]{4},new float[]{100},new float[]{100},false,1000,500));
 float[] a=g.sample(new int[]{4},new float[]{200},new float[]{150},true,1000,500);check(Math.abs(a[0]-.1)<.0001&&Math.abs(a[1]-.1)<.0001&&a[2]==0);
 zero(g.sample(new int[]{4,9},new float[]{200,300},new float[]{150,150},false,1000,500));
 a=g.sample(new int[]{4,9},new float[]{180,340},new float[]{200,200},true,1000,500);check(a[2]<0&&Math.abs(a[0]-.01)<.0001&&Math.abs(a[1]-.1)<.0001);

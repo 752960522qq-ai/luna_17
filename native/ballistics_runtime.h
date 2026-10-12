@@ -40,17 +40,12 @@ static void shell_fixed_update(void *shell,const void *mi) {
 // body/turret/info regions; ignore any region belonging to the firing tank.
 static void (*original_shell_impact)(void *,void *,const void *);
 static int shell_hits_owner(void *shell,void *collider) {
-    if(!offline_mode()||!unity_exists(shell)||!unity_exists(collider))return 0;
-    // AttackInfo.owner (+0x20) is a Transform, not UnitStatus.
-    void *info=P(shell,0x90),*root=info?P(info,0x20):0;
-    if(!unity_exists(root))return 0;
-    void *go=hatch_call(root,"get_gameObject",0,0);
-    void *owner=go?hatch_get_child_component(go,"","UnitStatus"):0;
-    if(!unity_exists(owner)||!tank_config(owner))return 0;
-    void *hit=hatch_weapon_mount(collider);
-    return root && hit && (root==hit||hatch_belongs_to(hit,root));
+    return projectile_hits_owner(P(shell,0x90),collider);
 }
 static void shell_impact(void *shell,void *collider,const void *mi) {
     if(shell_hits_owner(shell,collider))return;
+    crew_projectile_impact_observed(P(shell,0x90));
     original_shell_impact(shell,collider,mi);
 }
+
+#include "he_projectile.h"

@@ -16,7 +16,7 @@ int main(void){
     assert(near(cap.damage,21)); // No filling boost, 1.5x penetration cap.
     BteDamage he=bte_damage(BTE_HE,27,152,1,20,20,10,710);
     BteDamage blocked=bte_damage(BTE_HE,27,152,.5f,20,20,10,710);
-    assert(he.penetrated && !blocked.penetrated && near(blocked.damage,he.damage*.15f));
+    assert(he.penetrated && !blocked.penetrated && near(blocked.damage,he.damage*.10f));
     assert(near(he.damage,10*powf(7.1f,.6f)*sqrtf(1.52f)));
     assert(bte_damage(BTE_AP,96,100,-1,45,20,10,155).damage==0);
     assert(bte_damage(BTE_AP,NAN,100,1,45,20,10,155).damage==0);

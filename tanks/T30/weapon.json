@@ -1,0 +1,42 @@
+{
+  "name": "155 mm T7",
+  "caliber": 155,
+  "reload": 25.0,
+  "muzzleVelocity": 870,
+  "ballistics": "physical",
+  "ammo": {
+    "AP": 16,
+    "APCR": 0,
+    "HE": 14,
+    "HEAT": 0,
+    "WP": 4
+  },
+  "shells": {
+    "AP": {
+      "penetrationMm": 230,
+      "explosiveMassGrams": 0
+    },
+    "APCR": {
+      "penetrationMm": 0,
+      "explosiveMassGrams": 0
+    },
+    "HE": {
+      "penetrationMm": 61,
+      "explosiveMassGrams": 6900
+    },
+    "HEAT": {
+      "penetrationMm": 0,
+      "explosiveMassGrams": 0
+    },
+    "WP": {
+      "penetrationMm": 0,
+      "explosiveMassGrams": 0
+    }
+  },
+  "machineGun": {
+    "name": "M2HB",
+    "position": "coaxial",
+    "ammo": 50,
+    "ammoUnit": "game magazines"
+  }
+}

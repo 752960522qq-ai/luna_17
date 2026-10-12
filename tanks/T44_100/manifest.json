@@ -1,0 +1,10 @@
+{
+  "format": 1,
+  "id": "T44_100",
+  "displayName": "T-44-100",
+  "country": "USSR",
+  "tier": 4,
+  "basePrefab": "T34_85_Player",
+  "role": "player",
+  "adapter": "aot-5.1.0-arm64-v1"
+}

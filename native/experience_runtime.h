@@ -1,11 +1,14 @@
 #pragma once
 // All Unity calls run in CameraControl.LateUpdate. Android exchanges only
 // numeric snapshots/commands; it never dereferences Unity objects.
-enum { BTE_SNAPSHOT_SIZE=24 };
+enum { BTE_SNAPSHOT_SIZE=28 };
 static float bte_snapshot[BTE_SNAPSHOT_SIZE];
 static volatile int bte_snapshot_lock, bte_command_lock;
 static float bte_pan_x,bte_pan_y,bte_zoom,bte_tilt;
-static int bte_next_mode;
+static int bte_next_mode,bte_target_pending;
+static float bte_target_x,bte_target_y;
+static Vec3 bte_target_world;
+static int bte_target_valid,bte_target_reachable;
 static int bte_mode,bte_fov_owned;
 static void *bte_owner,*bte_camera;
 static float bte_original_fov,bte_height=180.f,bte_pitch=65.f;
@@ -68,6 +71,8 @@ static int bte_cast(Vec3 from,Vec3 to,EnemyHit *hit){
         from=uv(bte_add(bv(from),bte_scale(bv(direction),step)));remaining-=step;
     }return 0;
 }
+#include "target_geometry.h"
+#include "artillery_aim.h"
 static int bte_impact(Vec3 origin,Vec3 velocity,float gravity,Vec3 *point,float *time){
     Vec3 previous=origin;
     for(int i=1;i<=300;i++){
@@ -84,7 +89,7 @@ static int bte_shell(void *pc,const CustomTank *config,float *speed,float *gravi
     void *array=P(pc,0x58);int n=array?I(array,0x18):0;
     if(n<1||n>8)return 0;void *launcher=P(array,0x20);
     if(!unity_exists(launcher))return 0;
-    int shell_offset=bte_field_offset(player_status,"loadedShell");
+    int shell_offset=bte_field_offset(player_status,"usingShell");
     if(shell_offset<0)return 0;int shell=I(player_status,shell_offset);if(shell<0||shell>4)return 0;
     // Preview objects must not enter shell_profiles: 10 Hz previews would
     // evict still-flying artillery shots from the live projectile ring.
@@ -121,7 +126,7 @@ static int bte_measured_velocity(void *air,void *transform,Vec3 position,float n
 static void bte_restore(void){
     if(bte_fov_owned&&unity_exists(bte_camera)&&bte_original_fov>0)bte_set_float(bte_camera,"set_fieldOfView",bte_original_fov);
     memset(bte_air_motion,0,sizeof(bte_air_motion));bte_air_motion_cursor=0;
-    bte_camera=0;bte_owner=0;bte_original_fov=0;bte_mode=0;bte_fov_owned=0;bte_requested_aim_valid=0;
+    bte_camera=0;bte_owner=0;bte_original_fov=0;bte_mode=0;bte_fov_owned=0;bte_requested_aim_valid=0;bte_target_valid=0;
 }
 static void bte_air_lead(void *camera,Vec3 origin,Vec3 forward,float speed,float gravity,float *values){
     // Aiming near a live enemy aircraft selects the closest angular target.
@@ -187,6 +192,7 @@ static void experience_camera_update(void *control){
     bte_lock(&bte_command_lock);
     bte_next_mode=0; // Original scope button owns mode selection.
     float dx=bte_pan_x,dy=bte_pan_y,zoom=bte_zoom;
+    int tap=bte_target_pending;float tx=bte_target_x,ty=bte_target_y;bte_target_pending=0;
     bte_pan_x=bte_pan_y=bte_zoom=bte_tilt=0;bte_unlock(&bte_command_lock);
     int next=bte_scope_mode(control,ui,spg);
     if(next!=bte_mode){
@@ -198,11 +204,11 @@ static void experience_camera_update(void *control){
             else bte_set_float(camera,"set_fieldOfView",bte_original_fov);
             bte_fov_owned=0;
         }
-        bte_mode=next;bte_requested_aim_valid=0;bte_last_prediction=0;
+        bte_mode=next;bte_requested_aim_valid=0;bte_target_valid=0;bte_last_prediction=0;
         if(next==2){
             bte_original_fov=bte_float(camera,"get_fieldOfView");
-            bte_center=call_vec(P(pc,0x50),"get_TargetPos");
-            if(!isfinite(bte_center.x)||!isfinite(bte_center.y)||!isfinite(bte_center.z))bte_center=call_vec(P(pc,0x20),"get_position");
+            Vec3 root=call_vec(P(pc,0x20),"get_position"),forward=call_vec(P(pc,0x20),"get_forward");
+            bte_center=uv(bte_add(bv(root),bte_scale(bv(forward),200)));
             bte_height=180;bte_pitch=65;
         }
     }
@@ -233,12 +239,14 @@ static void experience_camera_update(void *control){
         set_vec(transform,"set_position",position);
         void *m=method(transform,"set_rotation",1);Quat rotation={sinf(pitch*.5f),0,0,cosf(pitch*.5f)};
         if(m)((void (*)(void *,Quat,const void *))P(m,0))(transform,rotation,m);
-        // The center is the requested ground target. Include gravity in the
-        // turret direction; ordinary gun traverse/elevation limits still apply.
-        BteVec aim;float time;
-        bte_requested_aim_valid=0;
-        if(shell_ok && bte_intercept(bte_sub(bv(bte_center),bv(origin)),(BteVec){0},speed,gravity,120,&aim,&time))
-        {bte_requested_aim=uv(bte_add(bv(origin),aim));bte_requested_direction=uv(bte_scale(aim,1/sqrtf(bte_dot(aim,aim))));bte_requested_aim_valid=1;set_vec(P(pc,0x50),"set_TargetPos",bte_requested_aim);}
+        if(tap){Vec3 target;if(bte_screen_target(camera,tx,ty,&target)){bte_target_world=target;bte_target_valid=1;}}
+        BteVec aim;float time;bte_requested_aim_valid=0;bte_target_reachable=0;
+        if(bte_target_valid&&shell_ok&&bte_intercept(bte_sub(bv(bte_target_world),bv(origin)),(BteVec){0},speed,gravity,120,&aim,&time)){
+            bte_requested_aim=uv(bte_add(bv(origin),aim));bte_requested_direction=uv(bte_scale(aim,1/sqrtf(bte_dot(aim,aim))));bte_requested_aim_valid=1;
+            bte_target_reachable=bte_artillery_reachable(bv(bte_requested_direction),bv(call_vec(P(pc,0x20),"get_forward")),bv(call_vec(P(pc,0x20),"get_right")),config->traverse_half_angle,config->elevation,config->depression);
+            set_vec(P(pc,0x50),"set_TargetPos",bte_requested_aim);
+        }else if(!bte_target_valid){bte_requested_direction=forward;bte_requested_aim=uv(bte_add(bv(origin),bte_scale(bv(forward),1000)));bte_requested_aim_valid=1;}
+
     }else if(spg&&bte_mode==1){
         bte_requested_aim_valid=0;
         // First sight follows the current barrel in world space, including
@@ -265,5 +273,7 @@ static void experience_camera_update(void *control){
         Vec3 edge=root;edge.x+=values[15];float projected[2];if(bte_project(camera,edge,projected))values[19]=fabsf(projected[0]-values[16]);
         edge=root;edge.z+=values[15];if(bte_project(camera,edge,projected))values[20]=fabsf(projected[1]-values[17]);
     }
-    values[21]=shell_ok;bte_publish(values);
+    values[21]=shell_ok;
+    if(bte_target_valid&&bte_project(camera,bte_target_world,values+22)){values[24]=1;values[25]=bte_target_reachable;}
+    bte_publish(values);
 }

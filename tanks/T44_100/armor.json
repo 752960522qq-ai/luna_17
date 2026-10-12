@@ -1,0 +1,12 @@
+{
+  "body": {
+    "front": 200,
+    "side": 81,
+    "rear": 45
+  },
+  "turret": {
+    "front": 120,
+    "side": 100,
+    "rear": 75
+  }
+}

@@ -1,0 +1,343 @@
+{
+  "format": 1,
+  "forward": "-Z",
+  "dimensions": {
+    "length": 4.63,
+    "width": 2.48,
+    "height": 2.21
+  },
+  "turret": {
+    "node": 2,
+    "pivot": [
+      -0.0058223291459622035,
+      1.5946592001079776,
+      -0.1864719943346846
+    ],
+    "speedDegSec": 25
+  },
+  "gun": {
+    "node": 3,
+    "pivot": [
+      -0.014857303367575778,
+      1.7722092745685505,
+      -1.0550386380694488
+    ],
+    "elevation": 20,
+    "depression": 10,
+    "recoil": 0.05,
+    "recoilNode": 4
+  },
+  "muzzle": {
+    "node": 50,
+    "position": [
+      -0.014707010676385779,
+      1.7723090113459223,
+      -2.2111540409588106
+    ]
+  },
+  "coaxMuzzle": {
+    "node": 51,
+    "position": [
+      -0.3934731935003803,
+      1.7551524331986534,
+      -1.220791724930787
+    ]
+  },
+  "wheels": [
+    {
+      "node": 6,
+      "name": "wheel_l_01",
+      "center": [
+        -1.0452459676544907,
+        0.41504826041956694,
+        -1.2682054722384324
+      ],
+      "radius": 0.36756855752836637,
+      "side": "left",
+      "roadWheel": true,
+      "suspensionNode": 6,
+      "restLocalPosition": [
+        -1.0452459676544907,
+        0.41504826041956694,
+        -1.2682054722384324
+      ]
+    },
+    {
+      "node": 8,
+      "name": "wheel_l_02",
+      "center": [
+        -1.101011818408318,
+        0.4140008980357798,
+        -0.706336126252328
+      ],
+      "radius": 0.3675186812108761,
+      "side": "left",
+      "roadWheel": true,
+      "suspensionNode": 8,
+      "restLocalPosition": [
+        -1.101011818408318,
+        0.4140008980357798,
+        -0.706336126252328
+      ]
+    },
+    {
+      "node": 10,
+      "name": "wheel_l_03",
+      "center": [
+        -1.050415910840334,
+        0.4140009126453344,
+        -0.15482082816518017
+      ],
+      "radius": 0.36751868121088094,
+      "side": "left",
+      "roadWheel": true,
+      "suspensionNode": 10,
+      "restLocalPosition": [
+        -1.050415910840334,
+        0.4140009126453344,
+        -0.15482082816518017
+      ]
+    },
+    {
+      "node": 12,
+      "name": "wheel_l_04",
+      "center": [
+        -1.101011818408318,
+        0.4140008980357798,
+        0.40047294168587244
+      ],
+      "radius": 0.3675186812108761,
+      "side": "left",
+      "roadWheel": true,
+      "suspensionNode": 12,
+      "restLocalPosition": [
+        -1.101011818408318,
+        0.4140008980357798,
+        0.40047294168587244
+      ]
+    },
+    {
+      "node": 14,
+      "name": "wheel_l_05",
+      "center": [
+        -1.050415910840334,
+        0.4140009126453344,
+        0.9469338858336076
+      ],
+      "radius": 0.36751868121088094,
+      "side": "left",
+      "roadWheel": true,
+      "suspensionNode": 14,
+      "restLocalPosition": [
+        -1.050415910840334,
+        0.4140009126453344,
+        0.9469338858336076
+      ]
+    },
+    {
+      "node": 15,
+      "name": "wheel_left_drive",
+      "center": [
+        -0.9990672391062769,
+        0.6445666275719542,
+        -1.8437166797838325
+      ],
+      "radius": 0.30851820656190276,
+      "side": "left",
+      "roadWheel": false
+    },
+    {
+      "node": 16,
+      "name": "wheel_left_idler",
+      "center": [
+        -1.000623262829367,
+        0.5321016161230631,
+        1.5805458687902376
+      ],
+      "radius": 0.28073858887686864,
+      "side": "left",
+      "roadWheel": false
+    },
+    {
+      "node": 18,
+      "name": "wheel_r_01",
+      "center": [
+        1.07034340595814,
+        0.41504858870372585,
+        -1.2682054722384324
+      ],
+      "radius": 0.36756855752836637,
+      "side": "right",
+      "roadWheel": true,
+      "suspensionNode": 18,
+      "restLocalPosition": [
+        1.07034340595814,
+        0.41504858870372585,
+        -1.2682054722384324
+      ]
+    },
+    {
+      "node": 20,
+      "name": "wheel_r_02",
+      "center": [
+        1.1261092570472504,
+        0.41400125722913966,
+        -0.706336126252328
+      ],
+      "radius": 0.36751868121087605,
+      "side": "right",
+      "roadWheel": true,
+      "suspensionNode": 20,
+      "restLocalPosition": [
+        1.1261092570472504,
+        0.41400125722913966,
+        -0.706336126252328
+      ]
+    },
+    {
+      "node": 22,
+      "name": "wheel_r_03",
+      "center": [
+        1.0755133494874456,
+        0.4140012426195851,
+        -0.15482082816518017
+      ],
+      "radius": 0.36751868121088094,
+      "side": "right",
+      "roadWheel": true,
+      "suspensionNode": 22,
+      "restLocalPosition": [
+        1.0755133494874456,
+        0.4140012426195851,
+        -0.15482082816518017
+      ]
+    },
+    {
+      "node": 24,
+      "name": "wheel_r_04",
+      "center": [
+        1.1261092570472504,
+        0.41400125722913966,
+        0.40047294168587244
+      ],
+      "radius": 0.36751868121087605,
+      "side": "right",
+      "roadWheel": true,
+      "suspensionNode": 24,
+      "restLocalPosition": [
+        1.1261092570472504,
+        0.41400125722913966,
+        0.40047294168587244
+      ]
+    },
+    {
+      "node": 26,
+      "name": "wheel_r_05",
+      "center": [
+        1.0755133494874456,
+        0.4140012426195851,
+        0.9469338858336076
+      ],
+      "radius": 0.36751868121088094,
+      "side": "right",
+      "roadWheel": true,
+      "suspensionNode": 26,
+      "restLocalPosition": [
+        1.0755133494874456,
+        0.4140012426195851,
+        0.9469338858336076
+      ]
+    },
+    {
+      "node": 27,
+      "name": "wheel_right_drive",
+      "center": [
+        1.0241646021343014,
+        0.644566955092311,
+        -1.8437166797838325
+      ],
+      "radius": 0.30851820656190276,
+      "side": "right",
+      "roadWheel": false
+    },
+    {
+      "node": 28,
+      "name": "wheel_right_idler",
+      "center": [
+        1.0257206328206347,
+        0.5321019441472082,
+        1.5805458687902376
+      ],
+      "radius": 0.2807385888768734,
+      "side": "right",
+      "roadWheel": false
+    }
+  ],
+  "tracks": [
+    "track_l",
+    "track_r"
+  ],
+  "suspension": {
+    "travel": 0.1,
+    "restCompression": 0.05,
+    "springPerWheel": 231516.0,
+    "damperPerWheel": 4000,
+    "totalMassKg": 11800,
+    "contacts": 10,
+    "parameterOrigin": "geometry-derived articulation; original game Rigidbody owns hull physics"
+  },
+  "colliders": {
+    "hull": {
+      "size": [
+        2.3808,
+        1.6,
+        4.45
+      ],
+      "center": [
+        0,
+        0.8,
+        0
+      ]
+    },
+    "turret": {
+      "size": [
+        1.5332350913288038,
+        0.548609905794861,
+        1.6352606711339321
+      ],
+      "center": [
+        0.0004515081200784938,
+        0.27370631065782436,
+        -0.00029444144105938985
+      ]
+    },
+    "unit": {
+      "size": [
+        2.6,
+        2.55,
+        4.8
+      ],
+      "center": [
+        0,
+        1.275,
+        0
+      ]
+    }
+  },
+  "trackAnimation": {
+    "axis": "V",
+    "texturePeriodMeters": 0.7183986324228308,
+    "imageAndUvTransposed": true,
+    "runtimeConfigOffset": 480
+  },
+  "bindingNotes": {
+    "pivots": "estimated from visible geometry; original FBX export erased pivots",
+    "antennaExcludedFromHeight": true,
+    "supportBottomMeters": 0,
+    "hullTraverse": "fast stored; the current adapter has no independent numerical hull traverse field",
+    "selectedEquipment": "optiona for all variant families",
+    "groundTuning": "requires Android device testing",
+    "wheelRepair": "Wheel pivots live on the animated transforms; circular YZ profiles restored after dimension scaling."
+  },
+  "sourceSha256": "7a8638fc078fb9f898350f740c84f2389a35ec91c1d3eebc49f21f75aed1a181"
+}

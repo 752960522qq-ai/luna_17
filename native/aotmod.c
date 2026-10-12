@@ -168,6 +168,7 @@ static bool environment_check(void *self,const void *mi) {
 }
 #include "offline_launch.h"
 static void crew_trigger(int event);
+static void crew_projectile_impact_observed(void *info);
 #include "imported_tanks.h"
 #include "experience_damage.h"
 #include "experience_runtime.h"
@@ -199,6 +200,7 @@ static void *worker(void *unused) {
         ready=-1;state=-1;return 0;
     }
     const struct { uintptr_t rva; uint32_t first; } fingerprints[]={
+        {0x1951f94,0xd10243ff},{0x1952328,0xd10243ff},
         {0x191d4d0,0xf81d0ffe},{0x191d2bc,0xf81f0ffe},{RVA_195D1D4,0xd10143ff},{RVA_1978CF0,0xd10243ff},
         {RVA_197AA98,0xd10303ff},{RVA_197B638,0xfc1e0fe8},
         {RVA_1984348,0xa9be57fe},{RVA_1990828,0xd10183ff},
@@ -234,6 +236,8 @@ static void *worker(void *unused) {
     ok=ok && install(RVA_TURRET_UPDATE,turret_update,(void **)&original_turret_update);
     ok=ok && install(RVA_LAUNCHER_FIRE,launcher_fire,(void **)&original_launcher_fire);
     ok=ok && install(RVA_SHELL_FIXED_UPDATE,shell_fixed_update,(void **)&original_shell_fixed_update);
+    ok=ok && install(0x1951f94,he_collision,(void **)&original_he_collision);
+    ok=ok && install(0x1952328,he_trigger,(void **)&original_he_trigger);
     ok=ok && install(0x1961a34,shell_impact,(void **)&original_shell_impact);
     ok=ok && install(RVA_CAMERA_LATE_UPDATE,camera_late_update,(void **)&original_camera_late_update);
     ok=ok && install(RVA_TURRET_TARGET_DIR,experience_turret_target_dir,(void **)&original_turret_target_dir);

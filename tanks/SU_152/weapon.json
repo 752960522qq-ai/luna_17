@@ -1,0 +1,41 @@
+{
+  "name": "152 mm ML-20S",
+  "caliber": 152,
+  "reload": 24.7,
+  "muzzleVelocity": 600,
+  "ballistics": "physical",
+  "ammo": {
+    "AP": 20,
+    "APCR": 0,
+    "HE": 8,
+    "HEAT": 4,
+    "WP": 0
+  },
+  "shells": {
+    "AP": {
+      "penetrationMm": 169,
+      "explosiveMassGrams": 739.2
+    },
+    "APCR": {
+      "penetrationMm": 0,
+      "explosiveMassGrams": 0
+    },
+    "HE": {
+      "penetrationMm": 250,
+      "explosiveMassGrams": 5860
+    },
+    "HEAT": {
+      "penetrationMm": 250,
+      "explosiveMassGrams": 4800
+    },
+    "WP": {
+      "penetrationMm": 0,
+      "explosiveMassGrams": 0
+    }
+  },
+  "machineGun": {
+    "name": "None",
+    "position": "coaxial",
+    "ammo": 0
+  }
+}

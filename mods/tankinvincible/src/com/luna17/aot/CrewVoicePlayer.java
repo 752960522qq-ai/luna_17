@@ -23,7 +23,7 @@ final class CrewVoicePlayer {
     private final Random random=new Random();
     CrewVoicePlayer(File directory,JSONObject configuration) throws Exception {
         this.directory=directory;this.configuration=configuration;
-        if(!directory.isDirectory()||!"drop-while-speaking".equals(configuration.getString("mode")))throw new IllegalArgumentException("语音资源或播放模式无效");
+        if(!directory.isDirectory()||!("queue-while-speaking".equals(configuration.getString("mode"))||"drop-while-speaking".equals(configuration.getString("mode"))))throw new IllegalArgumentException("语音资源或播放模式无效");
         JSONObject events=configuration.getJSONObject("events");
         java.util.Iterator<String> keys=events.keys();
         while(keys.hasNext()){
@@ -45,14 +45,13 @@ final class CrewVoicePlayer {
         if(!name.matches("[A-Za-z0-9_.-]{1,160}\\.wav")||name.contains("..")||!new File(directory,name).isFile())throw new IllegalArgumentException("缺少语音: "+name);
     }
     void start(){if(!stopped)return;stopped=false;handler.post(poll);}
-    void stop(){stopped=true;generation++;handler.removeCallbacks(poll);release();clips=null;NativeBridge.crewFinished();}
+    void stop(){stopped=true;generation++;handler.removeCallbacks(poll);release();clips=null;NativeBridge.crewClear();}
     private void release(){if(player!=null){player.release();player=null;}}
     private final Runnable poll=new Runnable(){public void run(){
         if(stopped)return;
-        int[] event=NativeBridge.crewEvent();
+        int[] event=clips==null?NativeBridge.crewEvent():null;
         if(event!=null){
-            if(clips!=null){/* Defensive drop; the native gate normally prevents this. */}
-            else try{clips=compose(event);index=0;playNext(generation);}catch(Exception failure){finish();}
+            try{clips=compose(event);index=0;playNext(generation);}catch(Exception failure){finish();}
         }
         handler.postDelayed(this,30);
     }};

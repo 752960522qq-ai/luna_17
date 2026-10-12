@@ -452,10 +452,10 @@ class NativeTests(unittest.TestCase):
         import re
         root=Path(__file__).resolve().parents[1]
         definitions=dict(re.findall(r'#define\s+(RVA_\w+)\s+(0x[0-9a-fA-F]+)',(root/'native/profile_config.h').read_text()))
-        names=re.findall(r'install\((RVA_\w+),',(root/'native/aotmod.c').read_text())
+        names=re.findall(r'install\((RVA_\w+|0x[0-9a-fA-F]+),',(root/'native/aotmod.c').read_text())
         m=self.m;entries=[]
         for name in names:
-            rva=int(definitions[name],16);original=m.game_read(rva,16)
+            rva=int(definitions.get(name,name),16);original=m.game_read(rva,16)
             m.u.mem_write(GAME+rva,original);entries.append((GAME+rva,original))
         symbol=m.stub(lambda:0)
         m.callbacks[m.imports['dlopen']]=lambda:1
@@ -750,16 +750,18 @@ class NativeTests(unittest.TestCase):
         launcher,info=m.object(),m.object();launchers=m.alloc(64);m.iwrite(launchers+0x18,1);m.qwrite(launchers+0x20,launcher);m.qwrite(pc+0x58,launchers)
         m.u.mem_write(info+0x18,struct.pack('<f',850));m.u.mem_write(launcher+0x54,struct.pack('<f',850));m.iwrite(config+16,850)
         m.global_q('original_attack_info',m.stub(lambda:info))
-        field=m.alloc(32);name=m.alloc(64);m.u.mem_write(name,b'loadedShell\0');m.qwrite(field,name);m.iwrite(field+0x18,0x1ec)
+        field=m.alloc(32);name=m.alloc(64);m.u.mem_write(name,b'usingShell\0');m.qwrite(field,name);m.iwrite(field+0x18,0x1e8)
         def fields():
             if m.qread(m.x(1)):return 0
             m.qwrite(m.x(1),1);return field
         m.global_q('class_fields',m.stub(fields));m.at(m.symbols['bte_cast'],lambda:0)
         m.at(m.symbols['bte_project'],lambda:0)
-        m.global_i('bte_next_mode',1);m.call('camera_late_update',control,0)
+        m.iwrite(ui+0x30,2);m.u.mem_write(control+0x78,b'\1');scales=m.alloc(48);m.iwrite(scales+0x18,2);m.u.mem_write(scales+0x20,struct.pack('<ff',2.5,5));m.qwrite(control+0x40,scales);m.iwrite(control+0x88,0);m.call('camera_late_update',control,0)
         self.assertAlmostEqual(fov[0],2*math.atan(math.tan(math.radians(30))/2.5)*180/math.pi,places=4)
         self.assertEqual(position[transform],position[gun])
-        m.global_i('bte_next_mode',1);m.call('camera_late_update',control,0)
+        m.iwrite(control+0x88,1)
+        def tap_target():m.u.mem_write(m.x(3),struct.pack('<fff',0,0,200));return 1
+        m.at(m.symbols['bte_screen_target'],tap_target);m.global_i('bte_target_pending',1);m.call('camera_late_update',control,0)
         self.assertAlmostEqual(fov[0],60,places=5);self.assertGreater(position[transform][1],30)
         self.assertEqual(m.read(m.symbols['shell_profile_cursor'],4),bytes(4))
         self.assertTrue(targets);self.assertGreater(targets[-1][1],0) # Gravity-compensated barrel target.
@@ -767,9 +769,11 @@ class NativeTests(unittest.TestCase):
         def default_direction():vec((0.,0.,1.))
         m.global_q('original_turret_target_dir',m.stub(default_direction))
         m.call('experience_turret_target_dir',tm,0);self.assertGreater(m.f(1),-.01);self.assertGreater(m.f(2),.99) # Drop compensation raises aim above the raw ground direction.
+        selected=m.read(m.symbols['bte_target_world'],12)
         before=position[transform];m.u.mem_write(m.symbols['bte_pan_x'],struct.pack('<f',.1));m.u.mem_write(m.symbols['bte_zoom'],struct.pack('<f',.2))
         m.call('camera_late_update',control,0)
         self.assertLess(position[transform][0],before[0]);self.assertGreater(position[transform][1],before[1])
+        self.assertEqual(m.read(m.symbols['bte_target_world'],12),selected)
         count=len(rotations);m.iwrite(control+0x38,1);m.iwrite(ui+0x2c,3);m.call('camera_late_update',control,0)
         self.assertEqual(len(rotations),count);self.assertEqual(m.read(m.symbols['bte_snapshot'],4),bytes(4))
         self.assertEqual(m.read(m.symbols['bte_mode'],4),bytes(4))

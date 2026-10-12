@@ -1,6 +1,7 @@
 package com.luna17.aot;
 /** Pointer identities and transition baselines, independent of Android dispatch. */
 final class ArtilleryGesture {
+    static boolean canCapture(float x,float y){return x>.03f&&x<.80f&&y>.18f&&y<.96f&&!(x<.29f&&y<.40f)&&!(x<.23f&&y>.64f);}
     private int first=-1,second=-1;
     private float x,y,distance;
     void reset(){first=second=-1;distance=0;}

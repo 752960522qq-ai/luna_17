@@ -12,21 +12,26 @@
   "shells": {
     "AP": {
       "name": "BR‑412",
-      "penetrationMm": 212
+      "penetrationMm": 212,
+      "explosiveMassGrams": 103
     },
     "APCR": {
       "name": "BR‑412P",
-      "penetrationMm": 216
+      "penetrationMm": 216,
+      "explosiveMassGrams": 0
     },
     "HE": {
-      "name": "OF‑412"
+      "name": "OF‑412",
+      "explosiveMassGrams": 1460
     },
     "HEAT": {
       "name": "ZBK‑5M",
-      "penetrationMm": 330
+      "penetrationMm": 330,
+      "explosiveMassGrams": 1400
     },
     "WP": {
-      "count": 0
+      "count": 0,
+      "explosiveMassGrams": 0
     }
   },
   "machineGun": {

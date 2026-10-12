@@ -13,20 +13,25 @@
     "AP": {
       "name": "Shot Mk.1 APHV/T",
       "penetrationMm": 89,
-      "parameterOrigin": "User override: 89 mm"
+      "parameterOrigin": "User override: 89 mm",
+      "explosiveMassGrams": 0
     },
     "APCR": {
-      "penetrationMm": 0
+      "penetrationMm": 0,
+      "explosiveMassGrams": 0
     },
     "HE": {
-      "penetrationMm": 0
+      "penetrationMm": 0,
+      "explosiveMassGrams": 0
     },
     "HEAT": {
-      "penetrationMm": 0
+      "penetrationMm": 0,
+      "explosiveMassGrams": 0
     },
     "WP": {
       "count": 0,
-      "penetrationMm": 0
+      "penetrationMm": 0,
+      "explosiveMassGrams": 0
     }
   },
   "machineGun": {

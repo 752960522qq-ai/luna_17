@@ -9,7 +9,7 @@ STUBS={
 'android/os/Handler.java':'''package android.os;public class Handler {public static Runnable pending;public Handler(Looper l){}public void post(Runnable r){r.run();}public void postDelayed(Runnable r,long ms){pending=r;}public void removeCallbacks(Runnable r){if(pending==r)pending=null;}public static void tick(){Runnable r=pending;pending=null;if(r!=null)r.run();}}''',
 'org/json/JSONObject.java':'''package org.json;import java.util.*;public class JSONObject {Map<String,Object> values=new LinkedHashMap<>();public JSONObject put(String k,Object v){values.put(k,v);return this;}public boolean has(String k){return values.containsKey(k);}public String optString(String k,String d){return values.containsKey(k)?(String)values.get(k):d;}public String getString(String k){return (String)values.get(k);}public JSONObject getJSONObject(String k){return (JSONObject)values.get(k);}public JSONArray getJSONArray(String k){return (JSONArray)values.get(k);}public JSONArray optJSONArray(String k){return (JSONArray)values.get(k);}public Iterator<String> keys(){return values.keySet().iterator();}}''',
 'org/json/JSONArray.java':'''package org.json;import java.util.*;public class JSONArray {List<String> items=new ArrayList<>();public JSONArray put(String s){items.add(s);return this;}public int length(){return items.size();}public String getString(int i){return items.get(i);}}''',
-'com/luna17/aot/NativeBridge.java':'''package com.luna17.aot;final class NativeBridge {static int[] event;static int finished;static int[] crewEvent(){int[] e=event;event=null;return e;}static void crewFinished(){finished++;}}''',
+'com/luna17/aot/NativeBridge.java':'''package com.luna17.aot;final class NativeBridge {static int[] event;static int finished;static int[] crewEvent(){int[] e=event;event=null;return e;}static void crewFinished(){finished++;}static void crewClear(){event=null;}}''',
 'com/luna17/aot/CrewVoiceTest.java':'''package com.luna17.aot;import java.io.*;import java.nio.file.*;import java.util.*;import android.media.MediaPlayer;import android.os.Handler;import org.json.*;public class CrewVoiceTest {
 static void clip(File d,String n)throws Exception{new File(d,n).createNewFile();}
 static void check(boolean condition){if(!condition)throw new AssertionError();}
@@ -24,15 +24,15 @@ public static void main(String[] args)throws Exception{
  NativeBridge.event=new int[]{3,0,0,0};Handler.tick();check(MediaPlayer.played.size()==1);
  for(int i=0;i<3;i++){MediaPlayer.complete();check(NativeBridge.finished==0);}
  check(MediaPlayer.played.equals(Arrays.asList(prefix+"_aircraft.wav",prefix+"_3_h.wav",prefix+"_distance_v1.wav",prefix+"_450_m.wav")));
- MediaPlayer.complete();check(NativeBridge.finished==1);Handler.tick();check(MediaPlayer.played.size()==4);
- NativeBridge.event=new int[]{17,1,12,299};Handler.tick();MediaPlayer.complete();MediaPlayer.complete();check(MediaPlayer.played.get(6).equals(prefix+"_near_v1_1.wav"));MediaPlayer.complete();check(NativeBridge.finished==2);
+ MediaPlayer.complete();check(NativeBridge.finished==1);Handler.tick();check(MediaPlayer.played.size()==5);MediaPlayer.complete();MediaPlayer.played.remove(4);
+ NativeBridge.event=new int[]{17,1,12,299};Handler.tick();MediaPlayer.complete();MediaPlayer.complete();check(MediaPlayer.played.get(6).equals(prefix+"_near_v1_1.wav"));MediaPlayer.complete();check(NativeBridge.finished==3);
  NativeBridge.event=new int[]{17,1,6,300};Handler.tick();for(int i=0;i<4;i++)MediaPlayer.complete();check(MediaPlayer.played.get(10).equals(prefix+"_300_m.wav"));
  for(int i=0;i<30;i++){
   int before=MediaPlayer.played.size();NativeBridge.event=new int[]{3,0,0,0};Handler.tick();check(MediaPlayer.played.size()==before+1);String selected=MediaPlayer.played.get(before);check(selected.equals("hit1.wav")||selected.equals("hit2.wav"));MediaPlayer.complete();
  }
  NativeBridge.event=new int[]{3,0,0,0};Handler.tick();MediaPlayer.fail();check(MediaPlayer.live==null);
  NativeBridge.event=new int[]{3,0,0,0};Handler.tick();player.stop();check(MediaPlayer.live==null);check(Handler.pending==null);
- System.out.println("Crew player: target/type/clock/distance sequence; busy arrivals dropped; no queued replay; errors and stop release gate");
+ System.out.println("Crew player: target/type/clock/distance sequence; busy arrivals queued until complete utterance; errors and stop release gate");
 }}'''
 }
 class CrewVoicePlayback(unittest.TestCase):

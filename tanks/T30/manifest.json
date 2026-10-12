@@ -1,0 +1,10 @@
+{
+  "format": 1,
+  "id": "T30",
+  "displayName": "T30",
+  "country": "USA",
+  "tier": 4,
+  "basePrefab": "T34_85_Player",
+  "role": "player",
+  "adapter": "aot-5.1.0-arm64-v1"
+}

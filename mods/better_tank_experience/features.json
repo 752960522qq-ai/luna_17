@@ -630,10 +630,24 @@
       "APCR": 0,
       "WP": 0,
       "HEAT": 0
+    },
+    "SU_152": {
+      "AP": 739.2,
+      "HE": 5860,
+      "APCR": 0,
+      "WP": 0,
+      "HEAT": 4800
+    },
+    "T44_100": {
+      "AP": 103,
+      "HE": 1460,
+      "APCR": 0,
+      "WP": 0,
+      "HEAT": 1400
     }
   },
   "crew": {
-    "mode": "drop-while-speaking",
+    "mode": "queue-while-speaking",
     "selection": "random-pool",
     "events": {
       "0": [
