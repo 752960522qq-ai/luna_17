@@ -4,7 +4,7 @@
   "artillery": true,
   "damage": {
     "formula": "two-stage-0.1",
-    "K": 20.0,
+    "K": 35.21,
     "K_HE": 10.0
   },
   "ammunition": {
@@ -410,362 +410,68 @@
     "Sherman_Firefly_Player": {
       "AP": 0,
       "HE": 580,
-      "APCR": 0,
-      "WP": 0,
-      "HEAT": 0
-    },
-    "Short_Barrel_12cm_Player": {
-      "AP": 0,
-      "HE": 2640,
-      "APCR": 0,
-      "WP": 0,
-      "HEAT": 0
-    },
-    "StuG_III_Player": {
-      "AP": 28.9,
-      "HE": 686,
-      "APCR": 0,
-      "WP": 0,
-      "HEAT": 872
-    },
-    "T29_Player": {
-      "AP": 177.38,
-      "HE": 1550,
-      "APCR": 0,
-      "WP": 0,
-      "HEAT": 0
-    },
-    "T34_76_1943_Player": {
-      "AP": 100.1,
-      "HE": 621,
-      "APCR": 0,
-      "WP": 0,
-      "HEAT": 600
-    },
-    "T34_76_Player": {
-      "AP": 150,
-      "HE": 621,
-      "APCR": 0,
-      "WP": 0,
-      "HEAT": 600
-    },
-    "T34_85_Player": {
-      "AP": 164,
-      "HE": 741,
-      "APCR": 0,
-      "WP": 0,
-      "HEAT": 0
-    },
-    "T44_Player": {
-      "AP": 164,
-      "HE": 741,
-      "APCR": 0,
-      "WP": 0,
-      "HEAT": 0
-    },
-    "Ta_Ha_Player": {
-      "AP": 0,
-      "HE": 11,
-      "APCR": 0,
-      "WP": 0,
-      "HEAT": 0
-    },
-    "Tiger_II_H_Player": {
-      "AP": 108.8,
-      "HE": 1000,
-      "APCR": 0,
-      "WP": 0,
-      "HEAT": 0
-    },
-    "Tiger_II_P_Player": {
-      "AP": 108.8,
-      "HE": 1000,
-      "APCR": 0,
-      "WP": 0,
-      "HEAT": 0
-    },
-    "Tiger_I_E_Player": {
-      "AP": 108.8,
-      "HE": 900,
-      "APCR": 0,
-      "WP": 0,
-      "HEAT": 1100
-    },
-    "Type1_47mm_Player": {
-      "AP": 55,
-      "HE": 130,
-      "APCR": 0,
-      "WP": 0,
-      "HEAT": 0
-    },
-    "Type1_Chi_He_Player": {
-      "AP": 55,
-      "HE": 130,
-      "APCR": 0,
-      "WP": 0,
-      "HEAT": 0
-    },
-    "Type3_Chi_Nu_Player": {
-      "AP": 80,
-      "HE": 680,
-      "APCR": 0,
-      "WP": 0,
-      "HEAT": 0
-    },
-    "Type4_Chi_To_Player": {
-      "AP": 80,
-      "HE": 700,
-      "APCR": 0,
-      "WP": 0,
-      "HEAT": 0
-    },
-    "Type4_Ho_Ro_Player": {
-      "AP": 2600,
-      "HE": 7020,
-      "APCR": 0,
-      "WP": 0,
-      "HEAT": 0
-    },
-    "Type5_Chi_Ri_Player": {
-      "AP": 80,
-      "HE": 700,
-      "APCR": 0,
-      "WP": 0,
-      "HEAT": 0
-    },
-    "Type88_75mm_AA_Player": {
-      "AP": 80,
-      "HE": 700,
-      "APCR": 0,
-      "WP": 0,
-      "HEAT": 0
-    },
-    "Type96_15cm_Player": {
-      "AP": 0,
-      "HE": 6000,
-      "APCR": 0,
-      "WP": 0,
-      "HEAT": 0
-    },
-    "Type97_Chi_Ha_Player": {
-      "AP": 103,
-      "HE": 250,
-      "APCR": 0,
-      "WP": 0,
-      "HEAT": 303.36
-    },
-    "Valentine_Player": {
-      "AP": 0,
-      "HE": 450,
-      "APCR": 0,
-      "WP": 0,
-      "HEAT": 0
-    },
-    "ZSU_37_Player": {
-      "AP": 0,
-      "HE": 49,
-      "APCR": 0,
-      "WP": 0,
-      "HEAT": 0
-    },
-    "ZiS_3_Player": {
-      "AP": 100.1,
-      "HE": 621,
-      "APCR": 0,
-      "WP": 0,
-      "HEAT": 600
-    },
-    "da_75_18_Player": {
-      "AP": 270,
-      "HE": 650,
-      "APCR": 0,
-      "WP": 0,
-      "HEAT": 800
-    },
-    "da_75_34_Player": {
-      "AP": 270,
-      "HE": 650,
-      "APCR": 0,
-      "WP": 0,
-      "HEAT": 800
-    },
-    "da_75_46_Player": {
-      "AP": 270,
-      "HE": 650,
-      "APCR": 0,
-      "WP": 0,
-      "HEAT": 0
-    },
-    "Grille": {
-      "AP": 0,
-      "HE": 8300,
-      "APCR": 0,
-      "WP": 0,
-      "HEAT": 2400
-    },
-    "T54_1949": {
-      "AP": 103,
-      "HE": 1460,
-      "APCR": 0,
-      "WP": 0,
-      "HEAT": 1400
-    },
-    "Matilda_III": {
-      "AP": 0,
-      "HE": 0,
-      "APCR": 0,
-      "WP": 0,
-      "HEAT": 0
-    },
-    "Panzer_II_Ausf_L": {
-      "AP": 0,
-      "HE": 10,
-      "APCR": 0,
-      "WP": 0,
-      "HEAT": 0
-    },
-    "T30": {
-      "AP": 0,
-      "HE": 6900,
-      "APCR": 0,
-      "WP": 0,
-      "HEAT": 0
-    },
-    "SU_152": {
-      "AP": 739.2,
-      "HE": 5860,
-      "APCR": 0,
-      "WP": 0,
-      "HEAT": 4800
-    },
-    "T44_100": {
-      "AP": 103,
-      "HE": 1460,
-      "APCR": 0,
-      "WP": 0,
-      "HEAT": 1400
+      "APCR"…2657 tokens truncated…       menu = new ModMenu(activity);
+        menu.attach();
+        if(hud!=null)hud.detach();
+        hud=new ExperienceHud(activity);hud.attach();
+        if(crew!=null)crew.start();
     }
-  },
-  "crew": {
-    "mode": "queue-while-speaking",
-    "selection": "random-pool",
-    "events": {
-      "0": [
-        "voice_message_chief_battle_start_v1_1.wav",
-        "voice_message_chief_battle_start_v1_2.wav",
-        "voice_message_chief_battle_start_v1_3.wav",
-        "voice_message_chief_battle_start_v2_1.wav",
-        "voice_message_chief_battle_start_v2_2.wav",
-        "voice_message_chief_battle_start_v2_3.wav",
-        "voice_message_chief_battle_start_v3_1.wav",
-        "voice_message_chief_battle_start_v3_2.wav",
-        "voice_message_chief_battle_start_v3_3.wav"
-      ],
-      "3": [
-        "voice_message_driver_correction_hit_v1.wav",
-        "voice_message_driver_correction_hit_v2.wav",
-        "voice_message_driver_correction_hit_v3.wav",
-        "voice_message_driver_correction_hit_v4.wav",
-        "voice_message_driver_correction_hit_v5.wav",
-        "voice_message_driver_correction_hit_v6.wav"
-      ],
-      "4": [
-        "voice_message_loader_weve_been_hit_v1.wav",
-        "voice_message_loader_weve_been_hit_v2.wav",
-        "voice_message_loader_weve_been_hit_v3.wav"
-      ],
-      "5": [
-        "voice_message_chief_battle_win_v1.wav",
-        "voice_message_chief_battle_win_v2.wav",
-        "voice_message_chief_battle_win_v3.wav",
-        "voice_message_chief_battle_win_v4.wav"
-      ],
-      "6": [
-        "voice_message_driver_correction_target_hit_v4.wav",
-        "voice_message_driver_correction_target_hit_v5.wav",
-        "voice_message_driver_correction_target_hit_v6.wav"
-      ],
-      "8": [
-        "voice_message_driver_correction_retreat_v1.wav",
-        "voice_message_driver_correction_retreat_v2.wav",
-        "voice_message_driver_correction_retreat_v3.wav"
-      ],
-      "9": [
-        "voice_message_driver_correction_undershoot_v1.wav",
-        "voice_message_driver_correction_undershoot_v2.wav",
-        "voice_message_driver_correction_undershoot_v3.wav"
-      ],
-      "10": [
-        "voice_message_driver_correction_left_v1.wav",
-        "voice_message_driver_correction_left_v2.wav",
-        "voice_message_driver_correction_left_v3.wav"
-      ],
-      "11": [
-        "voice_message_driver_correction_right_v1.wav",
-        "voice_message_driver_correction_right_v2.wav",
-        "voice_message_driver_correction_right_v3.wav"
-      ],
-      "12": [
-        "voice_message_commander_load_AP_v1.wav",
-        "voice_message_commander_load_AP_v2.wav",
-        "voice_message_commander_load_AP_v3.wav"
-      ],
-      "13": [
-        "voice_message_commander_load_HE_v1.wav",
-        "voice_message_commander_load_HE_v2.wav",
-        "voice_message_commander_load_HE_v3.wav"
-      ],
-      "14": [
-        "voice_message_commander_load_APCR_v1.wav",
-        "voice_message_commander_load_APCR_v2.wav",
-        "voice_message_commander_load_APCR_v3.wav"
-      ],
-      "15": [
-        "voice_message_commander_load_smoke_v1.wav",
-        "voice_message_commander_load_smoke_v2.wav",
-        "voice_message_commander_load_smoke_v3.wav"
-      ],
-      "16": [
-        "voice_message_commander_load_HEAT_v1.wav",
-        "voice_message_commander_load_HEAT_v2.wav",
-        "voice_message_commander_load_HEAT_v3.wav"
-      ]
-    },
-    "eventNames": {
-      "0": "战斗开始",
-      "3": "打穿",
-      "4": "被打中",
-      "5": "胜利",
-      "6": "击毁目标",
-      "8": "打到目标上方",
-      "9": "打到目标下方",
-      "10": "打到目标右边",
-      "11": "打到目标左边",
-      "12": "AP",
-      "13": "HE",
-      "14": "APCR",
-      "15": "smoke",
-      "16": "HEAT",
-      "17": "锁定该敌人",
-      "7": "未击穿（伤害小于10；当前上传无对应语音池）"
-    },
-    "lockEvent": 17,
-    "targetTypes": {
-      "tank": "voice_message_commander_target_tank.wav",
-      "aircraft": "voice_message_commander_target_aircraft.wav"
-    },
-    "distancePrefixPool": [
-      "voice_message_commander_target_distance_v1.wav",
-      "voice_message_commander_target_distance_v2.wav",
-      "voice_message_commander_target_distance_v3.wav"
-    ],
-    "nearPool": [
-      "voice_message_commander_target_near_v1_1.wav",
-      "voice_message_commander_target_near_v1_2.wav",
-      "voice_message_commander_target_near_v1_3.wav",
-      "voice_message_commander_target_near_v2_1.wav",
-      "voice_message_commander_target_near_v2_2.wav",
-      "voice_message_commander_target_near_v2_3.wav"
-    ]
-  }
+    @Override public String loadTank(File runtime, String manifest) throws Exception {
+        NativeBridge.clearTankConfiguration();
+        try {
+        JSONObject doc = new JSONObject(manifest);
+        JSONObject filling=doc.optJSONObject("shell_filling_grams");
+        if(filling!=null){
+            String[] shells={"AP","HE","APCR","WP","HEAT"};float[] grams=new float[5];int mask=0;
+            for(int i=0;i<5;i++)if(filling.has(shells[i])){grams[i]=(float)filling.getDouble(shells[i]);mask|=1<<i;}
+            if(mask!=0 && !NativeBridge.configureFilling(doc.getString("id"),grams,mask))return "装药配置无效";
+        }
+        JSONObject magazine = doc.optJSONObject("magazine");
+        if(!NativeBridge.configureContinuousFire(doc.getString("id"),doc.optBoolean("continuous_fire",magazine!=null),doc.optString("texture_uv_convention", "").contains("converted")))return "连发开关无效";
+        if (magazine != null && !NativeBridge.configureMagazine(doc.getString("id"),
+                magazine.getInt("capacity"), (float)magazine.getDouble("shotInterval"),
+                (float)magazine.getDouble("reloadTime")))
+            return "弹匣配置无效";
+        return NativeBridge.loadHatch(runtime.getAbsolutePath());
+        } finally { NativeBridge.clearTankConfiguration(); }
+    }
+    @Override public String[] capabilities() {
+        return new String[]{"ballistic-preview-v1","damage-formula-v1","artillery-sight-v1","crew-voice-v1"};
+    }
+    @Override public synchronized String loadFeatures(String id,String configuration) throws Exception {
+        JSONObject doc=new JSONObject(configuration);
+        if(doc.getInt("schema")!=1)return "玩法配置版本不兼容";
+        java.util.Iterator<String> keys=doc.keys();
+        java.util.Set<String> allowed=new java.util.HashSet<>(java.util.Arrays.asList("schema","aim","damage","artillery","ammunition","crew","voiceDirectory"));
+        while(keys.hasNext())if(!allowed.contains(keys.next()))return "未知玩法配置字段";
+        JSONObject voice=doc.optJSONObject("crew");
+        if(voice!=null){
+            if(crew!=null)return "成员语音能力已被占用";
+            if(!doc.has("voiceDirectory"))return "成员语音资源或配置字段无效";
+            CrewVoicePlayer candidate=new CrewVoicePlayer(new File(doc.getString("voiceDirectory")),voice);
+            int mask=1<<voice.optInt("lockEvent",1);
+            java.util.Iterator<String> events=voice.getJSONObject("events").keys();
+            while(events.hasNext())mask|=1<<Integer.parseInt(events.next());
+            if(!NativeBridge.configureCrew(true,mask))return "请在进入战斗前加载成员体验";
+            crew=candidate;if(menu!=null)crew.start();
+            if(!doc.has("aim")&&!doc.has("damage")&&!doc.has("artillery"))return "";
+        }
+        int flags=0;
+        if(doc.optBoolean("aim",false))flags|=1;
+        if(doc.optBoolean("artillery",false))flags|=4;
+        JSONObject damage=doc.optJSONObject("damage");float k=damageK,khe=damageKhe;
+        if(damage!=null){
+            if(!"two-stage-0.1".equals(damage.getString("formula")))return "不支持的伤害公式";
+            // Legacy global filling fields are accepted but no longer override vehicle ammunition.
+            k=(float)damage.getDouble("K");khe=(float)damage.getDouble("K_HE");flags|=2;
+        }
+        if((flags&claimedFlags)!=0)return "扩展能力冲突: "+featureOwners;
+        if(flags==0 || NativeBridge.state()==3 || !Float.isFinite(k)||k<=0||k>1000||!Float.isFinite(khe)||khe<=0||khe>1000)return "玩法配置无效，或战斗已开始；请在进入战斗前加载";
+        JSONObject ammo=doc.optJSONObject("ammunition");
+        String ammunitionError=AmmunitionSettings.apply(ammo);if(!ammunitionError.isEmpty())return ammunitionError;
+        if(!NativeBridge.configureExperience(flags|claimedFlags,k,khe))return "玩法配置加载失败";
+        for(int bit=1;bit<=4;bit<<=1)if((flags&bit)!=0)featureOwners.put(bit,id);
+        claimedFlags|=flags;damageK=k;damageKhe=khe;return "";
+    }
+    @Override public void stop() { if (menu != null) menu.detach(); if(hud!=null)hud.detach(); if(crew!=null)crew.stop(); }
 }
