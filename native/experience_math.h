@@ -22,9 +22,9 @@ static BteDamage bte_damage(int shell, float penetration, float caliber,
                         (result.penetrated ? 1.f : .10f);
     } else if (result.penetrated) {
         float margin = armor > 0 ? fminf(1.5f, fmaxf(1.f, result.effective_penetration/armor)) : 1.5f;
-        // Increase only penetration's extra damage contribution by 30%.
-        // A 1.20x margin becomes 1.26x; the old 1.50x cap becomes 1.65x.
-        margin = 1.f + 1.3f * (margin - 1.f);
+        // Increase penetration surplus contribution so its maximum bonus is 100%.
+        // A 1.20x margin becomes 1.40x; the old 1.50x cap becomes 2.00x.
+        margin = 1.f + 2.f * (margin - 1.f);
         float multiplier = shell == BTE_APCR ? .7f : shell == BTE_HEAT ? .8f : 1.f;
         result.damage = k * (caliber/100.f) * (caliber/100.f) * multiplier * margin;
         // AP filling is optional and belongs to this ammunition.
