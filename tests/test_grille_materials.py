@@ -4,6 +4,7 @@ from pathlib import Path
 import numpy as np
 from tankbuilder.modelrig import Model
 from hatch.pack import compile_project,NODE
+from scripts.fix_grille_dark_materials import SWATCHES
 ROOT=Path(__file__).resolve().parents[1]
 SOURCE=ROOT.parent/'upload/s.i.g_331_sdkfz_1381_ausf.h_grille(3).glb'
 class GrilleMaterials(unittest.TestCase):
@@ -13,7 +14,11 @@ class GrilleMaterials(unittest.TestCase):
   self.assertEqual(rig.g.asset.extras['source_sha256'],hashlib.sha256(SOURCE.read_bytes()).hexdigest())
   for i,mat in enumerate(source.g.materials):
    original=mat.extensions['KHR_materials_pbrSpecularGlossiness'];p=rig.g.materials[i].pbrMetallicRoughness
-   np.testing.assert_allclose(original.get('diffuseFactor',[1,1,1,1]),p.baseColorFactor)
+   expected=original.get('diffuseFactor',[1,1,1,1])
+   if mat.name in SWATCHES:
+    np.testing.assert_allclose(expected,SWATCHES[mat.name][0])
+    expected=SWATCHES[mat.name][1]
+   np.testing.assert_allclose(expected,p.baseColorFactor)
    if 'diffuseTexture' in original:self.assertEqual(original['diffuseTexture']['index'],p.baseColorTexture.index)
   for original,current in zip(source.g.images,rig.g.images):
    a=source.g.bufferViews[original.bufferView];b=rig.g.bufferViews[current.bufferView]

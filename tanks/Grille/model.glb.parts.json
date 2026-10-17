@@ -1,12 +1,12 @@
 {
   "format": 1,
   "size_bytes": 29636920,
-  "sha256": "96d41f64e340938574f67a58eb28370ec1f3c69e09573e0d4ad727d23561995a",
+  "sha256": "098dd61cd701f088812f8c30e248016070b0315c75dff4a16ff0ea7f4a74295d",
   "parts": [
     {
       "file": "model.glb.part000",
       "size_bytes": 1048576,
-      "sha256": "cc38f793dd05c43af973478865f1342fbf766f06b4b51365bc4aa974abd760f7"
+      "sha256": "8047fa2362dede232ff0492a4d07f3999754ae0d9cdf788163a4da4db4f347d9"
     },
     {
       "file": "model.glb.part001",
