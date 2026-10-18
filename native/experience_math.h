@@ -4,7 +4,7 @@ static int bte_ground_sight(int camera_mode,int sight_kind){return camera_mode==
 
 // Independent of the Unity adapter. All lengths and speeds use metres/seconds.
 enum { BTE_AP, BTE_HE, BTE_APCR, BTE_WP, BTE_HEAT };
-typedef struct { float effective_penetration, damage; int penetrated; } BteDamage;
+typedef struct { float effective_penetration, remaining_penetration_fraction, damage; int penetrated; } BteDamage;
 static BteDamage bte_damage(int shell, float penetration, float caliber,
                             float normal_cosine, float armor, float k, float khe, float filling_grams) {
     BteDamage result = {0};
@@ -17,19 +17,22 @@ static BteDamage bte_damage(int shell, float penetration, float caliber,
     float exponent = shell == BTE_APCR ? 1.4f : shell == BTE_HEAT ? .8f : 1.f;
     result.effective_penetration = penetration * powf(cosine, exponent);
     result.penetrated = result.effective_penetration >= armor;
+    float residual = fmaxf(0.f, result.effective_penetration - armor);
+    result.remaining_penetration_fraction = penetration > 0.f
+        ? fminf(1.f, residual / penetration) : 0.f;
     if (shell == BTE_HE) {
         result.damage = khe * powf(filling_grams/100.f, .6f) * sqrtf(caliber/100.f) *
                         (result.penetrated ? 1.f : .10f);
+        if (result.penetrated) result.damage *= result.remaining_penetration_fraction;
     } else if (result.penetrated) {
         float margin = armor > 0 ? fminf(1.5f, fmaxf(1.f, result.effective_penetration/armor)) : 1.5f;
-        // Increase penetration surplus contribution so its maximum bonus is 100%.
-        // A 1.20x margin becomes 1.40x; the old 1.50x cap becomes 2.00x.
         margin = 1.f + 2.f * (margin - 1.f);
         float multiplier = shell == BTE_APCR ? .7f : shell == BTE_HEAT ? .8f : 1.f;
         result.damage = k * (caliber/100.f) * (caliber/100.f) * multiplier * margin;
         // AP filling is optional and belongs to this ammunition.
         if (shell == BTE_AP) result.damage *= 1.f + .25f * sqrtf(filling_grams/100.f);
         if (shell == BTE_HEAT) result.damage = khe * powf(filling_grams/100.f,.6f) * sqrtf(caliber/100.f) * .8f * margin;
+        result.damage *= result.remaining_penetration_fraction;
     }
     return result;
 }

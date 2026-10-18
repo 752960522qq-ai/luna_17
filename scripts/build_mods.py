@@ -19,7 +19,7 @@ def main():
     parser.add_argument('--ndk',type=Path,required=True)
     parser.add_argument('--android-jar',type=Path,required=True)
     parser.add_argument('--voice-archive',type=Path,help='Original uploaded Chinese WAV ZIP; builds Better Crew Experience')
-    parser.add_argument('--module-only',action='store_true',help='Build the loader and native prerequisite without repacking the existing gameplay/audio pack')
+    parser.add_argument('--module-only',action='store_true',help='Build the loader and native prerequisite without repacking the voice-bearing gameplay pack')
     parser.add_argument('--r8',type=Path,required=True)
     parser.add_argument('--work-dir',type=Path,default=ROOT/'build/mods')
     parser.add_argument('--output',type=Path,default=ROOT/'dist/mods')

@@ -5,36 +5,24 @@ static int near(float a,float b){return fabsf(a-b)<.0002f;}
 int main(void){
     assert(bte_ground_sight(0,0)&&bte_ground_sight(0,1)&&bte_ground_sight(0,2));
     assert(!bte_ground_sight(0,3)&&!bte_ground_sight(0,-1)&&!bte_ground_sight(3,2));
-    BteDamage ap=bte_damage(BTE_AP,96,100,.5f,45,20,10,155);
+    BteDamage ap=bte_damage(BTE_AP,96,100,.5f,45,35.21f,10,155);
     assert(ap.penetrated && near(ap.effective_penetration,48));
-    assert(near(ap.damage,20*(1+2.f*(48.f/45-1))*(1+.25f*sqrtf(1.55f))));
+    assert(near(ap.remaining_penetration_fraction,3.f/96.f));
+    assert(near(ap.damage,35.21f*(1+2*(48.f/45-1))*(1+.25f*sqrtf(1.55f))*(3.f/96.f)));
     assert(!bte_damage(BTE_AP,96,100,.5f,49,20,10,155).penetrated);
     assert(bte_damage(BTE_AP,96,100,.5f,49,20,10,155).damage==0);
     BteDamage apcr=bte_damage(BTE_APCR,96,100,.5f,45,20,10,155);
     assert(!apcr.penetrated && near(apcr.effective_penetration,96*powf(.5f,1.4f)));
     BteDamage cap=bte_damage(BTE_APCR,1000,100,1,1,20,10,155);
-    assert(near(cap.damage,28.f)); // No filling boost, revised 2.00x cap.
-    // AP/APCR/HEAT all scale only the surplus; threshold and over-cap
-    // penetration are distinct cases. Compare against each shell's own base.
-    const int weighted_shells[]={BTE_AP,BTE_APCR,BTE_HEAT};
-    const float ratios[]={1.f,1.1f,1.2f,1.4f,1.5f,2.f};
-    for(unsigned s=0;s<3;s++){
-        BteDamage base=bte_damage(weighted_shells[s],100,100,1,100,20,10,100);
-        for(unsigned r=0;r<6;r++){
-            BteDamage revised=bte_damage(weighted_shells[s],100*ratios[r],100,1,100,20,10,100);
-            float old_margin=fminf(1.5f,ratios[r]);
-            assert(near(revised.damage/base.damage,1.f+2.f*(old_margin-1.f)));
-        }
-        assert(bte_damage(weighted_shells[s],99,100,1,100,20,10,100).damage==0);
-    }
+    assert(near(cap.damage,20*.7f*2.f*.999f)); // 2x surplus cap and remaining penetration ratio.
     BteDamage he=bte_damage(BTE_HE,27,152,1,20,20,10,710);
     BteDamage blocked=bte_damage(BTE_HE,27,152,.5f,20,20,10,710);
-    assert(he.penetrated && !blocked.penetrated && near(blocked.damage,he.damage*.10f));
-    assert(near(he.damage,10*powf(7.1f,.6f)*sqrtf(1.52f)));
+    assert(he.penetrated && !blocked.penetrated && near(blocked.damage,10*powf(7.1f,.6f)*sqrtf(1.52f)*.10f));
+    assert(near(he.damage,10*powf(7.1f,.6f)*sqrtf(1.52f)*(7.f/27.f)));
     assert(bte_damage(BTE_AP,96,100,-1,45,20,10,155).damage==0);
     assert(bte_damage(BTE_AP,NAN,100,1,45,20,10,155).damage==0);
     assert(bte_damage(BTE_WP,96,100,1,45,20,10,155).damage==0);
-    assert(bte_damage(BTE_AP,96,100,.5f,45,20,10,0).damage < ap.damage);
+    assert(bte_damage(BTE_AP,96,100,.5f,45,35.21f,10,0).damage < ap.damage);
     assert(bte_damage(BTE_HE,27,152,1,20,20,10,8300).damage > he.damage);
     assert(bte_damage(BTE_HE,27,152,1,20,20,10,0).damage==0);
     assert(bte_damage(BTE_HE,27,152,1,20,20,10,NAN).damage==0);

@@ -791,7 +791,7 @@ class NativeTests(unittest.TestCase):
             seen.append(m.x(3));m.iwrite(result+0x20,99);m.iwrite(result+0x24,4);m.iwrite(result+0x28,30);m.iwrite(result+0x2c,2);return result
         m.global_q('original_cal_damage',m.stub(original))
         m.call('experience_cal_damage',damage,info,0,0,0)
-        self.assertEqual(struct.unpack('<i',m.read(result+0x20,4))[0],28)
+        self.assertEqual(struct.unpack('<i',m.read(result+0x20,4))[0],1)
         self.assertEqual(m.read(result+0x24,4),bytes(4))
         m.iwrite(armor+0x20,49);m.call('experience_cal_damage',damage,info,0,0,0)
         self.assertEqual(m.read(result+0x20,4),bytes(4));self.assertEqual(m.read(result+0x2c,4),bytes(4))
@@ -799,7 +799,7 @@ class NativeTests(unittest.TestCase):
         m.call('experience_cal_damage',damage,info,0,1,0)
         self.assertEqual(seen[-1],0);self.assertEqual(struct.unpack('<i',m.read(result+0x20,4))[0],5)
         m.iwrite(armor+0x20,10);m.call('experience_cal_damage',damage,info,0,1,0)
-        self.assertEqual(struct.unpack('<i',m.read(result+0x20,4))[0],32)
+        self.assertEqual(struct.unpack('<i',m.read(result+0x20,4))[0],4)
         m.iwrite(info+0x4c,6);m.call('experience_cal_damage',damage,info,0,1,0)
         self.assertEqual(seen[-1],1);self.assertEqual(struct.unpack('<i',m.read(result+0x20,4))[0],99)
         m.iwrite(info+0x4c,0);m.iwrite(params+0x58,2);m.call('experience_cal_damage',damage,info,0,0,0)
