@@ -13,7 +13,7 @@ class Lanes:
             [
                 (p["x"], p["z"], RADIUS[p["kind"]] * p["scale"] + 2.7)
                 for p in props
-                if p["kind"] in RADIUS and -455 < p["x"] < 0 and -420 < p["z"] < 315
+                if p["kind"] in RADIUS and -455 < p["x"] < 0 and -420 < p["z"] < 670
             ]
         )
         self.cache = {}
@@ -81,7 +81,7 @@ class Lanes:
                 v = dist + math.hypot(di, dj)
                 if not (
                     -440 < n[0] < -12
-                    and -398 < n[1] < 298
+                    and -398 < n[1] < 638
                     and v < cost.get(n, float("inf"))
                 ):
                     continue

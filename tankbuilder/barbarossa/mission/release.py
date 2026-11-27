@@ -21,6 +21,9 @@ PRIOR = "ac1a6e542f162212706f838386aa1949b28dbc06b3b4a1efc8ce5ee76e89442e"
 PRIOR_ONE_SIDE = "e68e153938c1f0a4aab668c88c1a7bcea335ca837e302c1d0e535c142f6e348f"
 
 
+PRIOR_TWO_SIDES = "50bf7e99eb744f61d0515fc6e8c8df672e7f7331f112432d7bec79b20ac496fe"
+
+
 def digest(b):
     return hashlib.sha256(b).hexdigest()
 
@@ -88,7 +91,9 @@ def release(apk, prior_zip, out, work):
             + delta[data["header_bytes"] :]
         )
         require(
-            digest(prior) == data["result_sha256"] in (PRIOR, PRIOR_ONE_SIDE),
+            digest(prior)
+            == data["result_sha256"]
+            in (PRIOR, PRIOR_ONE_SIDE, PRIOR_TWO_SIDES),
             "Unknown preceding release",
         )
         pack = Members(prior)
@@ -134,9 +139,11 @@ def release(apk, prior_zip, out, work):
         for e in entries:
             n = e["file"]
             r = (work / n).read_bytes()
-            if n in pack.members:
-                require(pack.read(n) == r, "Published native player/AI file changed")
-            else:
+            if n not in pack.members or pack.read(n) != r:
+                require(
+                    n not in pack.members or e["prefab"].endswith("_Player"),
+                    "Published native AI file changed",
+                )
                 adds.append((n, r))
             models[e["id"], e["prefab"].endswith("_Player")] = (
                 n,
@@ -166,7 +173,9 @@ def release(apk, prior_zip, out, work):
             # Build the two buttons from the same unmodified campaign row, not from last revision's bound Button.
             base_members = Members(base)
             title = file(prepare_menu_base({k: base_members.read(k) for k in DIGESTS}))
-        m0, ui_source = menu(title, get("level1"), names, fonts)
+        m0, ui_source = menu(
+            title, get("level1"), names, fonts, stock.objects[159011], gui.objects[121]
+        )
         spec = {
             "format": 2,
             "id": "barbarossa_01",
@@ -181,7 +190,7 @@ def release(apk, prior_zip, out, work):
         bs = next(o for o in mg.objects.values() if o.type.name == "BuildSettings")
         v = parse_complete(bs)
         require(
-            len(v["scenes"]) in (22, 23)
+            len(v["scenes"]) in (22, 23, 24)
             and v["scenes"][21].endswith("Barbarossa_Polesie_Summer.unity"),
             "Unknown scene table",
         )
@@ -228,7 +237,7 @@ def release(apk, prior_zip, out, work):
         (work / "globalgamemanagers").write_bytes(mgr)
         (work / "mission.json").write_bytes(dumps(spec))
         flags = {n: "level8" for n, sc in scenes if n not in pack.members}
-        flags.update({n: "resources.assets" for n, _ in adds})
+        flags.update({n: "resources.assets" for n, _ in adds if n not in pack.members})
         result = append_members(
             prior, [("level0", m0), ("globalgamemanagers", mgr), *scenes, *adds], flags
         )

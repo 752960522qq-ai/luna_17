@@ -11,6 +11,7 @@ from ...bt7.integrate import pointers
 from .. import layout
 from . import TITLE, SIDES, SOVIET, GERMAN
 from .font import covers
+from .lettering import check as check_lettering
 from .objectives import decode as decode_rules
 from .codec import part, kids, cname, extra_offsets
 from .interface import SCENES, PARAM
@@ -40,6 +41,26 @@ def expect_roster(side):
 def verify_picker(title, registered):
     page = next(i for i, g in title.go.items() if g["m_Name"] == PAGE_NAME)
     _, _, slots, back = title.children(page)
+    labels = Counter()
+    for parts in title.part.values():
+        if "Text" not in parts:
+            continue
+        text = title.sf.objects[parts["Text"]]
+        label = text_value(text.get_raw_data())
+        if label in ("额外战役", "巴巴罗萨行动", TITLE, GERMAN.label, SOVIET.label):
+            check_lettering(title.sf, title.names, text)
+            labels[label] += 1
+    require(
+        labels
+        == {
+            "额外战役": 2,
+            "巴巴罗萨行动": 1,
+            TITLE: 1,
+            GERMAN.label: 1,
+            SOVIET.label: 1,
+        },
+        "Missing home normal/selected caption or picker caption",
+    )
     header, *choices = title.children(slots)
     require(
         "Button" not in title.part[header] and len(choices) == 2,
@@ -172,7 +193,14 @@ def verify(raw, prior, spec, names):
         "Wrong scene registration",
     )
     for n, t in old.members.items():
-        if n not in ("level0", "globalgamemanagers", "level22"):
+        if n not in (
+            "level0",
+            "globalgamemanagers",
+            "level22",
+            "level23",
+            "T26_Player.assets",
+            "Panzer_II_Ausf_F_Player.assets",
+        ):
             require(b.members[n] == t, "Existing resources were overwritten: " + n)
     require(b.read("level21") == old.read("level21"), "Common map was changed")
     verify_picker(Scene(file(b.read("level0")), names), installed)
@@ -210,6 +238,7 @@ def verify(raw, prior, spec, names):
     return {
         "status": "passed",
         "two_direct_entry_buttons": True,
+        "verified_fixed_menu_captions": 6,
         "same_physical_deployment": True,
         "reopened_native_scenes": report,
         "prior_unmodified_members": sum(
@@ -217,6 +246,49 @@ def verify(raw, prior, spec, names):
         ),
         "android_device_test": False,
     }
+
+
+def camera_target(sf, root, names):
+    """Resolve the literal GameControl/CameraControl path, not just serialized controller references."""
+
+    def named(g, name):
+        (n,) = [
+            x for x in kids(sf, g) if parse_complete(sf.objects[x])["m_Name"] == name
+        ]
+        return n
+
+    turret = named(root, "Turret")
+    gun = named(turret, "Gun")
+
+    def component(name):
+        (obj,) = [
+            o
+            for c in parse_complete(sf.objects[root])["m_Component"]
+            if (o := sf.objects[c["component"]["m_PathID"]]).type.name
+            == "MonoBehaviour"
+            and cname(o, names) == name
+        ]
+        return obj
+
+    pc = read_mb("PlayerControl", component("PlayerControl").get_raw_data())
+    require(
+        pc["thisTrf"] == pp(part(sf, root, "Transform"))
+        and pc["turretTrf"] == pp(part(sf, turret, "Transform"))
+        and pc["gunTrf"] == pp(part(sf, gun, "Transform"))
+        and parse_complete(sf.objects[turret])["m_IsActive"]
+        and parse_complete(sf.objects[gun])["m_IsActive"],
+        "The player and stock camera do not share the same active yaw/pitch mounts",
+    )
+    (rig,) = [
+        sf.objects[i]
+        for g, parts, t in subtree(sf, root)
+        for i in parts
+        if sf.objects[i].type.name == "MonoBehaviour"
+        and cname(sf.objects[i], names) == "UnitStatus"
+    ]
+    require(
+        pc["uStatus"] == pp(rig.path_id), "Camera target does not own the player status"
+    )
 
 
 def verify_side(b, sf, spec, names, side, objective, h, lanes, srcs):
@@ -227,6 +299,7 @@ def verify_side(b, sf, spec, names, side, objective, h, lanes, srcs):
         and cname(o, names) == "Text"
         and PTR.unpack_from(o.get_raw_data(), 0) == (0, spec["ui"]["opening"])
     )
+    check_lettering(sf, names, bt)
     label = text_value(bt.get_raw_data())
     ff, fp = PTR.unpack_from(bt.get_raw_data(), 88)
     require(
@@ -267,17 +340,21 @@ def verify_side(b, sf, spec, names, side, objective, h, lanes, srcs):
         == [groups["player"], groups["friend"], groups["enemy"], spec["base"]],
         "Wrong stock objective structure",
     )
+    scenarios = kids(sf, 5328)
     require(
-        len(kids(sf, 5328)) == 10
-        and [g for g in kids(sf, 5328) if parse_complete(sf.objects[g])["m_IsActive"]]
-        == [side.scenario],
-        "Extra stock armies possible",
+        len(scenarios) == 10
+        and not parse_complete(sf.objects[5328])["m_IsActive"]
+        and not any(parse_complete(sf.objects[g])["m_IsActive"] for g in scenarios)
+        and scenarios[5 * (side.nation % 2) + (1 - 1)] == side.scenario
+        and all(not kids(sf, g) for g in scenarios if g != side.scenario),
+        "GameControl cannot exclusively wake this nation's first scenario",
     )
     pcs = []
     ais = []
     route_segments = 0
     used = set()
     xy = []
+    by_nation = {"GE": [], "SO": []}
     unitrefs = 0
     for r in spec["units"]:
         g = r["root"]
@@ -297,6 +374,15 @@ def verify_side(b, sf, spec, names, side, objective, h, lanes, srcs):
         pos = tr["m_LocalPosition"]
         x, y, z = (pos[k] for k in "xyz")
         xy.append((x, z))
+        by_nation[r["nation"]].append((x, z))
+        for parent in (groups[team], side.scenario, 5328):
+            pv = parse_complete(sf.objects[part(sf, parent, "Transform")])
+            require(
+                pv["m_LocalPosition"] == {"x": 0, "y": 0, "z": 0}
+                and pv["m_LocalScale"] == {"x": 1, "y": 1, "z": 1}
+                and pv["m_LocalRotation"] == {"x": 0, "y": 0, "z": 0, "w": 1},
+                "Deployment is not in world space",
+            )
         require(
             tr["m_Father"] == pp(part(sf, groups[team], "Transform"))
             and max(abs(a - k) for a, k in zip((x, y, z), r["pos"])) < 0.001,
@@ -407,6 +493,8 @@ def verify_side(b, sf, spec, names, side, objective, h, lanes, srcs):
                     == {"capacity": 10, "shotInterval": 0.4, "reloadTime": 4.85},
                     "Wrong German player cannon profile",
                 )
+            camera_target(sf, g, names)
+            camera_target(src, r["source_root"], names)
             pc = r["controllers"]["PlayerControl"]
             pcs.append(pc)
             pv = read_mb("PlayerControl", sf.objects[pc].get_raw_data())
@@ -433,6 +521,8 @@ def verify_side(b, sf, spec, names, side, objective, h, lanes, srcs):
         min(math.dist(a, q) for i, a in enumerate(xy) for q in xy[i + 1 :]) >= 14,
         "Overlapping spawn footprints",
     )
+    separation = min(math.dist(a, b) for a in by_nation["SO"] for b in by_nation["GE"])
+    require(separation >= 550, "Hostile armies start too close")
     allscripts = Counter(
         cname(o, names) for o in sf.objects.values() if o.type.name == "MonoBehaviour"
     )
@@ -494,6 +584,38 @@ def verify_side(b, sf, spec, names, side, objective, h, lanes, srcs):
     basegen = rawfield.objects[155556].get_raw_data()
     at = 44
     hero_source = next(u for u in spec["units"] if u["team"] == "player")
+    main = mgos["Main Camera"]
+    cam = parse_complete(sf.objects[part(sf, main, "Transform")])
+    require(
+        cam["m_Father"] == pp()
+        and parse_complete(sf.objects[main])["m_Tag"] == 5
+        and sf.objects[154686].get_raw_data()[12] == 1
+        and PTR.unpack_from(sf.objects[155115].get_raw_data(), 32) == (0, 154686)
+        and PTR.unpack_from(sf.objects[154686].get_raw_data()) == (0, main),
+        "Stock game camera or follow controller is disconnected",
+    )
+    x, y, z = hero_source["pos"]
+    cp = cam["m_LocalPosition"]
+    a = math.radians(hero_source["yaw"])
+    require(
+        8.9 < math.dist((x, z), (cp["x"], cp["z"])) < 9.1
+        and 2 < cp["y"] - y < 8
+        and abs(x - cp["x"] - 9 * math.sin(a)) < 0.01
+        and abs(z - cp["z"] - 9 * math.cos(a)) < 0.01
+        and cp["y"] > layout.ground(h, cp["x"], cp["z"]) + 2,
+        "The first frame is airborne, underground or facing the wrong tank",
+    )
+    qx, qy, qz, qw = (cam["m_LocalRotation"][k] for k in "xyzw")
+    look = (
+        2 * (qx * qz + qw * qy),
+        2 * (qy * qz - qw * qx),
+        1 - 2 * (qx * qx + qy * qy),
+    )
+    target = (x - cp["x"], y + 1.45 - cp["y"], z - cp["z"])
+    require(
+        sum(l * t for l, t in zip(look, target)) / math.hypot(*target) > 0.999,
+        "The first frame does not look at the player",
+    )
     for table in range(3):
         n = struct.unpack_from("<i", gen, at)[0]
         require(
@@ -607,6 +729,9 @@ def verify_side(b, sf, spec, names, side, objective, h, lanes, srcs):
         "friendly_ai": friendly,
         "enemy_ai": enemies,
         "chassis": len(used),
+        "camera_mount_in_scene_and_generator_prefab": "Turret/Gun",
+        "first_frame_camera_behind_player_m": 9,
+        "nearest_opposing_spawn_m": round(separation, 2),
         "verified_unit_references": unitrefs,
         "verified_transforms": len(transform),
         "checked_driving_segments": route_segments,

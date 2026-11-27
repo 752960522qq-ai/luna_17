@@ -11,12 +11,16 @@
 
 两个入口使用同一套原版 UGUI 样式、独立触摸区域与显式方向键导航。上一版的苏军场景仍在槽 22，德军使用槽 23，通用地图仍在槽 21。苏军采用原版「敌军全灭获胜、敌军抵达失败」的防守触发器设置，德军沿用原版抵达据点的进攻设置。两边都保留原版战斗 HUD 和据点碰撞体。场景内的本阵营备用玩家槽也指向对应车型。
 
-从仓库根目录构建；`--prior` 传入上一版单阵营战役包，亦支持之前的 PanzerIV-C-Integration.zip。输出目录应和输入包分开。
+两个阵营采用相同的新部署：苏军留在村口，德军从北部田野接近。按实际坦克根节点测得，开局两军最近距离约 567 米（原为 194 米）；路线覆盖新增的北侧路段，并检查地形、河岸与场景障碍。
+
+新增入口的普通和选中状态、标题、两个阵营按钮及开局提示使用内嵌字图，由原版 UGUI 直接绘制；固定中文不再依赖安卓动态字体。触摸仍由原按钮处理。原版相机在玩家车根节点按名字找 `Turret/Gun`，因此场内的占位车和生成器使用的玩家预制体都必须保留这条路径。相机第一帧位于玩家车后方 9 米，随后由原版控制器跟车。开局仍由原版 GameControl 激活正确的国家与关卡。
+
+从仓库根目录构建；`--prior` 建议传入 PanzerIV-C-Integration.zip，也兼容先前发布的单阵营和双阵营战役包。输出目录应和输入包分开。
 
 ```bash
 python -m tankbuilder.barbarossa.mission.release \
   --apk Hatch-0.4-Grille-HE200-T26.apk \
-  --prior previous/Barbarossa-01-Gates-of-Hell.zip \
+  --prior previous/PanzerIV-C-Integration.zip \
   --output out/latest --work out/mission01-work
 ```
 

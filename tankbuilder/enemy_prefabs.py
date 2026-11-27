@@ -241,6 +241,16 @@ def create(a, stock, mod, out, *, player=False):
     g["m_Name"] = name
     s.put(s.root, g)
     tr, cs, tracks, roads, renders, triangles = attach_visuals(s, ident, nodes, images, h, r)
+    if player:
+        # GameControl uses Transform.Find("Turret"), then CameraControl finds "Gun".
+        # Keep the stock pivots and all references; both current model hulls are identity.
+        root, hull, turret, gun = s.tr(s.root), tr[cs[0]], tr[cs[1]], tr[cs[2]]
+        if (s.get(turret)["m_Father"] != pp(hull) or s.get(hull)["m_Father"] != pp(root)
+                or not np.allclose(nodes[cs[0]].trs, IDENTITY, rtol=0, atol=1e-7)
+                or s.get(gun)["m_Father"] != pp(turret)
+                or [s.get(s.go(t))["m_Name"] for t in (turret, gun)] != ["Turret", "Gun"]):
+            raise ValueError("Cannot preserve the native player camera rig for " + ident)
+        s.attach(turret, root, nodes[cs[1]].trs)
     ap = w["ammo"].get("AP", 0)
     prim = "AP" if ap else "HE"
     shell_index = 0 if ap else 1

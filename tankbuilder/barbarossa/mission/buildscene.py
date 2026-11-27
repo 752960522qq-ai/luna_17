@@ -1,4 +1,5 @@
 import struct
+import math
 from ...enemy_assets import refs, subtree
 from ...campaign_ugui import PTR, require
 from ...serialization import parse_complete, assert_roundtrip, encode_complete
@@ -163,12 +164,32 @@ def make(sf, m, models, rows, names, ui_source, objective, gui, fonts, h, props,
     PTR.pack_into(r, 164, 0, sun)
     struct.pack_into("<i", r, 120, 1)
     gc.set_raw_data(bytes(r))
-    update(sf, 5328, m_IsActive=True)
-    update(sf, side.scenario, m_IsActive=True)
+    # Stock GameControl.Start activates the campaign, selects the country's stage, then
+    # TankGenManager replaces its first player child. Do not wake the placeholder early.
+    update(sf, 5328, m_IsActive=False)
+    update(sf, side.scenario, m_IsActive=False)
     update(sf, part(sf, base, "Transform"), m_LocalPosition=xyz(objective))
     for row in rows:
         fn, s, g = models[(row["tank"], row["team"] == "player")]
         attach(l, s, fn, g, part(sf, groups[row["team"]], "Transform"), row)
+    # The very first visible frame is already behind the selected tank. The original
+    # CameraControl remains unparented and takes over through the native turret binding.
+    from .. import layout
+
+    hero_row = next(row for row in rows if row["team"] == "player")
+    x, y, z = hero_row["pos"]
+    a = math.radians(hero_row["yaw"])
+    cx, cz = x - 9 * math.sin(a), z - 9 * math.cos(a)
+    cy = max(y + 3.5, float(layout.ground(h, cx, cz)) + 2.5)
+    half_pitch = math.atan2(cy - y - 1.45, 9) / 2
+    sy, wy = math.sin(a / 2), math.cos(a / 2)
+    sp, wp = math.sin(half_pitch), math.cos(half_pitch)
+    update(
+        sf,
+        part(sf, 791, "Transform"),
+        m_LocalPosition=xyz((cx, cy, cz)),
+        m_LocalRotation=dict(x=wy * sp, y=sy * wp, z=-sy * sp, w=wy * wp),
+    )
     # Use a real player prefab also on all valid stock fallback slots for the selected
     # nation, including the German exchange table. Leave the other nation's entries alone.
     gen = sf.objects[155556]
@@ -228,6 +249,9 @@ def make(sf, m, models, rows, names, ui_source, objective, gui, fonts, h, props,
     from .font import bind
 
     ui["font"] = bind(l, fonts, {side.opening, side.briefing, "返回标题"})
+    from .lettering import install as lettering
+
+    lettering(l, sf.objects[159011], gui.objects[121], {side.opening})
     return dict(
         groups=groups,
         scenario=side.scenario,

@@ -61,7 +61,7 @@ def navigate(o, *, left=0, right=0, up=0, down=0):
     o.set_raw_data(bytes(raw))
 
 
-def menu(sf, stage, names, fonts):
+def menu(sf, stage, names, fonts, raw_image, texture):
     """Present the two play actions on the same native mission selection page."""
     home = Scene(sf, names)
     stock = Scene(stage, names)
@@ -193,7 +193,11 @@ def menu(sf, stage, names, fonts):
     )
     from .font import bind
 
-    bind(lk, fonts, {"额外战役", "巴巴罗萨行动", TITLE, GERMAN.label, SOVIET.label})
+    from .lettering import install as lettering
+
+    labels = {"额外战役", "巴巴罗萨行动", TITLE, GERMAN.label, SOVIET.label}
+    bind(lk, fonts, labels)
+    lettering(lk, raw_image, texture, labels)
     return sf.save(), (home, txt, original_text)
 
 
