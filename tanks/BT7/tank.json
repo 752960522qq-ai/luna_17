@@ -1,0 +1,20 @@
+{
+  "type": "light",
+  "vehicleKind": "tank",
+  "crew": 3,
+  "maxForwardSpeed": 52,
+  "maxReverseSpeed": 9,
+  "hullTraverse": "fast",
+  "enginePower": 450,
+  "engineName": "M-17T",
+  "weightTonnes": 13.8,
+  "gunElevation": 40,
+  "gunDepression": -4,
+  "turretRotation": 16,
+  "dimensionsMeters": {
+    "length": 5.66,
+    "width": 2.29,
+    "height": 2.42
+  },
+  "gameNotes": "Tracked configuration. Reverse speed, tier and turret rotation are game tuning."
+}

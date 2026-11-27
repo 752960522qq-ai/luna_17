@@ -1,0 +1,45 @@
+{
+  "name": "45 mm 20-K",
+  "caliber": 45,
+  "reload": 3.7,
+  "muzzleVelocity": 760,
+  "continuousFire": false,
+  "ballistics": "physical",
+  "ammo": {
+    "AP": 188,
+    "HE": 0,
+    "APCR": 0,
+    "HEAT": 0,
+    "WP": 0
+  },
+  "shells": {
+    "AP": {
+      "penetrationMm": 70,
+      "explosiveMassGrams": 22,
+      "name": "BR-240 APHEBC"
+    },
+    "HE": {
+      "penetrationMm": 0,
+      "explosiveMassGrams": 0
+    },
+    "APCR": {
+      "penetrationMm": 0,
+      "explosiveMassGrams": 0
+    },
+    "HEAT": {
+      "penetrationMm": 0,
+      "explosiveMassGrams": 0
+    },
+    "WP": {
+      "penetrationMm": 0,
+      "explosiveMassGrams": 0
+    }
+  },
+  "machineGun": {
+    "name": "7.62 mm DT",
+    "position": "coaxial",
+    "ammo": 30,
+    "ammoUnit": "game magazines"
+  },
+  "parameterOrigin": "Hatch T-26 45 mm game profile. Magazine allocation is game tuning, not historical ammunition composition."
+}

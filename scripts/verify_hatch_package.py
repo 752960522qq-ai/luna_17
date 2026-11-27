@@ -10,7 +10,7 @@ from pathlib import Path
 
 import numpy as np
 from PIL import Image
-from hatch.standalone.integrate import validate_pack
+from hatch.package import validate as validate_pack
 
 
 def inspect(path):

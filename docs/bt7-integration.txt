@@ -1,0 +1,20 @@
+BT-7（1937）｜玩家模组与敌方 AI 整合
+适用：Attack on Tank 5.1.0 ARM64，Hatch 0.4，坦无敌3000 1.0。
+
+只想驾驶 BT-7
+在游戏的模组管理中导入 assets/Hatch/mods/BT7.hatch，完全退出并重新启动游戏，选择「BT-7 (1937)」。如果已单独下载 BT7.hatch，同一文件无须重复导入。
+
+在关卡工程中使用敌方 BT-7
+AI/BT7_AI.assets 是原生敌方预制体，配套的九车索引见 AI/Hatch-Enemy-AI-index.json。同目录的旧八车只是索引原有条目，本包没有重复附带它们的原件。Unity 资源路径为 unit/so/bt7/bt7_ai，数据路径为 unit/so/bt7/bt7_profile。后者是该车的 TextAsset。单独导入玩家 .hatch 不会安装这些原生资源，也不会改变任务的刷车表。
+
+生成已经注册该预制体的游戏数据
+1. 解压本 ZIP。准备与项目相同的 Hatch-0.4-Grille-HE200-T26.apk，或其 assets/bin/Data/data.unity3d。
+2. 在此文件夹运行（Python 3，无第三方依赖）：
+   python apply_overlay.py "你的/Hatch-0.4-Grille-HE200-T26.apk" "输出/data.unity3d"
+   输入也可以是原 data.unity3d。输出须使用新文件名。脚本校验来源、增量文件与最终结果，不修改来源文件。
+3. 将输出用于游戏工程的 assets/bin/Data/data.unity3d；把包内 assets/Hatch/catalog.json 和 assets/Hatch/mods/BT7.hatch 放在对应资源位置，原有其他模组继续保留。这份整合数据已同时保留之前制作的额外战役菜单、巴巴罗萨地图。此包为工程资源，不是安卓安装包。
+4. 如需自行布置，关卡可用上述资源路径引用 BT7_AI；默认没有修改任何既有任务的布置或出车概率。
+
+核验记录见 verification/ 与 integration.json。包含两侧履带、八个负重轮、四个首尾轮、炮塔、俯仰、后坐与炮口。验证环境为序列化资源回读与三维离线渲染；未作 Android 实机实战。实时行为以游戏为准。
+
+模型署名、历史参考、完整车辆参数与复现命令见 BT7-Notes.md。

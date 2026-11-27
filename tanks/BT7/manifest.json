@@ -1,0 +1,10 @@
+{
+  "format": 1,
+  "id": "BT7",
+  "displayName": "BT-7 (1937)",
+  "country": "USSR",
+  "tier": 1,
+  "basePrefab": "T34_85_Player",
+  "role": "player",
+  "adapter": "aot-5.1.0-arm64-v1"
+}

@@ -28,6 +28,8 @@ DONORS = {
     "T44_100": "T44_AI",
     "T54_1949": "T44_AI",
 }
+EXTENSION_DONORS = {"BT7": "T34_76_AI"}
+ALL_DONORS = {**DONORS, **EXTENSION_DONORS}
 # HE pool in the stock Soviet KV-2 (152 mm) or US howitzer (105 mm) respectively.
 HE_DONOR = {"SU_152": 130334, "T30": 130334, "T44_100": 129981, "T54_1949": 129981}
 IDENTITY = (0, 0, 0, 0, 0, 0, 1, 1, 1, 1)
@@ -231,7 +233,7 @@ def create(a, stock, mod, out):
         ):
             raise ValueError(f"{ident}: inconsistent {k} ammunition data")
     s = Stage(
-        a, stock[DONORS[ident]], name + ".assets", HE_DONOR.get(ident) if w["ammo"].get("HE") else None
+        a, stock[ALL_DONORS[ident]], name + ".assets", HE_DONOR.get(ident) if w["ammo"].get("HE") else None
     )
     g = s.get(s.root)
     g["m_Name"] = name
@@ -326,7 +328,7 @@ def create(a, stock, mod, out):
         "prefab": name,
         "file": file.name,
         "root_path_id": s.root,
-        "stock_ai": DONORS[ident],
+        "stock_ai": ALL_DONORS[ident],
         "country": m["country"],
         "vehicle_kind": kind,
         "primary_shell": prim,
@@ -360,7 +362,7 @@ def prepare(apk, output):
             o.read_typetree(check_read=False)["m_Name"]: o.path_id
             for o in a.sf.objects.values()
             if o.type.name == "GameObject"
-            and o.read_typetree(check_read=False)["m_Name"] in DONORS.values()
+            and o.read_typetree(check_read=False)["m_Name"] in ALL_DONORS.values()
         }
         entries = []
         seen = set()
@@ -371,7 +373,7 @@ def prepare(apk, output):
                 h = json.loads(mod.read("hatch.json"))
                 if h.get("type") != "tank":
                     continue
-                if h["id"] not in DONORS or h["id"] in seen:
+                if h["id"] not in ALL_DONORS or h["id"] in seen:
                     raise ValueError("Unknown/duplicate vehicle: " + h["id"])
                 seen.add(h["id"])
                 print("Preparing", h["id"], flush=True)
@@ -379,7 +381,7 @@ def prepare(apk, output):
                 _, nodes, images = read_model(mod.read("runtime.bin"), h)
                 entry["validation"] = verify(a, work / entry["file"], entry, (nodes, images, h))
                 entries.append(entry)
-        if seen != set(DONORS):
+        if not set(DONORS) <= seen:
             raise ValueError("Incomplete vehicle catalog")
         index = {
             "format": 1,

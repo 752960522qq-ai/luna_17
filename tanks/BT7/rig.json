@@ -1,0 +1,339 @@
+{
+  "format": 1,
+  "forward": "-Z",
+  "turret": {
+    "node": 1,
+    "pivot": [
+      0.011494659919409074,
+      1.6027895370685263,
+      -0.440791092168692
+    ],
+    "speedDegSec": 16
+  },
+  "gun": {
+    "node": 2,
+    "pivot": [
+      0.006961243889609617,
+      1.9135808353551387,
+      -1.1430628125103532
+    ],
+    "elevation": 40,
+    "depression": 4,
+    "recoil": 0.13,
+    "recoilNode": 3
+  },
+  "muzzle": {
+    "node": 4,
+    "position": [
+      -0.007902395411853376,
+      1.9165420240992486,
+      -2.5191703445563123
+    ]
+  },
+  "coaxMuzzle": {
+    "node": 5,
+    "position": [
+      0.13776498312994034,
+      1.9132369437923424,
+      -1.6220610516091725
+    ]
+  },
+  "wheels": [
+    {
+      "node": 9,
+      "name": "wheel_l_01",
+      "center": [
+        -1.009499591187062,
+        0.4545856391358794,
+        -1.5567460590835385
+      ],
+      "radius": 0.4172162493608365,
+      "side": "left",
+      "roadWheel": true,
+      "suspensionNode": 8,
+      "restLocalPosition": [
+        -1.009499591187062,
+        0.4545856391358794,
+        -1.5567460590835385
+      ]
+    },
+    {
+      "node": 11,
+      "name": "wheel_l_02",
+      "center": [
+        -1.009499591187062,
+        0.4545856391358797,
+        -0.39297047380010197
+      ],
+      "radius": 0.41721624936083657,
+      "side": "left",
+      "roadWheel": true,
+      "suspensionNode": 10,
+      "restLocalPosition": [
+        -1.009499591187062,
+        0.4545856391358797,
+        -0.39297047380010197
+      ]
+    },
+    {
+      "node": 13,
+      "name": "wheel_l_03",
+      "center": [
+        -1.009499591187062,
+        0.4545856391358799,
+        0.8065515049057097
+      ],
+      "radius": 0.41721624936083657,
+      "side": "left",
+      "roadWheel": true,
+      "suspensionNode": 12,
+      "restLocalPosition": [
+        -1.009499591187062,
+        0.4545856391358799,
+        0.8065515049057097
+      ]
+    },
+    {
+      "node": 15,
+      "name": "wheel_l_04",
+      "center": [
+        -1.009499591187062,
+        0.45458563913588007,
+        1.6847070074435626
+      ],
+      "radius": 0.4172162493608365,
+      "side": "left",
+      "roadWheel": true,
+      "suspensionNode": 14,
+      "restLocalPosition": [
+        -1.009499591187062,
+        0.45458563913588007,
+        1.6847070074435626
+      ]
+    },
+    {
+      "node": 16,
+      "name": "wheel_l_idler",
+      "center": [
+        -0.9700044905933807,
+        0.7115714689915309,
+        -2.3653469479345968
+      ],
+      "radius": 0.25337270710921334,
+      "side": "left",
+      "roadWheel": false
+    },
+    {
+      "node": 17,
+      "name": "wheel_l_drive",
+      "center": [
+        -0.9783299017737053,
+        0.6464953133050857,
+        2.4122457441918836
+      ],
+      "radius": 0.2928064589545627,
+      "side": "left",
+      "roadWheel": false
+    },
+    {
+      "node": 20,
+      "name": "wheel_r_01",
+      "center": [
+        1.0083031560876754,
+        0.45458563913587713,
+        -1.5567460590836024
+      ],
+      "radius": 0.41721624936083657,
+      "side": "right",
+      "roadWheel": true,
+      "suspensionNode": 19,
+      "restLocalPosition": [
+        1.0083031560876754,
+        0.45458563913587713,
+        -1.5567460590836024
+      ]
+    },
+    {
+      "node": 22,
+      "name": "wheel_r_02",
+      "center": [
+        1.009499591187062,
+        0.45458563913587735,
+        -0.39297049050241795
+      ],
+      "radius": 0.41721624936083657,
+      "side": "right",
+      "roadWheel": true,
+      "suspensionNode": 21,
+      "restLocalPosition": [
+        1.009499591187062,
+        0.45458563913587735,
+        -0.39297049050241795
+      ]
+    },
+    {
+      "node": 24,
+      "name": "wheel_r_03",
+      "center": [
+        1.009499591187062,
+        0.4545856391358775,
+        0.8065515049056456
+      ],
+      "radius": 0.4172162493608365,
+      "side": "right",
+      "roadWheel": true,
+      "suspensionNode": 23,
+      "restLocalPosition": [
+        1.009499591187062,
+        0.4545856391358775,
+        0.8065515049056456
+      ]
+    },
+    {
+      "node": 26,
+      "name": "wheel_r_04",
+      "center": [
+        1.009499591187062,
+        0.45458563913587774,
+        1.6847070074434982
+      ],
+      "radius": 0.4172162493608365,
+      "side": "right",
+      "roadWheel": true,
+      "suspensionNode": 25,
+      "restLocalPosition": [
+        1.009499591187062,
+        0.45458563913587774,
+        1.6847070074434982
+      ]
+    },
+    {
+      "node": 27,
+      "name": "wheel_r_idler",
+      "center": [
+        0.9700044905933807,
+        0.7115714689915804,
+        -2.3653469479345968
+      ],
+      "radius": 0.2533727071092133,
+      "side": "right",
+      "roadWheel": false
+    },
+    {
+      "node": 28,
+      "name": "wheel_r_drive",
+      "center": [
+        0.9879710931971897,
+        0.646495313305087,
+        2.41224574419188
+      ],
+      "radius": 0.29280645895456264,
+      "side": "right",
+      "roadWheel": false
+    }
+  ],
+  "tracks": [
+    "track_l",
+    "track_r"
+  ],
+  "trackLoopMeters": 0.1608875629158364,
+  "trackAnimation": {
+    "axis": "V",
+    "texturePeriodMeters": 0.1608875629158364,
+    "physicalLoopMeters": [
+      11.744792092856057,
+      11.744792092856057
+    ],
+    "linksPerLoop": 73,
+    "glTFVIncreasesOnLowerRunToward": "+Z (rear)",
+    "gameplay": "Independent material phase from left/right speed; eight separate vertical wheel contacts."
+  },
+  "suspension": {
+    "travel": 0.16,
+    "restCompression": 0.08,
+    "springPerWheel": 211500,
+    "damperPerWheel": 8000,
+    "totalMassKg": 13800,
+    "contacts": 8
+  },
+  "colliders": {
+    "hull": {
+      "center": [
+        0.01101415763343594,
+        0.7982024755759158,
+        0.26630935160877556
+      ],
+      "size": [
+        1.661652955738471,
+        1.5964049511518317,
+        5.0957037204127955
+      ]
+    },
+    "turret": {
+      "center": [
+        -6.938893903907228e-18,
+        0.28223113039220515,
+        0.20756911834960295
+      ],
+      "size": [
+        1.4739530808682733,
+        0.6883821371531003,
+        1.8558868152564028
+      ]
+    },
+    "unit": {
+      "center": [
+        0,
+        1.21,
+        0
+      ],
+      "size": [
+        2.29,
+        2.42,
+        5.66
+      ]
+    }
+  },
+  "source": {
+    "author": "Sankocho_DePoligonos",
+    "title": "BT 5 & BT 7 Jatkosota (Girls und Panzer)",
+    "source": "https://sketchfab.com/3d-models/bt-5-bt-7-jatkosota-girls-und-panzer-e03f7079630b43caae2ae2c7872a775e",
+    "license": "CC BY 4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "adaptation": "BT-7 isolated, repaired, rescaled, retextured and rigged for luna_17. Photos used as visual references only."
+  },
+  "repairedSourceMeshIndices": [
+    133,
+    134,
+    137,
+    138,
+    139,
+    140,
+    141,
+    142,
+    149,
+    151,
+    152,
+    155,
+    156,
+    159,
+    160,
+    161,
+    162,
+    163,
+    164,
+    169,
+    170,
+    172,
+    173,
+    176,
+    178,
+    179,
+    180,
+    181,
+    186,
+    187,
+    190,
+    191
+  ]
+}

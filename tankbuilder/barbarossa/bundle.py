@@ -61,24 +61,44 @@ def metadata(raw):
 
 
 def overlay(raw, scene, registry):
-    header, start, end, blocks, members = metadata(raw)
+    members = metadata(raw)[-1]
     check(
         "level21" not in members
         and "level20" in members
         and "globalgamemanagers" in members,
         "Map slot collision",
     )
+    return append_members(
+        raw,
+        [("globalgamemanagers", registry), ("level21", scene)],
+        {"level21": "level20"},
+    )
+
+
+def append_members(raw, changes, flag_templates):
+    """Replace named members or add explicitly declared ones, retaining all original compressed blocks."""
+    header, start, end, blocks, members = metadata(raw)
+    names = [n for n, _ in changes]
+    check(
+        len(names) == len(set(names))
+        and set(flag_templates) == set(names) - members.keys(),
+        "Missing/duplicate UnityFS member or unexpected replacement",
+    )
+    check(
+        all(t in members for t in flag_templates.values()),
+        "Missing UnityFS metadata template",
+    )
     original_end = sum(n for n, _, _ in blocks)
     extra = bytearray()
     compressed = bytearray()
-    for name, data in [("globalgamemanagers", registry), ("level21", scene)]:
+    for name, data in changes:
         extra.extend(bytes(-(original_end + len(extra)) % 16))
         where = original_end + len(extra)
         extra.extend(data)
         members[name] = (
             where,
             len(data),
-            members["level20" if name == "level21" else name][2],
+            members[flag_templates.get(name, name)][2],
         )
     for i in range(0, len(extra), 131072):
         chunk = extra[i : i + 131072]
