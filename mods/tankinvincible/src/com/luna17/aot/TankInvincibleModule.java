@@ -25,6 +25,7 @@ public final class TankInvincibleModule implements HatchModule, HatchFeatureHost
         menu.attach();
         if(hud!=null)hud.detach();
         hud=new ExperienceHud(activity);hud.attach();
+        CampaignSupport.start(activity);
         if(crew!=null)crew.start();
     }
     @Override public String loadTank(File runtime, String manifest) throws Exception {
@@ -60,7 +61,7 @@ public final class TankInvincibleModule implements HatchModule, HatchFeatureHost
             if(crew!=null)return "成员语音能力已被占用";
             if(!doc.has("voiceDirectory"))return "成员语音资源或配置字段无效";
             CrewVoicePlayer candidate=new CrewVoicePlayer(new File(doc.getString("voiceDirectory")),voice);
-            int mask=1<<voice.optInt("lockEvent",1);
+            int mask=(1<<voice.optInt("lockEvent",1))|(1<<3)|(1<<4)|(1<<6)|(1<<7);
             java.util.Iterator<String> events=voice.getJSONObject("events").keys();
             while(events.hasNext())mask|=1<<Integer.parseInt(events.next());
             if(!NativeBridge.configureCrew(true,mask))return "请在进入战斗前加载成员体验";
@@ -84,5 +85,5 @@ public final class TankInvincibleModule implements HatchModule, HatchFeatureHost
         for(int bit=1;bit<=4;bit<<=1)if((flags&bit)!=0)featureOwners.put(bit,id);
         claimedFlags|=flags;damageK=k;damageKhe=khe;return "";
     }
-    @Override public void stop() { if (menu != null) menu.detach(); if(hud!=null)hud.detach(); if(crew!=null)crew.stop(); }
+    @Override public void stop() { CampaignSupport.stop(); if (menu != null) menu.detach(); if(hud!=null)hud.detach(); if(crew!=null)crew.stop(); }
 }

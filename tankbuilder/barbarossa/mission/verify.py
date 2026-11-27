@@ -14,7 +14,7 @@ from .font import covers
 from .lettering import check as check_lettering
 from .objectives import decode as decode_rules
 from .codec import part, kids, cname, extra_offsets
-from .interface import SCENES, PARAM
+
 from .lanes import Lanes
 
 PHYSICAL = {
@@ -68,7 +68,7 @@ def verify_picker(title, registered):
     )
 
     def label(g):
-        (t,) = title.children(g)
+        (t,) = [x for x in title.children(g) if "Text" in title.part[x]]
         o = title.sf.objects[title.part[t]["Text"]]
         r = o.get_raw_data()
         s = text_value(r)
@@ -88,11 +88,6 @@ def verify_picker(title, registered):
     require(set(byname) == {s.label for s in SIDES}, "Missing faction button")
     picks = {}
     rects = {}
-    gp = next(
-        parts["GameParamManager"]
-        for parts in title.part.values()
-        if "GameParamManager" in parts
-    )
     for side in SIDES:
         g = byname[side.label]
         p = title.part[g]["Button"]
@@ -104,27 +99,18 @@ def verify_picker(title, registered):
             and title.sf.objects[im].get_raw_data()[60] == 1,
             "Missing touch surface",
         )
-        pre, clock, load = actions[:-2], actions[-2], actions[-1]
+        (req,) = actions
+        marker = req[0][1]
         require(
-            [(a[2], a[6]) for a in pre]
-            == [
-                ("set_GameMode", 0),
-                ("set_PlayerNation", side.nation),
-                ("set_EnemyNation", 1 - side.nation),
-                ("set_PlayerUnitIndex", 4),
-                ("set_CurrentStageNum", 1),
-            ]
-            and all(a[0] == (0, gp) and a[1] == PARAM and a[3] == 3 for a in pre),
-            "Picker nation or real vehicle slot is wrong",
-        )
-        require(
-            clock[2] == "set_timeScale"
-            and clock[7] == 1
-            and load[1:4] == (SCENES, "LoadScene", 3)
-            and registered[load[6]] == side.scene
-            and load[6] == side.index
-            and all(a[-1] == 2 for a in actions),
-            "Faction does not start directly",
+            req[2] == "SetActive"
+            and req[3] == 6
+            and req[9] == 1
+            and req[-1] == 2
+            and marker in title.children(g)
+            and title.go[marker]["m_Name"] == "Hatch Start " + side.code
+            and not title.go[marker]["m_IsActive"]
+            and registered[side.index] == side.scene,
+            "Wrong faction handoff marker",
         )
         require(
             PTR.unpack_from(b, 52) == (0, title.part[back]["Button"]),
@@ -199,6 +185,7 @@ def verify(raw, prior, spec, names):
             "level22",
             "level23",
             "T26_Player.assets",
+            "T26_AI.assets",
             "Panzer_II_Ausf_F_Player.assets",
         ):
             require(b.members[n] == t, "Existing resources were overwritten: " + n)
@@ -309,7 +296,28 @@ def verify_side(b, sf, spec, names, side, objective, h, lanes, srcs):
         and covers(parse_complete(sf.objects[fp])["m_FontData"], label),
         "Wrong faction briefing or font",
     )
-    for hint in (155469, 158649, 161599, 158934, 167788):
+    # The native UI writes translated messages into this component throughout play.
+    # The fixed opening has its own child and must never become its font/provider.
+    stock_field = file(b.read("level8"))
+    live_message, ui_manager = 155469, 155487
+    native_text = sf.objects[live_message].get_raw_data()
+    require(
+        sf.objects[ui_manager].get_raw_data()
+        == stock_field.objects[ui_manager].get_raw_data()
+        and PTR.unpack_from(sf.objects[ui_manager].get_raw_data(), 1660)
+        == (0, live_message)
+        and native_text == stock_field.objects[live_message].get_raw_data()
+        and native_text[12]
+        and PTR.unpack_from(native_text, 88)[0] != 0,
+        "Top message sink no longer uses the live original renderer/font",
+    )
+    for source in (164212, 164606, 164821, 159632):
+        require(
+            sf.objects[source].get_raw_data()
+            == stock_field.objects[source].get_raw_data(),
+            "Destroyed/repair message source changed",
+        )
+    for hint in (158649, 161599, 158934, 167788):
         require(
             text_value(sf.objects[hint].get_raw_data()) == side.briefing,
             "Wrong starting/radio objective",
@@ -332,7 +340,7 @@ def verify_side(b, sf, spec, names, side, objective, h, lanes, srcs):
     friendly, enemies = (9, 11) if side.code == "SO" else (10, 10)
     require(
         [len(teamroots[t]) for t in ("player", "friend", "enemy")]
-        == [1, friendly, enemies],
+        == [1, friendly, enemies + 1],
         "Incorrect live spawn group sizes",
     )
     require(
@@ -349,6 +357,11 @@ def verify_side(b, sf, spec, names, side, objective, h, lanes, srcs):
         and all(not kids(sf, g) for g in scenarios if g != side.scenario),
         "GameControl cannot exclusively wake this nation's first scenario",
     )
+    from . import wavecheck
+
+    timing = wavecheck.schedule(sf, stock_field, spec, side, names, teamroots["enemy"])
+    physical_ids = set()
+    source_checked = set()
     pcs = []
     ais = []
     route_segments = 0
@@ -367,7 +380,8 @@ def verify_side(b, sf, spec, names, side, objective, h, lanes, srcs):
         owned = {i for x, ps, t in shape for i in (x, *ps)}
         gt = parse_complete(sf.objects[g])
         require(
-            gt["m_IsActive"] and gt["m_Name"].startswith(kind + "_"),
+            bool(gt["m_IsActive"]) == (r["phase"] == "opening")
+            and gt["m_Name"].startswith(kind + "_"),
             "Hidden or wrong vehicle",
         )
         tr = parse_complete(sf.objects[shape[0][2]])
@@ -431,6 +445,23 @@ def verify_side(b, sf, spec, names, side, objective, h, lanes, srcs):
         src = srcs.get(fname)
         if src is None:
             src = srcs[fname] = file(b.read(fname))
+        if kind == "T26":
+            mesh_ids = wavecheck.belts(sf, r["controllers"]["BodyMove"])
+            require(
+                not physical_ids.intersection(mesh_ids),
+                "Two T26 tanks share writable belt geometry",
+            )
+            physical_ids.update(mesh_ids)
+            if fname not in source_checked:
+                (body,) = [
+                    p
+                    for _, ps, _ in subtree(src, r["source_root"])
+                    for p in ps
+                    if src.objects[p].type.name == "MonoBehaviour"
+                    and cname(src.objects[p], names) == "BodyMove"
+                ]
+                wavecheck.belts(src, body)
+                source_checked.add(fname)
         pg = parse_complete(src.objects[r["source_root"]])
         require(
             pg["m_Name"] == kind + ("_Player" if team == "player" else "_AI"),
@@ -527,7 +558,7 @@ def verify_side(b, sf, spec, names, side, objective, h, lanes, srcs):
         cname(o, names) for o in sf.objects.values() if o.type.name == "MonoBehaviour"
     )
     require(
-        allscripts["PlayerControl"] == 1
+        allscripts["PlayerControl"] == 2
         and allscripts["AIControl"] == 20
         and allscripts["GameControl"] == 1
         and allscripts["GameUiManager"] == 1,
@@ -579,7 +610,7 @@ def verify_side(b, sf, spec, names, side, objective, h, lanes, srcs):
         parse_complete(sf.objects[m["texture"]])["m_Name"] == "Minimap_Polesie",
         "Stock minimap leaked",
     )
-    rawfield = file(b.read("level8"))
+    rawfield = stock_field
     gen = sf.objects[155556].get_raw_data()
     basegen = rawfield.objects[155556].get_raw_data()
     at = 44
@@ -616,6 +647,40 @@ def verify_side(b, sf, spec, names, side, objective, h, lanes, srcs):
         sum(l * t for l, t in zip(look, target)) / math.hypot(*target) > 0.999,
         "The first frame does not look at the player",
     )
+    factory = spec["factory"]
+    garage = factory["garage"]
+    srcplayer = factory["root"]
+    require(
+        not parse_complete(sf.objects[garage])["m_IsActive"]
+        and kids(sf, garage) == [srcplayer]
+        and parse_complete(sf.objects[srcplayer])["m_IsActive"],
+        "Scene factory cannot instantiate an active, input-capable player",
+    )
+    camera_target(sf, srcplayer, names)
+    for go, parts, tr in subtree(sf, srcplayer):
+        for pid in parts:
+            o = sf.objects[pid]
+            if o.type.name == "MeshFilter":
+                mf = parse_complete(o)["m_Mesh"]
+                fid = mf["m_FileID"]
+                require(
+                    not fid
+                    or sf.externals[fid - 1].path
+                    in (
+                        "resources.assets",
+                        "Resources/unity_builtin_extra",
+                        "Library/unity default resources",
+                    )
+                    or sf.externals[fid - 1].path.startswith("sharedassets"),
+                    "Player depends on external mod vehicle mesh",
+                )
+    if side.code == "SO":
+        require(
+            not physical_ids.intersection(
+                wavecheck.belts(sf, factory["controllers"]["BodyMove"])
+            ),
+            "Factory shares a moving scene belt",
+        )
     for table in range(3):
         n = struct.unpack_from("<i", gen, at)[0]
         require(
@@ -627,8 +692,7 @@ def verify_side(b, sf, spec, names, side, objective, h, lanes, srcs):
             of, op = PTR.unpack_from(basegen, addr)
             if op and (table == side.nation or table == 2 and side.code == "GE"):
                 require(
-                    sf.externals[f - 1].path == hero_source["source"]
-                    and p == hero_source["source_root"],
+                    f == 0 and p == srcplayer,
                     "Incorrect fallback player",
                 )
             else:
@@ -658,7 +722,7 @@ def verify_side(b, sf, spec, names, side, objective, h, lanes, srcs):
     )
     col = parse_complete(sf.objects[part(sf, spec["base"], "SphereCollider")])
     require(
-        col["m_Enabled"] and col["m_IsTrigger"] and col["m_Radius"] == 15.0,
+        not col["m_Enabled"] and col["m_IsTrigger"] and col["m_Radius"] == 15.0,
         "Missing capture volume",
     )
     center = parse_complete(sf.objects[part(sf, spec["base"], "Transform")])[
@@ -726,6 +790,13 @@ def verify_side(b, sf, spec, names, side, objective, h, lanes, srcs):
     return {
         "player": side.vehicle,
         "player_count": len(pcs),
+        "dynamic_stock_message_font": True,
+        "distinct_t26_belt_meshes": len(physical_ids),
+        "opening_ground_units": 14,
+        "second_wave_ground_units": 5,
+        "rear_t34_reserves": 2,
+        "native_aircraft": spec["schedule"]["aircraft"],
+        "activation_seconds": timing,
         "friendly_ai": friendly,
         "enemy_ai": enemies,
         "chassis": len(used),

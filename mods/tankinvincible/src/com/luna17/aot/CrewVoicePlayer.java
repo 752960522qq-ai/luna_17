@@ -20,6 +20,8 @@ final class CrewVoicePlayer {
     private volatile boolean stopped=true;
     private List<String> clips;
     private int index,generation;
+    private final java.util.ArrayDeque<int[]> waiting=new java.util.ArrayDeque<>();
+    private boolean inBattle;
     private final Random random=new Random();
     CrewVoicePlayer(File directory,JSONObject configuration) throws Exception {
         this.directory=directory;this.configuration=configuration;
@@ -45,11 +47,23 @@ final class CrewVoicePlayer {
         if(!name.matches("[A-Za-z0-9_.-]{1,160}\\.wav")||name.contains("..")||!new File(directory,name).isFile())throw new IllegalArgumentException("缺少语音: "+name);
     }
     void start(){if(!stopped)return;stopped=false;handler.post(poll);}
-    void stop(){stopped=true;generation++;handler.removeCallbacks(poll);release();clips=null;NativeBridge.crewClear();}
+    void stop(){stopped=true;generation++;handler.removeCallbacks(poll);release();clips=null;waiting.clear();inBattle=false;NativeBridge.crewClear();}
     private void release(){if(player!=null){player.release();player=null;}}
     private final Runnable poll=new Runnable(){public void run(){
         if(stopped)return;
-        int[] event=clips==null?NativeBridge.crewEvent():null;
+        boolean active=NativeBridge.state()==3;
+        if(!active && inBattle){generation++;release();clips=null;waiting.clear();CampaignSupport.clear();}
+        inBattle=active;
+        // One consumer: acknowledge transfer into the local speech queue immediately.
+        // Captions must not wait for a long distance call to finish speaking.
+        for(int n=0;n<32;n++){
+            int[] incoming=NativeBridge.crewEvent();if(incoming==null)break;
+            NativeBridge.crewFinished();if(incoming.length!=4)continue;
+            if(!active && incoming[0]!=5)continue;
+            if(active)CampaignSupport.signal(incoming[0]);
+            if(waiting.size()<256)waiting.addLast(incoming);
+        }
+        int[] event=clips==null?waiting.pollFirst():null;
         if(event!=null){
             try{clips=compose(event);index=0;playNext(generation);}catch(Exception failure){finish();}
         }
@@ -119,5 +133,5 @@ final class CrewVoicePlayer {
             current.prepareAsync();
         }catch(Exception failure){finish();}
     }
-    private void finish(){release();clips=null;index=0;NativeBridge.crewFinished();}
+    private void finish(){release();clips=null;index=0;}
 }

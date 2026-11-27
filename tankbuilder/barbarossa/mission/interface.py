@@ -80,10 +80,6 @@ def menu(sf, stage, names, fonts, raw_image, texture):
     base_rect = home.rect[slots]
     btns = {}
     sibling_rects = []
-    gp = next(
-        p["GameParamManager"] for p in home.part.values() if "GameParamManager" in p
-    )
-
     # Use the original on-page row as a noninteractive title, and duplicate its native
     # image, label, outline and hierarchy for two independently focusable hit areas.
     for side, x in ((GERMAN, -117.0), (SOVIET, 117.0)):
@@ -151,17 +147,35 @@ def menu(sf, stage, names, fonts, raw_image, texture):
         gv = parse_complete(sf.objects[target_go])
         gv["m_Component"].append({"component": pp(bi)})
         update(sf, target_go, **gv)
-        # Both native source vehicles occupy index 4 in their own country's player catalogue.
+        # A marker requests a typed handoff on UnityMain. Enum property setters are
+        # not Int32 UnityEvent receivers and the scene copy of the singleton can be stale.
+        marker, marker_tr = lk.alloc(), lk.alloc()
+        gv = assert_roundtrip(sf.objects[slot])
+        gv.update(
+            m_Name="Hatch Start " + side.code,
+            m_IsActive=False,
+            m_Component=[{"component": pp(marker_tr)}],
+        )
+        lk.add(sf.objects[slot], marker, encode_complete(sf.objects[slot], gv))
+        mr = sf.objects[home.rect[slot]]
+        rv = assert_roundtrip(mr)
+        rv.update(
+            m_GameObject=pp(marker), m_Father=pp(ids[home.rect[slot]]), m_Children=[]
+        )
+        lk.add(mr, marker_tr, encode_complete(mr, rv))
+        rt_id = ids[home.rect[slot]]
+        rtree = parse_complete(sf.objects[rt_id])
+        update(sf, rt_id, m_Children=[*rtree["m_Children"], pp(marker_tr)])
         click(
             button,
             [
-                event(gp, PARAM, "set_GameMode", 3, 0),
-                event(gp, PARAM, "set_PlayerNation", 3, side.nation),
-                event(gp, PARAM, "set_EnemyNation", 3, 1 - side.nation),
-                event(gp, PARAM, "set_PlayerUnitIndex", 3, 4),
-                event(gp, PARAM, "set_CurrentStageNum", 3, 1),
-                event(0, TIME, "set_timeScale", 4, number=1.0),
-                start(side),
+                event(
+                    marker,
+                    "UnityEngine.GameObject, UnityEngine.CoreModule",
+                    "SetActive",
+                    6,
+                    flag=True,
+                )
             ],
         )
         btns[side.code] = bi

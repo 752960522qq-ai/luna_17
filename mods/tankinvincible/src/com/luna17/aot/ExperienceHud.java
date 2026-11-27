@@ -20,6 +20,7 @@ final class ExperienceHud {
     private float downX,downY;
     private TextView broadcast;
     private int contactSequence;
+    private String contactText="";
     private long contactUntil;
     ExperienceHud(Activity activity){this.activity=activity;}
     private int dp(float n){return Math.round(n*activity.getResources().getDisplayMetrics().density);}
@@ -31,8 +32,12 @@ final class ExperienceHud {
                 float[] snapshot=NativeBridge.experienceSnapshot();if(snapshot!=null && snapshot.length==28)data=snapshot;
                 int[] contact=NativeBridge.crewContactSnapshot();
                 long now=android.os.SystemClock.uptimeMillis();
-                if(contact!=null&&contact.length==5&&contact[4]==1&&contact[0]!=contactSequence){contactSequence=contact[0];contactUntil=now+4000;broadcast.setText(String.format(Locale.ROOT,"已锁定%s · %d点钟 · %d m",contact[1]==2?"敌机":"敌方坦克",contact[2],contact[3]));}
-                broadcast.setVisibility(data[0]==1&&now<contactUntil?View.VISIBLE:View.GONE);
+                if(contact!=null&&contact.length==5&&contact[4]==1&&contact[0]!=contactSequence){contactSequence=contact[0];contactUntil=now+4000;contactText=String.format(Locale.ROOT,"发现%s · %d点钟 · %d m",contact[1]==2?"敌机":"敌方坦克",contact[2],contact[3]);}
+                int combat=CampaignSupport.current();
+                String caption=combat==6?"敌车已击毁":combat==4?"我车中弹":combat==3||combat==7?"命中敌车":null;
+                String radio=CampaignSupport.radio();
+                broadcast.setText(caption!=null?caption:!radio.isEmpty()?radio:contactText);
+                broadcast.setVisibility(caption!=null||!radio.isEmpty()||(data[0]==1&&now<contactUntil)?View.VISIBLE:View.GONE);
                 boolean active=data[0]==1,spg=active&&data[8]==1;
                 pad.setVisibility(spg&&data[9]==2?View.VISIBLE:View.GONE);
                 hint.setVisibility(spg?View.VISIBLE:View.GONE);
@@ -82,8 +87,8 @@ final class ExperienceHud {
             if(action==MotionEvent.ACTION_UP||action==MotionEvent.ACTION_CANCEL){gesture.reset();captured=false;}
             return true;
         });
-        broadcast=new TextView(activity);broadcast.setTextColor(Color.WHITE);broadcast.setTextSize(16);broadcast.setShadowLayer(3,0,0,Color.BLACK);broadcast.setVisibility(View.GONE);
-        FrameLayout.LayoutParams notice=new FrameLayout.LayoutParams(-2,-2,Gravity.TOP|Gravity.CENTER_HORIZONTAL);notice.topMargin=dp(42);root.addView(broadcast,notice);
+        broadcast=new TextView(activity);broadcast.setTextColor(Color.WHITE);broadcast.setTextSize(16);broadcast.setClickable(false);broadcast.setFocusable(false);broadcast.setShadowLayer(3,0,0,Color.BLACK);broadcast.setVisibility(View.GONE);
+        FrameLayout.LayoutParams notice=new FrameLayout.LayoutParams(-2,-2,Gravity.TOP|Gravity.CENTER_HORIZONTAL);notice.topMargin=dp(5);root.addView(broadcast,notice);
         activity.addContentView(root,new android.view.ViewGroup.LayoutParams(-1,-1));
     }
     void detach(){stopped=true;if(root!=null && root.getParent() instanceof android.view.ViewGroup)((android.view.ViewGroup)root.getParent()).removeView(root);root=null;}

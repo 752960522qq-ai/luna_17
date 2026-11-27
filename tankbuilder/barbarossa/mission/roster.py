@@ -8,7 +8,7 @@ from .. import layout as land
 FORMATION = (
     ("SO", "T26", [(-211, -73), (-237, -89), (-158, -78), (-266, -108), (-133, -109)]),
     ("SO", "BT7", [(-109, -141), (-255, -151), (-302, -126)]),
-    ("SO", "T34_76", [(-224, -146), (-160, -151)]),
+    ("SO", "T34_76", [(-228, -345), (-148, -330)]),
     ("GE", "Panzer_IV_Ausf_C", [(-245, 554), (-219, 562)]),
     ("GE", "Panzer_II_Ausf_F", [(-175, 501), (-153, 518), (-132, 530)]),
     ("GE", "Panzer_III_J", [(-289, 514), (-312, 530), (-274, 534)]),
@@ -86,7 +86,16 @@ def stage(h, props):
             positions.append((a, b))
             if nation == "GE":
                 qx, qz = CAPTURE.get((tank, v), (a, -18 if v % 2 else -26))
-                targets = [pick(a, 310), pick(a, 80), pick(qx, qz)]
+                wing = (
+                    ("west" if tank == "Panzer_III_J" else "east")
+                    if tank in ("Panzer_III_J", "Panzer_IV_Ausf_C")
+                    else None
+                )
+                if wing:
+                    lane = (-353 if wing == "west" else -71) + 8 * (v - 1)
+                    targets = [pick(lane, 330), pick(lane, 86), pick(qx, qz)]
+                else:
+                    targets = [pick(a, 310), pick(a, 80), pick(qx, qz)]
                 if (tank, v) in CAPTURE and dist(
                     (targets[-1][0], targets[-1][2]), OBJECTIVE_XZ
                 ) >= 13:
@@ -100,6 +109,14 @@ def stage(h, props):
             rows.append(
                 dict(
                     nation=nation,
+                    phase=(
+                        "relief"
+                        if tank == "T34_76"
+                        else "wave2"
+                        if nation == "GE" and wing
+                        else "opening"
+                    ),
+                    lane=(wing if nation == "GE" else None),
                     tank=tank,
                     id=f"{nation}_{tank}_{v:02}",
                     pos=[a, round(y + 0.35, 4), b],

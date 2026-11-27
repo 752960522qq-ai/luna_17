@@ -26,9 +26,32 @@ def cut(sf, g, keep=()):
             erase(sf, x)
 
 
-def attach(link, s, fn, g, grp, row):
+def attach(link, s, fn, g, grp, row, *, factory=False):
     nodes = list(subtree(s, g))
     ids = {p: link.alloc() for gid, ps, _ in nodes for p in (gid, *ps)}
+    if row["tank"] == "T26":
+        # The physical solver writes vertices through sharedMesh. Scene instances
+        # must not animate the same buffer as another vehicle or the generator prefab.
+        for gid, _, _ in nodes:
+            if parse_complete(s.objects[gid])["m_Name"] not in (
+                "T26_Belt_L80",
+                "T26_Belt_R80",
+            ):
+                continue
+            (child,) = kids(s, gid)
+            mesh = parse_complete(s.objects[part(s, child, "MeshFilter")])["m_Mesh"]
+            require(
+                mesh["m_FileID"] == 0 and mesh["m_PathID"] not in ids,
+                "Invalid physical belt mesh",
+            )
+            ids[mesh["m_PathID"]] = link.alloc()
+    if factory:
+        # The stock generator deactivates the first player child before Instantiate.
+        # Keep its real source in this same scene, with its render assets, on a separate
+        # inactive parent. activeSelf must be true for the unparented spawned clone.
+        for p, o in s.objects.items():
+            if o.type.name in ("Mesh", "Material", "Texture2D") and p not in ids:
+                ids[p] = link.alloc()
     remap = link.mapper(s, fn, ids)
     tr0 = nodes[0][2]
     ctl = {}
@@ -139,6 +162,9 @@ def make(sf, m, models, rows, names, ui_source, objective, gui, fonts, h, props,
         == ["Units (Player)", "Units (Friend)", "Units (Enemy)", "Base"],
         "Unrecognized stock side hierarchy",
     )
+    from . import waves
+
+    air = waves.move_air(sf, side, egroup)
     # Preserve the selected nation's first slot; omit the armies from every other scenario.
     for scenario in kids(sf, 5328):
         if scenario != side.scenario:
@@ -146,7 +172,7 @@ def make(sf, m, models, rows, names, ui_source, objective, gui, fonts, h, props,
             update(sf, scenario, m_IsActive=False)
     groups = {"player": pgroup, "friend": fgroup, "enemy": egroup}
     for g in groups.values():
-        cut(sf, g)
+        cut(sf, g, keep=(air,) if g == egroup else ())
     # The game's duel references must still point to containers, but it must have no fallback spawns.
     for g in kids(sf, 3424)[:2]:
         cut(sf, g)
@@ -195,15 +221,35 @@ def make(sf, m, models, rows, names, ui_source, objective, gui, fonts, h, props,
     gen = sf.objects[155556]
     raw = bytearray(gen.get_raw_data())
     at = 44
-    fn, _, hero = models[side.vehicle, True]
-    link_id = l.external(fn)
+    fn, template, donor = models[side.vehicle, True]
+
+    def fixture(name, active, par):
+        go, trid = l.alloc(), l.alloc()
+        src = sf.objects[pgroup]
+        gv = parse_complete(src)
+        gv.update(m_Name=name, m_IsActive=active, m_Component=[{"component": pp(trid)}])
+        l.add(src, go, encode_complete(src, gv))
+        st = sf.objects[part(sf, pgroup, "Transform")]
+        rv = parse_complete(st)
+        rv.update(m_GameObject=pp(go), m_Father=pp(par), m_Children=[])
+        l.add(st, trid, encode_complete(st, rv))
+        rv = parse_complete(sf.objects[par])
+        update(sf, par, m_Children=rv["m_Children"] + [pp(trid)])
+        return go, trid
+
+    world = part(sf, maproot, "Transform")
+    fixture("Hatch Battle " + side.code, True, world)
+    garage, gt = fixture("Hatch Factory " + side.code, False, world)
+    factory = dict(hero_row, pos=[0.0, 0.0, 0.0], yaw=0.0)
+    attach(l, template, fn, donor, gt, factory, factory=True)
+    hero = factory["root"]
     for table in range(3):
         n = struct.unpack_from("<i", raw, at)[0]
         require(5 <= n <= 64, "Unknown player catalogue layout")
         if table == side.nation:
             f, p = PTR.unpack_from(raw, at + 4 + 4 * 12)
             require(
-                sf.externals[f - 1].path == "resources.assets" and p == hero,
+                sf.externals[f - 1].path == "resources.assets" and p == donor,
                 "Wrong native donor in tank slot 4",
             )
         if table == side.nation or (side.code == "GE" and table == 2):
@@ -214,19 +260,22 @@ def make(sf, m, models, rows, names, ui_source, objective, gui, fonts, h, props,
                         sf.externals[fid - 1].path == "resources.assets",
                         "Unknown player resource",
                     )
-                    PTR.pack_into(raw, pos, link_id, hero)
+                    PTR.pack_into(raw, pos, 0, hero)
         at += 4 + 12 * n
     gen.set_raw_data(bytes(raw))
+    schedule = waves.install(
+        l, side.scenario, rows, base, side, air, ui_source[0].sf.objects[2382]
+    )
     ui = battle_ui(l, *ui_source, side)
     from .minimap import install
 
     ui["minimap"] = install(l, gui, h, props)
     # The stock Field 1 HUD has reusable localized orders for a hill and a timed defence.
-    # Neither applies to this mission. Update those orders as well as the initial mock-up.
+    # Replace source orders only. 155469 is GameUiManager's live message output;
+    # it must keep its original font and remain available for hit/kill/repair/radio text.
     from ...campaign_ugui import text_value, string
 
     for p, expected in (
-        (155469, "Choose your tank!"),
         (158649, "Coordinate with friendly forces and capture the hill!"),
         (161599, "Coordinate with friendly forces and capture the hill!"),
         (158934, "Defend your position until reinforcements arrive!"),
@@ -258,4 +307,6 @@ def make(sf, m, models, rows, names, ui_source, objective, gui, fonts, h, props,
         base=base,
         objective_control=side.objective_control,
         ui=ui,
+        schedule=schedule,
+        factory={"garage": garage, "root": hero, "controllers": factory["controllers"]},
     ), sf.save()

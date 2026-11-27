@@ -130,19 +130,29 @@ def attach_visuals(s, ident, nodes, images, h, rig):
             for j in children
         ):
             raise ValueError("Track submesh needs separate transforms/materials")
-        offset = 0
-        idx = []
-        for j in children:
-            idx.append(nodes[j].indices + offset)
-            offset += len(nodes[j].vertices)
-        mesh = replace(
-            first,
-            vertices=np.concatenate([nodes[j].vertices for j in children]),
-            indices=np.concatenate(idx),
-        )
-        rr = vis.render(mesh, track, go[track], side)
+        physical = rig.get("physicalTracks")
+        if physical:
+            layout = physical["sides"][side]
+            dest = layout["meshNode"]
+            counts = layout["orderedVertexCounts"]
+            if (children != [dest] or layout["shoes"] != len(counts)
+                    or len(layout["restYZ"]) != len(counts) or min(counts) <= 0
+                    or sum(counts) != len(first.vertices)):
+                raise ValueError("Physical shoe ranges do not match the authored mesh")
+            # The motion code finds the belt pivot, then its direct child's MeshFilter.
+            # Its shoe ranges index the original vertex buffer; never merge/reorder it.
+            mesh = first
+        else:
+            dest = track
+            offset, idx = 0, []
+            for j in children:
+                idx.append(nodes[j].indices + offset)
+                offset += len(nodes[j].vertices)
+            mesh = replace(first, vertices=np.concatenate([nodes[j].vertices for j in children]),
+                           indices=np.concatenate(idx))
+        rr = vis.render(mesh, dest, go[dest], side, cpu_deform=bool(physical))
         tracks_r.append(rr)
-        rendered[track] = rr
+        rendered[dest] = rr
         consumed.update(children)
         total_tri += len(mesh.indices) // 3
     for i, n in enumerate(nodes):

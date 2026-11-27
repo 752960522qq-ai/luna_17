@@ -105,10 +105,8 @@ def release(apk, prior_zip, out, work):
         }
         stock, res, mapfile = get("level8"), get("resources.assets"), get("level21")
         named = resource_vehicles(res)
-        idx = {
-            e["id"]: e
-            for e in json.loads(prev.read("AI/Hatch-Enemy-AI-index.json"))["prefabs"]
-        }
+        ai_index = json.loads(prev.read("AI/Hatch-Enemy-AI-index.json"))
+        idx = {e["id"]: e for e in ai_index["prefabs"]}
         a = SimpleNamespace(
             sf=res,
             files={"resources.assets": res, "level8": stock},
@@ -117,12 +115,37 @@ def release(apk, prior_zip, out, work):
         )
         for o in res.objects.values():
             a.templates.setdefault(o.type.name, o)
+        for ext in res.externals:
+            if ext.path in pack.members and ext.path not in a.files:
+                a.files[ext.path] = get(ext.path)
         entries = []
         with zipfile.ZipFile(io.BytesIO(za.read("assets/Hatch/mods/T26.hatch"))) as mod:
             entries += [create(a, named, mod, work, player=p) for p in (False, True)]
+        previous_t26 = idx["T26"]
         require(
-            entries[0]["sha256"] == idx["T26"]["sha256"], "Released T26 model changed"
+            all(
+                entries[0][k] == previous_t26[k]
+                for k in (
+                    "runtime_sha256",
+                    "gameplay",
+                    "road_wheels",
+                    "model_triangles",
+                    "prefab",
+                )
+            ),
+            "T26 source geometry or gameplay changed",
         )
+        from ...enemy_verify import verify as verify_prefab
+
+        with zipfile.ZipFile(io.BytesIO(za.read("assets/Hatch/mods/T26.hatch"))) as mod:
+            from ...enemy_visuals import read_model
+
+            h = json.loads(mod.read("hatch.json"))
+            _, ns, ims = read_model(mod.read("runtime.bin"), h)
+            entries[0]["validation"] = verify_prefab(
+                a, work / entries[0]["file"], entries[0], (ns, ims, h)
+            )
+        previous_t26.update(entries[0])
         with zipfile.ZipFile(
             io.BytesIO(prev.read("assets/Hatch/mods/Panzer_II_Ausf_F.hatch"))
         ) as mod:
@@ -141,7 +164,9 @@ def release(apk, prior_zip, out, work):
             r = (work / n).read_bytes()
             if n not in pack.members or pack.read(n) != r:
                 require(
-                    n not in pack.members or e["prefab"].endswith("_Player"),
+                    n not in pack.members
+                    or e["prefab"].endswith("_Player")
+                    or n == "T26_AI.assets",
                     "Published native AI file changed",
                 )
                 adds.append((n, r))
@@ -272,12 +297,9 @@ def release(apk, prior_zip, out, work):
         dest = out / "Barbarossa-01-Gates-of-Hell.zip"
         with zipfile.ZipFile(dest, "w", zipfile.ZIP_DEFLATED, compresslevel=6) as z:
             for name in prev.namelist():
-                if (
-                    name.startswith("assets/Hatch/")
-                    or name == "AI/Hatch-Enemy-AI-index.json"
-                    or name == "apply_overlay.py"
-                ):
+                if name.startswith("assets/Hatch/") or name == "apply_overlay.py":
                     z.writestr(name, prev.read(name))
+            z.writestr("AI/Hatch-Enemy-AI-index.json", dumps(ai_index))
             z.writestr("integration.json", dumps(release))
             z.writestr("Barbarossa-01.overlay", overlay)
             z.writestr("mission.json", dumps(spec))

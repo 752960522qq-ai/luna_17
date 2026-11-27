@@ -186,7 +186,7 @@ class Visuals:
         self.materials[key] = pid
         return pid
 
-    def mesh(self, n, i):
+    def mesh(self, n, i, cpu_deform=False):
         verts = n.vertices.copy()
         if not self.uv_unity:
             verts[:, 7] = 1.0 - verts[:, 7]
@@ -210,7 +210,7 @@ class Visuals:
                 }
             ],
             m_MeshCompression=0,
-            m_IsReadable=False,
+            m_IsReadable=cpu_deform,
             m_IndexFormat=int(len(verts) > 65535),
             m_IndexBuffer=n.indices.astype("<u4" if len(verts) > 65535 else "<u2").tobytes(),
             m_VertexData={
@@ -232,10 +232,12 @@ class Visuals:
                 "m_SubMeshes": [{"m_Levels": [{"m_IndexStart": 0, "m_IndexCount": count}]}],
             },
         )
+        if cpu_deform:
+            t.update(m_KeepVertices=True, m_KeepIndices=True)
         return self.s.make("Mesh", t)
 
-    def render(self, node, i, go, track):
-        mesh = self.mesh(node, i)
+    def render(self, node, i, go, track, *, cpu_deform=False):
+        mesh = self.mesh(node, i, cpu_deform)
         mat = self.material(node, track)
         f = self.s.make("MeshFilter", {"m_GameObject": pp(go), "m_Mesh": pp(mesh)})
         t = self.s.template("MeshRenderer")
