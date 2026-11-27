@@ -1,4 +1,4 @@
-"""Extract the verified Unity player data with the BT-7 registered. Python standard library only."""
+"""Extract the verified Unity player data with the added vehicle resources registered. Python standard library only."""
 
 import argparse
 import hashlib
@@ -9,7 +9,7 @@ from pathlib import Path
 
 def assemble(src, out, folder):
     spec = json.loads((folder / "integration.json").read_text())
-    delta = (folder / "BT7.overlay").read_bytes()
+    delta = (folder / spec.get("overlay_file", "BT7.overlay")).read_bytes()
     sha = lambda b: hashlib.sha256(b).hexdigest()
     if src.resolve() == out.resolve() or out.exists():
         raise ValueError("Choose a new output file; the source is never overwritten")

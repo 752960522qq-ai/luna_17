@@ -1,0 +1,14 @@
+二号 F 型轻型坦克｜Hatch 0.4／Attack on Tank 5.1.0 ARM64
+
+只想在手机上开车：在游戏「模组管理 → 导入 .hatch」选择 assets/Hatch/mods/Panzer_II_Ausf_F.hatch，完全退出并重新启动，选择 Panzer II Ausf.F 即可。需当前游戏已装「坦无敌3000」1.0。BT-7 的玩家包也在 mods 中；已经安装过的无需重复导入。
+
+使用敌方预制体：AI/Panzer_II_Ausf_F_AI.assets 为独立 Unity 预制体；AI/Hatch-Enemy-AI-index.json 是十辆模组敌车的总索引。当前增量安装 F 型和 BT-7 的原生 Resources 路径，不改变旧任务的自动刷敌名单。关卡需要敌车时调用 unit/ge/panzer_ii_ausf_f/panzer_ii_ausf_f_ai。单独导入玩家 .hatch 不安装原生 AI。
+
+将整合数据用于工程：
+1. 解压整个 ZIP。准备先前的 Hatch-0.4-Grille-HE200-T26.apk，或其原始 assets/bin/Data/data.unity3d。
+2. 在解压目录执行（Python 3 自带模块）：
+   python apply_overlay.py "你的/Hatch-0.4-Grille-HE200-T26.apk" "输出/data.unity3d"
+   输出须是新文件。脚本核对来源与结果指纹；无需先应用 BT-7 增量，不会修改原文件。
+3. 将输出放在工程 assets/bin/Data/data.unity3d；附带的 assets/Hatch/catalog.json 及两辆车的 .hatch 放入同名目录，保留已有其他模组。整合数据已经保留之前的额外战役菜单、巴巴罗萨地图与 BT-7。这是工程资源，不是 APK。
+
+历史和游戏数值的区别、模型作者与照片出处见 PanzerII-F-Notes.md。verification 目录附实际回读及弹匣测试结果。未在安卓真机进行实战测试。

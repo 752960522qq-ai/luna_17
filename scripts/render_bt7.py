@@ -1,4 +1,4 @@
-"""Render the actual BT-7 GLB; optional moving rig reel uses the same radii and tread period as Hatch."""
+"""Render the actual Hatch vehicle GLB; optional moving rig reel uses the same radii and tread period as Hatch."""
 
 import argparse
 import json
@@ -14,13 +14,15 @@ cli.add_argument("--project", type=Path, required=True)
 cli.add_argument("--out", type=Path, required=True)
 cli.add_argument("--motion", action="store_true")
 args = cli.parse_args(sys.argv[sys.argv.index("--") + 1 :])
+vehicle = json.loads((args.project / "manifest.json").read_text())["id"]
+is_f = vehicle == "Panzer_II_Ausf_F"
 out = args.out
 out.mkdir(parents=True, exist_ok=True)
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.import_scene.gltf(filepath=str(args.project.resolve() / "model.glb"))
 s = bpy.context.scene
 s.render.engine = "CYCLES"
-s.cycles.samples = 20
+s.cycles.samples = 32 if is_f else 20
 s.cycles.use_denoising = False
 s.cycles.max_bounces = 4
 s.render.threads_mode = "FIXED"
@@ -80,8 +82,12 @@ cam.type = "ORTHO"
 
 def camera(position, look, size):
     c.location = position
-    c.rotation_euler = (Vector(look) - c.location).to_track_quat("-Z", "Y").to_euler()
-    cam.ortho_scale = size
+    c.rotation_euler = (
+        (Vector(look) + Vector((0, 0, 0.23 if is_f else 0)) - c.location)
+        .to_track_quat("-Z", "Y")
+        .to_euler()
+    )
+    cam.ortho_scale = size * (0.90 if is_f else 1.0)
 
 
 def shot(name):
@@ -123,7 +129,7 @@ if args.motion:
     }
     scroll = []
     for suffix in ("l", "r"):
-        mat = bpy.data.materials["BT7_tread_" + suffix]
+        mat = bpy.data.materials[("Pz2F" if is_f else "BT7") + "_tread_" + suffix]
         nt = mat.node_tree
         tex = next(n for n in nt.nodes if n.type == "TEX_IMAGE")
         old = tex.inputs["Vector"].links
@@ -139,7 +145,7 @@ if args.motion:
         scroll.append(add.inputs[1])
     s.render.resolution_x = 768
     s.render.resolution_y = 432
-    s.cycles.samples = 6
+    s.cycles.samples = 8 if is_f else 6
     s.render.fps = 18
     # Forward, reverse, then counter-rotation on a marked inspection floor.
     D = [0.0, 0.0]
@@ -175,7 +181,12 @@ if args.motion:
                 world_dirs[nm] @ Vector(axis), val
             )
         kick = max(0, 1 - abs(t - 3.0) / 0.16)
-        recoil.location = restpos + local_back * 0.13 * kick
+        if is_f:
+            kick = max(
+                (max(0, 1 - abs(t - at) / 0.10) for at in (2.2, 2.6, 3.0, 3.4, 3.8)),
+                default=0,
+            )
+        recoil.location = restpos + local_back * rig["gun"]["recoil"] * kick
         a = math.radians(36 - 21 * t / 6)
         camera(
             (-8 * math.cos(a), 8 * math.sin(a), 3.1 + 0.34 * math.cos(t / 1.4)),

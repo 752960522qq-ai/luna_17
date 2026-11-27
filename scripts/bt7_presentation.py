@@ -86,7 +86,14 @@ def sheet(src, out):
     bg.save(out / "BT7-1937-Preview.png", optimize=True)
 
 
-def movie(src, out):
+def movie(
+    src,
+    out,
+    title="BT-7",
+    subtitle="1937   /   三维绑定预览",
+    filename="BT7-Rig-Preview.mp4",
+    name_x=110,
+):
     frames = sorted((src / "frames").glob("*.png"))
     if len(frames) != 108:
         raise ValueError("Expected all 108 model playback frames")
@@ -100,9 +107,9 @@ def movie(src, out):
         bar = Image.new("RGB", (768, 68), INK)
         d = ImageDraw.Draw(bar)
         d.rectangle((0, 0, 7, 68), fill=RED)
-        txt(d, (17, 12), "BT-7", 24, "#f6f5eb", True)
-        txt(d, (110, 12), head, 24, "#f6f5eb", True)
-        txt(d, (18, 45), "1937   /   三维绑定预览", 13, "#c0ceba")
+        txt(d, (17, 12), title, 24, "#f6f5eb", True)
+        txt(d, (name_x, 12), head, 24, "#f6f5eb", True)
+        txt(d, (18, 45), subtitle, 13, "#c0ceba")
         txt(d, (465, 20), sub, 19, "#e2ead7")
         txt(d, (692, 24), "0" + str(i + 1) + " / 03", 12, "#c0ceba")
         bars.append(bar)
@@ -135,7 +142,7 @@ def movie(src, out):
             "yuv420p",
             "-movflags",
             "+faststart",
-            str(out / "BT7-Rig-Preview.mp4"),
+            str(out / filename),
         ],
         stdin=subprocess.PIPE,
     )

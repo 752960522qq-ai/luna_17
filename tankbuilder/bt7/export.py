@@ -42,11 +42,13 @@ from .source import (
 
 
 class Output(Model):
-    def __init__(self, src):
+    def __init__(self, src, prefix="BT7", texture_fn=paint.texture):
         self.g = GLTF2()
         self.g.buffers = [Buffer(byteLength=0)]
         self.blob = bytearray()
         self.src = src
+        self.prefix = prefix
+        self.texture_fn = texture_fn
         self.materials = {}
         self.texmap = {}
         self.g.samplers = [
@@ -58,7 +60,7 @@ class Output(Model):
         if key in self.materials:
             return self.materials[key]
         if base not in self.texmap:
-            im = paint.texture(self.src, base)
+            im = self.texture_fn(self.src, base)
             b = io.BytesIO()
             im.save(b, format="PNG", optimize=True)
             data = b.getvalue()
@@ -71,14 +73,14 @@ class Output(Model):
             )
             t = len(self.g.images)
             self.g.images.append(
-                Image(name=f"BT7_{base}", mimeType="image/png", bufferView=i)
+                Image(name=f"{self.prefix}_{base}", mimeType="image/png", bufferView=i)
             )
             self.g.textures.append(Texture(sampler=0, source=t))
             self.texmap[base] = t
         idx = len(self.g.materials)
         self.g.materials.append(
             Material(
-                name=f"BT7_{key}",
+                name=f"{self.prefix}_{key}",
                 pbrMetallicRoughness=PbrMetallicRoughness(
                     metallicFactor=0,
                     roughnessFactor=0.88,

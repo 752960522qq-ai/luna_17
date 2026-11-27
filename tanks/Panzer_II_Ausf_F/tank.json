@@ -1,0 +1,20 @@
+{
+  "type": "light",
+  "vehicleKind": "tank",
+  "crew": 3,
+  "maxForwardSpeed": 40,
+  "maxReverseSpeed": 8,
+  "hullTraverse": "medium",
+  "enginePower": 140,
+  "engineName": "Maybach HL 62 TRM",
+  "weightTonnes": 9.5,
+  "gunElevation": 20,
+  "gunDepression": -10,
+  "turretRotation": 20,
+  "dimensionsMeters": {
+    "length": 4.81,
+    "width": 2.28,
+    "height": 2.15
+  },
+  "gameNotes": "Tracks; height to turret roof/cupola excludes radio whip. Integer depression rounds -9.5 degrees. Reverse speed, rotation speed and tier are game tuning."
+}

@@ -1,0 +1,667 @@
+{
+  "format": 1,
+  "forward": "-Z",
+  "turret": {
+    "node": 1,
+    "pivot": [
+      -0.15967816462048826,
+      1.4806924955724068,
+      -0.35046578603173467
+    ],
+    "speedDegSec": 20
+  },
+  "gun": {
+    "node": 2,
+    "pivot": [
+      -0.15885214647494272,
+      1.755381147070904,
+      -0.9554662879793229
+    ],
+    "elevation": 20,
+    "depression": 10,
+    "recoil": 0.055,
+    "recoilNode": 3
+  },
+  "muzzle": {
+    "node": 4,
+    "position": [
+      -0.4467078914368013,
+      1.7555058902624594,
+      -2.041992252740923
+    ]
+  },
+  "coaxMuzzle": {
+    "node": 5,
+    "position": [
+      0.12784535641551548,
+      1.719035513892074,
+      -1.7499557693801777
+    ]
+  },
+  "wheels": [
+    {
+      "name": "wheel_l_01",
+      "node": 10,
+      "side": "left",
+      "roadWheel": true,
+      "wheelKind": "road",
+      "center": [
+        -0.9836141295671268,
+        0.35265788444409346,
+        -1.2252891020423125
+      ],
+      "radius": 0.3003243412222778,
+      "sourceParts": [
+        818,
+        827
+      ],
+      "suspensionNode": 9,
+      "restLocalPosition": [
+        -0.9836141295671268,
+        0.35265788444409346,
+        -1.2252891020423125
+      ]
+    },
+    {
+      "name": "wheel_l_02",
+      "node": 12,
+      "side": "left",
+      "roadWheel": true,
+      "wheelKind": "road",
+      "center": [
+        -0.9836139964779226,
+        0.35265787543606403,
+        -0.6111215047244105
+      ],
+      "radius": 0.3003243997744691,
+      "sourceParts": [
+        819,
+        828
+      ],
+      "suspensionNode": 11,
+      "restLocalPosition": [
+        -0.9836139964779226,
+        0.35265787543606403,
+        -0.6111215047244105
+      ]
+    },
+    {
+      "name": "wheel_l_03",
+      "node": 14,
+      "side": "left",
+      "roadWheel": true,
+      "wheelKind": "road",
+      "center": [
+        -0.9836139964779226,
+        0.35265781237985805,
+        0.003046048408287655
+      ],
+      "radius": 0.3003244448146163,
+      "sourceParts": [
+        820,
+        829
+      ],
+      "suspensionNode": 13,
+      "restLocalPosition": [
+        -0.9836139964779226,
+        0.35265781237985805,
+        0.003046048408287655
+      ]
+    },
+    {
+      "name": "wheel_l_04",
+      "node": 16,
+      "side": "left",
+      "roadWheel": true,
+      "wheelKind": "road",
+      "center": [
+        -0.9836139964779226,
+        0.3526578484119757,
+        0.6172135043335377
+      ],
+      "radius": 0.3003244628306751,
+      "sourceParts": [
+        821,
+        830
+      ],
+      "suspensionNode": 15,
+      "restLocalPosition": [
+        -0.9836139964779226,
+        0.3526578484119757,
+        0.6172135043335377
+      ]
+    },
+    {
+      "name": "wheel_l_05",
+      "node": 18,
+      "side": "left",
+      "roadWheel": true,
+      "wheelKind": "road",
+      "center": [
+        -0.9836138633887185,
+        0.35265773130759315,
+        1.2313810397921545
+      ],
+      "radius": 0.30032449886279283,
+      "sourceParts": [
+        822,
+        831
+      ],
+      "suspensionNode": 17,
+      "restLocalPosition": [
+        -0.9836138633887185,
+        0.35265773130759315,
+        1.2313810397921545
+      ]
+    },
+    {
+      "name": "wheel_l_return1",
+      "node": 19,
+      "side": "left",
+      "roadWheel": false,
+      "wheelKind": "return",
+      "center": [
+        -0.9829848838099143,
+        0.8948948377924559,
+        -1.1298343926072985
+      ],
+      "radius": 0.12042279200796903,
+      "sourceParts": [
+        578,
+        823
+      ]
+    },
+    {
+      "name": "wheel_l_return2",
+      "node": 20,
+      "side": "left",
+      "roadWheel": false,
+      "wheelKind": "return",
+      "center": [
+        -0.9829848172653122,
+        0.8671543859600903,
+        -0.2644306638949395
+      ],
+      "radius": 0.12042283254410147,
+      "sourceParts": [
+        579,
+        824
+      ]
+    },
+    {
+      "name": "wheel_l_return3",
+      "node": 21,
+      "side": "left",
+      "roadWheel": false,
+      "wheelKind": "return",
+      "center": [
+        -0.9829847507207101,
+        0.8449526291195018,
+        0.4581194646320097
+      ],
+      "radius": 0.12042279651198375,
+      "sourceParts": [
+        580,
+        825
+      ]
+    },
+    {
+      "name": "wheel_l_return4",
+      "node": 22,
+      "side": "left",
+      "roadWheel": false,
+      "wheelKind": "return",
+      "center": [
+        -0.9829847507207101,
+        0.8295597534685857,
+        1.1084145370047644
+      ],
+      "radius": 0.12042280552001318,
+      "sourceParts": [
+        581,
+        826
+      ]
+    },
+    {
+      "name": "wheel_l_drive",
+      "node": 23,
+      "side": "left",
+      "roadWheel": false,
+      "wheelKind": "drive",
+      "center": [
+        -0.9709795056051277,
+        0.6308375346922257,
+        -1.972207414583626
+      ],
+      "radius": 0.4305097382621941,
+      "sourceParts": [
+        833,
+        832,
+        809,
+        844,
+        845,
+        846,
+        847,
+        848,
+        849,
+        850,
+        851,
+        852,
+        853,
+        854,
+        855,
+        856,
+        857,
+        858,
+        859,
+        860,
+        861,
+        884,
+        885,
+        886,
+        887,
+        888,
+        889,
+        890,
+        891,
+        892,
+        893,
+        894,
+        895,
+        896,
+        897
+      ]
+    },
+    {
+      "name": "wheel_l_idler",
+      "node": 24,
+      "side": "left",
+      "roadWheel": false,
+      "wheelKind": "idler",
+      "center": [
+        -1.0247671081939929,
+        0.6095705320576243,
+        1.917511646742012
+      ],
+      "radius": 0.33143884506219545,
+      "sourceParts": [
+        817,
+        834,
+        835,
+        836,
+        837,
+        838,
+        839,
+        840,
+        841
+      ]
+    },
+    {
+      "name": "wheel_r_01",
+      "node": 27,
+      "side": "right",
+      "roadWheel": true,
+      "wheelKind": "road",
+      "center": [
+        0.9377854277478266,
+        0.35265813666891754,
+        -1.2252890666941494
+      ],
+      "radius": 0.30032437725439554,
+      "sourceParts": [
+        161,
+        214
+      ],
+      "suspensionNode": 26,
+      "restLocalPosition": [
+        0.9377854277478266,
+        0.35265813666891754,
+        -1.2252890666941494
+      ]
+    },
+    {
+      "name": "wheel_r_02",
+      "node": 29,
+      "side": "right",
+      "roadWheel": true,
+      "wheelKind": "road",
+      "center": [
+        0.9377855608370307,
+        0.3526581546849764,
+        -0.6111214870503291
+      ],
+      "radius": 0.3003244222945427,
+      "sourceParts": [
+        162,
+        215
+      ],
+      "suspensionNode": 28,
+      "restLocalPosition": [
+        0.9377855608370307,
+        0.3526581546849764,
+        -0.6111214870503291
+      ]
+    },
+    {
+      "name": "wheel_r_03",
+      "node": 31,
+      "side": "right",
+      "roadWheel": true,
+      "wheelKind": "road",
+      "center": [
+        0.9377856606539338,
+        0.3526581546849764,
+        0.003046048408287655
+      ],
+      "radius": 0.3003244538226457,
+      "sourceParts": [
+        163,
+        216
+      ],
+      "suspensionNode": 30,
+      "restLocalPosition": [
+        0.9377856606539338,
+        0.3526581546849764,
+        0.003046048408287655
+      ]
+    },
+    {
+      "name": "wheel_r_04",
+      "node": 33,
+      "side": "right",
+      "roadWheel": true,
+      "wheelKind": "road",
+      "center": [
+        0.9377856606539338,
+        0.35265808262074094,
+        0.6172135750298636
+      ],
+      "radius": 0.30032450787082227,
+      "sourceParts": [
+        164,
+        217
+      ],
+      "suspensionNode": 32,
+      "restLocalPosition": [
+        0.9377856606539338,
+        0.35265808262074094,
+        0.6172135750298636
+      ]
+    },
+    {
+      "name": "wheel_r_05",
+      "node": 35,
+      "side": "right",
+      "roadWheel": true,
+      "wheelKind": "road",
+      "center": [
+        0.9377856939262348,
+        0.3526580195645349,
+        1.2313811811848063
+      ],
+      "radius": 0.30032460695914603,
+      "sourceParts": [
+        165,
+        218
+      ],
+      "suspensionNode": 34,
+      "restLocalPosition": [
+        0.9377856939262348,
+        0.3526580195645349,
+        1.2313811811848063
+      ]
+    },
+    {
+      "name": "wheel_r_return1",
+      "node": 36,
+      "side": "right",
+      "roadWheel": false,
+      "wheelKind": "return",
+      "center": [
+        0.9371563483521193,
+        0.8948951440654566,
+        -1.1298343926072985
+      ],
+      "radius": 0.12042280101599846,
+      "sourceParts": [
+        190,
+        194
+      ]
+    },
+    {
+      "name": "wheel_r_return2",
+      "node": 37,
+      "side": "right",
+      "roadWheel": false,
+      "wheelKind": "return",
+      "center": [
+        0.9371564481690223,
+        0.8671546471929439,
+        -0.26443062854677657
+      ],
+      "radius": 0.12042282804008675,
+      "sourceParts": [
+        191,
+        195
+      ]
+    },
+    {
+      "name": "wheel_r_return3",
+      "node": 38,
+      "side": "right",
+      "roadWheel": false,
+      "wheelKind": "return",
+      "center": [
+        0.9371564814413234,
+        0.8449529534085612,
+        0.4581194116097653
+      ],
+      "radius": 0.1204228415521309,
+      "sourceParts": [
+        192,
+        196
+      ]
+    },
+    {
+      "name": "wheel_r_return4",
+      "node": 39,
+      "side": "right",
+      "roadWheel": false,
+      "wheelKind": "return",
+      "center": [
+        0.9371565147136244,
+        0.8295600327174981,
+        1.1084144663084385
+      ],
+      "radius": 0.12042286407220448,
+      "sourceParts": [
+        193,
+        197
+      ]
+    },
+    {
+      "name": "wheel_r_drive",
+      "node": 40,
+      "side": "right",
+      "roadWheel": false,
+      "wheelKind": "drive",
+      "center": [
+        0.9251509701473326,
+        0.6308376337805495,
+        -1.972207414583626
+      ],
+      "radius": 0.4305097247501499,
+      "sourceParts": [
+        180,
+        246,
+        247,
+        172,
+        173,
+        174,
+        175,
+        176,
+        177,
+        178,
+        179,
+        181,
+        182,
+        183,
+        184,
+        185,
+        186,
+        228,
+        229,
+        230,
+        231,
+        232,
+        233,
+        234,
+        235,
+        236,
+        237,
+        238,
+        239,
+        240,
+        241,
+        242,
+        243,
+        244,
+        245
+      ]
+    },
+    {
+      "name": "wheel_r_idler",
+      "node": 41,
+      "side": "right",
+      "roadWheel": false,
+      "wheelKind": "idler",
+      "center": [
+        0.9789389720038103,
+        0.6095706761860952,
+        1.9175114346530342
+      ],
+      "radius": 0.33143879101401885,
+      "sourceParts": [
+        122,
+        219,
+        220,
+        221,
+        222,
+        223,
+        224,
+        225,
+        226
+      ]
+    }
+  ],
+  "tracks": [
+    "track_l",
+    "track_r"
+  ],
+  "trackLoopMeters": 0.1108953286853209,
+  "trackAnimation": {
+    "axis": "V",
+    "physicalLoopMeters": [
+      10.424160870424581,
+      10.424160922415748
+    ],
+    "linksPerLoop": 94,
+    "texturePeriodMeters": 0.1108953286853209,
+    "beltThickness": 0.0505,
+    "originalStaticSpareLinksKeptSeparate": true
+  },
+  "suspension": {
+    "travel": 0.13,
+    "restCompression": 0.064,
+    "springPerWheel": 146000,
+    "damperPerWheel": 5600,
+    "totalMassKg": 9500,
+    "contacts": 10
+  },
+  "colliders": {
+    "hull": {
+      "size": [
+        1.7159311536551636,
+        1.461445759730331,
+        4.365020357749277
+      ],
+      "center": [
+        -0.13445073997889367,
+        0.7307228798651655,
+        -0.052568091217720436
+      ]
+    },
+    "turret": {
+      "size": [
+        1.4432415556797071,
+        0.5349724550381179,
+        1.478734988495018
+      ],
+      "center": [
+        -2.7755575615628914e-17,
+        0.26715599316013194,
+        -0.010158920637304003
+      ]
+    },
+    "unit": {
+      "center": [
+        0,
+        1.075,
+        0
+      ],
+      "size": [
+        2.28,
+        2.15,
+        4.81
+      ]
+    }
+  },
+  "markings": [
+    {
+      "node": 6,
+      "name": "LeftBox",
+      "axis": 0,
+      "outward": -1,
+      "placement": [
+        1.2626563874012855,
+        1.3073053325456099
+      ],
+      "size": 0.249
+    },
+    {
+      "node": 7,
+      "name": "RightBox",
+      "axis": 0,
+      "outward": 1,
+      "placement": [
+        -0.32593643206842954,
+        1.3073053325456099
+      ],
+      "size": 0.249
+    },
+    {
+      "node": 8,
+      "name": "Rear",
+      "axis": 2,
+      "outward": 1,
+      "placement": [
+        -0.3507390963021223,
+        0.7464726266180348
+      ],
+      "size": 0.183
+    }
+  ],
+  "source": {
+    "title": "Panzer II Light Tank - Toshueyi",
+    "author": "Joanthan To (Toshueyi)",
+    "source": "https://sketchfab.com/3d-models/panzer-ii-light-tank-toshueyi-e237b8939e4343aba3b9c55afed86321",
+    "license": "CC BY 4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "adaptation": "Separated original rigid parts, recreated moving track surfaces from supplied shoes, textured, rescaled, marked and rigged for luna_17."
+  },
+  "sourceDimensionsExcludingRadioWhip": [
+    4.81,
+    2.28,
+    2.15
+  ]
+}

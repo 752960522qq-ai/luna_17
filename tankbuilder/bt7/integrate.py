@@ -144,7 +144,7 @@ def reg(a, manager, asset, entry):
         if p > original_max
         and o.type.name in ("Material", "Mesh", "MeshRenderer", "Texture2D")
     }
-    check(art <= reachable, "BT-7 art omitted from root preload closure")
+    check(art <= reachable, "Vehicle art omitted from root preload closure")
     roots = {k: pp(root, me), pk: pp(entry["profile_path_id"], me)}
     tree["m_Container"] = sorted(
         [*tree["m_Container"], *roots.items()], key=lambda x: x[0]

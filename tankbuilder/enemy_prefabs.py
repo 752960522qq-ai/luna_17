@@ -28,7 +28,7 @@ DONORS = {
     "T44_100": "T44_AI",
     "T54_1949": "T44_AI",
 }
-EXTENSION_DONORS = {"BT7": "T34_76_AI"}
+EXTENSION_DONORS = {"BT7": "T34_76_AI", "Panzer_II_Ausf_F": DONORS["Panzer_II_Ausf_L"]}
 ALL_DONORS = {**DONORS, **EXTENSION_DONORS}
 # HE pool in the stock Soviet KV-2 (152 mm) or US howitzer (105 mm) respectively.
 HE_DONOR = {"SU_152": 130334, "T30": 130334, "T44_100": 129981, "T54_1949": 129981}
