@@ -6,6 +6,8 @@ import com.unity3d.player.UnityPlayerActivity;
 
 public final class HatchGameActivity extends UnityPlayerActivity {
     @Override protected void onCreate(Bundle state) {
+        // A restored Android task can create this Activity without HatchActivity.
+        HatchLoader.prepareForUnity(this);
         super.onCreate(state);
         HatchLoader.start(this);
     }

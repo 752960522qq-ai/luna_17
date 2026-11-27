@@ -14,7 +14,7 @@ def build(args):
     o.mkdir(parents=True, exist_ok=True)
     sdk = args.build_tools.resolve()
     android = args.android_jar.resolve()
-    for n in ("interfaces", "main", "mod", "main-dex", "mod-dex"):
+    for n in ("interfaces", "main", "mod", "loader-dex", "main-dex", "mod-dex"):
         (o / n).mkdir(exist_ok=True)
 
     def run(*cmd):
@@ -68,6 +68,7 @@ def build(args):
         [o / "interfaces", o / "main"],
         sorted((ROOT / "mods/tankinvincible/src").rglob("*.java")),
     )
+    dex("interfaces/com/hatch/loader", "loader-dex", ["interfaces"])
     dex("main", "main-dex", [])
     dex("mod", "mod-dex", ["interfaces", "main"])
     run(
@@ -113,6 +114,7 @@ def overlay(kit, work):
     cat = "assets/Hatch/catalog.json"
     members = {
         core: (work / "tankinvincible3000.hatch").read_bytes(),
+        "classes4.dex": (work / "loader-dex/classes.dex").read_bytes(),
         "classes5.dex": (work / "main-dex/classes.dex").read_bytes(),
         "lib/arm64-v8a/libhatchcampaign.so": (
             work / "libhatchcampaign.so"

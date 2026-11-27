@@ -21,4 +21,4 @@
 python apply_overlay.py Hatch-0.4-Grille-HE200-T26.apk data.unity3d
 ```
 
-输出路径须不存在。生成的文件对应游戏包内的 `assets/bin/Data/data.unity3d`；组装游戏时一并使用 ZIP 里 `assets/Hatch/` 的更新后的目录与模组，并添加同包的 `classes5.dex` 和 `lib/arm64-v8a/libhatchcampaign.so`。不要把这些文件放入手机存档目录。还原工具校验基线、补丁及输出的 SHA-256。两方配置见 `mission.json`，场景回读结果在 `verification.json`。
+输出路径须不存在。生成的文件对应游戏包内的 `assets/bin/Data/data.unity3d`；组装时使用 ZIP 里的 `assets/Hatch/` 目录与模组，替换 `classes4.dex`，并添加 `classes5.dex` 和 `lib/arm64-v8a/libhatchcampaign.so`。不要把这些文件放入手机存档目录。还原工具校验基线、补丁及输出的 SHA-256。两方配置见 `mission.json`，场景回读结果在 `verification.json`。

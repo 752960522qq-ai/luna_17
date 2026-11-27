@@ -17,12 +17,13 @@ public final class HatchLoader {
     private static volatile String report = "舱盖 0.4 正在加载…";
     private static final ModuleSession SESSION = new ModuleSession();
     private static volatile HatchModule module;
+    private static volatile String startupFailure;
     private static File residentNative;
     private static volatile int generation;
     private static final Set<String> loadedTanks = new HashSet<>();
     private static boolean noticeWritten;
     private HatchLoader() {}
-    private static File folder(Activity activity) throws IOException {
+    private static synchronized File folder(Activity activity) throws IOException {
         File base = activity.getExternalFilesDir(null);
         if (base == null) throw new IOException("游戏文件夹不可用");
         if (!noticeWritten) {
@@ -43,33 +44,40 @@ public final class HatchLoader {
     interface Prepared { void complete(String failure); }
     static void prepare(Activity activity, Prepared callback) {
         IO.execute(() -> {
-            String failure = null;
-            try {
-                if (module == null) {
-                    ModuleSession.Loaded resident = SESSION.prepare(() -> {
-                        // Resolve the engine through the app class loader, before Unity starts.
-                        System.loadLibrary("il2cpp");
-                        File mods = folder(activity);
-                        HatchPackage core = installCore(activity,mods);
-                        if (core == null) return null;
-                        File cache = new File(activity.getCodeCacheDir(), "Hatch/" + core.manifest.getString("dex_sha256") + core.manifest.getString("native_sha256"));
-                        if (!cache.isDirectory() && !cache.mkdirs()) throw new IOException("无法创建模块缓存");
-                        File dex = publish(core,cache,"module.dex","dex_sha256","dex_bytes");
-                        File nativeFile = publish(core,cache,"module.so","native_sha256","native_bytes");
-                        DexClassLoader loader = new DexClassLoader(dex.getAbsolutePath(),cache.getAbsolutePath(),activity.getApplicationInfo().nativeLibraryDir,HatchLoader.class.getClassLoader());
-                        HatchModule loaded = (HatchModule)loader.loadClass(core.manifest.getString("entry_class")).newInstance();
-                        if (loaded.apiVersion() != 2) throw new IOException("前置 API 版本不兼容");
-                        return new ModuleSession.Loaded(loaded,nativeFile,loader);
-                    });
-                    if (resident != null) {
-                        residentNative = resident.library;
-                        module = resident.module;
-                    }
-                }
-            } catch (Exception | LinkageError e) { failure = e.getClass().getSimpleName()+": "+e.getMessage(); }
-            String result = failure;
+            String result = prepareForUnity(activity);
             MAIN.post(() -> callback.complete(result));
         });
+    }
+    /** Idempotent entry for both the launcher and direct game Activity restoration. */
+    static String prepareForUnity(Activity activity) {
+        if (module != null) return null;
+        synchronized (SESSION) {
+            if (module != null) return null;
+            String failure = null;
+            try {
+                ModuleSession.Loaded resident = SESSION.prepare(() -> {
+                    File mods = folder(activity);
+                    HatchPackage core = installCore(activity,mods);
+                    if (core == null) return null;
+                    // Resolve the engine through the app class loader, before Unity starts.
+                    System.loadLibrary("il2cpp");
+                    File cache = new File(activity.getCodeCacheDir(), "Hatch/" + core.manifest.getString("dex_sha256") + core.manifest.getString("native_sha256"));
+                    if (!cache.isDirectory() && !cache.mkdirs()) throw new IOException("无法创建模块缓存");
+                    File dex = publish(core,cache,"module.dex","dex_sha256","dex_bytes");
+                    File nativeFile = publish(core,cache,"module.so","native_sha256","native_bytes");
+                    DexClassLoader loader = new DexClassLoader(dex.getAbsolutePath(),cache.getAbsolutePath(),activity.getApplicationInfo().nativeLibraryDir,HatchLoader.class.getClassLoader());
+                    HatchModule loaded = (HatchModule)loader.loadClass(core.manifest.getString("entry_class")).newInstance();
+                    if (loaded.apiVersion() != 2) throw new IOException("前置 API 版本不兼容");
+                    return new ModuleSession.Loaded(loaded,nativeFile,loader);
+                });
+                if (resident != null) {
+                    residentNative = resident.library;
+                    module = resident.module;
+                }
+            } catch (Exception | LinkageError e) { failure = e.getClass().getSimpleName()+": "+e.getMessage(); }
+            startupFailure = failure;
+            return failure;
+        }
     }
     private static File publish(HatchPackage core, File cache, String name, String sha, String size) throws Exception {
         File target = new File(cache,name), temp = File.createTempFile("code-",".tmp",cache);
@@ -81,7 +89,9 @@ public final class HatchLoader {
         } finally { temp.delete(); }
     }
     private static HatchPackage installCore(Activity activity, File mods) throws Exception {
-        seed(activity,mods,new StringBuilder());
+        // On task restoration this runs before Unity on the UI thread. Only check the
+        // small prerequisite here; scan() verifies and seeds tanks on the IO thread.
+        seed(activity,mods,new StringBuilder(),true);
         File target=new File(mods,"tankinvincible3000.hatch");
         if (target.isFile()) {
             HatchPackage external=HatchPackage.inspect(target);
@@ -110,14 +120,18 @@ public final class HatchLoader {
     public static void start(Activity activity) {
         final int session = ++generation;
         LoaderMenu.attach(activity);
+        if (module == null && startupFailure != null) {
+            report = "坦无敌3000 前置初始化失败：\n" + startupFailure;
+            return;
+        }
         try { if (module != null) module.start(activity,residentNative); }
-        catch (Exception e) { report="前置恢复失败: "+e.getMessage(); show(activity); return; }
+        catch (Exception | LinkageError e) { report="坦无敌3000 前置界面启动失败：\n"+e.getClass().getSimpleName()+": "+e.getMessage(); show(activity); return; }
         IO.execute(() -> scan(activity,session));
     }
     private static void scan(Activity activity, int session) {
         StringBuilder log = new StringBuilder(); List<HatchPackage> tanks = new ArrayList<>(); HatchPackage core = null;
         try {
-            File mods = folder(activity); seed(activity, mods, log);
+            File mods = folder(activity); seed(activity, mods, log, false);
             File[] files = mods.listFiles((d,n) -> n.endsWith(".hatch"));
             if (files == null) throw new IOException("无法读取模组文件夹");
             Arrays.sort(files); Set<String> ids = new HashSet<>(); Set<String> duplicates=new HashSet<>();
@@ -215,15 +229,18 @@ public final class HatchLoader {
         try(InputStream in=new FileInputStream(file)){byte[] chunk=new byte[65536];int n;while((n=in.read(chunk))!=-1)hash.update(chunk,0,n);}
         StringBuilder hex=new StringBuilder();for(byte v:hash.digest())hex.append(String.format(java.util.Locale.ROOT,"%02x",v&255));return hex.toString();
     }
-    private static void seed(Activity activity, File mods, StringBuilder log) throws Exception {
+    private static void seed(Activity activity, File mods, StringBuilder log, boolean coreOnly) throws Exception {
         ByteArrayOutputStream bytes=new ByteArrayOutputStream();
         try(InputStream in=activity.getAssets().open("Hatch/catalog.json")){HatchPackage.copy(in,bytes,65536,null);}
         JSONArray catalog=new JSONObject(bytes.toString("UTF-8")).getJSONArray("mods");
-        Map<String,File> present=new HashMap<>();File[] files=mods.listFiles((d,n)->n.endsWith(".hatch"));
-        if(files!=null)for(File file:files)try{present.put(HatchPackage.inspect(file).id,file);}catch(Exception ignored){}
+        Map<String,File> present=new HashMap<>();
+        File[] files=coreOnly ? new File[]{new File(mods,"tankinvincible3000.hatch")}
+                              : mods.listFiles((d,n)->n.endsWith(".hatch"));
+        if(files!=null)for(File file:files)if(file.isFile())try{present.put(HatchPackage.inspect(file).id,file);}catch(Exception ignored){}
         SharedPreferences prefs=activity.getSharedPreferences("Hatch-builtin-seeds-02",0);
         for(int i=0;i<catalog.length();i++){
             JSONObject item=catalog.getJSONObject(i);String id=item.getString("id"),desired=item.getString("sha256");
+            if(coreOnly && !"tankinvincible3000".equals(id))continue;
             if(!id.matches("[A-Za-z0-9_-]{1,48}"))throw new IOException("内置 ID 非法");
             File existing=present.get(id);
             if(existing!=null){

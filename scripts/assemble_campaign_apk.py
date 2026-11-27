@@ -9,6 +9,7 @@ CAT = "assets/Hatch/catalog.json"
 DATA = "assets/bin/Data/data.unity3d"
 NATIVE = "lib/arm64-v8a/libhatchcampaign.so"
 DEX = "classes5.dex"
+LOADER = "classes4.dex"
 CORE = "assets/Hatch/mods/tankinvincible3000.hatch"
 SIG = re.compile(r"META-INF/(?:MANIFEST\.MF|[^/]+\.(?:RSA|DSA|EC|SF))", re.I)
 sha = lambda b: hashlib.sha256(b).hexdigest()
@@ -48,6 +49,9 @@ def assemble(base, kit, out):
             ],
         }
         new = files | {CAT, NATIVE, DEX}
+        if LOADER in k.namelist():
+            assert LOADER in a.namelist()
+            new.add(LOADER)
         assert DEX not in a.namelist() and NATIVE not in a.namelist()
         for i in a.infolist():
             n = i.filename

@@ -158,13 +158,13 @@ def patch_manifest(data, launcher="com.luna17.aot.ModActivity", label="坦无敌
     body = b''.join(out)
     return data[:4]+struct.pack('<I',header+len(body))+data[8:header]+body
 
-def write_entry(out, name, content, compression=zipfile.ZIP_DEFLATED):
+def write_entry(out, name, content, compression=zipfile.ZIP_DEFLATED, alignment=4):
     info = zipfile.ZipInfo(name, (2026,10,4,0,0,0))
     info.compress_type = compression
     info.external_attr = 0o644 << 16
     if compression == zipfile.ZIP_STORED:
         position = out.fp.tell() + 30 + len(name.encode('utf8'))
-        if position % 4:
-            padding = -(position+4) % 4
-            info.extra = struct.pack('<HH',0xd935,padding) + b'\0'*padding
+        if position % alignment:
+            padding = -(position+6) % alignment
+            info.extra = struct.pack('<HHH',0xd935,padding+2,alignment) + b'\0'*padding
     out.writestr(info,content,compresslevel=6)
