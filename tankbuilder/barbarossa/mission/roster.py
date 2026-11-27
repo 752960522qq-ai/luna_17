@@ -3,17 +3,31 @@
 from math import hypot, atan2, degrees
 from .. import layout as land
 
-# Centre seeds on open ground. Each actor gets its own lane and legal ground position.
+# Stable physical positions for both choices. Germany attacks from the northern fields;
+# the Soviet player and garrison start near their village entrance, not across the map.
 FORMATION = (
-    ("player", "T26", [(-236, -285)]),
-    ("friend", "T26", [(-257, -289), (-217, -289), (-276, -306), (-199, -307)]),
-    ("friend", "BT7", [(-180, -250), (-159, -263), (-139, -278)]),
-    ("friend", "T34_76", [(-282, -268), (-300, -285)]),
-    ("enemy", "Panzer_IV_Ausf_C", [(-245, 179), (-219, 187)]),
-    ("enemy", "Panzer_II_Ausf_F", [(-175, 126), (-153, 143), (-132, 155)]),
-    ("enemy", "Panzer_III_J", [(-289, 139), (-312, 155), (-274, 159)]),
-    ("enemy", "Panzer_38t", [(-201, 152), (-183, 166), (-162, 183)]),
+    ("SO", "T26", [(-211, -73), (-237, -89), (-158, -78), (-266, -108), (-133, -109)]),
+    ("SO", "BT7", [(-109, -141), (-255, -151), (-302, -126)]),
+    ("SO", "T34_76", [(-224, -146), (-160, -151)]),
+    ("GE", "Panzer_IV_Ausf_C", [(-245, 179), (-219, 187)]),
+    ("GE", "Panzer_II_Ausf_F", [(-175, 126), (-153, 143), (-132, 155)]),
+    ("GE", "Panzer_III_J", [(-289, 139), (-312, 155), (-274, 159)]),
+    ("GE", "Panzer_38t", [(-201, 152), (-183, 166), (-162, 183)]),
 )
+# Distinct approaches enter the native 15 m trigger; support units stop outside it.
+CAPTURE = {
+    ("Panzer_IV_Ausf_C", 1): (-191, -54),
+    ("Panzer_II_Ausf_F", 1): (-178, -56),
+    ("Panzer_II_Ausf_F", 2): (-173, -52),
+    ("Panzer_III_J", 1): (-186, -56),
+    ("Panzer_38t", 1): (-179, -51),
+}
+# Local defensive stations, kept distinct even if scenery nudges their authored centres.
+STATIONS = {
+    "T26": [(-210, -56), (-244, -72), (-156, -54), (-268, -86), (-122, -85)],
+    "BT7": [(-111, -100), (-254, -95), (-272, -109)],
+    "T34_76": [(-220, -100), (-171, -84)],
+}
 # Unit-centre clearance, including the vehicle footprint. Decor without collision is excluded.
 RADIUS = dict(
     barn=14,
@@ -61,36 +75,52 @@ def stage(h, props):
             return a, round(ground, 4), b
         raise ValueError(f"No clear deployment square near {(x, z)}")
 
+    from . import OBJECTIVE_XZ
+    from math import dist
+
     rows = []
-    counts = {}
-    for team, tank, seeds in FORMATION:
-        for x, z in seeds:
+    stations = []
+    for nation, tank, seeds in FORMATION:
+        for v, (x, z) in enumerate(seeds, 1):
             a, y, b = pick(x, z, positions)
             positions.append((a, b))
-            v = counts.get((team, tank), 0) + 1
-            counts[team, tank] = v
-            enemy = team == "enemy"
-            side = "GE" if enemy else "SO"
-            lane = a
-            targets = []
-            if team != "player":
-                # The same Vector3 waypoint array used by stock mission leaders.
-                mid = 90 if enemy else -177
-                for tx, tz in [(lane, mid), (lane, -8 if enemy else -84)]:
-                    if team == "friend" and tank == "BT7" and v == 1 and tz == -84:
-                        tx, tz = -181, -62
-                    nx, ny, nz = pick(tx, tz)
-                    targets.append([nx, 0.0, nz])
-            aim = targets[0] if targets else [a, 0, b + 80]
+            if nation == "GE":
+                qx, qz = CAPTURE.get((tank, v), (a, -18 if v % 2 else -26))
+                targets = [pick(a, 80), pick(qx, qz)]
+                if (tank, v) in CAPTURE and dist(
+                    (targets[-1][0], targets[-1][2]), OBJECTIVE_XZ
+                ) >= 13:
+                    raise ValueError("Attack waypoint outside the village objective")
+            else:
+                gx, gz = STATIONS[tank][v - 1]
+                q = pick(gx, gz, stations)
+                stations.append((q[0], q[2]))
+                targets = [q]
+            aim = (targets[0][0], targets[0][2]) if nation == "GE" else (a, b + 50)
             rows.append(
                 dict(
-                    team=team,
+                    nation=nation,
                     tank=tank,
-                    id=f"{side}_{team}_{tank}_{v:02}",
+                    id=f"{nation}_{tank}_{v:02}",
                     pos=[a, round(y + 0.35, 4), b],
                     ground=y,
-                    yaw=round(degrees(atan2(aim[0] - a, aim[2] - b)), 4),
-                    route=targets,
+                    yaw=round(degrees(atan2(aim[0] - a, aim[1] - b)), 4),
+                    route=[[tx, 0.0, tz] for tx, _, tz in targets],
                 )
             )
+    return rows
+
+
+def perspective(deployment, side):
+    # 'nation' is physical ownership. 'team' is the player's view and may reverse.
+    rows = []
+    for u in deployment:
+        role = (
+            "player"
+            if u["id"] == side.player_id
+            else ("friend" if u["nation"] == side.code else "enemy")
+        )
+        rows.append(
+            dict(u, team=role, route=[] if role == "player" else list(u["route"]))
+        )
     return rows

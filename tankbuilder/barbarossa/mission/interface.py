@@ -1,7 +1,7 @@
 """UGUI onClick actions and the stock battle briefing. No custom runtime or selection dialog."""
 
 import struct
-from ...extra_campaign import Scene, SLOT, EMPTY, PAGE_NAME
+from ...extra_campaign import Scene, SLOT, EMPTY, PAGE_NAME, map_tree
 from ...campaign_ugui import (
     PTR,
     OBJECT_TYPE,
@@ -14,7 +14,7 @@ from ...campaign_ugui import (
 )
 from ...serialization import parse_complete, assert_roundtrip, encode_complete
 from ...unity_assets import pp
-from . import INDEX, TITLE
+from . import TITLE, GERMAN, SOVIET
 from .codec import Linker, update, part, kids, cname
 
 
@@ -37,8 +37,8 @@ TIME = "UnityEngine.Time, UnityEngine.CoreModule"
 PARAM = "GameParamManager, Assembly-CSharp"
 
 
-def start():
-    return event(0, SCENES, "LoadScene", 3, INDEX)
+def start(side):
+    return event(0, SCENES, "LoadScene", 3, side.index)
 
 
 def events(rows):
@@ -53,59 +53,134 @@ def click(o, rows):
     o.set_raw_data(b)
 
 
+def navigate(o, *, left=0, right=0, up=0, down=0):
+    raw = bytearray(o.data or o.get_raw_data())
+    struct.pack_into("<ii", raw, 32, 4, 0)  # Navigation.Explicit; no wrap
+    for pos, pid in ((40, up), (52, down), (64, left), (76, right)):
+        PTR.pack_into(raw, pos, 0, pid)
+    o.set_raw_data(bytes(raw))
+
+
 def menu(sf, stage, names, fonts):
+    """Present the two play actions on the same native mission selection page."""
     home = Scene(sf, names)
     stock = Scene(stage, names)
-    page = next(g for g, v in home.go.items() if v["m_Name"] == PAGE_NAME)
-    slots = home.children(page)[2]
-    slot = home.children(slots)[0]
-    txt = home.children(slot)[0]
-    tx = sf.objects[home.part[txt]["Text"]]
-    require(text_value(tx.get_raw_data()) == EMPTY, "Mission slot occupied")
-    tx.set_raw_data(tx.get_raw_data()[:144] + string(TITLE))
-    # This label also works with the original game's Chinese legacy font outside its stock text tables.
-    update(sf, slot, m_Name="Barbarossa 01 - Gates of Hell")
-    src = stage.objects[stock.part[SLOT]["Button"]]
     lk = Linker(sf, names)
-    bi = lk.alloc()
-    image = home.part[slot]["Image"]
-    mi = stock.part[SLOT]["Image"]
-
-    def ref(f, p):
-        if not p:
-            return 0, 0
-        if not f:
-            return 0, {SLOT: slot, mi: image}[p]
-        e = stage.externals[f - 1]
-        return lk.external(e.path, e), p
-
-    im = sf.objects[image]
-    ir = bytearray(im.get_raw_data())
-    ir[44:60] = stage.objects[mi].get_raw_data()[44:60]
-    ir[60] = 1
-    im.set_raw_data(bytes(ir))
-    raw = clone_component("Button", src.get_raw_data(), ref, clicks=[])
-    button = lk.add(src, bi, raw)
-    g = parse_complete(sf.objects[slot])
-    g["m_Component"].append({"component": pp(bi)})
-    update(sf, slot, **g)
+    page = next(g for g, v in home.go.items() if v["m_Name"] == PAGE_NAME)
+    _, _, slots, back = home.children(page)
+    (slot,) = home.children(slots)
+    (txt,) = home.children(slot)
+    tx = sf.objects[home.part[txt]["Text"]]
+    original_text = tx.get_raw_data()
+    require(
+        text_value(original_text) == EMPTY and "Button" not in home.part[slot],
+        "Unexpected source mission row",
+    )
+    stock_button = stage.objects[stock.part[SLOT]["Button"]]
+    base_rect = home.rect[slots]
+    btns = {}
+    sibling_rects = []
     gp = next(
         p["GameParamManager"] for p in home.part.values() if "GameParamManager" in p
     )
-    click(
-        button,
-        [
-            event(gp, PARAM, "set_GameMode", 3, 0),
-            event(gp, PARAM, "set_PlayerNation", 3, 0),
-            event(gp, PARAM, "set_EnemyNation", 3, 1),
-            event(gp, PARAM, "set_PlayerUnitIndex", 3, 2),
-            event(gp, PARAM, "set_CurrentStageNum", 3, 1),
-            event(0, TIME, "set_timeScale", 4, number=1.0),
-            start(),
-        ],
-    )
-    e = next(g for g, v in home.go.items() if v["m_Name"] == "Hatch Extra Campaign")
-    ob = sf.objects[home.part[e]["Button"]]
+
+    # Use the original on-page row as a noninteractive title, and duplicate its native
+    # image, label, outline and hierarchy for two independently focusable hit areas.
+    for side, x in ((GERMAN, -117.0), (SOVIET, 117.0)):
+        all_ids = [p for g in (slot, txt) for p in (g, *home.part[g].values())]
+        ids = {p: lk.alloc() for p in all_ids}
+
+        def local(f, p):
+            if f or p in (0, base_rect):
+                return f, p
+            require(p in ids, "Foreign local UI dependency")
+            return 0, ids[p]
+
+        for g in (slot, txt):
+            go = sf.objects[g]
+            gt = map_tree(assert_roundtrip(go), local)
+            gt["m_Name"] = (
+                ("Gates of Hell - " + side.code) if g == slot else "Faction label"
+            )
+            lk.add(go, ids[g], encode_complete(go, gt))
+            for kind, p in home.part[g].items():
+                o = sf.objects[p]
+                if o.type.name == "MonoBehaviour":
+                    b = bytearray(
+                        clone_component(kind, o.get_raw_data(), local, label=side.label)
+                    )
+                    if kind == "Image":
+                        b[44:60] = stage.objects[
+                            stock.part[SLOT]["Image"]
+                        ].get_raw_data()[44:60]
+                        b[60] = 1
+                    if kind == "Text":
+                        b[60] = 0
+                        struct.pack_into("<i", b, 100, 25)
+                    raw = bytes(b)
+                else:
+                    val = map_tree(assert_roundtrip(o), local)
+                    if g == slot and kind == "RectTransform":
+                        val.update(
+                            m_AnchoredPosition={"x": x, "y": -25.0},
+                            m_SizeDelta={"x": 218.0, "y": 80.0},
+                        )
+                    raw = encode_complete(o, val)
+                lk.add(o, ids[p], raw)
+
+        def donor_ref(f, p):
+            if not p:
+                return 0, 0
+            if not f:
+                return 0, {
+                    SLOT: ids[slot],
+                    stock.part[SLOT]["Image"]: ids[home.part[slot]["Image"]],
+                }[p]
+            e = stage.externals[f - 1]
+            return lk.external(e.path, e), p
+
+        bi = lk.alloc()
+        button = lk.add(
+            stock_button,
+            bi,
+            clone_component(
+                "Button", stock_button.get_raw_data(), donor_ref, clicks=[]
+            ),
+        )
+        target_go = ids[slot]
+        gv = parse_complete(sf.objects[target_go])
+        gv["m_Component"].append({"component": pp(bi)})
+        update(sf, target_go, **gv)
+        # Both native source vehicles occupy index 4 in their own country's player catalogue.
+        click(
+            button,
+            [
+                event(gp, PARAM, "set_GameMode", 3, 0),
+                event(gp, PARAM, "set_PlayerNation", 3, side.nation),
+                event(gp, PARAM, "set_EnemyNation", 3, 1 - side.nation),
+                event(gp, PARAM, "set_PlayerUnitIndex", 3, 4),
+                event(gp, PARAM, "set_CurrentStageNum", 3, 1),
+                event(0, TIME, "set_timeScale", 4, number=1.0),
+                start(side),
+            ],
+        )
+        btns[side.code] = bi
+        sibling_rects.append(pp(ids[home.rect[slot]]))
+    update(sf, base_rect, m_Children=[pp(home.rect[slot]), *sibling_rects])
+    update(sf, slot, m_Name="Barbarossa 01 - Gates of Hell")
+    im = sf.objects[home.part[slot]["Image"]]
+    ir = bytearray(im.get_raw_data())
+    ir[60] = 0
+    im.set_raw_data(bytes(ir))
+    title_text = bytearray(original_text[:144] + string(TITLE))
+    title_text[60] = 0
+    tx.set_raw_data(bytes(title_text))
+    back_button = home.part[back]["Button"]
+    navigate(sf.objects[btns["SO"]], left=btns["GE"], down=back_button)
+    navigate(sf.objects[btns["GE"]], right=btns["SO"], down=back_button)
+    navigate(sf.objects[back_button], up=btns["SO"])
+    entry = next(g for g, v in home.go.items() if v["m_Name"] == "Hatch Extra Campaign")
+    ob = sf.objects[home.part[entry]["Button"]]
     raw = ob.get_raw_data()
     _, at, old = button_event(raw)
     require(
@@ -113,15 +188,16 @@ def menu(sf, stage, names, fonts):
         "Unexpected page navigation",
     )
     ob.set_raw_data(
-        raw[:at] + write_calls([(v[0][1], bool(v[9])) for v in old[:-1]] + [(bi, None)])
+        raw[:at]
+        + write_calls([(v[0][1], bool(v[9])) for v in old[:-1]] + [(btns["SO"], None)])
     )
     from .font import bind
 
-    bind(lk, fonts, {"额外战役", "巴巴罗萨行动", TITLE})
-    return sf.save(), (home, txt)
+    bind(lk, fonts, {"额外战役", "巴巴罗萨行动", TITLE, GERMAN.label, SOVIET.label})
+    return sf.save(), (home, txt, original_text)
 
 
-def battle_ui(link, home, txt):
+def battle_ui(link, home, txt, original_text, side):
     sf = link.sf
     src = home.sf
     # Draw the caption above the original play panel. Fade Scene remains the last overlay.
@@ -132,7 +208,7 @@ def battle_ui(link, home, txt):
     timer = link.alloc()
     rt = sf.objects[part(sf, 4037, "RectTransform")]
     source_text = src.objects[home.part[txt]["Text"]]
-    font = PTR.unpack_from(source_text.get_raw_data(), 88)
+    font = PTR.unpack_from(original_text, 88)
     gt = parse_complete(src.objects[txt])
     gt.update(
         m_Name="Barbarossa 01 opening",
@@ -173,9 +249,9 @@ def battle_ui(link, home, txt):
     b = bytearray(
         clone_component(
             "Text",
-            source_text.get_raw_data(),
+            original_text,
             ref,
-            label=TITLE + "  ·  巴巴罗萨行动 Ⅰ\n驾驶 T26，与友军一同夺取村口阵地。",
+            label=side.opening,
             font=font,
         )
     )
@@ -199,7 +275,7 @@ def battle_ui(link, home, txt):
         go = PTR.unpack_from(raw, 0)[1]
         calls = button_event(raw)[2]
         if any(v[2] == "ButtonFunc" and v[3] == 3 and v[6] == 2 for v in calls):
-            click(o, [event(0, TIME, "set_timeScale", 4, number=1.0), start()])
+            click(o, [event(0, TIME, "set_timeScale", 4, number=1.0), start(side)])
         if any(v[2] == "ButtonFunc" and v[3] == 3 and v[6] == 3 for v in calls):
             # No second extra mission exists; use the native title-return action on this button.
             require(

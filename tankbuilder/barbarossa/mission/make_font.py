@@ -12,12 +12,16 @@ def make(ttc, dst):
     src = TTFont(ttc, fontNumber=2)
     cmap = src.getBestCmap()
     g = src.getGlyphSet()
+    from . import SIDES
+
+    side_text = "".join(s.label + s.opening + s.objective for s in SIDES)
     chars = sorted(
         set(range(32, 127))
         | set(
             map(
                 ord,
-                "额外战役巴罗萨行动炼狱之门驾驶与友军一同夺取村口阵地返回标题。·Ⅰ，",
+                "额外战役巴罗萨行动炼狱之门驾驶与友军一同夺取村口阵地返回标题。·Ⅰ，"
+                + side_text.replace("\n", ""),
             )
         )
     )

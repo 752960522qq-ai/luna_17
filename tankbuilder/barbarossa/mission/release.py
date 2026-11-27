@@ -4,18 +4,21 @@ import argparse, hashlib, io, json, zipfile
 from pathlib import Path
 from types import SimpleNamespace
 import lz4.block
-from ...extra_campaign import file, ARCHIVE_PATH
+from ...extra_campaign import file, ARCHIVE_PATH, DIGESTS, prepare as prepare_menu_base
 from ...enemy_prefabs import create, BASE_SHA
 from ...serialization import parse_complete, encode_complete
 from ...campaign_ugui import require
 from .. import layout
 from ..bundle import append_members, metadata
-from . import TITLE, INDEX, SCENE
+from . import TITLE, SIDES, SOVIET, OBJECTIVE_XZ
 from .interface import menu
 from .buildscene import make
-from .roster import stage
+from .roster import stage, perspective
 
 PRIOR = "ac1a6e542f162212706f838386aa1949b28dbc06b3b4a1efc8ce5ee76e89442e"
+
+
+PRIOR_ONE_SIDE = "e68e153938c1f0a4aab668c88c1a7bcea335ca837e302c1d0e535c142f6e348f"
 
 
 def digest(b):
@@ -54,7 +57,13 @@ class Members:
 
 
 def resource_vehicles(res):
-    wanted = {"T34_76_AI", "Panzer_III_J_AI", "Panzer_38t_AI", "T34_76_Player"}
+    wanted = {
+        "T34_76_AI",
+        "Panzer_III_J_AI",
+        "Panzer_38t_AI",
+        "T34_76_Player",
+        "Panzer_38t_Player",
+    }
     return {
         n: p
         for p, o in res.objects.items()
@@ -79,8 +88,8 @@ def release(apk, prior_zip, out, work):
             + delta[data["header_bytes"] :]
         )
         require(
-            digest(prior) == data["result_sha256"] == PRIOR,
-            "Expected cumulative IV C release",
+            digest(prior) == data["result_sha256"] in (PRIOR, PRIOR_ONE_SIDE),
+            "Unknown preceding release",
         )
         pack = Members(prior)
         get = lambda n: file(pack.read(n))
@@ -91,29 +100,49 @@ def release(apk, prior_zip, out, work):
         }
         stock, res, mapfile = get("level8"), get("resources.assets"), get("level21")
         named = resource_vehicles(res)
-        ai_idx = json.loads(prev.read("AI/Hatch-Enemy-AI-index.json"))
-        idx = {o["id"]: o for o in ai_idx["prefabs"]}
+        idx = {
+            e["id"]: e
+            for e in json.loads(prev.read("AI/Hatch-Enemy-AI-index.json"))["prefabs"]
+        }
         a = SimpleNamespace(
             sf=res,
             files={"resources.assets": res, "level8": stock},
             scripts={("globalgamemanagers.assets", p): n for p, n in names.items()},
+            templates={},
         )
-        a.templates = {}
         for o in res.objects.values():
             a.templates.setdefault(o.type.name, o)
+        entries = []
         with zipfile.ZipFile(io.BytesIO(za.read("assets/Hatch/mods/T26.hatch"))) as mod:
-            entries = [create(a, named, mod, work, player=p) for p in (False, True)]
+            entries += [create(a, named, mod, work, player=p) for p in (False, True)]
         require(
-            entries[0]["sha256"] == idx["T26"]["sha256"],
-            "Friendly T26 geometry differs from released model",
+            entries[0]["sha256"] == idx["T26"]["sha256"], "Released T26 model changed"
         )
+        with zipfile.ZipFile(
+            io.BytesIO(prev.read("assets/Hatch/mods/Panzer_II_Ausf_F.hatch"))
+        ) as mod:
+            ge = create(a, named, mod, work, player=True)
+            require(
+                ge["runtime_sha256"] == idx["Panzer_II_Ausf_F"]["runtime_sha256"]
+                and ge["gameplay"]["weapon"]
+                == idx["Panzer_II_Ausf_F"]["gameplay"]["weapon"],
+                "German player/AI packages disagree",
+            )
+            entries.append(ge)
         models = {}
         adds = []
         for e in entries:
             n = e["file"]
-            raw = (work / n).read_bytes()
-            models["T26", n == "T26_Player.assets"] = (n, file(raw), e["root_path_id"])
-            adds.append((n, raw))
+            r = (work / n).read_bytes()
+            if n in pack.members:
+                require(pack.read(n) == r, "Published native player/AI file changed")
+            else:
+                adds.append((n, r))
+            models[e["id"], e["prefab"].endswith("_Player")] = (
+                n,
+                file(r),
+                e["root_path_id"],
+            )
         for id in ("BT7", "Panzer_II_Ausf_F", "Panzer_IV_Ausf_C"):
             e = idx[id]
             n = e["file"]
@@ -124,61 +153,84 @@ def release(apk, prior_zip, out, work):
             models[id, False] = ("resources.assets", res, named[id + "_AI"])
         hh = layout.heightgrid()
         props = layout.placements(hh)
-        rows = stage(hh, props)
-        obj = [-180, round(float(layout.ground(hh, -180, -54)), 4), -54]
+        deployment = stage(hh, props)
         from .lanes import Lanes
 
-        Lanes(hh, props).bake(rows)
-        fonts = get("sharedassets0.assets")
-        m0, (home, txt) = menu(get("level0"), get("level1"), names, fonts)
-        print("Composing battle and 21 unit graphs", flush=True)
-        ui, scene = make(
-            stock,
-            mapfile,
-            models,
-            rows,
-            names,
-            home,
-            txt,
-            obj,
-            get("sharedassets1.assets"),
-            fonts,
-            hh,
-            props,
-        )
+        Lanes(hh, props).bake(deployment)
+        ox, oz = OBJECTIVE_XZ
+        obj = [ox, round(float(layout.ground(hh, ox, oz)), 4), oz]
+        fonts, gui = get("sharedassets0.assets"), get("sharedassets1.assets")
+        if data["result_sha256"] == PRIOR:
+            title = get("level0")
+        else:
+            # Build the two buttons from the same unmodified campaign row, not from last revision's bound Button.
+            base_members = Members(base)
+            title = file(prepare_menu_base({k: base_members.read(k) for k in DIGESTS}))
+        m0, ui_source = menu(title, get("level1"), names, fonts)
+        spec = {
+            "format": 2,
+            "id": "barbarossa_01",
+            "title": TITLE,
+            "campaign": "巴巴罗萨行动",
+            "environment": "barbarossa_polesie_summer",
+            "objective_position": obj,
+            "sides": {},
+        }
+        scenes = []
         mg = get("globalgamemanagers")
         bs = next(o for o in mg.objects.values() if o.type.name == "BuildSettings")
         v = parse_complete(bs)
         require(
-            len(v["scenes"]) == INDEX
-            and v["scenes"][-1].endswith("Barbarossa_Polesie_Summer.unity"),
-            "Scene index already used",
+            len(v["scenes"]) in (22, 23)
+            and v["scenes"][21].endswith("Barbarossa_Polesie_Summer.unity"),
+            "Unknown scene table",
         )
-        v["scenes"].append(SCENE)
+        for side in SIDES:
+            rows = perspective(deployment, side)
+            print("Composing", side.code, side.vehicle, flush=True)
+            config, scene = make(
+                stock if side is SOVIET else get("level8"),
+                mapfile,
+                models,
+                rows,
+                names,
+                ui_source,
+                obj,
+                gui,
+                fonts,
+                hh,
+                props,
+                side,
+            )
+            spec["sides"][side.code] = dict(
+                name=side.name,
+                player=side.vehicle,
+                objective=side.objective,
+                briefing=side.briefing,
+                scene=side.scene,
+                index=side.index,
+                units=rows,
+                **config,
+            )
+            if side.index < len(v["scenes"]):
+                require(
+                    v["scenes"][side.index] == side.scene,
+                    "Existing slot belongs to a different mission",
+                )
+            else:
+                require(len(v["scenes"]) == side.index, "Invalid scene index")
+                v["scenes"].append(side.scene)
+            scenes.append((side.member, scene))
+            (work / side.member).write_bytes(scene)
         bs.set_raw_data(encode_complete(bs, v))
         mgr = mg.save()
-        spec = {
-            "format": 1,
-            "id": "barbarossa_01",
-            "title": TITLE,
-            "campaign": "巴巴罗萨行动",
-            "scene": SCENE,
-            "index": INDEX,
-            "environment": "barbarossa_polesie_summer",
-            "objective": "夺取村口阵地",
-            "objective_position": obj,
-            "ui": ui,
-            "groups": {"player": 451, "friend": 7063, "enemy": 1940},
-            "units": rows,
-        }
-        (work / "level22").write_bytes(scene)
         (work / "level0").write_bytes(m0)
         (work / "globalgamemanagers").write_bytes(mgr)
         (work / "mission.json").write_bytes(dumps(spec))
+        flags = {n: "level8" for n, sc in scenes if n not in pack.members}
+        flags.update({n: "resources.assets" for n, _ in adds})
         result = append_members(
-            prior,
-            [("level0", m0), ("globalgamemanagers", mgr), ("level22", scene), *adds],
-            {"level22": "level8", **{n: "resources.assets" for n, _ in adds}},
+            prior, [("level0", m0), ("globalgamemanagers", mgr), *scenes, *adds], flags
         )
         h, s, e, blocks, members = metadata(base)
         _, s2, _, blocks2, members2 = metadata(result)
@@ -191,7 +243,8 @@ def release(apk, prior_zip, out, work):
             "format": 1,
             "overlay_file": "Barbarossa-01.overlay",
             "base_sha256": BASE_SHA,
-            "prior_result_sha256": PRIOR,
+            "prior_result_sha256": data["result_sha256"],
+            "factions": [s.code for s in SIDES],
             "result_sha256": digest(result),
             "overlay_sha256": digest(overlay),
             "header_bytes": s2,

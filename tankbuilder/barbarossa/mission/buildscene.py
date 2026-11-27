@@ -124,14 +124,26 @@ def merge_map(link, m):
     return root, sun
 
 
-def make(sf, m, models, rows, names, home, txt, objective, gui, fonts, h, props):
+def make(sf, m, models, rows, names, ui_source, objective, gui, fonts, h, props, side):
     l = Linker(sf, names)
-    # Keep the original Soviet mission slot and result trigger. No inactive stock army is shipped in this scene.
+    from .objectives import bind as bind_objective
+
+    bind_objective(sf, side)
+    pgroup, fgroup, egroup, base = kids(sf, side.scenario)
+    require(
+        [
+            parse_complete(sf.objects[g])["m_Name"]
+            for g in (pgroup, fgroup, egroup, base)
+        ]
+        == ["Units (Player)", "Units (Friend)", "Units (Enemy)", "Base"],
+        "Unrecognized stock side hierarchy",
+    )
+    # Preserve the selected nation's first slot; omit the armies from every other scenario.
     for scenario in kids(sf, 5328):
-        if scenario != 8832:
+        if scenario != side.scenario:
             cut(sf, scenario)
             update(sf, scenario, m_IsActive=False)
-    groups = {"player": 451, "friend": 7063, "enemy": 1940}
+    groups = {"player": pgroup, "friend": fgroup, "enemy": egroup}
     for g in groups.values():
         cut(sf, g)
     # The game's duel references must still point to containers, but it must have no fallback spawns.
@@ -152,64 +164,74 @@ def make(sf, m, models, rows, names, home, txt, objective, gui, fonts, h, props)
     struct.pack_into("<i", r, 120, 1)
     gc.set_raw_data(bytes(r))
     update(sf, 5328, m_IsActive=True)
-    update(sf, 8832, m_IsActive=True)
-    update(sf, part(sf, 5494, "Transform"), m_LocalPosition=xyz(objective))
+    update(sf, side.scenario, m_IsActive=True)
+    update(sf, part(sf, base, "Transform"), m_LocalPosition=xyz(objective))
     for row in rows:
         fn, s, g = models[(row["tank"], row["team"] == "player")]
         attach(l, s, fn, g, part(sf, groups[row["team"]], "Transform"), row)
-    # The first Soviet T34-76 is the stock type-2 fallback also used by TankGenManager.
-    # This is a scene-local reference: any fallback for the preselected slot also produces a controllable T26.
+    # Use a real player prefab also on all valid stock fallback slots for the selected
+    # nation, including the German exchange table. Leave the other nation's entries alone.
     gen = sf.objects[155556]
     raw = bytearray(gen.get_raw_data())
-    oldf, oldp = PTR.unpack_from(raw, 96)
-    require(
-        sf.externals[oldf - 1].path == "resources.assets" and oldp == 3455,
-        "Unknown default player slot",
-    )
-    name, pref, g = models["T26", True]
-    tf = l.external(name)
-    # The hero is fixed for this scenario. Even if the stock generator reads an earlier garage selection,
-    # every valid Soviet player slot in this scene resolves to the same real T26_Player.
-    nn = struct.unpack_from("<i", raw, 44)[0]
-    require(5 <= nn <= 64, "Unexpected Soviet player catalogue")
-    for at in range(48, 48 + 12 * nn, 12):
-        fid, target = PTR.unpack_from(raw, at)
-        if target:
+    at = 44
+    fn, _, hero = models[side.vehicle, True]
+    link_id = l.external(fn)
+    for table in range(3):
+        n = struct.unpack_from("<i", raw, at)[0]
+        require(5 <= n <= 64, "Unknown player catalogue layout")
+        if table == side.nation:
+            f, p = PTR.unpack_from(raw, at + 4 + 4 * 12)
             require(
-                sf.externals[fid - 1].path == "resources.assets",
-                "Unexpected Soviet fallback donor",
+                sf.externals[f - 1].path == "resources.assets" and p == hero,
+                "Wrong native donor in tank slot 4",
             )
-            PTR.pack_into(raw, at, tf, g)
+        if table == side.nation or (side.code == "GE" and table == 2):
+            for pos in range(at + 4, at + 4 + 12 * n, 12):
+                fid, pid = PTR.unpack_from(raw, pos)
+                if pid:
+                    require(
+                        sf.externals[fid - 1].path == "resources.assets",
+                        "Unknown player resource",
+                    )
+                    PTR.pack_into(raw, pos, link_id, hero)
+        at += 4 + 12 * n
     gen.set_raw_data(bytes(raw))
-    ui = battle_ui(l, home, txt)
+    ui = battle_ui(l, *ui_source, side)
     from .minimap import install
 
     ui["minimap"] = install(l, gui, h, props)
-    # A localized placeholder from the original battle mockup must not ask to select a different vehicle.
+    # The stock Field 1 HUD has reusable localized orders for a hill and a timed defence.
+    # Neither applies to this mission. Update those orders as well as the initial mock-up.
     from ...campaign_ugui import text_value, string
 
-    placeholder = sf.objects[155469]
-    src = placeholder.get_raw_data()
-    require(text_value(src) == "Choose your tank!", "Unknown HUD placeholder")
-    placeholder.set_raw_data(src[:144] + string("驾驶 T26，与友军一同夺取村口阵地。"))
-    for cmp in parse_complete(sf.objects[4030])["m_Component"]:
-        loc = sf.objects[cmp["component"]["m_PathID"]]
-        if (
-            loc.type.name == "MonoBehaviour"
-            and cname(loc, names) == "LeanLocalizedText"
-        ):
-            rr = bytearray(loc.get_raw_data())
-            rr[12] = 0
-            loc.set_raw_data(bytes(rr))
+    for p, expected in (
+        (155469, "Choose your tank!"),
+        (158649, "Coordinate with friendly forces and capture the hill!"),
+        (161599, "Coordinate with friendly forces and capture the hill!"),
+        (158934, "Defend your position until reinforcements arrive!"),
+        (167788, "Defend your position until reinforcements arrive!"),
+    ):
+        text = sf.objects[p]
+        src = text.get_raw_data()
+        require(text_value(src) == expected, "Unknown native mission hint")
+        text.set_raw_data(src[:144] + string(side.briefing))
+        owner = PTR.unpack_from(src, 0)[1]
+        for cmp in parse_complete(sf.objects[owner])["m_Component"]:
+            loc = sf.objects[cmp["component"]["m_PathID"]]
+            if (
+                loc.type.name == "MonoBehaviour"
+                and cname(loc, names) == "LeanLocalizedText"
+            ):
+                rr = bytearray(loc.get_raw_data())
+                rr[12] = 0
+                loc.set_raw_data(bytes(rr))
     from .font import bind
 
-    ui["font"] = bind(
-        l,
-        fonts,
-        {
-            "炼狱之门  ·  巴巴罗萨行动 Ⅰ\n驾驶 T26，与友军一同夺取村口阵地。",
-            "驾驶 T26，与友军一同夺取村口阵地。",
-            "返回标题",
-        },
-    )
-    return ui, sf.save()
+    ui["font"] = bind(l, fonts, {side.opening, side.briefing, "返回标题"})
+    return dict(
+        groups=groups,
+        scenario=side.scenario,
+        base=base,
+        objective_control=side.objective_control,
+        ui=ui,
+    ), sf.save()
