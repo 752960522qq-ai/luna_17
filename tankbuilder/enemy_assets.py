@@ -41,7 +41,7 @@ def subtree(sf, gid):
 
 
 class Stage:
-    def __init__(self, a, root, name, he_donor):
+    def __init__(self, a, root, name, he_donor, *, player=False):
         self.a = a
         self.base = a.sf
         self.root = root
@@ -65,11 +65,12 @@ class Stage:
                 o = self.base.objects[p]
                 kind = script_class(a, o) if o.type.name == "MonoBehaviour" else o.type.name
                 self.parts[kind].append(p)
-        for kind in ("AIControl", "DriverControl", "UnitStatus", "BodyMove", "TurretMove", "Launcher"):
+        controllers = ("PlayerControl",) if player else ("AIControl", "DriverControl")
+        for kind in (*controllers, "UnitStatus", "BodyMove", "TurretMove", "Launcher"):
             if len(self.parts[kind]) != 1:
                 raise ValueError(f"{name}: expected one {kind}")
-        if self.parts["PlayerControl"]:
-            raise ValueError("Player prefab is not an enemy template")
+        if self.parts["AIControl" if player else "PlayerControl"]:
+            raise ValueError("Unexpected controller on stock vehicle")
         self.launch = self.parts["Launcher"][0]
         self.added_shells = []
         self.fixes = {}

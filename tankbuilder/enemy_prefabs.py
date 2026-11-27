@@ -214,14 +214,15 @@ def attach_visuals(s, ident, nodes, images, h, rig):
     return tr, controls, tracks_r, len(wheels), len(rendered), total_tri
 
 
-def create(a, stock, mod, out):
+def create(a, stock, mod, out, *, player=False):
     doc = {
         k: json.loads(mod.read(k + ".json"))
         for k in ("hatch", "manifest", "tank", "armor", "weapon", "rig")
     }
     h, m, t, w, r = (doc[k] for k in ("hatch", "manifest", "tank", "weapon", "rig"))
     ident = h["id"]
-    name = ident + "_AI"
+    donor = ALL_DONORS[ident].removesuffix("_AI") + ("_Player" if player else "_AI")
+    name = ident + ("_Player" if player else "_AI")
     kind = h.get("vehicle_kind", "tank")
     cfg, nodes, images = read_model(mod.read("runtime.bin"), h)
     for i, k in enumerate(("AP", "HEAT", "APCR", "WP", "HE")):
@@ -233,7 +234,8 @@ def create(a, stock, mod, out):
         ):
             raise ValueError(f"{ident}: inconsistent {k} ammunition data")
     s = Stage(
-        a, stock[ALL_DONORS[ident]], name + ".assets", HE_DONOR.get(ident) if w["ammo"].get("HE") else None
+        a, stock[donor], name + ".assets",
+        HE_DONOR.get(ident) if w["ammo"].get("HE") else None, player=player,
     )
     g = s.get(s.root)
     g["m_Name"] = name
@@ -247,7 +249,7 @@ def create(a, stock, mod, out):
     status = s.parts["UnitStatus"][0]
     st = s.mb(status, "UnitStatus")
     st.update(
-        iFFNum=2,
+        iFFNum=0 if player else 2,
         has2ndGun=False,
         unitName=ident,
         unitNation=NATIONS.index(m["country"]),
@@ -304,7 +306,7 @@ def create(a, stock, mod, out):
     gameplay = {k: doc[k] for k in ("tank", "armor", "weapon")}
     profile = {
         "format": 1,
-        "role": "enemy",
+        "role": "player" if player else "enemy",
         "hatch_id": ident,
         "gameplay": gameplay,
         "suspension": r["suspension"],
@@ -316,7 +318,7 @@ def create(a, stock, mod, out):
     profile_id = s.make(
         "TextAsset",
         {
-            "m_Name": ident + "_EnemyProfile",
+            "m_Name": ident + ("_PlayerProfile" if player else "_EnemyProfile"),
             "m_Script": json.dumps(profile, ensure_ascii=False, sort_keys=True, separators=(",", ":")),
         },
     )
@@ -328,7 +330,7 @@ def create(a, stock, mod, out):
         "prefab": name,
         "file": file.name,
         "root_path_id": s.root,
-        "stock_ai": ALL_DONORS[ident],
+        ("stock_player" if player else "stock_ai"): donor,
         "country": m["country"],
         "vehicle_kind": kind,
         "primary_shell": prim,
