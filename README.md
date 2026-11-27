@@ -95,3 +95,7 @@ java -jar /path/to/apksigner.jar verify --verbose dist/TankInvincible-5.1.0-T54-
 ## 更好的坦克体验 0.1（舱盖 0.4）
 
 本次重做与只构建模组的命令见 [docs/hatch-0.4.md](docs/hatch-0.4.md)。`scripts/build_mods.py` 只输出加载器 DEX 和 `.hatch`，不生成 APK。
+
+## 巴巴罗萨行动地图
+
+[西波列西亚乡野](docs/barbarossa-polesie.md)：独立的 1.4 × 1.4 公里原生场景，包含村庄、两座木桥、七条道路及可复用的任务地标。
