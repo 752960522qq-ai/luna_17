@@ -20,24 +20,38 @@ def digest(b):
     return hashlib.sha256(b).hexdigest()
 
 
-def build(apk, base, previous, player, ai_dir, out):
+def build(
+    apk,
+    base,
+    previous,
+    player,
+    ai_dir,
+    out,
+    vehicle=ID,
+    previous_id="BT7",
+    stem="PanzerII-F.overlay",
+):
     out.mkdir(parents=True, exist_ok=True)
     raw = base.read_bytes()
     check(digest(raw) == BASE_SHA, "Unknown stock resources")
     a = Adapter(base)
     idx = json.loads((ai_dir / "Hatch-Enemy-AI-index.json").read_text())
-    e = one((x for x in idx["prefabs"] if x["id"] == ID), ID)
+    e = one((x for x in idx["prefabs"] if x["id"] == vehicle), vehicle)
     ai = ai_dir / e["file"]
     check(sha(ai) == e["sha256"], "Enemy asset mismatch")
     with zipfile.ZipFile(previous) as z:
         spec = json.loads(z.read("integration.json"))
-        old_delta = z.read("BT7.overlay")
+        old_delta = z.read(spec.get("overlay_file", "BT7.overlay"))
         old_idx = json.loads(z.read("AI/Hatch-Enemy-AI-index.json"))
         old_catalog = json.loads(z.read("assets/Hatch/catalog.json"))
-        bt7 = z.read("assets/Hatch/mods/BT7.hatch")
+        old_players = {
+            p: z.read(p)
+            for p in z.namelist()
+            if p.startswith("assets/Hatch/mods/") and p.endswith(".hatch")
+        }
         check(
             old_idx["prefabs"] == idx["prefabs"][:-1]
-            and old_idx["prefabs"][-1]["id"] == "BT7",
+            and old_idx["prefabs"][-1]["id"] == previous_id,
             "Previous AI index was not preserved",
         )
         check(
@@ -57,11 +71,21 @@ def build(apk, base, previous, player, ai_dir, out):
     with zipfile.ZipFile(apk) as z:
         check(sha(apk) == idx["source_apk_sha256"], "Wrong Hatch APK")
         stock = json.loads(z.read("assets/Hatch/catalog.json"))
+        extra = old_catalog["mods"][len(stock["mods"]) :]
         check(
-            stock["mods"] == old_catalog["mods"][:-1]
-            and old_catalog["mods"][-1]["id"] == "BT7"
-            and digest(bt7) == old_catalog["mods"][-1]["sha256"],
-            "Player catalog mismatch",
+            old_catalog["mods"][: len(stock["mods"])] == stock["mods"]
+            and extra[-1]["id"] == previous_id,
+            "Previous player catalog changed",
+        )
+        paths = {"assets/Hatch/mods/" + v["id"] + ".hatch": v for v in extra}
+        check(
+            paths.keys() == old_players.keys()
+            and all(
+                digest(old_players[p]) == v["sha256"]
+                and len(old_players[p]) == v["size"]
+                for p, v in paths.items()
+            ),
+            "Player package mismatch",
         )
         luchs = "assets/Hatch/mods/Panzer_II_Ausf_L.hatch"
         import io
@@ -72,14 +96,23 @@ def build(apk, base, previous, player, ai_dir, out):
         h = json.loads(z.read("hatch.json"))
         weapon = json.loads(z.read("weapon.json"))
         check(
-            h["id"] == ID and h["runtime_sha256"] == e["runtime_sha256"],
+            h["id"] == vehicle and h["runtime_sha256"] == e["runtime_sha256"],
             "Player and enemy models differ",
         )
-        check(
-            h["continuous_fire"] is lm["continuous_fire"] is True
-            and h["magazine"] == lm["magazine"] == weapon["magazine"],
-            "Released Luchs cannon mode differs",
-        )
+        if vehicle == ID:
+            check(
+                h["continuous_fire"] is lm["continuous_fire"] is True
+                and h["magazine"] == lm["magazine"] == weapon["magazine"],
+                "Released Luchs cannon mode differs",
+            )
+        else:
+            check(
+                not h.get("continuous_fire")
+                and "magazine" not in h
+                and not weapon.get("continuousFire")
+                and weapon["reload"] == 5.0,
+                "Single-shot configuration lost",
+            )
         check(e["gameplay"]["weapon"] == weapon, "AI/player weapon mismatch")
     prev = one_file(prior)
     manager = prev.files["globalgamemanagers"]
@@ -97,7 +130,9 @@ def build(apk, base, previous, player, ai_dir, out):
         {k: keys[k] for k in original_keys} == original_keys,
         "Prior Resources key changed",
     )
-    newly_registered = [q for q in idx["prefabs"] if q["id"] in ("BT7", ID)]
+    newly_registered = [
+        q for q in idx["prefabs"] if q["id"] in {v["id"] for v in extra} | {vehicle}
+    ]
     for obj in newly_registered:
         pk = keys[obj["resource_path"]]
         pf = keys[obj["profile_resource_path"]]
@@ -115,6 +150,13 @@ def build(apk, base, previous, player, ai_dir, out):
             and profile["runtime_sha256"] == obj["runtime_sha256"],
             "Wrong profile/model",
         )
+        if obj["id"] == vehicle and vehicle != ID:
+            check(
+                profile["continuous_fire"] is False
+                and profile["magazine"] is None
+                and profile["gameplay"]["weapon"] == weapon,
+                "Single-shot AI profile mismatch",
+            )
         if obj["id"] == ID:
             check(
                 profile["continuous_fire"] is True
@@ -144,12 +186,13 @@ def build(apk, base, previous, player, ai_dir, out):
         pack.files[ai.name].reader.bytes == ai.read_bytes(),
         "AI bytes differ after loading",
     )
-    for n in ("level0", "level21", "BT7_AI.assets"):
+    for n in ["level0", "level21"] + [
+        q["file"] for q in newly_registered if q["id"] != vehicle
+    ]:
         check(
             pack.files[n].reader.bytes == prev.files[n].reader.bytes,
             "Existing resource changed: " + n,
         )
-    stem = "PanzerII-F.overlay"
     patch = merged[:s2] + merged[s2 + end - s :]
     (out / stem).write_bytes(patch)
     report.update(
@@ -169,26 +212,31 @@ def build(apk, base, previous, player, ai_dir, out):
             ),
             "menu_merged": True,
             "campaign_merged": True,
-            "prior_vehicle_verified": "BT7",
+            "prior_vehicle_verified": previous_id,
+            "preserved_player_additions": [e["id"] for e in extra],
             "enemy_registry_count": len(idx["prefabs"]),
-            "magazine_matches_released_luchs": True,
+            "magazine_matches_released_luchs": any(
+                q["id"] == ID for q in newly_registered
+            ),
+            "single_shot": not h.get("continuous_fire"),
             "android_device_test": False,
         }
     )
     writej(out / "integration.json", report)
     directory = out / "assets/Hatch"
     (directory / "mods").mkdir(parents=True, exist_ok=True)
-    check(ID not in {x["id"] for x in old_catalog["mods"]}, "Player id collision")
+    check(vehicle not in {x["id"] for x in old_catalog["mods"]}, "Player id collision")
     old_catalog["mods"].append(
         {
-            "id": ID,
+            "id": vehicle,
             "name": h["name"],
             "sha256": sha(player),
             "size": player.stat().st_size,
         }
     )
     writej(directory / "catalog.json", old_catalog)
-    (directory / "mods/BT7.hatch").write_bytes(bt7)
+    for name, content in old_players.items():
+        (out / name).write_bytes(content)
     shutil.copyfile(player, directory / "mods" / player.name)
     shutil.copyfile(
         Path(__file__).resolve().parents[1] / "bt7/apply_overlay.py",

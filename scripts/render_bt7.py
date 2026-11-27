@@ -16,6 +16,7 @@ cli.add_argument("--motion", action="store_true")
 args = cli.parse_args(sys.argv[sys.argv.index("--") + 1 :])
 vehicle = json.loads((args.project / "manifest.json").read_text())["id"]
 is_f = vehicle == "Panzer_II_Ausf_F"
+is_c = vehicle == "Panzer_IV_Ausf_C"
 out = args.out
 out.mkdir(parents=True, exist_ok=True)
 bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -83,11 +84,11 @@ cam.type = "ORTHO"
 def camera(position, look, size):
     c.location = position
     c.rotation_euler = (
-        (Vector(look) + Vector((0, 0, 0.23 if is_f else 0)) - c.location)
+        (Vector(look) + Vector((0, 0, 0.23 if is_f or is_c else 0)) - c.location)
         .to_track_quat("-Z", "Y")
         .to_euler()
     )
-    cam.ortho_scale = size * (0.90 if is_f else 1.0)
+    cam.ortho_scale = size * (0.90 if is_f else 1.09 if is_c else 1.0)
 
 
 def shot(name):
@@ -129,7 +130,9 @@ if args.motion:
     }
     scroll = []
     for suffix in ("l", "r"):
-        mat = bpy.data.materials[("Pz2F" if is_f else "BT7") + "_tread_" + suffix]
+        mat = bpy.data.materials[
+            ("Pz2F" if is_f else "Pz4C" if is_c else "BT7") + "_tread_" + suffix
+        ]
         nt = mat.node_tree
         tex = next(n for n in nt.nodes if n.type == "TEX_IMAGE")
         old = tex.inputs["Vector"].links

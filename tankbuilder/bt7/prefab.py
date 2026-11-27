@@ -17,6 +17,7 @@ def writej(p, d):
 
 NATIVE_KEYS = {
     "BT7": "unit/so/bt7/bt7",
+    "Panzer_IV_Ausf_C": "unit/ge/panzer_iv_ausf_c/panzer_iv_ausf_c",
     "Panzer_II_Ausf_F": "unit/ge/panzer_ii_ausf_f/panzer_ii_ausf_f",
 }
 

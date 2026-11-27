@@ -1,0 +1,871 @@
+{
+  "format": 1,
+  "forward": "-Z",
+  "turret": {
+    "node": 1,
+    "pivot": [
+      -0.054330274803329505,
+      1.6484314747802276,
+      0.15890873025354327
+    ],
+    "speedDegSec": 18
+  },
+  "gun": {
+    "node": 2,
+    "pivot": [
+      -0.058307195059974413,
+      2.0377846751109003,
+      -0.8025989425494258
+    ],
+    "elevation": 20,
+    "depression": 10,
+    "recoil": 0.13,
+    "recoilNode": 3
+  },
+  "muzzle": {
+    "node": 4,
+    "position": [
+      -0.05831508105440454,
+      2.037785707436477,
+      -1.9455840521676053
+    ]
+  },
+  "coaxMuzzle": {
+    "node": 5,
+    "position": [
+      0.27362963381172734,
+      2.0641373932730063,
+      -1.2739018614287265
+    ]
+  },
+  "wheels": [
+    {
+      "name": "wheel_l_01_road",
+      "side": "left",
+      "wheelKind": "road",
+      "roadWheel": true,
+      "sourceParts": [
+        100015,
+        100025,
+        100051
+      ],
+      "radius": 0.2475736186914463,
+      "node": 15,
+      "center": [
+        -1.1478699388404712,
+        0.3008343633602443,
+        -1.833355882922717
+      ],
+      "suspensionNode": 14,
+      "restLocalPosition": [
+        -1.1478699388404712,
+        0.3008343633602443,
+        -1.833355882922717
+      ]
+    },
+    {
+      "name": "wheel_l_02_road",
+      "side": "left",
+      "wheelKind": "road",
+      "roadWheel": true,
+      "sourceParts": [
+        100016,
+        100028,
+        100052
+      ],
+      "radius": 0.2475736211063375,
+      "node": 17,
+      "center": [
+        -1.1478709375387797,
+        0.30083436336011404,
+        -1.3343974155108822
+      ],
+      "suspensionNode": 16,
+      "restLocalPosition": [
+        -1.1478709375387797,
+        0.30083436336011404,
+        -1.3343974155108822
+      ]
+    },
+    {
+      "name": "wheel_l_03_road",
+      "side": "left",
+      "wheelKind": "road",
+      "roadWheel": true,
+      "sourceParts": [
+        100017,
+        100026,
+        100053
+      ],
+      "radius": 0.2475760887744242,
+      "node": 19,
+      "center": [
+        -1.1478699388404712,
+        0.30456591303556346,
+        -0.8337620475876
+      ],
+      "suspensionNode": 18,
+      "restLocalPosition": [
+        -1.1478699388404712,
+        0.30456591303556346,
+        -0.8337620475876
+      ]
+    },
+    {
+      "name": "wheel_l_04_road",
+      "side": "left",
+      "wheelKind": "road",
+      "roadWheel": true,
+      "sourceParts": [
+        100018,
+        100029,
+        100054
+      ],
+      "radius": 0.2475760996577772,
+      "node": 21,
+      "center": [
+        -1.1478719362370882,
+        0.3045659130354932,
+        -0.33480665290778894
+      ],
+      "suspensionNode": 20,
+      "restLocalPosition": [
+        -1.1478719362370882,
+        0.3045659130354932,
+        -0.33480665290778894
+      ]
+    },
+    {
+      "name": "wheel_l_05_road",
+      "side": "left",
+      "wheelKind": "road",
+      "roadWheel": true,
+      "sourceParts": [
+        100019,
+        100030,
+        100055
+      ],
+      "radius": 0.24755635851499466,
+      "node": 23,
+      "center": [
+        -1.1478719362370882,
+        0.3007980787110903,
+        0.16585539764585874
+      ],
+      "suspensionNode": 22,
+      "restLocalPosition": [
+        -1.1478719362370882,
+        0.3007980787110903,
+        0.16585539764585874
+      ]
+    },
+    {
+      "name": "wheel_l_06_road",
+      "side": "left",
+      "wheelKind": "road",
+      "roadWheel": true,
+      "sourceParts": [
+        100020,
+        100031,
+        100056
+      ],
+      "radius": 0.24757362428271554,
+      "node": 25,
+      "center": [
+        -1.1478719362370882,
+        0.3008343592273251,
+        0.6648026725355249
+      ],
+      "suspensionNode": 24,
+      "restLocalPosition": [
+        -1.1478719362370882,
+        0.3008343592273251,
+        0.6648026725355249
+      ]
+    },
+    {
+      "name": "wheel_l_07_road",
+      "side": "left",
+      "wheelKind": "road",
+      "roadWheel": true,
+      "sourceParts": [
+        100021,
+        100032,
+        100057
+      ],
+      "radius": 0.2475557247790242,
+      "node": 27,
+      "center": [
+        -1.1478719362370882,
+        0.30079808348496473,
+        1.165445885854941
+      ],
+      "suspensionNode": 26,
+      "restLocalPosition": [
+        -1.1478719362370882,
+        0.30079808348496473,
+        1.165445885854941
+      ]
+    },
+    {
+      "name": "wheel_l_08_road",
+      "side": "left",
+      "wheelKind": "road",
+      "roadWheel": true,
+      "sourceParts": [
+        100022,
+        100027,
+        100058
+      ],
+      "radius": 0.24756850910595837,
+      "node": 29,
+      "center": [
+        -1.1478699388404712,
+        0.3045659135999622,
+        1.6644040201694859
+      ],
+      "suspensionNode": 28,
+      "restLocalPosition": [
+        -1.1478699388404712,
+        0.3045659135999622,
+        1.6644040201694859
+      ]
+    },
+    {
+      "name": "wheel_l_01_return",
+      "side": "left",
+      "wheelKind": "return",
+      "roadWheel": false,
+      "sourceParts": [
+        120106,
+        120114,
+        120138
+      ],
+      "radius": 0.12659780161573025,
+      "node": 30,
+      "center": [
+        -1.082860083674768,
+        0.9516185878252943,
+        -1.5183506447047472
+      ]
+    },
+    {
+      "name": "wheel_l_02_return",
+      "side": "left",
+      "wheelKind": "return",
+      "roadWheel": false,
+      "sourceParts": [
+        120107,
+        120115,
+        120139
+      ],
+      "radius": 0.1265978016157341,
+      "node": 31,
+      "center": [
+        -1.082860083674768,
+        0.9396767903522418,
+        -0.5266528494267433
+      ]
+    },
+    {
+      "name": "wheel_l_03_return",
+      "side": "left",
+      "wheelKind": "return",
+      "roadWheel": false,
+      "sourceParts": [
+        120108,
+        120116,
+        120140
+      ],
+      "radius": 0.1265978172456635,
+      "node": 32,
+      "center": [
+        -1.082860083674768,
+        0.9273500277182656,
+        0.4748850607052823
+      ]
+    },
+    {
+      "name": "wheel_l_04_return",
+      "side": "left",
+      "wheelKind": "return",
+      "roadWheel": false,
+      "sourceParts": [
+        120109,
+        120117,
+        120141
+      ],
+      "radius": 0.1265978016157341,
+      "node": 33,
+      "center": [
+        -1.0828610529995968,
+        0.8913211648782837,
+        1.4766684589092278
+      ]
+    },
+    {
+      "name": "wheel_l_01_drive",
+      "side": "left",
+      "wheelKind": "drive",
+      "roadWheel": false,
+      "sourceParts": [
+        100023,
+        100024,
+        100068,
+        100069,
+        100070,
+        100071,
+        100072,
+        100073,
+        100074,
+        100075,
+        100076,
+        100077,
+        100078,
+        100079
+      ],
+      "radius": 0.4097436267549439,
+      "node": 34,
+      "center": [
+        -1.2019405227101005,
+        0.7227429202787738,
+        -2.4144158225742482
+      ]
+    },
+    {
+      "name": "wheel_l_01_idler",
+      "side": "left",
+      "wheelKind": "idler",
+      "roadWheel": false,
+      "sourceParts": [
+        100033,
+        100034,
+        100059,
+        100060,
+        100061,
+        100062,
+        100063,
+        100064,
+        100065,
+        100066,
+        100067
+      ],
+      "radius": 0.33868644978063245,
+      "node": 35,
+      "center": [
+        -1.1773298352805839,
+        0.5951948424009069,
+        2.4054594251498704
+      ]
+    },
+    {
+      "name": "wheel_r_01_road",
+      "side": "right",
+      "wheelKind": "road",
+      "roadWheel": true,
+      "sourceParts": [
+        120030,
+        120039,
+        120090
+      ],
+      "radius": 0.2475685091059585,
+      "node": 37,
+      "center": [
+        1.1484890142978474,
+        0.30456591359996293,
+        -1.8333550230069724
+      ],
+      "suspensionNode": 36,
+      "restLocalPosition": [
+        1.1484890142978474,
+        0.30456591359996293,
+        -1.8333550230069724
+      ]
+    },
+    {
+      "name": "wheel_r_02_road",
+      "side": "right",
+      "wheelKind": "road",
+      "roadWheel": true,
+      "sourceParts": [
+        120031,
+        120040,
+        120091
+      ],
+      "radius": 0.24756849460382743,
+      "node": 39,
+      "center": [
+        1.148488015599539,
+        0.30456591359968016,
+        -1.3343997251258017
+      ],
+      "suspensionNode": 38,
+      "restLocalPosition": [
+        1.148488015599539,
+        0.30456591359968016,
+        -1.3343997251258017
+      ]
+    },
+    {
+      "name": "wheel_r_03_road",
+      "side": "right",
+      "wheelKind": "road",
+      "roadWheel": true,
+      "sourceParts": [
+        120032,
+        120041,
+        120092
+      ],
+      "radius": 0.24755572063375367,
+      "node": 41,
+      "center": [
+        1.1484909529475051,
+        0.30079807872259057,
+        -0.8337542225435715
+      ],
+      "suspensionNode": 40,
+      "restLocalPosition": [
+        1.1484909529475051,
+        0.30079807872259057,
+        -0.8337542225435715
+      ]
+    },
+    {
+      "name": "wheel_r_04_road",
+      "side": "right",
+      "wheelKind": "road",
+      "roadWheel": true,
+      "sourceParts": [
+        120033,
+        120042,
+        120093
+      ],
+      "radius": 0.24757362484009368,
+      "node": 43,
+      "center": [
+        1.1484909529475051,
+        0.3008343633603268,
+        -0.3347978890970615
+      ],
+      "suspensionNode": 42,
+      "restLocalPosition": [
+        1.1484909529475051,
+        0.3008343633603268,
+        -0.3347978890970615
+      ]
+    },
+    {
+      "name": "wheel_r_05_road",
+      "side": "right",
+      "wheelKind": "road",
+      "roadWheel": true,
+      "sourceParts": [
+        120034,
+        120043,
+        120094
+      ],
+      "radius": 0.24757362968112193,
+      "node": 45,
+      "center": [
+        1.1484909529475051,
+        0.3008343633602978,
+        0.16584831098927294
+      ],
+      "suspensionNode": 44,
+      "restLocalPosition": [
+        1.1484909529475051,
+        0.3008343633602978,
+        0.16584831098927294
+      ]
+    },
+    {
+      "name": "wheel_r_06_road",
+      "side": "right",
+      "wheelKind": "road",
+      "roadWheel": true,
+      "sourceParts": [
+        100000,
+        100001,
+        100002
+      ],
+      "radius": 0.24757363126619553,
+      "node": 47,
+      "center": [
+        1.1484909529475051,
+        0.3008343633601499,
+        0.664803694856128
+      ],
+      "suspensionNode": 46,
+      "restLocalPosition": [
+        1.1484909529475051,
+        0.3008343633601499,
+        0.664803694856128
+      ]
+    },
+    {
+      "name": "wheel_r_07_road",
+      "side": "right",
+      "wheelKind": "road",
+      "roadWheel": true,
+      "sourceParts": [
+        120035,
+        120044,
+        120095
+      ],
+      "radius": 0.24755637465477745,
+      "node": 49,
+      "center": [
+        1.1484909529475051,
+        0.3007980787117874,
+        1.1654518689468873
+      ],
+      "suspensionNode": 48,
+      "restLocalPosition": [
+        1.1484909529475051,
+        0.3007980787117874,
+        1.1654518689468873
+      ]
+    },
+    {
+      "name": "wheel_r_08_road",
+      "side": "right",
+      "wheelKind": "road",
+      "roadWheel": true,
+      "sourceParts": [
+        120036,
+        120045,
+        120096
+      ],
+      "radius": 0.24757615563329857,
+      "node": 51,
+      "center": [
+        1.1484919516458136,
+        0.3045659165133765,
+        1.6643954709952349
+      ],
+      "suspensionNode": 50,
+      "restLocalPosition": [
+        1.1484919516458136,
+        0.3045659165133765,
+        1.6643954709952349
+      ]
+    },
+    {
+      "name": "wheel_r_01_return",
+      "side": "right",
+      "wheelKind": "return",
+      "roadWheel": false,
+      "sourceParts": [
+        120057,
+        120085,
+        120098
+      ],
+      "radius": 0.1265978016157341,
+      "node": 52,
+      "center": [
+        1.0834406798737857,
+        0.9516175562499544,
+        -1.5183506447047472
+      ]
+    },
+    {
+      "name": "wheel_r_02_return",
+      "side": "right",
+      "wheelKind": "return",
+      "roadWheel": false,
+      "sourceParts": [
+        120058,
+        120086,
+        120099
+      ],
+      "radius": 0.1265978016157341,
+      "node": 53,
+      "center": [
+        1.0834406798737857,
+        0.9396757900367607,
+        -0.5266528494267433
+      ]
+    },
+    {
+      "name": "wheel_r_03_return",
+      "side": "right",
+      "wheelKind": "return",
+      "roadWheel": false,
+      "sourceParts": [
+        120059,
+        120087,
+        120100
+      ],
+      "radius": 0.12659780943069882,
+      "node": 54,
+      "center": [
+        1.0834406798737857,
+        0.9273500277182656,
+        0.47488198943702875
+      ]
+    },
+    {
+      "name": "wheel_r_04_return",
+      "side": "right",
+      "wheelKind": "return",
+      "roadWheel": false,
+      "sourceParts": [
+        120060,
+        120088,
+        120101
+      ],
+      "radius": 0.1265978016157341,
+      "node": 55,
+      "center": [
+        1.0834396518019975,
+        0.8913211648782837,
+        1.4766643130781363
+      ]
+    },
+    {
+      "name": "wheel_r_01_drive",
+      "side": "right",
+      "wheelKind": "drive",
+      "roadWheel": false,
+      "sourceParts": [
+        120006,
+        120015,
+        120016,
+        120017,
+        120018,
+        120019,
+        120020,
+        120021,
+        120022,
+        120023,
+        120024,
+        120025,
+        120026,
+        120102
+      ],
+      "radius": 0.4097436267549439,
+      "node": 56,
+      "center": [
+        1.2025645329120602,
+        0.7227429202787738,
+        -2.4144158225742482
+      ]
+    },
+    {
+      "name": "wheel_r_01_idler",
+      "side": "right",
+      "wheelKind": "idler",
+      "roadWheel": false,
+      "sourceParts": [
+        120038,
+        120046,
+        120047,
+        120048,
+        120049,
+        120050,
+        120051,
+        120052,
+        120053,
+        120056,
+        120097
+      ],
+      "radius": 0.33868644978063245,
+      "node": 57,
+      "center": [
+        1.1779144262728358,
+        0.5951948424009069,
+        2.405458449660202
+      ]
+    }
+  ],
+  "bogies": [
+    {
+      "name": "Bogie_l_01",
+      "node": 6,
+      "side": "left",
+      "wheels": [
+        "wheel_l_01_road",
+        "wheel_l_02_road"
+      ],
+      "type": "paired leaf spring"
+    },
+    {
+      "name": "Bogie_l_02",
+      "node": 7,
+      "side": "left",
+      "wheels": [
+        "wheel_l_03_road",
+        "wheel_l_04_road"
+      ],
+      "type": "paired leaf spring"
+    },
+    {
+      "name": "Bogie_l_03",
+      "node": 8,
+      "side": "left",
+      "wheels": [
+        "wheel_l_05_road",
+        "wheel_l_06_road"
+      ],
+      "type": "paired leaf spring"
+    },
+    {
+      "name": "Bogie_l_04",
+      "node": 9,
+      "side": "left",
+      "wheels": [
+        "wheel_l_07_road",
+        "wheel_l_08_road"
+      ],
+      "type": "paired leaf spring"
+    },
+    {
+      "name": "Bogie_r_01",
+      "node": 10,
+      "side": "right",
+      "wheels": [
+        "wheel_r_01_road",
+        "wheel_r_02_road"
+      ],
+      "type": "paired leaf spring"
+    },
+    {
+      "name": "Bogie_r_02",
+      "node": 11,
+      "side": "right",
+      "wheels": [
+        "wheel_r_03_road",
+        "wheel_r_04_road"
+      ],
+      "type": "paired leaf spring"
+    },
+    {
+      "name": "Bogie_r_03",
+      "node": 12,
+      "side": "right",
+      "wheels": [
+        "wheel_r_05_road",
+        "wheel_r_06_road"
+      ],
+      "type": "paired leaf spring"
+    },
+    {
+      "name": "Bogie_r_04",
+      "node": 13,
+      "side": "right",
+      "wheels": [
+        "wheel_r_07_road",
+        "wheel_r_08_road"
+      ],
+      "type": "paired leaf spring"
+    }
+  ],
+  "tracks": [
+    "track_l",
+    "track_r"
+  ],
+  "trackLoopMeters": 0.47824046530018827,
+  "trackAnimation": {
+    "axis": "V",
+    "physicalLoopMeters": [
+      11.956011632504707,
+      11.956011632504707
+    ],
+    "texturePeriodMeters": 0.47824046530018827,
+    "beltThickness": 0.057029,
+    "textureTilesPerLoop": 25,
+    "treadsPerTile": 4,
+    "stationCountPerLoop": 50,
+    "lowerRunDirection": "+Z"
+  },
+  "suspension": {
+    "travel": 0.15,
+    "restCompression": 0.075,
+    "springPerWheel": 151200,
+    "damperPerWheel": 6900,
+    "totalMassKg": 18500,
+    "contacts": 16
+  },
+  "colliders": {
+    "hull": {
+      "center": [
+        0.00029718875885009766,
+        0.8476477861404419,
+        -0.1775609254837036
+      ],
+      "size": [
+        2.3928847312927246,
+        1.6952955722808838,
+        5.122537612915039
+      ]
+    },
+    "turret": {
+      "center": [
+        1.5241790808639966e-08,
+        0.5024889163025361,
+        -0.06140322040018023
+      ],
+      "size": [
+        2.02252197265625,
+        1.0049797296524048,
+        2.042773723602295
+      ]
+    },
+    "unit": {
+      "center": [
+        0,
+        1.34,
+        0
+      ],
+      "size": [
+        2.83,
+        2.68,
+        5.92
+      ]
+    }
+  },
+  "markings": [
+    {
+      "node": 58,
+      "name": "Hull_Left",
+      "axis": 0,
+      "outward": -1,
+      "placement": [
+        -0.5525000095367432,
+        1.464320456981659
+      ],
+      "size": 0.24
+    },
+    {
+      "node": 59,
+      "name": "Hull_Right",
+      "axis": 0,
+      "outward": 1,
+      "placement": [
+        1.6974999904632568,
+        1.5863204569816591
+      ],
+      "size": 0.15
+    },
+    {
+      "node": 60,
+      "name": "Rear",
+      "axis": 2,
+      "outward": 1,
+      "placement": [
+        -0.8074999332427978,
+        1.414320456981659
+      ],
+      "size": 0.15
+    }
+  ],
+  "source": {
+    "title": "Pz Kpfw_IV_ Ausf._C",
+    "author": "patoburro",
+    "source": "https://sketchfab.com/3d-models/pz-kpfw-iv--ausf-c-8c6502b1ddf7484a91a2bf529ee8295e",
+    "license": "CC BY 4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "adaptation": "Repainted original mapped UV atlases, separated wheel assemblies and turret, reparameterized the original belts, restored bogie articulation and added three markings for Hatch."
+  },
+  "sourceSha256": "7d38f1a8195a7d60812f4b47ed77a522500149bef43375a51a9873a2b397a3af"
+}

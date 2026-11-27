@@ -1,0 +1,13 @@
+四号 C 型 | Hatch 0.4 / Attack on Tank 5.1.0 ARM64
+
+手机端驾驶：需要已安装「坦无敌3000」1.0。在游戏「模组管理 → 导入 .hatch」选择 assets/Hatch/mods/Panzer_IV_Ausf_C.hatch，彻底退出并重启，在模组车库选择 Panzer IV Ausf.C。已有的 BT-7、二号 F 不必重复导入。
+
+使用关卡敌车：
+1. 解压整包。准备此前的 Hatch-0.4-Grille-HE200-T26.apk 或其中原始 assets/bin/Data/data.unity3d。
+2. 在解压目录执行以下命令；需 Python 3，无需额外安装模块：
+   python apply_overlay.py "原版路径/Hatch-0.4-Grille-HE200-T26.apk" "输出路径/data.unity3d"
+   输出目录需存在，输出文件需为新文件。脚本检查输入及结果的 SHA-256，无需先应用 BT-7 或二号 F 增量。
+3. 将结果放入游戏工程 assets/bin/Data/data.unity3d；把 assets/Hatch/catalog.json 和 mods 下的三辆车放进工程同名目录，保留其余模组文件。此 ZIP 是工程资源包，不是 APK。
+4. 关卡通过 unit/ge/panzer_iv_ausf_c/panzer_iv_ausf_c_ai 引用四号 C 的敌方预制体。AI/ 内有独立 .assets 与十一辆敌方模组坦克的索引。已有任务的刷车表未改动。
+
+本次增量保留额外战役入口、巴巴罗萨地图、二号 F 和 BT-7 的原生资源。资料、数值及模型署名见 PanzerIV-C-Notes.md；回读结果见 verification/。未进行安卓真机对战测试。

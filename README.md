@@ -6,6 +6,8 @@
 
 当前 Hatch 修订与 APK 构建说明：[r11](CURRENT_HATCH_R11.md)。
 
+[四号 C 型](docs/panzer-iv-c.md)：德国灰短炮中坦、成对板簧悬挂及敌方 AI；保留二号 F、BT-7 与额外战役。
+
 [二号 F 型](docs/panzer-ii-f.md)：德国灰玩家车、山猫式机炮弹匣、敌方 AI，与 BT-7 和额外战役共存。
 
 [BT-7（1937）](docs/bt7.md)：完整玩家车工程、敌方 AI 预制体及原生 Resources 注册，可保留已有额外战役。
