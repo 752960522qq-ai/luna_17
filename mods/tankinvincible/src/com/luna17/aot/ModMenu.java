@@ -116,7 +116,6 @@ final class ModMenu {
         activity.addContentView(overlay, new ViewGroup.LayoutParams(-1,-1));
         overlay.post(new Runnable() { @Override public void run() { positionPanel(); }});
         handler.post(poll);
-        toast("修改菜单已载入，点击左上角坦无敌3000");
     }
 
     private void buildPanel() {
@@ -294,7 +293,12 @@ final class ModMenu {
         enemyTank.setAdapter(adapter(next.length==0 ? new String[]{"进入单人对局后读取 AI 车型"} : next));
     }
     private void toast(String text) { Toast.makeText(activity,text,Toast.LENGTH_SHORT).show(); }
-    void detach() { stopped=true; handler.removeCallbacks(poll); }
+    void detach() {
+        stopped=true;
+        handler.removeCallbacks(poll);
+        if (overlay != null && overlay.getParent() instanceof ViewGroup)
+            ((ViewGroup)overlay.getParent()).removeView(overlay);
+    }
 }
 
 

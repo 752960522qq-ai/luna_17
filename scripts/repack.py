@@ -77,13 +77,18 @@ def patch_manifest(data, launcher="com.luna17.aot.ModActivity", label="坦无敌
         pos += size
     pool = next(c for typ,c in chunks if typ == 1)
     names = strings(pool)
-    added = [launcher, label] + ([game_activity] if game_activity else [])
-    activity_index, label_index = len(names), len(names)+1
+    if game_activity == launcher:
+        raise ValueError("Launcher and legacy game component must be distinct")
+    wanted = [launcher, label] + ([game_activity] if game_activity else [])
+    added = [s for s in dict.fromkeys(wanted) if s not in names]
     names.extend(added)
+    activity_index, label_index = names.index(launcher), names.index(label)
+    game_index = names.index(game_activity) if game_activity else None
+    launchers = set(old_launchers) | {launcher}
     out = []; skipping = 0; activity_changed = False; split_removed = 0
     for typ,c in chunks:
         if typ == 1:
-            out.append(extend_pool(c,added)); continue
+            out.append(extend_pool(c,added) if added else c); continue
         if skipping:
             if typ == 0x102: skipping += 1
             elif typ == 0x103: skipping -= 1
@@ -104,10 +109,15 @@ def patch_manifest(data, launcher="com.luna17.aot.ModActivity", label="坦无敌
             skipping = 1; split_removed += 1; continue
         if tag == 'manifest':
             attrs = [a for a in attrs if names[struct.unpack_from('<I',a,4)[0]] not in {'requiredSplitTypes','splitTypes','isSplitRequired'}]
-        if tag == 'activity' and 'name' in by_name and value(by_name['name']) in old_launchers:
+        # This private component is entirely derived from the launcher below.
+        # Discard earlier generated copies, including duplicates in released APKs.
+        if game_activity and tag == 'activity' and 'name' in by_name and value(by_name['name']) == game_activity:
+            skipping = 1; continue
+        if tag == 'activity' and 'name' in by_name and value(by_name['name']) in launchers:
+            if activity_changed: raise ValueError('Ambiguous Unity launcher')
             a = by_name['name']; struct.pack_into('<I',a,8,activity_index); a[15]=3; struct.pack_into('<I',a,16,activity_index)
             activity_changed = True
-        if tag == 'application' or (tag == 'activity' and activity_changed and 'name' in by_name and value(by_name['name']) == added[0]):
+        if tag == 'application' or (tag == 'activity' and activity_changed and 'name' in by_name and value(by_name['name']) == launcher):
             if 'label' in by_name:
                 a = by_name['label']; struct.pack_into('<I',a,8,label_index); a[15]=3; struct.pack_into('<I',a,16,label_index)
         new = c[:start] + b''.join(attrs) + c[start+count*attr_size:]
@@ -117,7 +127,7 @@ def patch_manifest(data, launcher="com.luna17.aot.ModActivity", label="坦无敌
         raise ValueError('Unity launcher activity was not found')
     if game_activity:
         # Reuse Unity's orientation/configuration and metadata, but never its
-        # launcher intent filter. The prerequisite gate is the sole entry point.
+        # launcher intent filter. Old Android tasks may still name this component.
         game_nodes=[]; capture=False; depth=0; skip_filter=0
         for node in out:
             typ,node_header=struct.unpack_from('<HH',node)
@@ -131,8 +141,8 @@ def patch_manifest(data, launcher="com.luna17.aot.ModActivity", label="坦无敌
                     if names[struct.unpack_from('<I',node,at+4)[0]]=='name' and struct.unpack_from('<I',node,at+16)[0]==activity_index:
                         capture=True
                         node=bytearray(node)
-                        struct.pack_into('<I',node,at+8,len(names)-1)
-                        struct.pack_into('<I',node,at+16,len(names)-1)
+                        struct.pack_into('<I',node,at+8,game_index)
+                        struct.pack_into('<I',node,at+16,game_index)
                         for j in range(count):
                             exported_at=start+j*attr_size
                             if names[struct.unpack_from('<I',node,exported_at+4)[0]]=='exported':

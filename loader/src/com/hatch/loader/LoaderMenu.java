@@ -8,10 +8,10 @@ import android.widget.FrameLayout;
 /** Loader access remains available even when no gameplay module is installed. */
 final class LoaderMenu {
     private LoaderMenu() {}
-    static void attach(Activity activity) {
+    static Button attach(Activity activity, boolean recovery) {
         float density=activity.getResources().getDisplayMetrics().density;
         Button button=new Button(activity);
-        button.setText("舱盖");
+        button.setText(recovery ? "舱盖 · 恢复" : "舱盖");
         button.setTextSize(12);
         button.setOnClickListener(v -> HatchLoader.show(activity));
         FrameLayout.LayoutParams layout=new FrameLayout.LayoutParams(
@@ -19,5 +19,6 @@ final class LoaderMenu {
         layout.leftMargin=(int)(112*density);
         layout.topMargin=(int)(8*density);
         activity.addContentView(button,layout);
+        return button;
     }
 }

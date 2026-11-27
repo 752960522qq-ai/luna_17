@@ -85,5 +85,5 @@ public final class TankInvincibleModule implements HatchModule, HatchFeatureHost
         for(int bit=1;bit<=4;bit<<=1)if((flags&bit)!=0)featureOwners.put(bit,id);
         claimedFlags|=flags;damageK=k;damageKhe=khe;return "";
     }
-    @Override public void stop() { CampaignSupport.stop(); if (menu != null) menu.detach(); if(hud!=null)hud.detach(); if(crew!=null)crew.stop(); }
+    @Override public void stop() { CampaignSupport.stop(); if (menu != null) {menu.detach(); menu=null;} if(hud!=null){hud.detach(); hud=null;} if(crew!=null)crew.stop(); }
 }

@@ -49,6 +49,8 @@ def assemble(base, kit, out):
             ],
         }
         new = files | {CAT, NATIVE, DEX}
+        if "AndroidManifest.xml" in k.namelist():
+            new.add("AndroidManifest.xml")
         if LOADER in k.namelist():
             assert LOADER in a.namelist()
             new.add(LOADER)
@@ -58,9 +60,9 @@ def assemble(base, kit, out):
             if SIG.fullmatch(n) or n == "stamp-cert-sha256":
                 continue
             v = data if n == DATA else k.read(n) if n in new else a.read(n)
-            write_entry(z, n, v, i.compress_type)
+            write_entry(z, n, v, i.compress_type, alignment=16384 if n.endswith(".so") else 4)
         for n in sorted(new - set(a.namelist())):
-            write_entry(z, n, k.read(n), zipfile.ZIP_STORED)
+            write_entry(z, n, k.read(n), zipfile.ZIP_STORED, alignment=16384 if n.endswith(".so") else 4)
 
 
 if __name__ == "__main__":

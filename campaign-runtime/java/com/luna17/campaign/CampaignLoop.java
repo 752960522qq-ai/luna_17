@@ -6,20 +6,15 @@ import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
-import java.lang.reflect.Field;
+import com.hatch.loader.GameFrameHost;
 
-/**
- * The game ships a dedicated UnityMain Looper. Every scene operation is queued
- * on it.
- */
+/** Scene operations only run inside a rendered, interactive Unity player. */
 public final class CampaignLoop {
   private static final Handler ui = new Handler(Looper.getMainLooper());
-  private static volatile int epoch;
+  private static Session currentSession;
   private static volatile int notice;
   private static volatile long expires, radioUntil;
   private static volatile String radio = "";
-  private static volatile boolean live;
-  private static int misses;
   private static native int step();
   private CampaignLoop() {}
   public static synchronized void signal(int kind) {
@@ -53,73 +48,58 @@ public final class CampaignLoop {
     notice = 0;
     radio = "";
   }
-  public static void start(Activity activity) {
-    stop();
-    final int token = ++epoch;
-    live = true;
-    try {
-      System.loadLibrary("hatchcampaign");
-    } catch (LinkageError error) {
-      Log.e("HatchCampaign", "Could not load campaign runtime", error);
-      Toast
-          .makeText(activity, "额外战役模块未加载，请重新安装完整 APK",
-                    Toast.LENGTH_LONG)
-          .show();
-      return;
+  private static final class Session implements Runnable {
+    final Activity activity;
+    final GameFrameHost host;
+    final FramePump pump;
+    boolean loaded, reportedFaction;
+    Session(Activity activity, GameFrameHost host) {
+      this.activity = activity;
+      this.host = host;
+      this.pump = new FramePump(host, this::frame);
     }
-    bind(activity, token);
-  }
-  private static void bind(final Activity activity, final int token) {
-    if (!live || epoch != token)
-      return;
-    for (Thread t : Thread.getAllStackTraces().keySet()) {
-      if (!"UnityMain".equals(t.getName()) ||
-          !t.getClass().getName().startsWith("com.unity3d.player."))
-        continue;
-      for (Field f : t.getClass().getDeclaredFields()) {
-        if (!Handler.class.isAssignableFrom(f.getType()))
-          continue;
-        try {
-          f.setAccessible(true);
-          Handler h = (Handler)f.get(t);
-          if (h == null || h.getLooper().getThread() != t)
-            continue;
-          misses = 0;
-          final Handler game = new Handler(h.getLooper());
-          game.post(new Runnable() {
-            public void run() {
-              if (!live || epoch != token)
-                return;
-              int n = step();
-              if (n > 0)
-                signal(n);
-              else if (n < 0)
-                ui.post(()
-                            -> Toast
-                                   .makeText(activity,
-                                             "未能确认战役阵营，请重新选择",
-                                             Toast.LENGTH_SHORT)
-                                   .show());
-              game.postDelayed(this, 120);
-            }
-          });
-          return;
-        } catch (ReflectiveOperationException | SecurityException ex) {
-          Log.w("HatchCampaign", "Unity loop unavailable", ex);
+    public void run() {
+      if (currentSession != this) return;
+      pump.tick();
+      ui.postDelayed(this, host.frameSession() == 0 ? 350 : 120);
+    }
+    private void message(String text) {
+      ui.post(() -> {
+        if (currentSession == this && !activity.isFinishing() && !activity.isDestroyed())
+          Toast.makeText(activity, text, Toast.LENGTH_SHORT).show();
+      });
+    }
+    private void frame() {
+      try {
+        if (!loaded) {
+          System.loadLibrary("hatchcampaign");
+          loaded = true;
         }
+        int n = step();
+        if (n > 0) signal(n);
+        if (n < 0 && !reportedFaction) message("未能确认战役阵营，请重新选择");
+        reportedFaction = n < 0;
+      } catch (RuntimeException | LinkageError failure) {
+        Log.e("HatchCampaign", "Campaign frame failed", failure);
+        pump.stop();
+        message("额外战役未能启动，可继续使用原版模式");
+        ui.post(() -> { if (currentSession == this) stop(); });
       }
     }
-    if (++misses == 25)
-      Toast
-          .makeText(activity, "正在等待游戏主线程，额外战役尚未就绪",
-                    Toast.LENGTH_SHORT)
-          .show();
-    ui.postDelayed(() -> bind(activity, token), 300);
+  }
+  public static void start(Activity activity) {
+    if (currentSession != null && currentSession.activity == activity) return;
+    stop();
+    if (!(activity instanceof GameFrameHost)) return;
+    currentSession = new Session(activity, (GameFrameHost)activity);
+    ui.post(currentSession);
   }
   public static void stop() {
-    live = false;
-    epoch++;
+    if (currentSession != null) {
+      currentSession.pump.stop();
+      ui.removeCallbacks(currentSession);
+      currentSession = null;
+    }
     clear();
-    misses = 0;
   }
 }

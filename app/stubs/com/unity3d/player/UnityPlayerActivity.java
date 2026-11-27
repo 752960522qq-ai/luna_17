@@ -1,4 +1,6 @@
 package com.unity3d.player;
 
-/** Compile-time declaration only; the original APK provides the real class. */
-public class UnityPlayerActivity extends android.app.Activity {}
+/** Compile-time declarations only. The original classes3.dex owns these three types. */
+public class UnityPlayerActivity extends android.app.Activity {
+    protected UnityPlayerForActivityOrService mUnityPlayer;
+}

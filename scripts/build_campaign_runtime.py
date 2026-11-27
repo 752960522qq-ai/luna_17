@@ -9,11 +9,8 @@ sys.path.insert(0, str(ROOT))
 from hatch.package import pack_module
 
 
-def build(args):
-    o = args.work.resolve()
-    o.mkdir(parents=True, exist_ok=True)
-    sdk = args.build_tools.resolve()
-    android = args.android_jar.resolve()
+def build_java(o, android, r8):
+    """Produce the loader, frame dispatcher and prerequisite DEX; never package Unity stubs."""
     for n in ("interfaces", "main", "mod", "loader-dex", "main-dex", "mod-dex"):
         (o / n).mkdir(exist_ok=True)
 
@@ -42,7 +39,7 @@ def build(args):
         run(
             "java",
             "-cp",
-            sdk / "lib/d8.jar",
+            r8,
             "com.android.tools.r8.D8",
             "--lib",
             android,
@@ -62,16 +59,22 @@ def build(args):
             *sorted((ROOT / "app/stubs").rglob("*.java")),
         ],
     )
-    jav("main", [], sorted((ROOT / "campaign-runtime/java").rglob("*.java")))
+    jav("main", [o / "interfaces"], sorted((ROOT / "campaign-runtime/java").rglob("*.java")))
     jav(
         "mod",
         [o / "interfaces", o / "main"],
         sorted((ROOT / "mods/tankinvincible/src").rglob("*.java")),
     )
     dex("interfaces/com/hatch/loader", "loader-dex", ["interfaces"])
-    dex("main", "main-dex", [])
+    dex("main", "main-dex", ["interfaces"])
     dex("mod", "mod-dex", ["interfaces", "main"])
-    run(
+
+
+def build(args):
+    o = args.work.resolve()
+    o.mkdir(parents=True, exist_ok=True)
+    build_java(o, args.android_jar.resolve(), args.build_tools.resolve() / "lib/d8.jar")
+    subprocess.run([
         args.clang,
         "-std=c11",
         "-O2",
@@ -86,7 +89,7 @@ def build(args):
         "-lm",
         "-o",
         o / "libhatchcampaign.so",
-    )
+    ], check=True)
     with (
         zipfile.ZipFile(args.base_apk) as apk,
         zipfile.ZipFile(
@@ -127,9 +130,12 @@ def overlay(kit, work):
     ):
         catalog = json.loads(old.read(cat))
         (record,) = [e for e in catalog["mods"] if e["id"] == "tankinvincible3000"]
+        previous = record["sha256"]
         record.update(
             size=len(members[core]), sha256=hashlib.sha256(members[core]).hexdigest()
         )
+        if previous != record["sha256"]:
+            record["supersedes_sha256"] = sorted(set(record.get("supersedes_sha256", [])) | {previous})
         members[cat] = json.dumps(catalog, ensure_ascii=False, indent=2).encode()
         for n in old.namelist():
             if n not in members:

@@ -20,6 +20,9 @@ public final class HatchLoader {
     private static volatile String startupFailure;
     private static File residentNative;
     private static volatile int generation;
+    private static Activity owner;
+    private static android.view.View menuButton;
+    private static StartupHistory boot;
     private static final Set<String> loadedTanks = new HashSet<>();
     private static boolean noticeWritten;
     private HatchLoader() {}
@@ -41,17 +44,11 @@ public final class HatchLoader {
         if (!folder.isDirectory() && !folder.mkdirs()) throw new IOException("无法创建模组文件夹");
         return folder;
     }
-    interface Prepared { void complete(String failure); }
-    static void prepare(Activity activity, Prepared callback) {
-        IO.execute(() -> {
-            String result = prepareForUnity(activity);
-            MAIN.post(() -> callback.complete(result));
-        });
-    }
     /** Idempotent entry for both the launcher and direct game Activity restoration. */
     static String prepareForUnity(Activity activity) {
-        if (module != null) return null;
         synchronized (SESSION) {
+            if (boot == null) boot = new StartupHistory(activity.getSharedPreferences("Hatch-startup-v1", 0));
+            if (boot.recovery) return null;
             if (module != null) return null;
             String failure = null;
             try {
@@ -75,6 +72,7 @@ public final class HatchLoader {
                     module = resident.module;
                 }
             } catch (Exception | LinkageError e) { failure = e.getClass().getSimpleName()+": "+e.getMessage(); }
+            boot.stage("等待 Unity 画面");
             startupFailure = failure;
             return failure;
         }
@@ -118,8 +116,18 @@ public final class HatchLoader {
         } finally { temp.delete(); }
     }
     public static void start(Activity activity) {
+        if (owner == activity) return;
+        if (owner != null) stop(owner);
+        owner = activity;
         final int session = ++generation;
-        LoaderMenu.attach(activity);
+        menuButton = LoaderMenu.attach(activity, boot.recovery);
+        if (boot.recovery) {
+            report = "前两次启动未完成，本次已暂停模组。\n上次停在：" + boot.previousStage
+                   + "。\n进入主界面后，完全退出并重新打开游戏即可恢复模组；无需清除数据。";
+            boot.confirm();
+            return;
+        }
+        boot.stage("已收到 Unity 画面，正在加载模组");
         if (module == null && startupFailure != null) {
             report = "坦无敌3000 前置初始化失败：\n" + startupFailure;
             return;
@@ -287,5 +295,37 @@ public final class HatchLoader {
             String text=message; MAIN.post(() -> { if (!activity.isFinishing()) new AlertDialog.Builder(activity).setTitle("舱盖导入结果").setMessage(text).setPositiveButton("确定",null).show(); });
         }); return true;
     }
-    static void stop() { generation++; if (module != null) { module.stop(); } }
+    static android.view.View startupDiagnostic(Activity activity) {
+        android.widget.Button button = new android.widget.Button(activity);
+        button.setText("启动诊断");
+        button.setOnClickListener(v -> {
+            String state = boot.recovery ? "本次已暂停模组，仍在等待 Unity 报告画面就绪。"
+                           : startupFailure != null ? "前置初始化失败：" + startupFailure
+                           : "游戏窗口已创建，但 Unity 尚未报告画面就绪。";
+            AlertDialog.Builder dialog = new AlertDialog.Builder(activity).setTitle("启动诊断").setMessage(state)
+                    .setNegativeButton("继续等待", null);
+            if (!boot.recovery) dialog.setPositiveButton("下次暂停模组", (d,w) -> {
+                boot.requestRecovery();
+                new AlertDialog.Builder(activity).setTitle("恢复启动已准备好")
+                    .setMessage("请在系统应用信息里强行停止游戏，然后重新打开。存档和模组文件都会保留。")
+                    .setPositiveButton("知道了", null).show();
+            });
+            dialog.show();
+        });
+        activity.addContentView(button, new android.widget.FrameLayout.LayoutParams(-2,-2,
+                android.view.Gravity.TOP | android.view.Gravity.RIGHT));
+        return button;
+    }
+    static void confirmStartup(Activity activity) {
+        if (owner == activity && boot != null) boot.confirm();
+    }
+    static void stop(Activity activity) {
+        if (owner != activity) return;
+        owner = null;
+        generation++;
+        if (menuButton != null && menuButton.getParent() instanceof android.view.ViewGroup)
+            ((android.view.ViewGroup) menuButton.getParent()).removeView(menuButton);
+        menuButton = null;
+        if (module != null) module.stop();
+    }
 }
