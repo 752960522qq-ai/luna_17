@@ -6,6 +6,8 @@
 
 当前 Hatch 修订与 APK 构建说明：[r11](CURRENT_HATCH_R11.md)。
 
+Hatch 0.4 的 [8 辆模组坦克敌方 AI 预制体](docs/enemy-ai-prefabs.md)可单独生成和验证，不需要打包 APK。
+
 # TankInvincible_3000 2.0
 
 ## 当前交付 APK：r9
