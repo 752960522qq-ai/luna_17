@@ -80,7 +80,7 @@ def finish(apk,kit,work):
             models[ident,True]=(n,file((work/n).read_bytes()),e["root_path_id"])
         for ident in ("T34_76","Panzer_III_J","Panzer_38t"):
             models[ident,False]=("resources.assets",a.sf,named[ident+"_AI"])
-        h=layout.heightgrid();props=layout.placements(h);dep=stage(h,props);Lanes(h,props).bake(dep)
+        h=layout.heightgrid();props=layout.placements(h);dep=stage(h,props,legacy=True);Lanes(h,props).bake(dep)
         spec=json.loads(k.read("mission.json")); obj=spec["objective_position"]
         home=Scene(get("level0"),names); master=next(g for g,go in home.go.items() if go["m_Name"]=="Barbarossa 01 - Gates of Hell")
         txt,=[g for g in home.children(master) if "Text" in home.part[g]];raw=home.sf.objects[home.part[txt]["Text"]].get_raw_data()

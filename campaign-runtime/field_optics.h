@@ -1,4 +1,4 @@
-/* Only the German extra field contains this press marker. The ordinary Unity
+/* Extra fields that opt into sight correction contain this press marker. The ordinary Unity
    ButtonZoomInOut callback still runs synchronously, with all stock guards. */
 static void *aim_press,*fire_selectable,*selectable_class;
 static void clear_optics_refs(void){aim_press=fire_selectable=0;}
@@ -20,7 +20,7 @@ static int fire_interactable(void){
   return selectable_class&&live(fire_selectable)&&flag(selectable_class,fire_selectable,"get_interactable");
 }
 static void update_optics(void){
-  if(bound!=23||!am_player_f||!owner||!live(bound_hud)||!live(bound_gc)||!live(bound_pc)||!live(bound_st))return;
+  if((!(bound==23&&am_player_f)&&!storm_profile)||!owner||!live(bound_hud)||!live(bound_gc)||!live(bound_pc)||!live(bound_st))return;
   if(!live(aim_press))aim_press=resolve_press();
   if(!live(aim_press)||!flag(goc,aim_press,"get_activeSelf"))return;
   deactivate(aim_press); /* one press; never fight an intentional free-camera/air/ship selection */

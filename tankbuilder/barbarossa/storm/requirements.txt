@@ -1,0 +1,2 @@
+-r ../../../requirements-builder.txt
+scipy>=1.13,<2

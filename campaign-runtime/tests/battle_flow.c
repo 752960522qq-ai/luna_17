@@ -18,9 +18,12 @@ static int ready=1,terminal=0,deadoff=37,boardoff=56,paused,held,down,accepted,r
 static int win,lost,result_calls,gameover_calls,show,panels,origin_owner=7,shots[12],last_type=-1,simulatedAI,mg_calls;
 static float clockval,unscaled,stock_next,start_cycle,yfloor=0;static int idword;
 static void *expected_skip;
+static Obj WROOT, RAIN, CAMTR, RAINGO, BTNAME, IIINAME;
+static int enemy_count=2,audio_pauses,audio_resumes,tracked,weather_stops,gameclear_calls;
+static float rain_at[3];static const char *expected_reason="Destroyed";
 static int live(void *p){return p!=0;}
-static void *find(const char *n){if(!strcmp(n,"Button Aim"))return &BTN;if(!strcmp(n,"Hatch F Trigger"))return &G;if(!strcmp(n,"Hatch F Held"))return held?&HELD:0;if(!strcmp(n,"Hatch F Down"))return down?&DOWN:0;return 0;}
-static void deactivate(void *p){if(p==&AIMP)aimpressed=0;else if(p==&DOWN)down=0;else if(p==&HELD)held=0;}
+static void *find(const char *n){if(!strcmp(n,"Hatch Storm Weather"))return &WROOT;if(!strcmp(n,"Hatch Storm Rain"))return &RAINGO;if(!strncmp(n,"Hatch Storm Audio ",18))return &ID;if(!strcmp(n,"Button Aim"))return &BTN;if(!strcmp(n,"Hatch F Trigger"))return &G;if(!strcmp(n,"Hatch F Held"))return held?&HELD:0;if(!strcmp(n,"Hatch F Down"))return down?&DOWN:0;return 0;}
+static void deactivate(void *p){if(p==&WROOT)weather_stops++;else if(p==&AIMP)aimpressed=0;else if(p==&DOWN)down=0;else if(p==&HELD)held=0;}
 static int flag(void*c,void*p,const char*k){(void)c;
  if(!strcmp(k,"get_interactable"))return fireenabled;
  if(!strcmp(k,"get_activeSelf")&&p==&AIMP)return aimpressed;
@@ -33,6 +36,7 @@ static int flag(void*c,void*p,const char*k){(void)c;
 static int number(void*c,void*p,const char*k,int bad){(void)c;(void)p;
  if(!strcmp(k,"get_CurrentDisplayMode"))return display;if(!strcmp(k,"get_CurrentZoomIndex"))return zoomindex;
  if(!strcmp(k,"GetInstanceID"))return origin_owner;if(!strcmp(k,"get_FireNumByPlayer"))return accepted;
+ if(!strcmp(k,"get_CurrentEmyNum"))return enemy_count;
  if(!strcmp(k,"get_CurrentFndNum"))return 5;if(!strcmp(k,"get_CurrentSightType"))return 0;
  if(!strcmp(k,"get_width"))return 1000;if(!strcmp(k,"get_height"))return 500;return bad;}
 static float scalar(void*c,void*p,const char*n){(void)c;(void)p;
@@ -45,7 +49,7 @@ static int field(void*c,const char*n){(void)c;
  if(!strcmp(n,"viewMode"))return 40;if(!strcmp(n,"thisTrf"))return 64;
  if(!strcmp(n,"initSpeed"))return 24;if(!strcmp(n,"hitLayerMask"))return 76;
  return -1;}
-static int named(void*p,const char*n){return (p==&STR&&!strcmp(n,"Panzer_II_Ausf_F"))||(p==&TEAMNAME&&!strcmp(n,"Campaign Units"));}
+static int named(void*p,const char*n){return (p==&BTNAME&&!strcmp(n,"BT7"))||(p==&IIINAME&&!strcmp(n,"Panzer_III_Ausf_F"))||(p==&STR&&!strcmp(n,"Panzer_II_Ausf_F"))||(p==&TEAMNAME&&!strcmp(n,"Campaign Units"));}
 static void *first(void *p){return p?AT(p,32,void*):0;}
 static void *read_ref(void*c,void*p,const char*n){(void)c;(void)p;
  if(!strcmp(n,"uStatus")&&p==&PC)return &S;
@@ -64,6 +68,12 @@ static void *hatch_type_object(void*c){return c;}
 static void *ha_param_class(void*p){return p;}
 static void *lookup(void*c,const char*n,int sz){(void)c;(void)sz;return !strcmp(n,"SetMissionResulet")?lookup_m:(void*)n;}
 static void *call(void*c,void*self,const char*n,int k,void **a,int*e){(void)c;(void)self;(void)k;(void)e;
+ if(!strcmp(n,"get_transform")&&self==&RAINGO)return &RAIN;
+ if(!strcmp(n,"get_transform")&&self==&CAM)return &CAMTR;
+ if(!strcmp(n,"get_position")&&self==&CAMTR){float xyz[]={12,25,-300};memcpy((char*)&ANSWER+16,xyz,sizeof xyz);return &ANSWER;}
+ if(!strcmp(n,"set_position")&&self==&RAIN){tracked++;memcpy(rain_at,a[0],sizeof rain_at);return 0;}
+ if(!strcmp(n,"Pause")){audio_pauses++;return 0;}if(!strcmp(n,"UnPause")){audio_resumes++;return 0;}
+ if(!strcmp(n,"GameClear")){gameclear_calls++;win=1;return 0;}
  if(!strcmp(n,"get_name")&&self==&UIROOT)return &TEAMNAME;
  if(!strcmp(n,"get_transform")&&self==&PC)return &ROOT;
  if(!strcmp(n,"SetParent")){assert(self==&ROOT&&a[0]==0&&*(bool*)a[1]);++detached;return 0;}
@@ -75,7 +85,7 @@ static void *call(void*c,void*self,const char*n,int k,void **a,int*e){(void)c;(v
  if(!strcmp(n,"get_PlayerGo"))return &PC;
  if(!strcmp(n,"ButtonFire")){requests++;if(!failed_shot&&clockval>=stock_next){accepted++;start_cycle=clockval;stock_next=clockval+.395f;shots[accepted%12]=1;}return 0;}
  if(!strcmp(n,"GameOver")){gameover_calls++;lost=1;return 0;}
- if(!strcmp(n,"Parse")){assert(!strcmp(a[1],"Destroyed"));AT(&ANSWER,16,int)=2;return &ANSWER;}
+ if(!strcmp(n,"Parse")){assert(!strcmp(a[1],expected_reason));AT(&ANSWER,16,int)=2;return &ANSWER;}
  if(!strcmp(n,"GetShellAttackInfo")){last_type=*(int*)a[0];AT(&INFO,24,float)=last_type==2?75:40;return &INFO;}
  if(!strcmp(n,"get_position")){AT(&ANSWER,16,SceneVec)=(SceneVec){0,2,0};return &ANSWER;}
  if(!strcmp(n,"get_forward")){AT(&ANSWER,16,SceneVec)=(SceneVec){0,0,1};return &ANSWER;}
@@ -99,6 +109,7 @@ typedef void *jclass,*jfloatArray;
 typedef int jboolean,jint;
 typedef const struct J{int (*GetArrayLength)(void*,void*);void (*SetFloatArrayRegion)(void*,void*,int,int,float*);}*JNIEnv;
 #include "../results.h"
+#include "../storm_runtime.h"
 #include "../player_cannon.h"
 static void init(void){
  AT(&G,32,void*)=&LA;AT(&G,56,void*)=&H;AT(&S,40,void*)=&STR;AT(&LA,48,void*)=&POOL;AT(&LA,64,void*)=&MNT;
@@ -146,5 +157,22 @@ int main(void){
  int tick=0;float y=2,vy=0,z=0,prev=0;while(y>0){float yp=y;if(tick++)vy-=9.81f*.02f;y+=vy*.02f;prev=z;z+=75*.02f;if(y<=0)z=prev+(z-prev)*yp/(yp-y);}
  assert(fabsf(o[3]-(400+z)/1000)<.00001f);
  AT(&CC,40,int)=1;update_green(o,2,1);assert(!o[2]);
- printf("green dot: chambered AP/APCR, independent fixed-tick scene replay and camera exit passed\n");return 0;
+ printf("green dot: chambered AP/APCR, independent fixed-tick scene replay and camera exit passed\n");
+ for(int idx=24;idx<=25;idx++){
+   origin_owner++;clockval=112;unscaled=2000;win=lost=show=paused=0;
+   AT(&CC,40,int)=0;AT(&S,40,void*)=idx==24?&BTNAME:&IIINAME;
+   fire_binding(idx,0,&G,&S);assert(!am_player_f&&!exclusive&&storm_profile==(idx==24?4:8));
+   aimpressed=display=1;zoomindex=0;update_optics();assert(!aimpressed&&display==2);
+   float values[7];update_cannon(values);assert(values[0]<0);
+   int shots_before=requests;held=down=1;update_cannon(values);assert(requests==shots_before);held=down=0;
+   int n=tracked;storm_step(idx,&G,&S,0,0);assert(tracked==n+1&&rain_at[0]==12&&rain_at[1]==32&&rain_at[2]==-300);
+   int before=audio_pauses,after=audio_resumes;paused=1;storm_step(idx,&G,&S,0,0);storm_step(idx,&G,&S,0,0);assert(tracked==n+1&&audio_pauses==before+3);
+   paused=0;clockval=891.9f;storm_step(idx,&G,&S,0,0);assert(audio_resumes==after+3&&!win&&!lost);
+   clockval=892.f;int prior=gameclear_calls+gameover_calls;storm_step(idx,&G,&S,0,0);assert(gameclear_calls+gameover_calls==prior+1);
+   assert((idx==24&&win)||(idx==25&&lost));expected_reason="TimeLimit";int displays=result_calls;
+   result_step(idx,&G,&H,0);result_step(idx,&G,&H,0);assert(result_calls==displays+1);
+   int stopped=weather_stops;storm_step(idx,&G,&S,1,0);storm_step(idx,&G,&S,1,0);assert(weather_stops==stopped+1);
+   storm_step(idx,&G,&S,0,1);assert(gameclear_calls+gameover_calls==prior+1);
+ }
+ puts("Storm: BT-7/III F single-shot sights, camera rain, pause/resume, two timed native results and cleanup passed");return 0;
 }

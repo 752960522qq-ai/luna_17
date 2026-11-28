@@ -143,7 +143,7 @@ static int activescene(void) {
   void *ret = call(c, (char *)s + 16, "get_buildIndex", 0, 0, &e);
   return ret && !e ? AT(ret, 16, int) : -1;
 }
-static int begin(void *mark, int nation) {
+static int begin(void *mark, int nation, int first_index) {
   int e = 0;
   void *p = instance(paramc);
   if (!p) {
@@ -161,7 +161,7 @@ static int begin(void *mark, int nation) {
   float scale = 1;
   void *s[] = {&scale};
   call(timec, 0, "set_timeScale", 1, s, &e);
-  int target = 22 + nation;
+  int target = first_index + nation;
   void *a[] = {&target};
   deactivate(mark);
   invoke(over(scene, "LoadScene", intc), 0, a, &e);
@@ -172,6 +172,7 @@ static int statoff = -1, boardoff = -1, deadoff = -1, towedoff = -1, panic = -1,
 #include "game_values.h"
 #include "results.h"
 #include "t28_aux.h"
+#include "storm_runtime.h"
 static void resolve(void) {
   stats_class=hatch_class("","BattleResultsManager");
   ctrl_ui=hatch_class("UnityEngine","Component");ctrl_pc=hatch_class("","PlayerControl");
@@ -207,7 +208,9 @@ JNIEXPORT jint JNICALL Java_com_luna17_campaign_CampaignLoop_step(JNIEnv *env,
   }
   int idx = activescene();
   if (idx < 0) {
-    if (find("Hatch Battle GE"))
+    if (find("Hatch Storm Battle GE")) idx=25;
+    else if (find("Hatch Storm Battle SO")) idx=24;
+    else if (find("Hatch Battle GE"))
       idx = 23;
     else if (find("Hatch Battle SO"))
       idx = 22;
@@ -215,7 +218,7 @@ JNIEXPORT jint JNICALL Java_com_luna17_campaign_CampaignLoop_step(JNIEnv *env,
       idx = find("GameController") ? 8 : 0;
   }
   if (idx != scene_id) {
-    scene_id = idx;
+    scene_id = idx;storm_reset();
     finish=(__typeof__(finish)){0};terminal=0;
     player_id = 0;
     wave_mask = 0;
@@ -223,15 +226,24 @@ JNIEXPORT jint JNICALL Java_com_luna17_campaign_CampaignLoop_step(JNIEnv *env,
     shock = (AimHold){0};
     crew = (AimHold){0};
   }
-  if (idx < 8 || idx > 23) fire_binding(idx,-1,0,0);
+  if (idx < 8 || idx > 25) fire_binding(idx,-1,0,0);
   if (idx == 0) {
-    void *m = find("Hatch Start GE");
+    void *m = find("Hatch Storm Start GE");if(m)return begin(m,1,24);
+    m=find("Hatch Storm Start SO");if(m)return begin(m,0,24);
+    m = find("Hatch Start GE");
     if (m)
-      return begin(m, 1);
+      return begin(m, 1, 22);
     m = find("Hatch Start SO");
-    return m ? begin(m, 0) : 0;
+    return m ? begin(m, 0, 22) : 0;
   }
-  if (idx != 22 && idx != 23 && (idx < 8 || idx > 19)) { fire_binding(idx,-1,0,0);return 0; }
+  if ((idx < 22 || idx > 25) && (idx < 8 || idx > 19)) { fire_binding(idx,-1,0,0);return 0; }
+  if(idx>=22 && idx<=25){
+    /* GameClear may advance the saved stock stage. Reapply the selected player,
+       country and Field-1 slot on both Retry and the campaign Next handoff. */
+    void *m=idx<24?find("Hatch Storm Continue"):0;
+    if(m)return begin(m,idx%2,24);
+    m=find("Hatch Campaign Retry");if(m)return begin(m,idx%2,idx<24?22:24);
+  }
   void *p = instance(paramc);
   int e = 0;
   void *mode = p ? call(paramc, p, "get_GameMode", 0, 0, &e) : 0;
@@ -243,7 +255,9 @@ JNIEXPORT jint JNICALL Java_com_luna17_campaign_CampaignLoop_step(JNIEnv *env,
   }
   void *gc = modeValue>=0 && modeValue!=2 ? instance(controller) : 0;
   void *current=gc && !blocked(statoff)?AT(gc,statoff,void*):0;
-  terminal=modeValue==0 && gc && result_step(idx,gc,boardoff>=16?AT(gc,boardoff,void*):0,live(current)&&deadoff>=16&&AT(current,deadoff,uint8_t));
+  int dead=live(current)&&deadoff>=16&&AT(current,deadoff,uint8_t);
+  if(modeValue==0&&storm_field(idx)&&live(gc))storm_step(idx,gc,current,flag(controller,gc,"get_IsGameClear")||flag(controller,gc,"get_IsGameOver"),dead);
+  terminal=modeValue==0 && gc && result_step(idx,gc,boardoff>=16?AT(gc,boardoff,void*):0,dead);
   t28_aux_step(idx, gc!=0 && modeValue!=2, terminal);
   fire_binding(idx,modeValue,terminal?0:gc,terminal?0:current);
   if(terminal)return 0;
@@ -290,6 +304,11 @@ JNIEXPORT jint JNICALL Java_com_luna17_campaign_CampaignLoop_step(JNIEnv *env,
         break;
       }
   }
+  if(storm_field(idx)){
+    const char *marks[]={"Hatch Storm Reserve GE","Hatch Storm Reserve SO"};
+    for(int i=0;i<2;i++)if(!(wave_mask&(1<<i))&&find(marks[i])){wave_mask|=1<<i;out=26+(idx-24)*2+i;break;}
+    if(!out&&!(wave_mask&4)&&weather_clock.gc&&weather_clock.last-weather_clock.start>=600){wave_mask|=4;out=30+(idx-24);}
+  }
   if (hud && AT(hud, 16, void *) && idx >= 22) {
     void *br=stats(hud);int h=br?number(stats_class,br,"get_HitNumByPlayer",-1):-1,k=ko>=16?AT(hud,ko,int):-1;
     if(hits<0)hits=h;
@@ -305,11 +324,11 @@ JNIEXPORT jint JNICALL Java_com_luna17_campaign_CampaignLoop_step(JNIEnv *env,
 
 JNIEXPORT jint JNICALL Java_com_luna17_campaign_CampaignLoop_extraSide(JNIEnv *env,jclass cls){
   (void)env;(void)cls;
-  return (scene_id==22 || scene_id==23) && player_id && !terminal ? scene_id-21 : 0;
+  return (scene_id>=22 && scene_id<=25) && player_id && !terminal ? scene_id-21 : 0;
 }
 JNIEXPORT jboolean JNICALL Java_com_luna17_campaign_CampaignLoop_postMessage(JNIEnv *env,jclass cls,jstring text,jint duration){
   (void)cls;
-  if(!text || terminal || !ready || (scene_id!=22 && scene_id!=23) || blocked(boardoff))return JNI_FALSE;
+  if(!text || terminal || !ready || (scene_id<22 || scene_id>25) || blocked(boardoff))return JNI_FALSE;
   void *gc=instance(controller), *hud=gc?AT(gc,boardoff,void*):0;
   if(!hud || !AT(hud,16,void*))return JNI_FALSE;
   const char *s=(*env)->GetStringUTFChars(env,text,0);

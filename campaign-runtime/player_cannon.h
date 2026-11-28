@@ -1,7 +1,7 @@
 /* Built-in F triggers use the stock EventSystem PointerDown/Up/Exit/Cancel.
    For ordinary fields, the same loader and trigger driver as the Luchs own fire. */
 #include "battle_flow.h"
-static int bound,owner,last_count,am_player_f,am_t26;
+static int bound,owner,last_count,am_player_f,am_t26,storm_profile;
 static void *bound_gc,*bound_st,*bound_hud,*bound_pc,*bound_gun,*bound_turret,*bound_stats;
 static ClipClock magazine;
 static float f_last,cycle_before;
@@ -24,12 +24,13 @@ static void fire_binding(int idx,int mode,void *gc,void *st){
     if(idx==bound)unlock_button();else{button_locked=0;locked_button=0;}
     magazine=(ClipClock){0};f_last=0;last_count=-1;exclusive=0;reset_instruments();clear_optics_refs();owner_root_done=0;
   }
-  owner=ident;bound=idx;bound_gc=gc;bound_st=st;bound_pc=bound_gun=bound_stats=bound_turret=0;am_player_f=am_t26=0;
+  owner=ident;bound=idx;bound_gc=gc;bound_st=st;bound_pc=bound_gun=bound_stats=bound_turret=0;am_player_f=am_t26=storm_profile=0;
   if(!owner||boardoff<16)return;
   if(unit_offset<16)unit_offset=field(uStatus,"unitName");
   if(unit_offset<16)return;
   void *name=AT(st,unit_offset,void*);am_player_f=named(name,"Panzer_II_Ausf_F");am_t26=named(name,"T26");
-  if(!am_player_f&&idx!=23&&!(idx==22&&am_t26))return;
+  storm_profile=idx==24&&named(name,"BT7")?4:idx==25&&named(name,"Panzer_III_Ausf_F")?8:0;
+  if(!am_player_f&&idx!=23&&!(idx==22&&am_t26)&&!storm_profile)return;
   bound_hud=AT(gc,boardoff,void*);if(!live(bound_hud))return;
   void *player=call(controller,gc,"get_PlayerGo",0,0,&e);
   bound_pc=component(player,ctrl_pc);if(!live(bound_pc))return;
@@ -103,5 +104,5 @@ JNIEXPORT jboolean JNICALL Java_com_luna17_campaign_CampaignLoop_sample(JNIEnv *
   float out[7]={-1,0,-1,0,0,0,0};
   if(ready && !terminal){update_owner_root();update_optics();update_cannon(out);update_green(out,profiles,aim);}
   (*env)->SetFloatArrayRegion(env,dst,0,7,out);
-  return !terminal&&owner&&(am_player_f||bound==22||bound==23);
+  return !terminal&&owner&&(am_player_f||bound==22||bound==23||storm_profile);
 }

@@ -14,7 +14,9 @@ def make(ttc, dst):
     g = src.getGlyphSet()
     from . import SIDES
 
-    side_text = "".join(s.label + s.opening + s.objective for s in SIDES)
+    from ..storm import SIDES as STORM_SIDES, TITLE as STORM_TITLE
+
+    side_text = STORM_TITLE + "下一关" + "".join(s.label + s.opening + s.objective for s in STORM_SIDES) + "".join(s.label + s.opening + s.objective for s in SIDES)
     chars = sorted(
         set(range(32, 127))
         | set(

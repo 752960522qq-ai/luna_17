@@ -11,7 +11,7 @@ FORMATION = (
     ("SO", "T34_76", [(-228, -345), (-148, -330)]),
     ("GE", "Panzer_IV_Ausf_C", [(-245, 554), (-219, 562)]),
     ("GE", "Panzer_II_Ausf_F", [(-175, 501), (-153, 518), (-132, 530)]),
-    ("GE", "Panzer_III_J", [(-289, 514), (-312, 530), (-274, 534)]),
+    ("GE", "Panzer_III_Ausf_F", [(-289, 514), (-312, 530), (-274, 534)]),
     ("GE", "Panzer_38t", [(-201, 527), (-183, 541), (-162, 558)]),
 )
 # Distinct approaches enter the native 15 m trigger; support units stop outside it.
@@ -19,7 +19,7 @@ CAPTURE = {
     ("Panzer_IV_Ausf_C", 1): (-191, -54),
     ("Panzer_II_Ausf_F", 1): (-178, -56),
     ("Panzer_II_Ausf_F", 2): (-173, -52),
-    ("Panzer_III_J", 1): (-186, -56),
+    ("Panzer_III_Ausf_F", 1): (-186, -56),
     ("Panzer_38t", 1): (-179, -51),
 }
 # Local defensive stations, kept distinct even if scenery nudges their authored centres.
@@ -45,7 +45,7 @@ RADIUS = dict(
 )
 
 
-def stage(h, props):
+def stage(h, props, *, legacy=False):
     positions = []
 
     def pick(x, z, others=()):
@@ -87,8 +87,8 @@ def stage(h, props):
             if nation == "GE":
                 qx, qz = CAPTURE.get((tank, v), (a, -18 if v % 2 else -26))
                 wing = (
-                    ("west" if tank == "Panzer_III_J" else "east")
-                    if tank in ("Panzer_III_J", "Panzer_IV_Ausf_C")
+                    ("west" if tank == "Panzer_III_Ausf_F" else "east")
+                    if tank in ("Panzer_III_Ausf_F", "Panzer_IV_Ausf_C")
                     else None
                 )
                 if wing:
@@ -125,6 +125,10 @@ def stage(h, props):
                     route=[[tx, 0.0, tz] for tx, _, tz in targets],
                 )
             )
+    if legacy:  # Rebuild the archived one-mission overlays with their original donor.
+        for r in rows:
+            if r["tank"]=="Panzer_III_Ausf_F":
+                r["tank"]="Panzer_III_J";r["id"]=r["id"].replace("Panzer_III_Ausf_F","Panzer_III_J")
     return rows
 
 

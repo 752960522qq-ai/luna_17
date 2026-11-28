@@ -63,7 +63,7 @@ static void observe_pool(void *pool,SceneVec muzzle,void *seedshot){
   }
 }
 static void update_green(float *out,int profiles,int aim){
-  if(!owner||(bound!=22&&bound!=23)||(!am_t26&&!am_player_f))return;
+  if(!owner||(((bound!=22&&bound!=23)||(!am_t26&&!am_player_f))&&!storm_profile))return;
   out[2]=0; /* own the marker while playing this mission; invalid paths clear old dots */
   if(!aim || !live(bound_pc)||!live(bound_gun)||!live(bound_st)||!live(bound_hud))return;
   if(!tr_class){
@@ -82,7 +82,7 @@ static void update_green(float *out,int profiles,int aim){
   void *camera=read_ref(cc,control,"myCamera"),*mount=AT(bound_gun,gun_muzzle,void*);
   void *player=read_ref(ctrl_pc,bound_pc,"thisTrf");if(!live(camera)||!live(mount)||!live(player))return;
   int shell=AT(bound_st,loaded_at,int);if(shell<0||shell>4)return;
-  int physical=(profiles&(am_t26?1:2))!=0;
+  int physical=(profiles&(storm_profile?storm_profile:am_t26?1:2))!=0;
   if(cached_profile!=physical){memset(cached_speed,0,sizeof(cached_speed));cached_profile=physical;draw_at=-1;}
   float now=scalar(timec,0,"get_unscaledTime");
   if(now<draw_at||now-draw_at>=.035f||shell!=last_ammo){

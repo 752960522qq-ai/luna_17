@@ -188,7 +188,7 @@ def release(apk, prior_zip, out, work):
             models[id, False] = ("resources.assets", res, named[id + "_AI"])
         hh = layout.heightgrid()
         props = layout.placements(hh)
-        deployment = stage(hh, props)
+        deployment = stage(hh, props, legacy=True)
         from .lanes import Lanes
 
         Lanes(hh, props).bake(deployment)

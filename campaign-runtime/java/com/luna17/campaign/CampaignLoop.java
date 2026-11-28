@@ -25,6 +25,8 @@ public final class CampaignLoop {
   public static float[] instruments() { return last; }
   public static synchronized void registerVehicle(String id) {
     if ("T26".equals(id)) profiles|=1;
+    if ("BT7".equals(id)) profiles|=4;
+    if ("Panzer_III_Ausf_F".equals(id)) profiles|=8;
     if ("Panzer_II_Ausf_F".equals(id)) profiles|=2;
   }
   public static void setAim(boolean enabled) { aim=enabled; }
@@ -36,7 +38,9 @@ public final class CampaignLoop {
   private static synchronized void side(int value) {
     if (extra == value) return;
     resetMessages(); extra=value;
-    if (value != 0) orders.add(value == 1 ? "炼狱之门 · 驾驶 T26，守住村口阵地！" : "炼狱之门 · 驾驶二号 F 型，夺取村口阵地！");
+    String[] briefs={"炼狱之门 · 驾驶 T26，守住村口阵地！","炼狱之门 · 驾驶二号 F 型，夺取村口阵地！",
+      "暴风骤雨 · 驾驶 BT-7，守住阵线十三分钟，或提前击退全部德军。","暴风骤雨 · 驾驶三号 F 型，十三分钟内消灭全部苏联守军。"};
+    if(value>0&&value<=briefs.length)orders.add(briefs[value-1]);
   }
   private static void resetMessages() {
     orders.clear(); feedback=""; lastLine=""; nextLine=lastFeedback=feedbackTime=0;
@@ -58,13 +62,16 @@ public final class CampaignLoop {
   }
   private CampaignLoop() {}
   public static synchronized void signal(int kind) {
-    if (kind >= 20 && kind <= 25) {
+    if (kind >= 20 && kind <= 31) {
       String[] lines = {"德军第二波出现，两侧都有敌车。守住村口！",
                         "敌机接近！",
                         "后方两辆 T-34 已到，协同守住阵地！",
                         "第二波已投入，从两侧向村口推进！",
                         "苏军飞机接近！",
-                        "苏军两辆 T-34 正从后方增援，夺取村口！"};
+                        "苏军两辆 T-34 正从后方增援，夺取村口！",
+                        "德军后续梯队开始推进，守住阵线！","我方第二梯队已投入防守！",
+                        "第二梯队已出发，两路继续推进！","苏军后续梯队正在行动！",
+                        "离守住阵线还有三分钟！","还剩三分钟，清除剩余守军！"};
       radio = lines[kind - 20];
       if (extra != 0 && !orders.contains(radio)) orders.addLast(radio);
       radioUntil = SystemClock.uptimeMillis() + 5500;

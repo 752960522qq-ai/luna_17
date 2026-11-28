@@ -26,9 +26,11 @@ def cut(sf, g, keep=()):
             erase(sf, x)
 
 
-def attach(link, s, fn, g, grp, row, *, factory=False):
+def attach(link, s, fn, g, grp, row, *, factory=False, keep_roots=None):
     nodes = list(subtree(s, g))
     ids = {p: link.alloc() for gid, ps, _ in nodes for p in (gid, *ps)}
+    if keep_roots:
+        ids[g], ids[nodes[0][2]] = keep_roots
     if row["tank"] == "T26":
         # The physical solver writes vertices through sharedMesh. Scene instances
         # must not animate the same buffer as another vehicle or the generator prefab.
@@ -153,7 +155,7 @@ def merge_map(link, m):
     return root, sun
 
 
-def make(sf, m, models, rows, names, ui_source, objective, gui, fonts, h, props, side):
+def make(sf, m, models, rows, names, ui_source, objective, gui, fonts, h, props, side, *, second=False):
     l = Linker(sf, names)
     from .objectives import bind as bind_objective
 
@@ -169,7 +171,7 @@ def make(sf, m, models, rows, names, ui_source, objective, gui, fonts, h, props,
     )
     from . import waves
 
-    air = waves.move_air(sf, side, egroup)
+    air = None if second else waves.move_air(sf, side, egroup)
     # Preserve the selected nation's first slot; omit the armies from every other scenario.
     for scenario in kids(sf, 5328):
         if scenario != side.scenario:
@@ -243,7 +245,7 @@ def make(sf, m, models, rows, names, ui_source, objective, gui, fonts, h, props,
         return go, trid
 
     world = part(sf, maproot, "Transform")
-    fixture("Hatch Battle " + side.code, True, world)
+    fixture(("Hatch Storm Battle " if second else "Hatch Battle ") + side.code, True, world)
     garage, gt = fixture("Hatch Factory " + side.code, False, world)
     factory = dict(hero_row, pos=[0.0, 0.0, 0.0], yaw=0.0)
     attach(l, template, fn, donor, gt, factory, factory=True)
@@ -254,7 +256,7 @@ def make(sf, m, models, rows, names, ui_source, objective, gui, fonts, h, props,
         if table == side.nation:
             f, p = PTR.unpack_from(raw, at + 4 + 4 * 12)
             require(
-                sf.externals[f - 1].path == "resources.assets" and p == donor,
+                sf.externals[f - 1].path == "resources.assets" and p == ((3455 if side.code == "SO" else 16495) if second else donor),
                 "Wrong native donor in tank slot 4",
             )
         if table == side.nation or (side.code == "GE" and table == 2):
@@ -268,9 +270,11 @@ def make(sf, m, models, rows, names, ui_source, objective, gui, fonts, h, props,
                     PTR.pack_into(raw, pos, 0, hero)
         at += 4 + 12 * n
     gen.set_raw_data(bytes(raw))
-    schedule = waves.install(
-        l, side.scenario, rows, base, side, air, ui_source[0].sf.objects[2382]
-    )
+    if second:
+        from ..storm.events import orders
+        schedule = orders(l, side, rows, base, ui_source[0].sf.objects[2382])
+    else:
+        schedule = waves.install(l, side.scenario, rows, base, side, air, ui_source[0].sf.objects[2382])
     ui = battle_ui(l, *ui_source, side)
     from .minimap import install
 

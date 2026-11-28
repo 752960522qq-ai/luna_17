@@ -4,7 +4,7 @@
    world pose and make only the selected live tank an independent root. */
 static int owner_root_done;
 static void update_owner_root(void){
-  if(owner_root_done||(bound!=22&&bound!=23)||(!am_player_f&&!am_t26)||!owner||!live(bound_pc)||!live(bound_gc)||!live(bound_st))return;
+  if(owner_root_done||(((bound!=22&&bound!=23)||(!am_player_f&&!am_t26))&&!storm_profile)||!owner||!live(bound_pc)||!live(bound_gc)||!live(bound_st))return;
   if(deadoff<16||AT(bound_st,deadoff,uint8_t))return;
   void *tr=read_ref(ctrl_pc,bound_pc,"thisTrf");int e=0;if(!live(tr))return;
   void *tc=AT(tr,0,void*),*root=call(tc,tr,"get_root",0,0,&e);if(e||!live(root))return;
