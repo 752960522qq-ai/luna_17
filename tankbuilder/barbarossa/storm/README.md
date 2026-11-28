@@ -27,3 +27,17 @@ restore command; test it in a new directory before packaging an APK.
 
 The host tests in `campaign-runtime/tests/storm_clock.c` and `battle_flow.c` cover both faction
 deadlines, early outcomes, pause/retry, gunner sights and camera-relative rain. They are not an Android playthrough.
+
+To use the field-recorded weather mix, download the three original Ogg files from
+[RECORDINGS.txt](RECORDINGS.txt) using the listed local names. Pass `--recordings "$recordings"`
+to both `build` and `verify`. For the preview, pass the recordings directory as a `Path` for the second argument
+to `sound.preview`. The in-game mix has a 36-second crossfaded rain loop and shorter near and
+distant thunder clips. It keeps the mission's existing lightning triggers and rain mixer levels.
+
+Use `scripts/build_storm_apk.py` to export the recorded edition. It takes the same original APK,
+the previously verified two-mission kit, its restored directory (`--runtime`), and the new
+recorded build directory (`--assets`). Pass the repository Android tools and the existing
+project certificate via the script's CLI; do not add them to the repo or the APK. Use a
+`--work` directory on the same filesystem as `--out` with enough space for two APKs. The release
+script verifies the package with Android's manifest parser, ZIP checks, and both v2/v3 signing
+checks and embeds the audio credits under `assets/Hatch/licenses/`.

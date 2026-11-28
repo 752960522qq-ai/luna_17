@@ -65,20 +65,25 @@ def is_signature(name):
     return name == "stamp-cert-sha256" or SIG.fullmatch(name)
 
 
-def repack_apk(old, new, updates):
+def repack_apk(old, new, updates, *, added=None):
+    added = added or {}
     with zipfile.ZipFile(old) as src, zipfile.ZipFile(new, "w", allowZip64=False) as dst:
-        assert set(updates) | {NATIVE} <= set(src.namelist())
+        assert (set(updates) - added.keys()) | {NATIVE} <= set(src.namelist())
+        assert set(added) == set(updates) - set(src.namelist())
+        assert all(not is_signature(n) for n in added)
         for entry in src.infolist():
             n = entry.filename
             if not is_signature(n):
                 write_entry(dst, n, updates[n] if n in updates else src.read(n), entry.compress_type,
                             alignment=16384 if n.endswith(".so") else 4)
+        for n, compression in added.items():
+            write_entry(dst, n, updates[n], compression, alignment=16384 if n.endswith(".so") else 4)
 
 
-def verify_apk(old, signed, updates):
+def verify_apk(old, signed, updates, *, added=()):
     with zipfile.ZipFile(old) as src, zipfile.ZipFile(signed) as dst, signed.open("rb") as raw:
         assert dst.testzip() is None
-        expected = {n for n in src.namelist() if not is_signature(n)}
+        expected = {n for n in src.namelist() if not is_signature(n)} | set(added)
         assert len(expected) == len(dst.namelist()) and expected == set(dst.namelist())
         for entry in dst.infolist():
             n = entry.filename

@@ -1,0 +1,28 @@
+Stormbreak / 暴风骤雨 — field recordings / 实录音效
+
+Rain bed
+  Rain — ezwa, PDSounds recording 682; transferred to Wikimedia Commons by Fæ.
+  https://commons.wikimedia.org/wiki/File:Rain_(1).ogg
+  Original Ogg: https://upload.wikimedia.org/wikipedia/commons/0/0e/Rain_%281%29.ogg
+  Local input filename: rain-ezwa.ogg
+  Public domain as documented by Wikimedia Commons.
+
+Distant thunder
+  Rain and thunder — Caesar, recorded in Sundbyberg, Stockholm, Sweden, 2006-08-27.
+  https://commons.wikimedia.org/wiki/File:Rain_and_thunder.ogg
+  Original Ogg: https://upload.wikimedia.org/wikipedia/commons/4/42/Rain_and_thunder.ogg
+  Local input filename: thunder-caesar.ogg
+  Released into the public domain by the copyright holder.
+
+Near thunder
+  Storm, Thunderbolts — recorded by “Jc” Guan, May 2007; uploaded by stephan to
+  PDSounds (recording 301) and transferred to Wikimedia Commons by Fæ.
+  https://commons.wikimedia.org/wiki/File:Storm_thunderbolts.ogg
+  Original Ogg: https://upload.wikimedia.org/wikipedia/commons/b/bd/Storm_thunderbolts.ogg
+  Local input filename: thunder-guan.ogg
+  Public domain as documented by Wikimedia Commons.
+
+For use in the game, these recordings were excerpted, filtered, level matched
+and resampled to 24 kHz mono PCM. Rain has a seamless loop crossfade. Thunder
+excerpts have short end fades and play as separate one-shots after lightning.
+The mix and the game do not imply endorsement by the recordists.

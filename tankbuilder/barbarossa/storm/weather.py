@@ -9,6 +9,7 @@ from ..mission.interface import event
 from .events import fixture,add_component,active,timer
 from . import DEADLINE
 from .lightning import sky_bolts
+from .sound import VOLUME
 
 STREAM='StormWeather.resource'
 def color(r,g,b,a=1):return dict(r=r,g=g,b=b,a=a)
@@ -62,7 +63,7 @@ def install(l,stock,shared,gui,side,clips,clock):
     clip_src=shared.objects[145];audio=stock.objects[144403];sources={};clip_ids={}
     for name,i in clips.items():
         clip=l.alloc();ct=val(clip_src);ct.update(m_Name='Storm '+name,m_LoadType=0,m_Channels=1,m_Frequency=24000,m_BitsPerSample=16,m_Length=i['seconds'],m_LoadInBackground=False,m_PreloadAudioData=True,m_CompressionFormat=0,m_Resource=dict(m_Source=STREAM,m_Offset=i['offset'],m_Size=i['size']));l.add(clip_src,clip,encode_complete(clip_src,ct));clip_ids[name]=clip
-        go,_=fixture(l,wt,'Hatch Storm Audio '+name);ai=l.alloc();au=refs(val(audio),remap);au.update(m_GameObject=pp(go),m_Enabled=True,m_audioClip=pp(clip),m_Resource=pp(clip),Loop=name=='rain',m_PlayOnAwake=name=='rain',m_Volume={'rain':.38,'roll':.66,'crack':.59}[name],DopplerLevel=0.,Spatialize=False,Priority=145 if name=='rain' else 120)
+        go,_=fixture(l,wt,'Hatch Storm Audio '+name);ai=l.alloc();au=refs(val(audio),remap);au.update(m_GameObject=pp(go),m_Enabled=True,m_audioClip=pp(clip),m_Resource=pp(clip),Loop=name=='rain',m_PlayOnAwake=name=='rain',m_Volume=VOLUME[name],DopplerLevel=0.,Spatialize=False,Priority=145 if name=='rain' else 120)
         for key in au['panLevelCustomCurve']['m_Curve']:key['value']=0.
         l.add(audio,ai,encode_complete(audio,au));add_component(sf,go,ai);sources[name]=ai
     bolts=sky_bolts(l,wt,side);log=[]

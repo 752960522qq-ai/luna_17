@@ -39,12 +39,13 @@ def mark(sf,button,name):
 def collider(sf):
     return {k:digest(one(o.get_raw_data() for o in sf.objects.values() if o.type.name==k)) for k in ('Terrain','TerrainData','TerrainCollider')}
 
-def validate(out,staged,legacy):
+def validate(out,staged,legacy,recordings=None):
     prior=Members((staged/'assets/bin/Data/data.unity3d').read_bytes()); pack=Members((out/'data.unity3d').read_bytes())
     get=lambda n:file(pack.read(n));names={o.path_id:o.read_typetree(check_read=False)['m_ClassName'] for o in get('globalgamemanagers.assets').objects.values() if o.type.name=='MonoScript'}
     source=json.loads(legacy.read_bytes());doc=json.loads((out/'campaign.json').read_bytes());base=file(prior.read('globalgamemanagers'));m=get('globalgamemanagers')
     typ=lambda sf,k:val(one(o for o in sf.objects.values() if o.type.name==k))
     sc=typ(m,'BuildSettings')['scenes'];assert sc[:-2]==typ(base,'BuildSettings')['scenes'] and sc[-2:]==[s.scene for s in SIDES]
+    assert (doc.get('weatherAudio') == 'field-recordings') == (recordings is not None)
     stock=get('level8');oldreg=dict(typ(base,'ResourceManager')['m_Container']);reg=dict(typ(m,'ResourceManager')['m_Container'])
     assert all(reg[k]==v for k,v in oldreg.items()) and set(reg)-set(oldreg)=={'unit/so/bt7/bt7_player','unit/so/bt7/bt7_player_profile'}
     r=reg['unit/so/bt7/bt7_player'];assert m.externals[r['m_FileID']-1].path=='BT7_Player.assets'
@@ -65,7 +66,7 @@ def validate(out,staged,legacy):
         check(title.sf,names,txt)
     assert all(a[1]<b[0] or b[1]<a[0] or a[3]<b[2] or b[3]<a[2] for a,b in combinations(ranges,2))
     h=layout.heightgrid();nav=Lanes(h,layout.placements(h));report={'missions':{},'pickerCaptions':6,'buttons':4,'gameplayLimitSeconds':DEADLINE,'androidDevicePlaytest':False}
-    stream=(out/'StormWeather.resource').read_bytes();samples=sounds();terrain=collider(file(prior.read('level22')))
+    stream=(out/'StormWeather.resource').read_bytes();samples=sounds(recordings);terrain=collider(file(prior.read('level22')))
     exp={'SO':{'GE':{PZ3:4,PZ4:2,PZ2:6},'SO':{'T28':1,'BT7':4,'T26':5}},'GE':{'GE':{PZ3:3,PZ4:2,PZ2:5},'SO':{'T28':1,'BT7':6,'T26':6}}}
     for side in SIDES:
         sect=side.code;old=source['sides'][sect];first=doc['first']['sides'][sect];a=get('level'+str(side.index-2));ao=file(prior.read('level'+str(side.index-2)))
@@ -161,4 +162,5 @@ def validate(out,staged,legacy):
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     for k in ('out','staged','legacy'):p.add_argument('--'+k,required=True,type=Path)
+    p.add_argument('--recordings',type=Path)
     print(json.dumps(validate(**vars(p.parse_args())),ensure_ascii=False,indent=2))

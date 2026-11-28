@@ -1,11 +1,16 @@
-"""Original rain and distant thunder, encoded as Unity-native, uncompressed single-subsound FMOD banks."""
+"""Storm audio as Unity-native, uncompressed single-subsound FMOD banks."""
 import hashlib,struct,wave
 import numpy as np
 from scipy.signal import butter,sosfilt
 
 RATE=24000
+VOLUME = {'rain': .38, 'roll': .66, 'crack': .59}
 
-def sounds():
+def sounds(recordings=None):
+    if recordings is not None:
+        from .recordings import field_recordings
+        return field_recordings(recordings)
+    # Synthetic source remains available for rebuilding the earlier release.
     rng=np.random.default_rng(194107);out={}
     def band(x,lo,hi):
         f=sosfilt(butter(3,[lo,hi],fs=RATE,btype='bandpass',output='sos'),x)
@@ -32,15 +37,15 @@ def bank(data):
     pcm=data.tobytes();pad=bytes(-len(pcm)%32);sample=struct.pack('<Q',(len(data)<<34)|(6<<1));sample+=bytes(16-len(sample))
     return struct.pack('<4s6I',b'FSB5',1,1,len(sample),0,len(pcm)+len(pad),2)+bytes(8)+hashlib.md5(pcm).digest()+bytes(8)+sample+pcm+pad
 
-def write_banks(path):
-    clips=sounds();data=bytearray();res={}
+def write_banks(path, recordings=None):
+    clips=sounds(recordings);data=bytearray();res={}
     for name,arr in clips.items():
         data+=bytes(-len(data)%32);raw=bank(arr);res[name]={'offset':len(data),'size':len(raw),'seconds':len(arr)/RATE};data+=raw
     path.write_bytes(data);return res
 
-def preview(path):
-    clips=sounds();rain=clips['rain'].astype(float)/32768;t=np.tile(rain,2)[:24*RATE]*.36
+def preview(path, recordings=None):
+    clips=sounds(recordings);rain=clips['rain'].astype(float)/32768;t=np.resize(rain,24*RATE)*VOLUME['rain']
     for name,sec in [('roll',4.8),('crack',16.1)]:
-        q=clips[name].astype(float)/32768;start=int(sec*RATE);t[start:start+len(q)]+=q*(.65 if name=='roll' else .55)
+        q=clips[name].astype(float)/32768;start=int(sec*RATE);t[start:start+len(q)]+=q*VOLUME[name]
     t[:RATE//2]*=np.linspace(0,1,RATE//2);t[-RATE:]*=np.linspace(1,0,RATE)
     with wave.open(str(path),'wb') as f:f.setparams((1,2,RATE,0,'NONE',''));f.writeframes((np.clip(t,-1,1)*32767).astype('<i2').tobytes())
