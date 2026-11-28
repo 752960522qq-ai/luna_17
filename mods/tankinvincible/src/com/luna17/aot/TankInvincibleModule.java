@@ -39,13 +39,14 @@ public final class TankInvincibleModule implements HatchModule, HatchFeatureHost
             if(mask!=0 && !NativeBridge.configureFilling(doc.getString("id"),grams,mask))return "装药配置无效";
         }
         JSONObject magazine = doc.optJSONObject("magazine");
-        boolean owned="unity-button-magazine-v1".equals(doc.optString("fire_controller","")) && CampaignSupport.controlsFire();
-        if(!NativeBridge.configureContinuousFire(doc.getString("id"),!owned && doc.optBoolean("continuous_fire",magazine!=null),doc.optString("texture_uv_convention", "").contains("converted")))return "连发开关无效";
-        if (!owned && magazine != null && !NativeBridge.configureMagazine(doc.getString("id"),
+        if(!NativeBridge.configureContinuousFire(doc.getString("id"),doc.optBoolean("continuous_fire",magazine!=null),doc.optString("texture_uv_convention", "").contains("converted")))return "连发开关无效";
+        if (magazine != null && !NativeBridge.configureMagazine(doc.getString("id"),
                 magazine.getInt("capacity"), (float)magazine.getDouble("shotInterval"),
                 (float)magazine.getDouble("reloadTime")))
             return "弹匣配置无效";
-        return NativeBridge.loadHatch(runtime.getAbsolutePath());
+        String failure=NativeBridge.loadHatch(runtime.getAbsolutePath());
+        if ("".equals(failure)) CampaignSupport.registerVehicle(doc.getString("id"));
+        return failure;
         } finally { NativeBridge.clearTankConfiguration(); }
     }
     @Override public String[] capabilities() {
@@ -84,7 +85,7 @@ public final class TankInvincibleModule implements HatchModule, HatchFeatureHost
         String ammunitionError=AmmunitionSettings.apply(ammo);if(!ammunitionError.isEmpty())return ammunitionError;
         if(!NativeBridge.configureExperience(flags|claimedFlags,k,khe))return "玩法配置加载失败";
         for(int bit=1;bit<=4;bit<<=1)if((flags&bit)!=0)featureOwners.put(bit,id);
-        claimedFlags|=flags;damageK=k;damageKhe=khe;return "";
+        claimedFlags|=flags;CampaignSupport.setAim((claimedFlags&1)!=0);damageK=k;damageKhe=khe;return "";
     }
     @Override public void stop() { CampaignSupport.stop(); if (menu != null) {menu.detach(); menu=null;} if(hud!=null){hud.detach(); hud=null;} if(crew!=null)crew.stop(); }
 }

@@ -21,6 +21,7 @@ static void *goc, *obj, *scene, *timec, *intc, *paramc, *controller, *uStatus,
 static int ready, scene_id = -1, player_id, kills = -1, hits = -1, wave_mask;
 static float last_time;
 static void fire_binding(int,int,void*,void*);
+static int terminal;
 static AimHold shock, crew;
 static void *invoke(void *m, void *self, void **args, int *err) {
   void *ex = 0;
@@ -76,12 +77,12 @@ static void *find(const char *n) {
   return call(goc, 0, "Find", 1, a, &e);
 }
 static void *component(void *go, void *cl) {
-  if (!go)
+  if (!go || !cl)
     return 0;
   int e = 0;
   void *type = hatch_class("System", "Type"), *t = hatch_type_object(cl);
   void *a[] = {t};
-  return invoke(over(goc, "GetComponent", type), go, a, &e);
+  return t ? invoke(over(goc, "GetComponent", type), go, a, &e) : 0;
 }
 static void *instance(void *cl) {
   int e = 0;
@@ -168,7 +169,13 @@ static int begin(void *mark, int nation) {
 }
 static int statoff = -1, boardoff = -1, deadoff = -1, towedoff = -1, panic = -1,
            gunner = -1, crewn = -1, ko = -1, hi = -1;
+#include "game_values.h"
+#include "results.h"
 static void resolve(void) {
+  stats_class=hatch_class("","BattleResultsManager");
+  ctrl_ui=hatch_class("UnityEngine","Component");ctrl_pc=hatch_class("","PlayerControl");
+  ctrl_launcher=hatch_class("","Launcher");ctrl_tm=hatch_class("","TurretMove");
+  ui_stats=field(ui,"btlRltsManager");
   statoff = field(controller, "<PlayerStatus>k__BackingField");
   boardoff = field(controller, "uiManager");
   deadoff = field(uStatus, "<IsDestroyed>k__BackingField");
@@ -208,6 +215,7 @@ JNIEXPORT jint JNICALL Java_com_luna17_campaign_CampaignLoop_step(JNIEnv *env,
   }
   if (idx != scene_id) {
     scene_id = idx;
+    finish=(__typeof__(finish)){0};terminal=0;
     player_id = 0;
     wave_mask = 0;
     kills = hits = -1;
@@ -233,7 +241,10 @@ JNIEXPORT jint JNICALL Java_com_luna17_campaign_CampaignLoop_step(JNIEnv *env,
       modeValue = AT(p, f, int);
   }
   void *gc = modeValue>=0 && modeValue!=2 ? instance(controller) : 0;
-  fire_binding(idx,modeValue,gc,gc && !blocked(statoff) ? AT(gc,statoff,void*) : 0);
+  void *current=gc && !blocked(statoff)?AT(gc,statoff,void*):0;
+  terminal=modeValue==0 && gc && result_step(idx,gc,boardoff>=16?AT(gc,boardoff,void*):0,live(current)&&deadoff>=16&&AT(current,deadoff,uint8_t));
+  fire_binding(idx,modeValue,terminal?0:gc,terminal?0:current);
+  if(terminal)return 0;
   if (modeValue != 0) return 0; /* mission logic: local campaign only */
   if (!gc || blocked(statoff) || blocked(boardoff))
     return 0;
@@ -278,7 +289,7 @@ JNIEXPORT jint JNICALL Java_com_luna17_campaign_CampaignLoop_step(JNIEnv *env,
       }
   }
   if (hud && AT(hud, 16, void *) && idx >= 22) {
-    int h=hi>=16?AT(hud,hi,int):-1,k=ko>=16?AT(hud,ko,int):-1;
+    void *br=stats(hud);int h=br?number(stats_class,br,"get_HitNumByPlayer",-1):-1,k=ko>=16?AT(hud,ko,int):-1;
     if(hits<0)hits=h;
     if(kills<0)kills=k;
     if(!out){
@@ -292,11 +303,11 @@ JNIEXPORT jint JNICALL Java_com_luna17_campaign_CampaignLoop_step(JNIEnv *env,
 
 JNIEXPORT jint JNICALL Java_com_luna17_campaign_CampaignLoop_extraSide(JNIEnv *env,jclass cls){
   (void)env;(void)cls;
-  return (scene_id==22 || scene_id==23) && player_id ? scene_id-21 : 0;
+  return (scene_id==22 || scene_id==23) && player_id && !terminal ? scene_id-21 : 0;
 }
 JNIEXPORT jboolean JNICALL Java_com_luna17_campaign_CampaignLoop_postMessage(JNIEnv *env,jclass cls,jstring text,jint duration){
   (void)cls;
-  if(!text || !ready || (scene_id!=22 && scene_id!=23) || blocked(boardoff))return JNI_FALSE;
+  if(!text || terminal || !ready || (scene_id!=22 && scene_id!=23) || blocked(boardoff))return JNI_FALSE;
   void *gc=instance(controller), *hud=gc?AT(gc,boardoff,void*):0;
   if(!hud || !AT(hud,16,void*))return JNI_FALSE;
   const char *s=(*env)->GetStringUTFChars(env,text,0);

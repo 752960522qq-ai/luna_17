@@ -23,9 +23,7 @@ def compile_project(directory):
  r=dict(r);kind=t.get('vehicleKind','tank')
  if kind!='tank':r['turret']=r.get('mount',r.get('turret',{}))
  wheels=[x for x in r['wheels'] if x['roadWheel']];sus=r['suspension']
- fire_controller=w.get('fireController')
- if fire_controller and (fire_controller!='unity-button-magazine-v1' or m['id']!='Panzer_II_Ausf_F' or w.get('magazine')!={'capacity':10,'shotInterval':.4,'reloadTime':4.85}):raise ValueError('Unsupported fire controller or magazine')
- base_reload=w['magazine']['shotInterval'] if fire_controller else w['reload']
+ base_reload=w['reload']
  ints=[w['shells']['AP']['penetrationMm'],w['caliber'],w['muzzleVelocity'],math.ceil(base_reload),t['enginePower'],t['maxForwardSpeed'],t['turretRotation'],t['gunElevation'],abs(t['gunDepression']),t['crew'],m['tier']]+[a[k][f] for k in ['body','turret'] for f in ['front','side','side','rear']]+[w['ammo'].get(k,0) for k in ['AP','HEAT','APCR','WP','HE']]+[w['machineGun']['ammo']]+[w['shells'].get(k,{}).get('penetrationMm',0) for k in ['AP','HEAT','APCR','WP','HE']]+[len(wheels)]
  floats=[base_reload-math.ceil(base_reload),t['maxReverseSpeed']/3.6,t['weightTonnes'],sus['travel'],sus['restCompression'],sus['springPerWheel'],sus['damperPerWheel'],sum(x['radius'] for x in wheels)/len(wheels),r.get('trackLoopMeters',t['dimensionsMeters']['length']*.62)]
  boxes=[v for k in ['hull','turret','unit'] for f in ['size','center'] for v in r['colliders'][k][f]]
@@ -85,7 +83,6 @@ def compile_project(directory):
  info['vehicle_kind']=kind
  if kind!='tank':info['horizontal_half_angle']=t['gunTraverseHalfAngle']
  info['continuous_fire']=w.get('continuousFire',False)
- if fire_controller:info['fire_controller']=fire_controller
  if 'magazine' in w:info['magazine']=w['magazine']
  if filling:info['shell_filling_grams']=filling
  return blob,info

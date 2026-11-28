@@ -1,0 +1,75 @@
+{
+  "baseline": "eef56a9082fbb38997e462d4b7010ac3790dec3bae42ad79d337b54b483fb8b2",
+  "artifacts": {
+    "Hatch-0.4-Barbarossa-Complete.apk": {
+      "bytes": 501666098,
+      "sha256": "c7422c4b6a5432643d34791f9f61497c002ef6e0fce9b1039c0ceb6a3a781357"
+    },
+    "Barbarossa-01-Gates-of-Hell.zip": {
+      "bytes": 164160687,
+      "sha256": "43aea2ef825b8c6b1a6a081b215bbb2dcac27c60b27e2dcf31ef8b39c6c04609"
+    }
+  },
+  "signer_sha256": "734e17a0550eb23e3e5975dc90a7932eb513ee0e62ad4804b436cacd5f15413e",
+  "signatures": [
+    "APK Signature Scheme v2",
+    "APK Signature Scheme v3"
+  ],
+  "page_alignment": 16384,
+  "bundled_mods": 13,
+  "runtime_assets": {
+    "muzzle_and_spawn_pool": {
+      "SO": [
+        2,
+        2
+      ],
+      "GE": [
+        12,
+        12
+      ]
+    },
+    "verified_members": 74,
+    "changed_members": [
+      "level22",
+      "level23",
+      "Panzer_II_Ausf_F_Player.assets"
+    ],
+    "target_device_test": false
+  },
+  "tests": {
+    "loadTank_before": {
+      "L": [
+        true,
+        10,
+        0.4,
+        4.85
+      ],
+      "F": [
+        false,
+        0,
+        0,
+        0
+      ]
+    },
+    "loadTank_after": {
+      "L": [
+        true,
+        10,
+        0.4,
+        4.85
+      ],
+      "F": [
+        true,
+        10,
+        0.4,
+        4.85
+      ]
+    },
+    "button": "stock PointerDown, Up, Exit, Cancel, Submit on the live fire rect; per-player counter and actual pool acknowledgements",
+    "trace": "held 10 + long reload + 11th, rapid taps, blocked shot, pause, concurrent AI",
+    "stock_result": "51 objects in each inherited result panel; defeat and victory, no duplicate callback, stock retry indices 22/23",
+    "green": "actual chambered shell and fpTrf across baked/factory spawns, sample initialized pool speed, query physics per tick, shared-ancestor collision exclusion, project into actual SurfaceView",
+    "ui": "letterboxed SurfaceView offset, magazine text and existing menu lifecycle (6 cases)"
+  },
+  "validation_scope": "Packaged-asset readback, original/updated Java loading contract and host replays of production Unity adapter with substituted scene APIs. No Android device runtime or measured per-shot accuracy claim."
+}

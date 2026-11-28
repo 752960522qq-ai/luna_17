@@ -18,8 +18,16 @@ public final class CampaignLoop {
   private static native int step();
   private static native int extraSide();
   private static native boolean postMessage(String s, int seconds);
-  private static native boolean autocannonFrame();
-  public static boolean supportsFireController() { return true; }
+  private static native boolean sample(float[] values, int profiles, boolean aim);
+  private static volatile float[] last;
+  private static volatile int profiles;
+  private static volatile boolean aim;
+  public static float[] instruments() { return last; }
+  public static synchronized void registerVehicle(String id) {
+    if ("T26".equals(id)) profiles|=1;
+    if ("Panzer_II_Ausf_F".equals(id)) profiles|=2;
+  }
+  public static void setAim(boolean enabled) { aim=enabled; }
   private static volatile int extra;
   public static boolean isExtra() { return extra != 0; }
   private static final java.util.ArrayDeque<String> orders = new java.util.ArrayDeque<>();
@@ -122,7 +130,9 @@ public final class CampaignLoop {
           if(n<0 && !reportedFaction)message("未能确认战役阵营，请重新选择");
           reportedFaction=n<0;deliver(now);
         }
-        firing=autocannonFrame();
+        float[] values=new float[7];
+        firing=sample(values,profiles,aim);
+        last=firing?values:null;
       } catch (RuntimeException | LinkageError failure) {
         Log.e("HatchCampaign", "Campaign frame failed", failure);
         pump.stop();
@@ -144,6 +154,6 @@ public final class CampaignLoop {
       ui.removeCallbacks(currentSession);
       currentSession = null;
     }
-    side(0);clear();
+    last=null;side(0);clear();
   }
 }

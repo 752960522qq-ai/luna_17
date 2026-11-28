@@ -155,7 +155,7 @@ class BootLifecycle(unittest.TestCase):
                        input="""int Java_com_luna17_campaign_CampaignLoop_step(void *e, void *c){return 6;}
 int Java_com_luna17_campaign_CampaignLoop_extraSide(void *e, void *c){return 1;}
 unsigned char Java_com_luna17_campaign_CampaignLoop_postMessage(void *e, void *c, void *s,int n){return 1;}
-unsigned char Java_com_luna17_campaign_CampaignLoop_autocannonFrame(void *e, void *c){return 0;}""", text=True, check=True)
+unsigned char Java_com_luna17_campaign_CampaignLoop_sample(void *e, void *c,void *a,int p,unsigned char aim){return 0;}""", text=True, check=True)
 
     @classmethod
     def tearDownClass(cls):

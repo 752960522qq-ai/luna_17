@@ -14,7 +14,8 @@ final class ExperienceHud {
     private final Paint paint=new Paint(Paint.ANTI_ALIAS_FLAG);
     private float[] data=new float[28];
     private View pad;
-    private TextView hint;
+    private TextView hint, magazine;
+    private final GameViewport viewport=new GameViewport();
     private final ArtilleryGesture gesture=new ArtilleryGesture();
     private boolean captured,moved;
     private float downX,downY;
@@ -30,6 +31,13 @@ final class ExperienceHud {
             @Override protected void onDraw(Canvas canvas){
                 if(stopped)return;
                 float[] snapshot=NativeBridge.experienceSnapshot();if(snapshot!=null && snapshot.length==28)data=snapshot;
+                float[] field=CampaignSupport.instruments();
+                boolean hasClip=field!=null && field.length==7 && field[0]>=0;
+                magazine.setVisibility(hasClip?View.VISIBLE:View.GONE);
+                if(hasClip){
+                    int rounds=(int)field[0];String text=rounds==0?String.format(Locale.ROOT,"弹匣 0/10 · 换弹 %.1f s",field[1]):"弹匣 "+rounds+"/10";
+                    if(!text.contentEquals(magazine.getText()))magazine.setText(text);
+                }
                 int[] contact=NativeBridge.crewContactSnapshot();
                 long now=android.os.SystemClock.uptimeMillis();
                 if(contact!=null&&contact.length==5&&contact[4]==1&&contact[0]!=contactSequence){contactSequence=contact[0];contactUntil=now+4000;contactText=String.format(Locale.ROOT,"发现%s · %d点钟 · %d m",contact[1]==2?"敌机":"敌方坦克",contact[2],contact[3]);if(CampaignSupport.isExtra())CampaignSupport.contact(contactText);}
@@ -39,10 +47,12 @@ final class ExperienceHud {
                 boolean active=data[0]==1,spg=active&&data[8]==1;
                 pad.setVisibility(spg&&data[9]==2?View.VISIBLE:View.GONE);
                 hint.setVisibility(spg?View.VISIBLE:View.GONE);
-                if(active){
+                boolean ownPoint=field!=null && field.length==7 && field[2]>=0;
+                if(active || ownPoint){
                     float w=getWidth(),h=getHeight();paint.setStyle(Paint.Style.STROKE);paint.setStrokeWidth(dp(2));
-                    if(data[1]==1){
+                    if(ownPoint?field[2]==1:data[1]==1){
                         paint.setColor(Color.rgb(80,255,135));float x=data[2]*w,y=data[3]*h;
+                        if(ownPoint){viewport.map(this,field[3],field[4]);x=viewport.x;y=viewport.y;}
                         canvas.drawCircle(x,y,dp(7),paint);canvas.drawLine(x-dp(12),y,x+dp(12),y,paint);canvas.drawLine(x,y-dp(12),x,y+dp(12),paint);
                         if(spg&&data[9]==2){float rx=Math.max(dp(3),data[13]*w),ry=Math.max(dp(3),data[14]*h);canvas.drawOval(x-rx,y-ry,x+rx,y+ry,paint);}
                     }
@@ -85,6 +95,9 @@ final class ExperienceHud {
             if(action==MotionEvent.ACTION_UP||action==MotionEvent.ACTION_CANCEL){gesture.reset();captured=false;}
             return true;
         });
+        magazine=new TextView(activity);magazine.setTextColor(Color.WHITE);magazine.setTextSize(13);magazine.setShadowLayer(3,0,0,Color.BLACK);magazine.setVisibility(View.GONE);
+        magazine.setClickable(false);magazine.setFocusable(false);
+        FrameLayout.LayoutParams magPlace=new FrameLayout.LayoutParams(-2,-2,Gravity.TOP|Gravity.RIGHT);magPlace.rightMargin=dp(68);magPlace.topMargin=dp(6);root.addView(magazine,magPlace);
         broadcast=new TextView(activity);broadcast.setTextColor(Color.WHITE);broadcast.setTextSize(16);broadcast.setClickable(false);broadcast.setFocusable(false);broadcast.setShadowLayer(3,0,0,Color.BLACK);broadcast.setVisibility(View.GONE);
         FrameLayout.LayoutParams notice=new FrameLayout.LayoutParams(-2,-2,Gravity.TOP|Gravity.CENTER_HORIZONTAL);notice.topMargin=dp(5);root.addView(broadcast,notice);
         activity.addContentView(root,new android.view.ViewGroup.LayoutParams(-1,-1));

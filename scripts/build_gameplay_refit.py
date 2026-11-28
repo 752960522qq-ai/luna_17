@@ -23,7 +23,8 @@ def build(a):
             new=path.read_bytes()
             with zipfile.ZipFile(io.BytesIO(new)) as z:
                 h=json.loads(z.read("hatch.json"));assert h["id"]==name and sha(z.read("runtime.bin"))==h["runtime_sha256"] and z.testzip() is None
-            record.update(sha256=sha(new),size=len(new),supersedes_sha256=sorted(set(record.get("supersedes_sha256",[]))|{prev}))
+            if sha(new)==prev: continue
+            record.update(sha256=sha(new),size=len(new),supersedes_sha256=sorted((set(record.get("supersedes_sha256",[]))|{prev})-{sha(new)}))
             updates[entry]=new
     updates[CAT]=write(catalog)
     extra={n:(asset/n).read_bytes() for n in ("integration.json","mission.json","verification.json","Barbarossa-01.overlay")}

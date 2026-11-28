@@ -7,13 +7,22 @@ STUBS['com/luna17/aot/CampaignSupport.java']='package com.luna17.aot; public cla
 STUBS['android/widget/TextView.java']=STUBS['android/widget/TextView.java'].replace('public String text=', 'public int visibility;public void setVisibility(int n){visibility=n;} public void setClickable(boolean b){} public void setFocusable(boolean b){} public String text=')
 STUBS['com/luna17/aot/NativeBridge.java']=STUBS['com/luna17/aot/NativeBridge.java'].replace('static int taps,pans','static int sequence=1;static int taps,pans').replace('new int[]{1,1,3,450,1}', 'new int[]{sequence,1,3,450,1}')
 STUBS['com/luna17/aot/HudTest.java']=STUBS['com/luna17/aot/HudTest.java'].replace('已锁定敌方坦克','发现敌方坦克').replace('hud.detach();','CampaignSupport.extra=true;NativeBridge.sequence++;draw.invoke(root.children.get(0),new android.graphics.Canvas());check(((TextView)field(hud,"broadcast")).visibility==View.GONE && CampaignSupport.sent.contains("450 m"));hud.detach();')
+# Exercise window coordinates independently of the Android overlay's size.
+STUBS['android/view/View.java']=STUBS['android/view/View.java'].replace('public View(android.content.Context c){}','public static View rootWindow;public int px=0,py=0;public View(android.content.Context c){}public boolean isShown(){return true;}public boolean isAttachedToWindow(){return true;}public View getRootView(){return rootWindow==null?this:rootWindow;}public void getLocationInWindow(int[] p){p[0]=px;p[1]=py;}')
+STUBS['android/view/ViewGroup.java']=STUBS['android/view/ViewGroup.java'].replace('public void removeView','public int getChildCount(){return 0;}public View getChildAt(int i){return null;}public void removeView')
+STUBS['android/view/SurfaceView.java']='package android.view;public class SurfaceView extends View{public SurfaceView(android.content.Context c){super(c);}public int getWidth(){return 800;}public int getHeight(){return 400;}}'
+STUBS['android/view/Gravity.java']=STUBS['android/view/Gravity.java'].replace('TOP=1','RIGHT=4,TOP=1')
+STUBS['android/widget/FrameLayout.java']=STUBS['android/widget/FrameLayout.java'].replace('int topMargin','int rightMargin,topMargin')
+STUBS['android/widget/TextView.java']=STUBS['android/widget/TextView.java'].replace('public void setTextColor','public CharSequence getText(){return text;}public void setTextColor')
+STUBS['com/luna17/aot/CampaignSupport.java']=STUBS['com/luna17/aot/CampaignSupport.java'].replace('static boolean extra;','static float[] dial; static float[] instruments(){return dial;}static boolean extra;')
+STUBS['com/luna17/aot/HudTest.java']=STUBS['com/luna17/aot/HudTest.java'].replace('hud.detach();','CampaignSupport.dial=new float[]{0,4.8f,0,0,0,0,0};draw.invoke(root.children.get(0),new android.graphics.Canvas());check(((TextView)field(hud,"magazine")).text.contains("0/10") && ((TextView)field(hud,"magazine")).text.contains("4.8"));GameViewport vp=new GameViewport();SurfaceView sv=new SurfaceView(null);sv.px=110;sv.py=40;View.rootWindow=sv;View target=new View(null);target.px=10;target.py=20;vp.map(target,.25f,.75f);check(vp.x==300f && vp.y==320f);hud.detach();')
 class Hud(unittest.TestCase):
  def test_actual_hud_tap_pan_and_contact(self):
   with tempfile.TemporaryDirectory() as d:
    root=Path(d);sources=[]
    for name,text in STUBS.items():
     p=root/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(text);sources.append(str(p))
-   sources.extend(str(ROOT/'mods/tankinvincible/src/com/luna17/aot'/name) for name in ['ExperienceHud.java','ArtilleryGesture.java'])
+   sources.extend(str(ROOT/'mods/tankinvincible/src/com/luna17/aot'/name) for name in ['ExperienceHud.java','ArtilleryGesture.java','GameViewport.java'])
    subprocess.run(['java','com.sun.tools.javac.Main','-source','8','-target','8','-Xlint:-options','-d',d,*sources],check=True)
    subprocess.run(['java','-cp',d,'com.luna17.aot.HudTest'],check=True)
 if __name__=='__main__':unittest.main()
