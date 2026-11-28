@@ -1,0 +1,20 @@
+{
+  "type": "medium",
+  "vehicleKind": "tank",
+  "crew": 5,
+  "maxForwardSpeed": 40,
+  "maxReverseSpeed": 8,
+  "hullTraverse": "medium",
+  "enginePower": 300,
+  "engineName": "Maybach HL 120 TRM",
+  "weightTonnes": 19.8,
+  "gunElevation": 20,
+  "gunDepression": -10,
+  "turretRotation": 14,
+  "dimensionsMeters": {
+    "length": 5.38,
+    "width": 2.91,
+    "height": 2.44
+  },
+  "gameNotes": "Production Ausf.F with external mantlet/short 5 cm. Tier, reverse speed, turret slew and suspension are game settings."
+}

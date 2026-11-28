@@ -22,3 +22,8 @@ builder.config.json
 tanks/T54_1949/model.glb
 
 tanks/Grille/model.glb
+
+# Derivatives of the user's private Panzer III F print source are local build outputs.
+tanks/Panzer_III_Ausf_F/model.glb
+tanks/Panzer_III_Ausf_F/thumbnail.png
+tanks/Panzer_III_Ausf_F/rig.json

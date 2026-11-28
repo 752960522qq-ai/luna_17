@@ -1,0 +1,14 @@
+{
+  "body": {
+    "front": 30,
+    "side": 30,
+    "rear": 21
+  },
+  "turret": {
+    "front": 30,
+    "side": 30,
+    "rear": 30
+  },
+  "unit": "mm",
+  "notes": "Baseline armour; no later applique kit."
+}

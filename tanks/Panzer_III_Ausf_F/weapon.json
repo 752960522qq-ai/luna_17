@@ -1,0 +1,48 @@
+{
+  "name": "5 cm KwK 38 L/42",
+  "caliber": 50,
+  "reload": 4.6,
+  "muzzleVelocity": 660,
+  "continuousFire": false,
+  "ballistics": "physical",
+  "ammo": {
+    "AP": 60,
+    "HE": 36,
+    "APCR": 0,
+    "HEAT": 0,
+    "WP": 0
+  },
+  "shells": {
+    "AP": {
+      "name": "AP – game",
+      "penetrationMm": 55,
+      "explosiveMassGrams": 18
+    },
+    "HE": {
+      "name": "HE – game",
+      "penetrationMm": 8,
+      "explosiveMassGrams": 135
+    },
+    "APCR": {
+      "name": "APCR – game",
+      "penetrationMm": 0,
+      "explosiveMassGrams": 0
+    },
+    "HEAT": {
+      "name": "HEAT – game",
+      "penetrationMm": 0,
+      "explosiveMassGrams": 0
+    },
+    "WP": {
+      "name": "WP – game",
+      "penetrationMm": 0,
+      "explosiveMassGrams": 0
+    }
+  },
+  "machineGun": {
+    "name": "7.92 mm MG 34",
+    "position": "coaxial",
+    "ammo": 30
+  },
+  "gameNotes": "Single-shot. AP/HE split, velocity, reload, damage inputs and machine-gun counter are game balance values."
+}

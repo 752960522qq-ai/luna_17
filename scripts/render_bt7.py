@@ -17,13 +17,14 @@ args = cli.parse_args(sys.argv[sys.argv.index("--") + 1 :])
 vehicle = json.loads((args.project / "manifest.json").read_text())["id"]
 is_f = vehicle == "Panzer_II_Ausf_F"
 is_c = vehicle == "Panzer_IV_Ausf_C"
+is_iii_f = vehicle == "Panzer_III_Ausf_F"
 out = args.out
 out.mkdir(parents=True, exist_ok=True)
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.import_scene.gltf(filepath=str(args.project.resolve() / "model.glb"))
 s = bpy.context.scene
 s.render.engine = "CYCLES"
-s.cycles.samples = 32 if is_f else 20
+s.cycles.samples = 48 if is_iii_f else (32 if is_f else 20)
 s.cycles.use_denoising = False
 s.cycles.max_bounces = 4
 s.render.threads_mode = "FIXED"
@@ -131,7 +132,7 @@ if args.motion:
     scroll = []
     for suffix in ("l", "r"):
         mat = bpy.data.materials[
-            ("Pz2F" if is_f else "Pz4C" if is_c else "BT7") + "_tread_" + suffix
+            ("Pz3F" if is_iii_f else "Pz2F" if is_f else "Pz4C" if is_c else "BT7") + "_tread_" + suffix
         ]
         nt = mat.node_tree
         tex = next(n for n in nt.nodes if n.type == "TEX_IMAGE")
@@ -148,7 +149,7 @@ if args.motion:
         scroll.append(add.inputs[1])
     s.render.resolution_x = 768
     s.render.resolution_y = 432
-    s.cycles.samples = 8 if is_f else 6
+    s.cycles.samples = 6 if is_iii_f else (8 if is_f else 6)
     s.render.fps = 18
     # Forward, reverse, then counter-rotation on a marked inspection floor.
     D = [0.0, 0.0]
