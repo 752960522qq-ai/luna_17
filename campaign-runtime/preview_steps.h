@@ -12,7 +12,9 @@ static inline int preview_ticks(SceneVec p,SceneVec direction,float speed,float 
   if(!isfinite(speed)||speed<=0||!isfinite(g)||g<0||!isfinite(dt)||dt<.002f||dt>.12f)return 0;
   SceneVec start=p,v=plus((SceneVec){0},direction,speed);
   for(int n=0;n<1800;n++){
-    v.y-=g*dt;SceneVec end=plus(p,v,dt);
+    /* ShellMove initializes velocity on tick zero; gravity starts on its next tick. */
+    if(n)v.y-=g*dt;
+    SceneVec end=plus(p,v,dt);
     float range=length(dv(end,start));int limit=range>3000;
     if(limit){float k=(3000-length(dv(p,start)))/fmaxf(.00001f,range-length(dv(p,start)));end=plus(p,dv(end,p),fminf(1,fmaxf(0,k)));}
     int hit=cast(world,p,end,impact);if(hit!=0)return hit>0;

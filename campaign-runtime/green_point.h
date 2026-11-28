@@ -57,9 +57,9 @@ static void observe_pool(void *pool,SceneVec muzzle,void *seedshot){
     SceneVec p;void *tr=AT(shot,tip,void*);if(!live(tr)||!vec_call(tr_class,tr,"get_position",0,0,&p))continue;
     float v=length(AT(shot,velocity,SceneVec)),origin=AT(shot,nominal,float);
     if(!isfinite(v)||v<=1||v>8000||length(dv(p,muzzle))>fminf(120,v*.12f))continue;
-    /* In some templates nrmInitV is a unit factor. Use the measured launch
-       speed in that case, instead of interpreting it as scene units/second. */
-    observed_speed[code]=(isfinite(origin)&&fabsf(origin-v)<.025f*v)?origin:v;
+    /* Stock ShellMove writes the launch magnitude before applying direction or
+       gravity. A later falling/rising velocity must not become the next shot's initial speed. */
+    if(isfinite(origin)&&origin>0&&origin<=8000)observed_speed[code]=origin;
   }
 }
 static void update_green(float *out,int profiles,int aim){

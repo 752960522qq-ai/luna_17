@@ -1,0 +1,89 @@
+{
+  "base_commit": "9f15cf35c971453c92a15e40d2b2d68796cea010",
+  "files": {
+    "Hatch-0.4-Barbarossa-Complete.apk": {
+      "size": 501634060,
+      "sha256": "3790de3c68816f478ad00e30a1a9912c68c81f5db0116218d3c4b71645782a6e"
+    },
+    "Barbarossa-01-Gates-of-Hell.zip": {
+      "size": 164133318,
+      "sha256": "5bc4a428845bb84d1944b601b140f118e9a8e2d59407bbeec82fb6e5df138d43"
+    }
+  },
+  "signature": {
+    "schemes": [
+      "v2",
+      "v3"
+    ],
+    "certificate_sha256": "734e17a0550eb23e3e5975dc90a7932eb513ee0e62ad4804b436cacd5f15413e",
+    "alignment_bytes": 16384
+  },
+  "bundled_mod_count": 13,
+  "mod_core_sha256": "5f0195c93f967c0e24458e1d39a751c39f4256653cc836a09f3ff2644b93a02f",
+  "field_assets": {
+    "sides": {
+      "SO": {
+        "imported_main_guns": 14,
+        "untouched_stock_main_guns": 8,
+        "player_and_retry_shell_pool": [
+          2,
+          2
+        ],
+        "separate_ai_roots": 12
+      },
+      "GE": {
+        "imported_main_guns": 14,
+        "untouched_stock_main_guns": 8,
+        "player_and_retry_shell_pool": [
+          12,
+          12
+        ],
+        "separate_ai_roots": 12
+      }
+    },
+    "normal_field_unchanged": true,
+    "changed_members": [
+      "level22",
+      "level23"
+    ],
+    "checked_members": 74,
+    "android_device_test": false
+  },
+  "packaged_game_path_replay": {
+    "stock_speed_scale": 0.23,
+    "stock_gravity": 8.0,
+    "mod_gravity": 9.81,
+    "field_launchers_restored": {
+      "SO": 14,
+      "GE": 14
+    },
+    "AP_first_tick_from_packaged_code_and_data": {
+      "T26": {
+        "old_AP_initial_game_speed": 174.8,
+        "new_AP_initial_game_speed": 760
+      },
+      "BT7": {
+        "old_AP_initial_game_speed": 174.8,
+        "new_AP_initial_game_speed": 760
+      },
+      "Panzer_IV_Ausf_C": {
+        "old_AP_initial_game_speed": 88.55,
+        "new_AP_initial_game_speed": 385
+      },
+      "Panzer_II_Ausf_F": {
+        "old_AP_initial_game_speed": 190.9,
+        "new_AP_initial_game_speed": 830
+      }
+    },
+    "android_device_test": false
+  },
+  "host_verification": [
+    "stock gun-sight transition dependency present; missing in the input German field",
+    "1x to scope, close, selected higher magnification, free view and pause",
+    "actual player collision owner detaches only if still grouped; preserves world pose",
+    "hold/tap, 10+1 rounds, refused shot, pause, stock win/death hand-off and retry",
+    "first physics tick without gravity; preview matches independently stepped landing",
+    "loader activity lifecycle (6) and Android HUD touch replay (1)"
+  ],
+  "android_device_test": false
+}

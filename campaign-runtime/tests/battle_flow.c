@@ -10,6 +10,8 @@
 #define AT(p,o,t) (*(t*)((char*)(p)+(o)))
 typedef struct { void *slots[80]; } Obj;
 static Obj G,H,S,BR,PC,T,LA,MNT,SH,SEED,POOL,SHOT[12],HELD,DOWN,UIROOT,CAM,CC,STR,INFO,ROOT,terrain,BOX,ANSWER,ENUMM,PARAMS,ID;
+static Obj AIMP,BTN,ZOOMS,YAW,TEAMNAME;static int detached;static int aimpressed,display,zoomindex,rebinds,zooms,fireenabled=1;static void *mountref,*targetref;
+static void *ctrl_ui=&ROOT;
 static void *obj=&BOX,*controller=&G,*ui=&H,*timec=&ID,*goc=&ROOT,*uStatus=&S,*lookup_m=&PARAMS,*intc=&ID;
 static void *ctrl_pc=&PC,*ctrl_tm=&T,*ctrl_launcher=&LA,*stats_class=&BR;
 static int ready=1,terminal=0,deadoff=37,boardoff=56,paused,held,down,accepted,requests,failed_shot;
@@ -17,16 +19,19 @@ static int win,lost,result_calls,gameover_calls,show,panels,origin_owner=7,shots
 static float clockval,unscaled,stock_next,start_cycle,yfloor=0;static int idword;
 static void *expected_skip;
 static int live(void *p){return p!=0;}
-static void *find(const char *n){if(!strcmp(n,"Hatch F Trigger"))return &G;if(!strcmp(n,"Hatch F Held"))return held?&HELD:0;if(!strcmp(n,"Hatch F Down"))return down?&DOWN:0;return 0;}
-static void deactivate(void *p){if(p==&DOWN)down=0;else if(p==&HELD)held=0;}
+static void *find(const char *n){if(!strcmp(n,"Button Aim"))return &BTN;if(!strcmp(n,"Hatch F Trigger"))return &G;if(!strcmp(n,"Hatch F Held"))return held?&HELD:0;if(!strcmp(n,"Hatch F Down"))return down?&DOWN:0;return 0;}
+static void deactivate(void *p){if(p==&AIMP)aimpressed=0;else if(p==&DOWN)down=0;else if(p==&HELD)held=0;}
 static int flag(void*c,void*p,const char*k){(void)c;
- if(!strcmp(k,"get_activeInHierarchy"))return p==&UIROOT&&show;
+ if(!strcmp(k,"get_interactable"))return fireenabled;
+ if(!strcmp(k,"get_activeSelf")&&p==&AIMP)return aimpressed;
+ if(!strcmp(k,"get_activeInHierarchy"))return (p==&UIROOT&&show)||p==&PC;
  if(!strcmp(k,"get_activeSelf")){for(int i=0;i<12;i++)if(p==&SHOT[i])return shots[i];return 0;}
  if(!strcmp(k,"get_IsGameClear"))return win;
  if(!strcmp(k,"get_IsGameOver"))return lost;
  if(!strcmp(k,"get_IsNowLoading"))return clockval+.00001f<stock_next;
  return 0;}
 static int number(void*c,void*p,const char*k,int bad){(void)c;(void)p;
+ if(!strcmp(k,"get_CurrentDisplayMode"))return display;if(!strcmp(k,"get_CurrentZoomIndex"))return zoomindex;
  if(!strcmp(k,"GetInstanceID"))return origin_owner;if(!strcmp(k,"get_FireNumByPlayer"))return accepted;
  if(!strcmp(k,"get_CurrentFndNum"))return 5;if(!strcmp(k,"get_CurrentSightType"))return 0;
  if(!strcmp(k,"get_width"))return 1000;if(!strcmp(k,"get_height"))return 500;return bad;}
@@ -35,13 +40,18 @@ static float scalar(void*c,void*p,const char*n){(void)c;(void)p;
  if(!strcmp(n,"get_unscaledTime"))return unscaled;if(!strcmp(n,"get_fixedDeltaTime"))return .02f;return clockval;}
 static int field(void*c,const char*n){(void)c;
  if(!strcmp(n,"shellApGos"))return 48;if(!strcmp(n,"loadedShell"))return 128;
+ if(!strcmp(n,"maxZoomScaleNum"))return 100;
  if(!strcmp(n,"unitName"))return 40;
  if(!strcmp(n,"viewMode"))return 40;if(!strcmp(n,"thisTrf"))return 64;
  if(!strcmp(n,"initSpeed"))return 24;if(!strcmp(n,"hitLayerMask"))return 76;
  return -1;}
-static int named(void*p,const char*n){return p==&STR&&!strcmp(n,"Panzer_II_Ausf_F");}
+static int named(void*p,const char*n){return (p==&STR&&!strcmp(n,"Panzer_II_Ausf_F"))||(p==&TEAMNAME&&!strcmp(n,"Campaign Units"));}
 static void *first(void *p){return p?AT(p,32,void*):0;}
 static void *read_ref(void*c,void*p,const char*n){(void)c;(void)p;
+ if(!strcmp(n,"uStatus")&&p==&PC)return &S;
+ if(!strcmp(n,"fireBtnGos"))return &G;if(!strcmp(n,"turretTrf"))return &YAW;
+ if(!strcmp(n,"_targetTrf"))return targetref;if(!strcmp(n,"_playerTurretTrf"))return mountref;
+ if(!strcmp(n,"zoomScaleFactor"))return &ZOOMS;
  if(!strcmp(n,"mResultGo"))return &UIROOT;if(!strcmp(n,"launchers"))return &G;
  if(!strcmp(n,"tMove"))return &T;if(!strcmp(n,"mCamCtrl"))return &CC;
  if(!strcmp(n,"myCamera"))return &CAM;if(!strcmp(n,"thisTrf"))return &ROOT;
@@ -54,6 +64,14 @@ static void *hatch_type_object(void*c){return c;}
 static void *ha_param_class(void*p){return p;}
 static void *lookup(void*c,const char*n,int sz){(void)c;(void)sz;return !strcmp(n,"SetMissionResulet")?lookup_m:(void*)n;}
 static void *call(void*c,void*self,const char*n,int k,void **a,int*e){(void)c;(void)self;(void)k;(void)e;
+ if(!strcmp(n,"get_name")&&self==&UIROOT)return &TEAMNAME;
+ if(!strcmp(n,"get_transform")&&self==&PC)return &ROOT;
+ if(!strcmp(n,"SetParent")){assert(self==&ROOT&&a[0]==0&&*(bool*)a[1]);++detached;return 0;}
+ if(!strcmp(n,"get_transform")&&self==&BTN)return &BTN;
+ if(!strcmp(n,"Find")&&self==&BTN&&!strcmp(a[0],"Hatch F Aim Press"))return &AIMP;
+ if(!strcmp(n,"get_gameObject")&&self==&AIMP)return &AIMP;
+ if(!strcmp(n,"set_PlayerTurretTrf")){++rebinds;mountref=targetref=a[0];return 0;}
+ if(!strcmp(n,"SwitchZoomScale")){assert(++zoomindex<=AT(&S,100,int));++zooms;display=2;return 0;}
  if(!strcmp(n,"get_PlayerGo"))return &PC;
  if(!strcmp(n,"ButtonFire")){requests++;if(!failed_shot&&clockval>=stock_next){accepted++;start_cycle=clockval;stock_next=clockval+.395f;shots[accepted%12]=1;}return 0;}
  if(!strcmp(n,"GameOver")){gameover_calls++;lost=1;return 0;}
@@ -61,7 +79,7 @@ static void *call(void*c,void*self,const char*n,int k,void **a,int*e){(void)c;(v
  if(!strcmp(n,"GetShellAttackInfo")){last_type=*(int*)a[0];AT(&INFO,24,float)=last_type==2?75:40;return &INFO;}
  if(!strcmp(n,"get_position")){AT(&ANSWER,16,SceneVec)=(SceneVec){0,2,0};return &ANSWER;}
  if(!strcmp(n,"get_forward")){AT(&ANSWER,16,SceneVec)=(SceneVec){0,0,1};return &ANSWER;}
- if(!strcmp(n,"get_root"))return &UIROOT;
+ if(!strcmp(n,"get_root"))return self==&ROOT&&detached?&ROOT:&UIROOT;
  if(!strcmp(n,"IsChildOf")){if(expected_skip)assert(a[0]==expected_skip);AT(&ANSWER,16,uint8_t)=self==&ROOT;return &ANSWER;}
  if(!strcmp(n,"WorldToScreenPoint")){SceneVec v=*(SceneVec*)a[0];AT(&ANSWER,16,SceneVec)=(SceneVec){400+v.z,275,1};return &ANSWER;}
  return 0;
@@ -95,7 +113,17 @@ static void frame(int cs,float *out){
 }
 int main(void){
  (void)ready;(void)terminal;(void)idword;(void)panels;(void)mg_calls;(void)SEED;
- init();float o[7]={0};held=down=1;frame(0,o);frame(1,o);assert(accepted==1&&o[0]==9);
+ init();AT(&ROOT,0,void*)=&ROOT;update_owner_root();update_owner_root();assert(detached==1&&owner_root_done);
+ AT(&BTN,0,void*)=&BTN;AT(&AIMP,0,void*)=&AIMP;AT(&ZOOMS,24,uintptr_t)=3;
+ AT(&ZOOMS,32,float)=1;AT(&ZOOMS,36,float)=2.5f;AT(&ZOOMS,40,float)=5;
+ display=1;aimpressed=1;update_optics();assert(!aimpressed&&display==2&&zoomindex==1&&rebinds==1&&mountref==&YAW&&targetref==&YAW&&zooms==1);
+ update_optics();assert(zooms==1);display=0;aimpressed=1;update_optics();assert(!aimpressed&&!display&&zooms==1);
+ display=2;zoomindex=2;aimpressed=1;update_optics();assert(zoomindex==2&&zooms==1);
+ AT(&CC,40,int)=3;display=1;aimpressed=1;zoomindex=0;targetref=&ROOT;update_optics();assert(!aimpressed&&targetref==&ROOT&&zooms==1);
+ AT(&CC,40,int)=0;display=1;targetref=&YAW;aimpressed=1;paused=1;update_optics();assert(!aimpressed&&zooms==1);paused=0;
+ bound=8;aimpressed=1;update_optics();assert(aimpressed&&zooms==1);aimpressed=0;bound=23;
+ printf("gunner sight: 1x to scope, live turret, close, 5x preserved, free camera, pause and stock scene checks passed\n");
+ float o[7]={0};fireenabled=0;held=down=1;frame(0,o);assert(!accepted&&!held);fireenabled=1;held=down=1;frame(0,o);frame(1,o);assert(accepted==1&&o[0]==9);
  for(int cs=2;cs<=365;cs++){down=cs%3==0;frame(cs,o);}
  assert(accepted==10&&o[0]==0&&o[1]>4.7f);
  int r=requests;
@@ -115,7 +143,7 @@ int main(void){
     production preview must keep using the old shell until loading completes. */
  expected_skip=&UIROOT;AT(&S,124,int)=2;AT(&S,128,int)=0;update_green(o,2,1);assert(o[2]==1&&last_type==0);float old=o[5];
  AT(&S,128,int)=2;update_green(o,2,1);assert(o[2]==1&&last_type==2&&o[5]>old*1.7f);
- float y=2,vy=0,z=0,prev=0;while(y>0){float yp=y;vy-=9.81f*.02f;y+=vy*.02f;prev=z;z+=75*.02f;if(y<=0)z=prev+(z-prev)*yp/(yp-y);}
+ int tick=0;float y=2,vy=0,z=0,prev=0;while(y>0){float yp=y;if(tick++)vy-=9.81f*.02f;y+=vy*.02f;prev=z;z+=75*.02f;if(y<=0)z=prev+(z-prev)*yp/(yp-y);}
  assert(fabsf(o[3]-(400+z)/1000)<.00001f);
  AT(&CC,40,int)=1;update_green(o,2,1);assert(!o[2]);
  printf("green dot: chambered AP/APCR, independent fixed-tick scene replay and camera exit passed\n");return 0;

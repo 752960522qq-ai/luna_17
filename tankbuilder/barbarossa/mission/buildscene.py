@@ -99,6 +99,11 @@ def attach(link, s, fn, g, grp, row, *, factory=False):
     row.update(
         root=ids[g], transform=ids[tr0], source=fn, source_root=g, controllers=ctl
     )
+    # Native Launcher.Init discovers the main gun from its empty name slot.
+    # Keep the actual weapon title on UnitStatus, as ordinary field spawns do.
+    from .scope_flight import IMPORTED, primary
+    if row["tank"] in IMPORTED:
+        primary(link, row, row["tank"])
 
 
 def merge_map(link, m):

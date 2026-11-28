@@ -13,6 +13,8 @@ static void unlock_button(void){
 }
 static int unit_offset=-1,pool_offset=-1, exclusive;
 static void reset_instruments(void);
+#include "field_optics.h"
+#include "vehicle_root.h"
 static void fire_binding(int idx,int mode,void *gc,void *st){
   int e=0;
   if(!ready || mode<0 || mode==2 || !live(gc)||!live(st)||deadoff<16||AT(st,deadoff,uint8_t))gc=st=0;
@@ -20,7 +22,7 @@ static void fire_binding(int idx,int mode,void *gc,void *st){
   if(ident==owner&&idx==bound&&live(bound_gun)&&live(bound_turret)&&live(bound_hud))return;
   if(ident!=owner||idx!=bound){
     if(idx==bound)unlock_button();else{button_locked=0;locked_button=0;}
-    magazine=(ClipClock){0};f_last=0;last_count=-1;exclusive=0;reset_instruments();
+    magazine=(ClipClock){0};f_last=0;last_count=-1;exclusive=0;reset_instruments();clear_optics_refs();owner_root_done=0;
   }
   owner=ident;bound=idx;bound_gc=gc;bound_st=st;bound_pc=bound_gun=bound_stats=bound_turret=0;am_player_f=am_t26=0;
   if(!owner||boardoff<16)return;
@@ -80,7 +82,7 @@ static void update_cannon(float *out){
   int tap=down!=0;if(down)deactivate(down);
   static int menu_off=-1;if(menu_off<16)menu_off=field(ui,"isMenuPopUp");
   int e=0;
-  if(scalar(timec,0,"get_timeScale")<=0 || (menu_off>=16&&AT(bound_hud,menu_off,uint8_t))){
+  if(scalar(timec,0,"get_timeScale")<=0 || ((tap||held)&&!fire_interactable()) || (menu_off>=16&&AT(bound_hud,menu_off,uint8_t))){
     if(held)deactivate(held);
     return;
   }
@@ -99,7 +101,7 @@ JNIEXPORT jboolean JNICALL Java_com_luna17_campaign_CampaignLoop_sample(JNIEnv *
   (void)cls;
   if(!dst||(*env)->GetArrayLength(env,dst)!=7)return JNI_FALSE;
   float out[7]={-1,0,-1,0,0,0,0};
-  if(ready && !terminal){update_cannon(out);update_green(out,profiles,aim);}
+  if(ready && !terminal){update_owner_root();update_optics();update_cannon(out);update_green(out,profiles,aim);}
   (*env)->SetFloatArrayRegion(env,dst,0,7,out);
   return !terminal&&owner&&(am_player_f||bound==22||bound==23);
 }
