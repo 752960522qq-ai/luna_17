@@ -171,6 +171,7 @@ static int statoff = -1, boardoff = -1, deadoff = -1, towedoff = -1, panic = -1,
            gunner = -1, crewn = -1, ko = -1, hi = -1;
 #include "game_values.h"
 #include "results.h"
+#include "t28_aux.h"
 static void resolve(void) {
   stats_class=hatch_class("","BattleResultsManager");
   ctrl_ui=hatch_class("UnityEngine","Component");ctrl_pc=hatch_class("","PlayerControl");
@@ -243,6 +244,7 @@ JNIEXPORT jint JNICALL Java_com_luna17_campaign_CampaignLoop_step(JNIEnv *env,
   void *gc = modeValue>=0 && modeValue!=2 ? instance(controller) : 0;
   void *current=gc && !blocked(statoff)?AT(gc,statoff,void*):0;
   terminal=modeValue==0 && gc && result_step(idx,gc,boardoff>=16?AT(gc,boardoff,void*):0,live(current)&&deadoff>=16&&AT(current,deadoff,uint8_t));
+  t28_aux_step(idx, gc!=0 && modeValue!=2, terminal);
   fire_binding(idx,modeValue,terminal?0:gc,terminal?0:current);
   if(terminal)return 0;
   if (modeValue != 0) return 0; /* mission logic: local campaign only */

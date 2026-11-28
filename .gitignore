@@ -27,3 +27,8 @@ tanks/Grille/model.glb
 tanks/Panzer_III_Ausf_F/model.glb
 tanks/Panzer_III_Ausf_F/thumbnail.png
 tanks/Panzer_III_Ausf_F/rig.json
+
+# Locally supplied T-28 mesh, generated assembly and preview assets are separate deliverables.
+tanks/T28/model.glb
+tanks/T28/thumbnail.png
+tanks/T28/rig.json

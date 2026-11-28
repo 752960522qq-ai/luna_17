@@ -33,9 +33,17 @@ def build(src,out):
     muzzle = T([97.49, 109.19, 10.69])
     coax = T([94.29, 123.25, 11.11])
     bar = t[barrel & (t[:, :, 1].max(1) > 109.191)]
+    # The tabletop print exaggerated radial dimensions for strength. Preserve the
+    # photographed stepped silhouette and the axial positions of the mouth and collar.
+    # This is an external art profile only. The sleeve, trunnions and weapon data stay put.
+    bar = bar.copy()
+    u = np.clip((bar[:, :, 1] - 109.19) / (121.31 - 109.19), 0, 1)
+    radial = 0.57 + 0.09 * u
+    for axis, line in [(0, 97.49), (2, 10.69)]:
+        bar[:, :, axis] = line + (bar[:, :, axis] - line) * radial
     barrelparts = parts(T(bar), 'gunmetal')
-    # The print capped the bore; add a recessed dark aperture at the original mouth.
-    lip = rings([(0.002, 0.075), (-0.001, 0.075), (-0.001, 0.031), (0.027, 0.031), (0.027, 0)], muzzle, 'z', 40)
+    lip = rings([(0.002, 0.043), (-0.001, 0.043), (-0.001, 0.025),
+                 (0.027, 0.025), (0.027, 0)], muzzle, 'z', 48)
     barrelparts += parts(lip, 'gunmetal')
     g.mesh(rec, barrelparts)
     mn = g.node('Muzzle_Main', rec, muzzle)

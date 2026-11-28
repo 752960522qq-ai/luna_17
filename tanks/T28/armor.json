@@ -1,0 +1,14 @@
+{
+  "body": {
+    "front": 30,
+    "side": 20,
+    "rear": 20
+  },
+  "turret": {
+    "front": 20,
+    "side": 20,
+    "rear": 20
+  },
+  "unit": "mm",
+  "notes": "Representative unscreened early configuration. Values represent main plates; no T-28E applique."
+}

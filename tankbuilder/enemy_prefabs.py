@@ -28,10 +28,10 @@ DONORS = {
     "T44_100": "T44_AI",
     "T54_1949": "T44_AI",
 }
-EXTENSION_DONORS = {"BT7": "T34_76_AI", "Panzer_II_Ausf_F": DONORS["Panzer_II_Ausf_L"], "Panzer_IV_Ausf_C": "Panzer_IV_H_AI", "Panzer_III_Ausf_F": "Panzer_III_J_AI"}
+EXTENSION_DONORS = {"BT7": "T34_76_AI", "Panzer_II_Ausf_F": DONORS["Panzer_II_Ausf_L"], "Panzer_IV_Ausf_C": "Panzer_IV_H_AI", "Panzer_III_Ausf_F": "Panzer_III_J_AI", "T28": "T34_76_AI"}
 ALL_DONORS = {**DONORS, **EXTENSION_DONORS}
 # Original stock HE pools: KV-2, US howitzer and the same-calibre M3 Lee 75 mm gun.
-HE_DONOR = {"SU_152": 130334, "T30": 130334, "T44_100": 129981, "T54_1949": 129981, "Panzer_IV_Ausf_C": 137724, "Panzer_III_Ausf_F": 137724}
+HE_DONOR = {"SU_152": 130334, "T30": 130334, "T44_100": 129981, "T54_1949": 129981, "Panzer_IV_Ausf_C": 137724, "Panzer_III_Ausf_F": 137724, "T28": 129981}
 IDENTITY = (0, 0, 0, 0, 0, 0, 1, 1, 1, 1)
 
 
@@ -303,7 +303,7 @@ def create(a, stock, mod, out, *, player=False):
     s.set_mb(status, "UnitStatus", st)
     launch = s.mb(s.launch, "Launcher")
     launch.update(
-        weaponName="" if ident == "Panzer_III_Ausf_F" else w["name"],
+        weaponName="" if ident in ("Panzer_III_Ausf_F","T28") else w["name"],
         calibre=w["caliber"],
         attackPower=w["shells"][prim]["penetrationMm"],
         initSpeed=w["muzzleVelocity"],

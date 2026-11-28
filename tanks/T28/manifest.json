@@ -1,0 +1,10 @@
+{
+  "format": 1,
+  "id": "T28",
+  "displayName": "T-28 (1934)",
+  "country": "USSR",
+  "tier": 2,
+  "basePrefab": "T34_85_Player",
+  "role": "player",
+  "adapter": "aot-5.1.0-arm64-v1"
+}

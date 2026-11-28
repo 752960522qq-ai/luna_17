@@ -25,3 +25,5 @@ python -m tankbuilder.panzer3f.integrate --apk "$BASE_APK" --index "$PRIOR_AI_IN
 ```sh
 python -m tankbuilder.panzer3f.restore --apk "$BASE_APK" --integration PanzerIII-F-Integration.json --overlay PanzerIII-F-Resources.overlay --vehicle Panzer_III_Ausf_F.hatch --out "$STAGING_DIR"
 ```
+
+外观修订：按外置炮盾的实车照片收细打印模型偏粗的外露炮管。炮口处模型外径相对首版减小 43%，炮根保留阶梯轮廓；炮盾、炮口位置、后坐行程及所有车辆和武器数据保持原值。这是对游戏轮廓的修正，不是实车外径测量。

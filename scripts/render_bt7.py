@@ -18,13 +18,14 @@ vehicle = json.loads((args.project / "manifest.json").read_text())["id"]
 is_f = vehicle == "Panzer_II_Ausf_F"
 is_c = vehicle == "Panzer_IV_Ausf_C"
 is_iii_f = vehicle == "Panzer_III_Ausf_F"
+is_t28 = vehicle == "T28"
 out = args.out
 out.mkdir(parents=True, exist_ok=True)
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.import_scene.gltf(filepath=str(args.project.resolve() / "model.glb"))
 s = bpy.context.scene
 s.render.engine = "CYCLES"
-s.cycles.samples = 48 if is_iii_f else (32 if is_f else 20)
+s.cycles.samples = 48 if is_iii_f or is_t28 else (32 if is_f else 20)
 s.cycles.use_denoising = False
 s.cycles.max_bounces = 4
 s.render.threads_mode = "FIXED"
@@ -85,11 +86,11 @@ cam.type = "ORTHO"
 def camera(position, look, size):
     c.location = position
     c.rotation_euler = (
-        (Vector(look) + Vector((0, 0, 0.23 if is_f or is_c else 0)) - c.location)
+        (Vector(look) + Vector((0, 0, 0.34 if is_t28 else 0.23 if is_f or is_c else 0)) - c.location)
         .to_track_quat("-Z", "Y")
         .to_euler()
     )
-    cam.ortho_scale = size * (0.90 if is_f else 1.09 if is_c else 1.0)
+    cam.ortho_scale = size * (1.30 if is_t28 else 0.90 if is_f else 1.09 if is_c else 1.0)
 
 
 def shot(name):
@@ -103,6 +104,9 @@ camera((-8, 1.7, 2.65), (0, 0, 1.11), 6.95)
 shot("Running-gear")
 camera((6.3, -6.2, 4.0), (0, 0, 1.07), 7.05)
 shot("Rear")
+if is_t28:
+    camera((-4.1, 4.5, 7.1), (0, 0.90, 1.40), 5.6)
+    shot("Turrets")
 if args.motion:
     rig = json.loads((args.project / "rig.json").read_text())
     arm = next(o for o in model_objects if o.type == "ARMATURE")
@@ -114,7 +118,8 @@ if args.motion:
 
     rotations = {}
     world_dirs = {}
-    for objname in [w["name"] for w in rig["wheels"]] + ["Turret", "Gun"]:
+    aux_names = ["T28_Aux_l", "T28_Aux_r", "T28_DT_l", "T28_DT_r"] if is_t28 else []
+    for objname in aux_names + [w["name"] for w in rig["wheels"]] + ["Turret", "Gun"]:
         o = bpy.data.objects[objname]
         o.rotation_mode = "QUATERNION"
         rotations[objname] = o.rotation_quaternion.copy()
@@ -132,7 +137,7 @@ if args.motion:
     scroll = []
     for suffix in ("l", "r"):
         mat = bpy.data.materials[
-            ("Pz3F" if is_iii_f else "Pz2F" if is_f else "Pz4C" if is_c else "BT7") + "_tread_" + suffix
+            ("T28" if is_t28 else "Pz3F" if is_iii_f else "Pz2F" if is_f else "Pz4C" if is_c else "BT7") + "_tread_" + suffix
         ]
         nt = mat.node_tree
         tex = next(n for n in nt.nodes if n.type == "TEX_IMAGE")
@@ -184,6 +189,14 @@ if args.motion:
             bpy.data.objects[nm].rotation_quaternion = rotations[nm] @ Quaternion(
                 world_dirs[nm] @ Vector(axis), val
             )
+        if is_t28:
+            for tag in ("l", "r"):
+                # Blender +Z yaw is leftwards; convert to the signed Unity yaw sector.
+                uyaw = -math.degrees(yaw)
+                limited = max(-55 if tag == "l" else -13, min(13 if tag == "l" else 55, uyaw))
+                for nm, axis, val in [(f"T28_Aux_{tag}", (0,0,1), -math.radians(limited)),
+                                      (f"T28_DT_{tag}", (1,0,0), min(pitch,math.radians(8)))]:
+                    bpy.data.objects[nm].rotation_quaternion = rotations[nm] @ Quaternion(world_dirs[nm] @ Vector(axis), val)
         kick = max(0, 1 - abs(t - 3.0) / 0.16)
         if is_f:
             kick = max(

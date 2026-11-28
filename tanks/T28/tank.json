@@ -1,0 +1,20 @@
+{
+  "type": "medium",
+  "vehicleKind": "tank",
+  "crew": 6,
+  "maxForwardSpeed": 37,
+  "maxReverseSpeed": 8,
+  "hullTraverse": "medium",
+  "enginePower": 450,
+  "engineName": "M-17",
+  "weightTonnes": 28,
+  "gunElevation": 25,
+  "gunDepression": -5,
+  "turretRotation": 12,
+  "dimensionsMeters": {
+    "length": 7.44,
+    "width": 2.87,
+    "height": 2.82
+  },
+  "gameNotes": "Early production cylindrical three-turret model with short KT-28 and frame antenna. Tier, reverse, traverse and gun travel are game tuning."
+}

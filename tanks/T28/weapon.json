@@ -1,0 +1,49 @@
+{
+  "name": "76.2 mm KT-28",
+  "caliber": 76,
+  "reload": 6.3,
+  "muzzleVelocity": 350,
+  "continuousFire": false,
+  "ballistics": "physical",
+  "ammo": {
+    "AP": 26,
+    "HE": 44,
+    "APCR": 0,
+    "HEAT": 0,
+    "WP": 0
+  },
+  "shells": {
+    "AP": {
+      "name": "AP – game",
+      "penetrationMm": 34,
+      "explosiveMassGrams": 44
+    },
+    "HE": {
+      "name": "HE – game",
+      "penetrationMm": 12,
+      "explosiveMassGrams": 340
+    },
+    "APCR": {
+      "name": "APCR – game",
+      "penetrationMm": 0,
+      "explosiveMassGrams": 0
+    },
+    "HEAT": {
+      "name": "HEAT – game",
+      "penetrationMm": 0,
+      "explosiveMassGrams": 0
+    },
+    "WP": {
+      "name": "WP – game",
+      "penetrationMm": 0,
+      "explosiveMassGrams": 0
+    }
+  },
+  "machineGun": {
+    "name": "7.62 mm DT",
+    "position": "coaxial",
+    "ammo": 30
+  },
+  "gameNotes": "Historical 70 main rounds, split for play. Reload, projectile flight, damage inputs and MG counter are gameplay values. Front mini-turrets track aim visually; the existing MG control uses the main DT.",
+  "historicalCaliberMm": 76.2
+}
