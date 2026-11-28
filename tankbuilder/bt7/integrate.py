@@ -53,7 +53,7 @@ def one_file(raw):
     return next(iter(UnityPy.load(raw).files.values()))
 
 
-def reg(a, manager, asset, entry):
+def reg(a, manager, asset, entry, *, refresh=False):
     mg = one_file(manager)
     obj = reg_object(mg)
     tree = assert_roundtrip(obj)
@@ -64,15 +64,20 @@ def reg(a, manager, asset, entry):
     pk = entry["profile_resource_path"]
     root = entry["root_path_id"]
     oldkeys = dict(tree["m_Container"])
-    check(not {k, pk}.intersection(oldkeys), "Resource key collision")
     names = {e.path: i for i, e in enumerate(mg.externals, 1)}
     stock = names["resources.assets"]
-    check(asset.name not in names, "File ID collision")
-    tpl = copy.copy(mg.externals[stock - 1])
-    tpl.path = asset.name
-    mg.externals.append(tpl)
-    me = len(mg.externals)
-    names[asset.name] = me
+    if asset.name in names:
+        check(refresh, "File ID collision")
+        me = names[asset.name]
+    else:
+        tpl = copy.copy(mg.externals[stock - 1])
+        tpl.path = asset.name
+        mg.externals.append(tpl)
+        me = names[asset.name] = len(mg.externals)
+    for key, pid in ((k,root),(pk,entry["profile_path_id"])):
+        check(key not in oldkeys or refresh and oldkeys[key] == pp(pid,me), "Resource key collision")
+    tree["m_Container"] = [(key,val) for key,val in tree["m_Container"] if key not in (k,pk)]
+    tree["m_DependentAssets"] = [r for r in tree["m_DependentAssets"] if r["m_Object"]["m_FileID"] != me]
 
     def native_file(e):
         if e.path not in names:

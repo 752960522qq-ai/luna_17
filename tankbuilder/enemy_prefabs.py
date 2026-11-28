@@ -68,6 +68,21 @@ def attach_visuals(s, ident, nodes, images, h, rig):
     for i in s.parts["MachineGun"]:
         g = struct.unpack_from("<iq", s.sf.objects[i].get_raw_data())[1]
         protected_go.append(s.go(s.get(s.tr(g))["m_Father"]["m_PathID"]))
+    # Name Display is a world-space TextMesh. Its MeshRenderer belongs to the stock
+    # UnitDisplay visibility system, not to the body geometry being replaced.
+    displays = [g for g, parts, _ in s.nodes
+                if any(p in s.parts["UnitDisplay"] for p in parts)
+                and any(s.sf.objects[p].type.name == "TextMesh" for p in parts)]
+    if len(displays) != 1:
+        raise ValueError("Missing stock UnitDisplay/TextMesh on " + ident)
+    protected_go.extend(displays)
+    # The native UnitDisplay still owns visibility, color, facing and distance.
+    # A mod ID has no stock localization entry; leave a real model name for its TextMesh.
+    text = one((p for p in s.get(displays[0])["m_Component"]
+                if s.sf.objects[p["component"]["m_PathID"]].type.name == "TextMesh"), "stock name text")["component"]["m_PathID"]
+    label = s.get(text)
+    label["m_Text"] = h["name"]
+    s.put(text, label)
     for gid in protected_go:
         protected.update(g for g, _, _ in subtree(s.base, gid))
     visibility = []

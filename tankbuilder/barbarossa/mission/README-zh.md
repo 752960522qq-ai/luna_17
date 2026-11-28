@@ -24,3 +24,5 @@ python apply_overlay.py Hatch-0.4-Grille-HE200-T26.apk data.unity3d
 ```
 
 输出路径须不存在。生成的文件对应游戏包内的 `assets/bin/Data/data.unity3d`；组装时使用 ZIP 里的 `assets/Hatch/` 目录与模组，替换 `AndroidManifest.xml`、`classes4.dex`，并添加 `classes5.dex` 和 `lib/arm64-v8a/libhatchcampaign.so`。不要把这些文件放入手机存档目录。还原工具校验基线、补丁及输出的 SHA-256。两方配置见 `mission.json`，场景回读结果在 `verification.json`。
+
+本版将额外战役的开场、阶段、侦察、命中和击毁文本送入原版顶部消息栏。11 个模组 AI 的名称沿用原版世界空间标识。T26 的车体检修盖固定在甲板，炮塔顶盖保留原有父级。二号 F 主炮支持长按和点射，一个弹匣 10 发、发间隔 0.4 秒、整匣换弹 4.85 秒。

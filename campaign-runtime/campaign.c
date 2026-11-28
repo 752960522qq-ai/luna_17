@@ -20,6 +20,7 @@ static void *goc, *obj, *scene, *timec, *intc, *paramc, *controller, *uStatus,
     *ui;
 static int ready, scene_id = -1, player_id, kills = -1, hits = -1, wave_mask;
 static float last_time;
+static void fire_binding(int,int,void*,void*);
 static AimHold shock, crew;
 static void *invoke(void *m, void *self, void **args, int *err) {
   void *ex = 0;
@@ -213,6 +214,7 @@ JNIEXPORT jint JNICALL Java_com_luna17_campaign_CampaignLoop_step(JNIEnv *env,
     shock = (AimHold){0};
     crew = (AimHold){0};
   }
+  if (idx < 8 || idx > 23) fire_binding(idx,-1,0,0);
   if (idx == 0) {
     void *m = find("Hatch Start GE");
     if (m)
@@ -220,8 +222,7 @@ JNIEXPORT jint JNICALL Java_com_luna17_campaign_CampaignLoop_step(JNIEnv *env,
     m = find("Hatch Start SO");
     return m ? begin(m, 0) : 0;
   }
-  if (idx != 22 && idx != 23 && (idx < 8 || idx > 19))
-    return 0;
+  if (idx != 22 && idx != 23 && (idx < 8 || idx > 19)) { fire_binding(idx,-1,0,0);return 0; }
   void *p = instance(paramc);
   int e = 0;
   void *mode = p ? call(paramc, p, "get_GameMode", 0, 0, &e) : 0;
@@ -231,9 +232,9 @@ JNIEXPORT jint JNICALL Java_com_luna17_campaign_CampaignLoop_step(JNIEnv *env,
     if (f == FIELD_GAMEPARAMMANAGER_GAMEMODE_K__BACKINGFIELD)
       modeValue = AT(p, f, int);
   }
-  if (modeValue != 0)
-    return 0; /* only local campaign */
-  void *gc = instance(controller);
+  void *gc = modeValue>=0 && modeValue!=2 ? instance(controller) : 0;
+  fire_binding(idx,modeValue,gc,gc && !blocked(statoff) ? AT(gc,statoff,void*) : 0);
+  if (modeValue != 0) return 0; /* mission logic: local campaign only */
   if (!gc || blocked(statoff) || blocked(boardoff))
     return 0;
   void *st = AT(gc, statoff, void *), *hud = AT(gc, boardoff, void *);
@@ -277,18 +278,33 @@ JNIEXPORT jint JNICALL Java_com_luna17_campaign_CampaignLoop_step(JNIEnv *env,
       }
   }
   if (hud && AT(hud, 16, void *) && idx >= 22) {
-    if (hi >= 16) {
-      int n = AT(hud, hi, int);
-      if (hits >= 0 && n > hits && out == 0)
-        out = 3;
-      hits = n;
-    }
-    if (ko >= 16) {
-      int n = AT(hud, ko, int);
-      if (kills >= 0 && n > kills && out == 0)
-        out = 6;
-      kills = n;
+    int h=hi>=16?AT(hud,hi,int):-1,k=ko>=16?AT(hud,ko,int):-1;
+    if(hits<0)hits=h;
+    if(kills<0)kills=k;
+    if(!out){
+      if(k>kills)out=6;
+      else if(h>hits)out=3;
+      hits=h;kills=k;
     }
   }
   return out;
 }
+
+JNIEXPORT jint JNICALL Java_com_luna17_campaign_CampaignLoop_extraSide(JNIEnv *env,jclass cls){
+  (void)env;(void)cls;
+  return (scene_id==22 || scene_id==23) && player_id ? scene_id-21 : 0;
+}
+JNIEXPORT jboolean JNICALL Java_com_luna17_campaign_CampaignLoop_postMessage(JNIEnv *env,jclass cls,jstring text,jint duration){
+  (void)cls;
+  if(!text || !ready || (scene_id!=22 && scene_id!=23) || blocked(boardoff))return JNI_FALSE;
+  void *gc=instance(controller), *hud=gc?AT(gc,boardoff,void*):0;
+  if(!hud || !AT(hud,16,void*))return JNI_FALSE;
+  const char *s=(*env)->GetStringUTFChars(env,text,0);
+  if(!s)return JNI_FALSE;
+  void *managed=ha_string(s);(*env)->ReleaseStringUTFChars(env,text,s);
+  if(!managed)return JNI_FALSE;
+  bool online=false;int seconds=duration,e=0;
+  void *args[]={managed,&seconds,&online};call(ui,hud,"SetMessageBox",3,args,&e);
+  return e?JNI_FALSE:JNI_TRUE;
+}
+#include "player_cannon.h"

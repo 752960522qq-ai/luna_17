@@ -47,5 +47,6 @@
   },
   "reloadNote": "Same input, 10-round magazine, interval, full reload and game ammunition profiles as the released Luchs. 180 total rounds; the 120/60 split is balance.",
   "continuousFire": true,
-  "ballistics": "physical"
+  "ballistics": "physical",
+  "fireController": "unity-button-magazine-v1"
 }

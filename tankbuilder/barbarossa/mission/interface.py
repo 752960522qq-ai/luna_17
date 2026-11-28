@@ -230,7 +230,7 @@ def battle_ui(link, home, txt, original_text, side):
     gt = parse_complete(src.objects[txt])
     gt.update(
         m_Name="Barbarossa 01 opening",
-        m_IsActive=True,
+        m_IsActive=False,
         m_Component=[{"component": pp(i)} for i in (r, rend, tx, timer)],
     )
     link.add(src.objects[txt], g, encode_complete(src.objects[txt], gt))

@@ -162,7 +162,7 @@ def outcome(
     return "playing"
 
 
-def verify(raw, prior, spec, names):
+def verify(raw, prior, spec, names, *, refreshed=()):
     from .release import Members
 
     b, old = Members(raw), Members(prior)
@@ -179,7 +179,7 @@ def verify(raw, prior, spec, names):
         "Wrong scene registration",
     )
     for n, t in old.members.items():
-        if n not in (
+        if n not in refreshed and n not in (
             "level0",
             "globalgamemanagers",
             "level22",
@@ -287,6 +287,7 @@ def verify_side(b, sf, spec, names, side, objective, h, lanes, srcs):
         and PTR.unpack_from(o.get_raw_data(), 0) == (0, spec["ui"]["opening"])
     )
     check_lettering(sf, names, bt)
+    require(not parse_complete(sf.objects[spec["ui"]["opening"]])["m_IsActive"], "Duplicate standalone opening banner")
     label = text_value(bt.get_raw_data())
     ff, fp = PTR.unpack_from(bt.get_raw_data(), 88)
     require(

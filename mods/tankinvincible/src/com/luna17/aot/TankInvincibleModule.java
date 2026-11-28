@@ -39,8 +39,9 @@ public final class TankInvincibleModule implements HatchModule, HatchFeatureHost
             if(mask!=0 && !NativeBridge.configureFilling(doc.getString("id"),grams,mask))return "装药配置无效";
         }
         JSONObject magazine = doc.optJSONObject("magazine");
-        if(!NativeBridge.configureContinuousFire(doc.getString("id"),doc.optBoolean("continuous_fire",magazine!=null),doc.optString("texture_uv_convention", "").contains("converted")))return "连发开关无效";
-        if (magazine != null && !NativeBridge.configureMagazine(doc.getString("id"),
+        boolean owned="unity-button-magazine-v1".equals(doc.optString("fire_controller","")) && CampaignSupport.controlsFire();
+        if(!NativeBridge.configureContinuousFire(doc.getString("id"),!owned && doc.optBoolean("continuous_fire",magazine!=null),doc.optString("texture_uv_convention", "").contains("converted")))return "连发开关无效";
+        if (!owned && magazine != null && !NativeBridge.configureMagazine(doc.getString("id"),
                 magazine.getInt("capacity"), (float)magazine.getDouble("shotInterval"),
                 (float)magazine.getDouble("reloadTime")))
             return "弹匣配置无效";

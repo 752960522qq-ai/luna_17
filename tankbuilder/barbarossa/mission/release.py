@@ -45,11 +45,14 @@ class Members:
         for n, c, mode in self.blocks:
             if offset < a + n and offset + size > a:
                 chunk = self.raw[b : b + c]
-                block = (
-                    chunk
-                    if mode & 63 == 0
-                    else lz4.block.decompress(chunk, uncompressed_size=n)
-                )
+                codec=mode & 63
+                if codec==0: block=chunk
+                elif codec==1:
+                    from UnityPy.helpers.CompressionHelper import decompress_lzma
+                    block=decompress_lzma(chunk)
+                elif codec in (2,3): block=lz4.block.decompress(chunk,uncompressed_size=n)
+                else: raise ValueError("Unknown UnityFS block codec")
+                require(len(block)==n,"Bad UnityFS decoded size")
                 buf.extend(block[max(0, offset - a) : min(n, offset + size - a)])
             if a + n >= offset + size:
                 break

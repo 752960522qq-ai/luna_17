@@ -8,7 +8,7 @@ import java.lang.reflect.Method;
  * APK.
  */
 final class CampaignSupport {
-  private static Method start, stop, clear, current, signal, radio;
+  private static Method start, stop, clear, current, signal, radio, extra, sendContact, controller;
   static {
     try {
       Class<?> c = Class.forName("com.luna17.campaign.CampaignLoop", false,
@@ -19,6 +19,8 @@ final class CampaignSupport {
       current = c.getMethod("current");
       signal = c.getMethod("signal", int.class);
       radio = c.getMethod("radio");
+      extra=c.getMethod("isExtra");sendContact=c.getMethod("contact",String.class);
+      controller=c.getMethod("supportsFireController");
     } catch (ReflectiveOperationException
                  ignored) { /* ordinary non-campaign build */
     }
@@ -32,6 +34,9 @@ final class CampaignSupport {
       }
     return null;
   }
+  static boolean isExtra() { return Boolean.TRUE.equals(run(extra)); }
+  static void contact(String text) { run(sendContact,text); }
+  static boolean controlsFire() { return controller!=null && Boolean.TRUE.equals(run(controller)); }
   static void start(Activity a) { run(start, a); }
   static void stop() { run(stop); }
   static void clear() { run(clear); }

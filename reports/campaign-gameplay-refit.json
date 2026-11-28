@@ -1,0 +1,124 @@
+{
+  "status": "passed",
+  "two_direct_entry_buttons": true,
+  "verified_fixed_menu_captions": 6,
+  "same_physical_deployment": true,
+  "reopened_native_scenes": {
+    "SO": {
+      "player": "T26",
+      "player_count": 1,
+      "dynamic_stock_message_font": true,
+      "distinct_t26_belt_meshes": 10,
+      "opening_ground_units": 14,
+      "second_wave_ground_units": 5,
+      "rear_t34_reserves": 2,
+      "native_aircraft": "Ju87-G_AI",
+      "activation_seconds": {
+        "wave2": 90.0,
+        "relief": 150.0,
+        "air": 78.0
+      },
+      "friendly_ai": 9,
+      "enemy_ai": 11,
+      "chassis": 21,
+      "camera_mount_in_scene_and_generator_prefab": "Turret/Gun",
+      "first_frame_camera_behind_player_m": 9,
+      "nearest_opposing_spawn_m": 567.14,
+      "verified_unit_references": 7463,
+      "verified_transforms": 11468,
+      "checked_driving_segments": 77,
+      "german_ai_routes_into_capture_volume": 5,
+      "objective_radius_m": 15.0,
+      "native_rule_input_checks": {
+        "start": "playing",
+        "friendly_enters": "playing",
+        "hostile_enters": "loss",
+        "wave_destroyed": "win"
+      },
+      "retry_scene_index": 22,
+      "scene_sha256": "2f7eb24c28b5f7b7cfa2d118040fba773165ee579d6334f21435dd636a4a7870"
+    },
+    "GE": {
+      "player": "Panzer_II_Ausf_F",
+      "player_count": 1,
+      "dynamic_stock_message_font": true,
+      "distinct_t26_belt_meshes": 10,
+      "opening_ground_units": 14,
+      "second_wave_ground_units": 5,
+      "rear_t34_reserves": 2,
+      "native_aircraft": "Il-2M3_AI",
+      "activation_seconds": {
+        "wave2": 90.0,
+        "relief": 150.0,
+        "air": 135.0
+      },
+      "friendly_ai": 10,
+      "enemy_ai": 10,
+      "chassis": 21,
+      "camera_mount_in_scene_and_generator_prefab": "Turret/Gun",
+      "first_frame_camera_behind_player_m": 9,
+      "nearest_opposing_spawn_m": 567.14,
+      "verified_unit_references": 7437,
+      "verified_transforms": 11422,
+      "checked_driving_segments": 74,
+      "german_ai_routes_into_capture_volume": 4,
+      "objective_radius_m": 15.0,
+      "native_rule_input_checks": {
+        "start": "playing",
+        "friendly_enters": "win",
+        "hostile_enters": "playing",
+        "wave_destroyed": "playing"
+      },
+      "retry_scene_index": 23,
+      "scene_sha256": "7d259e639fb475b3408ecfdace6c82cfb61199dfab044bef0cb846310f7d989c"
+    }
+  },
+  "prior_unmodified_members": 57,
+  "android_device_test": false,
+  "ai_nameplates": {
+    "Grille": "Grille 蟋蟀自行火炮",
+    "Matilda_III": "Matilda III",
+    "Panzer_II_Ausf_L": "Panzer II Ausf.L",
+    "SU_152": "SU-152",
+    "T26": "T-26",
+    "T30": "T30",
+    "T44_100": "T-44-100",
+    "T54_1949": "T‑54 (1949)",
+    "BT7": "BT-7 (1937)",
+    "Panzer_II_Ausf_F": "Panzer II Ausf.F",
+    "Panzer_IV_Ausf_C": "Panzer IV Ausf.C"
+  },
+  "storage": {
+    "identical_members": 74,
+    "stock_block_bytes_preserved": 126683554,
+    "menu_max_block_bytes": 131072,
+    "field_max_block_bytes": 4194304,
+    "vehicle_max_block_bytes": 16777216
+  },
+  "t26_deck": {
+    "deck_triangles_each_side": 174,
+    "hull_rotation_checks_degrees": [
+      -90,
+      90,
+      180
+    ],
+    "previous_rig_indices_preserved": 127
+  },
+  "inline_ai_labels": {
+    "SO": 12,
+    "GE": 12
+  },
+  "delivery": {
+    "base_commit": "5988af93a204bd2ae679d553f4397d45a5354fb6",
+    "unity_data_sha256": "864d6d724b60c37e8f37ca257b6464ef19e78f0d38a0793e1dac5f2869a9b7ad",
+    "apk_sha256": "eef56a9082fbb38997e462d4b7010ac3790dec3bae42ad79d337b54b483fb8b2",
+    "apk_bytes": 501636122,
+    "kit_sha256": "a1ba5751be4791fa25785047f2d918a1bfe161a4b5b0dc9f2da4a2c071a60be5",
+    "signing_cert_sha256": "734e17a0550eb23e3e5975dc90a7932eb513ee0e62ad4804b436cacd5f15413e",
+    "signature_schemes": [
+      "v2",
+      "v3"
+    ],
+    "zip_alignment": 16384
+  }
+}

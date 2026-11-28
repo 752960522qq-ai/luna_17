@@ -152,7 +152,10 @@ class BootLifecycle(unittest.TestCase):
                         *cls.out.rglob("*.java")], check=True)
         # A test JNI callback returns a fixed in-game message. No Unity/game binary is executed.
         subprocess.run(["cc", "-shared", "-fPIC", "-x", "c", "-", "-o", cls.out / "libhatchcampaign.so"],
-                       input="int Java_com_luna17_campaign_CampaignLoop_step(void *e, void *c){return 6;}", text=True, check=True)
+                       input="""int Java_com_luna17_campaign_CampaignLoop_step(void *e, void *c){return 6;}
+int Java_com_luna17_campaign_CampaignLoop_extraSide(void *e, void *c){return 1;}
+unsigned char Java_com_luna17_campaign_CampaignLoop_postMessage(void *e, void *c, void *s,int n){return 1;}
+unsigned char Java_com_luna17_campaign_CampaignLoop_autocannonFrame(void *e, void *c){return 0;}""", text=True, check=True)
 
     @classmethod
     def tearDownClass(cls):

@@ -37,11 +37,14 @@ def assemble(base, kit, out):
         catalog = json.loads(k.read(CAT))
         by = {v["id"]: v for v in catalog["mods"]}
         assert len(by) == len(catalog["mods"]) == 13
+        refit="assets/Hatch/mods/T26.hatch" in k.namelist()
         for item in old["mods"]:
-            if item["id"] != "tankinvincible3000":
+            if refit and item["id"] in ("T26","Panzer_II_Ausf_F"):
+                assert item==by[item["id"]] or item["sha256"] in by[item["id"]]["supersedes_sha256"]
+            elif item["id"] != "tankinvincible3000":
                 assert item == by[item["id"]]
         files = {n for n in k.namelist() if n.startswith("assets/Hatch/mods/")}
-        assert files == {
+        assert files == ({"assets/Hatch/mods/T26.hatch"} if refit else set()) | {
             CORE,
             *[
                 "assets/Hatch/mods/" + i + ".hatch"
